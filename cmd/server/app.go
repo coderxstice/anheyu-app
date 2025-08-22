@@ -269,6 +269,11 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	return app, cleanup, nil
 }
 
+// Engine 是一个访问器，它返回私有的 engine 字段。
+func (a *App) Engine() *gin.Engine {
+  return a.engine
+}
+
 func (a *App) Run() error {
 	a.taskBroker.RegisterCronJobs()
 	a.taskBroker.CheckAndRunMissedAggregation()
