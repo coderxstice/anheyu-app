@@ -1,4 +1,4 @@
-module anheyu-app
+module github.com/anzhiyu-c/anheyu-app
 
 go 1.24.4
 
