@@ -5,7 +5,7 @@ package privacy
 import (
 	"context"
 
-	"anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/ent"
 
 	"entgo.io/ent/privacy"
 )

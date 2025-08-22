@@ -3,7 +3,7 @@
 package ent
 
 import (
-	"anheyu-app/ent/linktag"
+	"github.com/anzhiyu-c/anheyu-app/ent/linktag"
 	"fmt"
 	"strings"
 

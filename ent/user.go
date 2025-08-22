@@ -3,8 +3,8 @@
 package ent
 
 import (
-	"anheyu-app/ent/user"
-	"anheyu-app/ent/usergroup"
+	"github.com/anzhiyu-c/anheyu-app/ent/user"
+	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
 	"fmt"
 	"strings"
 	"time"

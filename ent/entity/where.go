@@ -3,8 +3,8 @@
 package entity
 
 import (
-	"anheyu-app/ent/predicate"
-	"anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
 	"time"
 
 	"entgo.io/ent/dialect/sql"

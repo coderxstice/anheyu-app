@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"anheyu-app/internal/pkg/types"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/types"
 )
 
 // FileType 定义文件或目录的类型。

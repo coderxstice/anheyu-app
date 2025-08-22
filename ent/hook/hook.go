@@ -3,7 +3,7 @@
 package hook
 
 import (
-	"anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/ent"
 	"context"
 	"fmt"
 )

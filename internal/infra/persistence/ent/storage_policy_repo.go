@@ -8,14 +8,14 @@
 package ent
 
 import (
-	"anheyu-app/internal/constant"
-	"anheyu-app/internal/domain/model"
-	"anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/internal/constant"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
 	"context"
 	"fmt"
 
-	"anheyu-app/ent"
-	"anheyu-app/ent/storagepolicy"
+	"github.com/anzhiyu-c/anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/ent/storagepolicy"
 )
 
 type entStoragePolicyRepo struct {

@@ -8,7 +8,7 @@
 package schema
 
 import (
-	"anheyu-app/ent/schema/mixin"
+	"github.com/anzhiyu-c/anheyu-app/ent/schema/mixin"
 	"time"
 
 	"entgo.io/ent"

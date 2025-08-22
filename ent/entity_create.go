@@ -3,9 +3,9 @@
 package ent
 
 import (
-	"anheyu-app/ent/entity"
-	"anheyu-app/ent/fileentity"
-	"anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/ent/entity"
+	"github.com/anzhiyu-c/anheyu-app/ent/fileentity"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
 	"context"
 	"errors"
 	"fmt"

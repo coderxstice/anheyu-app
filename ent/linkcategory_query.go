@@ -3,9 +3,9 @@
 package ent
 
 import (
-	"anheyu-app/ent/link"
-	"anheyu-app/ent/linkcategory"
-	"anheyu-app/ent/predicate"
+	"github.com/anzhiyu-c/anheyu-app/ent/link"
+	"github.com/anzhiyu-c/anheyu-app/ent/linkcategory"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 	"context"
 	"database/sql/driver"
 	"fmt"

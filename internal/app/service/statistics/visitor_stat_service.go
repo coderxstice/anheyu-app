@@ -16,10 +16,10 @@ import (
 	"strings"
 	"time"
 
-	"anheyu-app/ent"
-	"anheyu-app/internal/app/service/utility"
-	"anheyu-app/internal/domain/model"
-	"anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/utility"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
 
 	"github.com/gin-gonic/gin"
 )

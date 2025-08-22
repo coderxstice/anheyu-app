@@ -8,9 +8,9 @@
 package task
 
 import (
-	"anheyu-app/internal/app/service/utility"
-	"anheyu-app/internal/domain/repository"
-	"anheyu-app/internal/pkg/idgen"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/utility"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/idgen"
 	"context"
 	"log"
 	"strings"

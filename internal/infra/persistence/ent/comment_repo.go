@@ -2,10 +2,10 @@
 package ent
 
 import (
-	"anheyu-app/ent"
-	entcomment "anheyu-app/ent/comment"
-	"anheyu-app/internal/domain/model"
-	"anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/ent"
+	entcomment "github.com/anzhiyu-c/anheyu-app/ent/comment"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
 	"context"
 	"fmt"
 	"log"

@@ -3,8 +3,8 @@
 package ent
 
 import (
-	"anheyu-app/ent/storagepolicy"
-	"anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/ent/storagepolicy"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
 	"fmt"
 	"strings"
 	"time"

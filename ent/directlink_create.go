@@ -3,8 +3,8 @@
 package ent
 
 import (
-	"anheyu-app/ent/directlink"
-	"anheyu-app/ent/file"
+	"github.com/anzhiyu-c/anheyu-app/ent/directlink"
+	"github.com/anzhiyu-c/anheyu-app/ent/file"
 	"context"
 	"errors"
 	"fmt"

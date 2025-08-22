@@ -8,10 +8,10 @@
 package ent
 
 import (
-	"anheyu-app/ent"
-	"anheyu-app/ent/postcategory"
-	"anheyu-app/ent/posttag"
-	"anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
+	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
 	"context"
 	"fmt"
 )

@@ -15,9 +15,9 @@ import (
 
 	"golang.org/x/net/html"
 
-	"anheyu-app/internal/app/service/setting"
-	"anheyu-app/internal/constant"
-	"anheyu-app/internal/pkg/event"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/setting"
+	"github.com/anzhiyu-c/anheyu-app/internal/constant"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/event"
 
 	"github.com/google/uuid"
 	"github.com/microcosm-cc/bluemonday"

@@ -11,7 +11,7 @@
 package thumbnail
 
 import (
-	"anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
 	"context"
 	"fmt"
 	"log"

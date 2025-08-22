@@ -8,8 +8,8 @@
 package utility
 
 import (
-	"anheyu-app/internal/app/service/setting"
-	"anheyu-app/internal/constant"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/setting"
+	"github.com/anzhiyu-c/anheyu-app/internal/constant"
 	"encoding/json"
 	"fmt"
 	"log"

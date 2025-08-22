@@ -8,9 +8,9 @@
 package user
 
 import (
-	"anheyu-app/internal/domain/model"
-	"anheyu-app/internal/domain/repository"
-	"anheyu-app/internal/pkg/security"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/security"
 	"context"
 	"fmt"
 )

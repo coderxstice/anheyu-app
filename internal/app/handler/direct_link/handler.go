@@ -1,13 +1,13 @@
 package direct_link_handler
 
 import (
-	"anheyu-app/internal/app/service/direct_link"
-	"anheyu-app/internal/constant"
-	"anheyu-app/internal/infra/storage"
-	"anheyu-app/internal/pkg/auth"
-	"anheyu-app/internal/pkg/idgen"
-	"anheyu-app/internal/pkg/response"
-	"anheyu-app/internal/pkg/utils"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/direct_link"
+	"github.com/anzhiyu-c/anheyu-app/internal/constant"
+	"github.com/anzhiyu-c/anheyu-app/internal/infra/storage"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/auth"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/idgen"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/response"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/utils"
 	"fmt"
 	"log"
 	"net/http"

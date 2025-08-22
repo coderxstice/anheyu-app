@@ -13,10 +13,10 @@ import (
 	"strconv"
 	"strings"
 
-	"anheyu-app/internal/app/service/setting"
-	"anheyu-app/internal/constant"
-	"anheyu-app/internal/domain/model"
-	"anheyu-app/internal/pkg/parser"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/setting"
+	"github.com/anzhiyu-c/anheyu-app/internal/constant"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/parser"
 )
 
 // EmailService 定义了发送业务邮件的接口

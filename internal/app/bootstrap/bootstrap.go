@@ -9,15 +9,15 @@ import (
 	"path/filepath"
 	"strings"
 
-	"anheyu-app/ent"
-	"anheyu-app/ent/link"
-	"anheyu-app/ent/linkcategory" // 导入 linkcategory 包
-	"anheyu-app/ent/setting"
-	"anheyu-app/ent/usergroup"
-	"anheyu-app/internal/configdef"
-	"anheyu-app/internal/constant"
-	"anheyu-app/internal/domain/model"
-	"anheyu-app/internal/pkg/utils"
+	"github.com/anzhiyu-c/anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/ent/link"
+	"github.com/anzhiyu-c/anheyu-app/ent/linkcategory" // 导入 linkcategory 包
+	"github.com/anzhiyu-c/anheyu-app/ent/setting"
+	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
+	"github.com/anzhiyu-c/anheyu-app/internal/configdef"
+	"github.com/anzhiyu-c/anheyu-app/internal/constant"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/utils"
 )
 
 type Bootstrapper struct {

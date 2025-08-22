@@ -18,13 +18,13 @@ import (
 	"strings"
 	"time"
 
-	"anheyu-app/internal/app/service/setting"
-	"anheyu-app/internal/app/service/utility"
-	"anheyu-app/internal/app/service/volume/strategy"
-	"anheyu-app/internal/constant"
-	"anheyu-app/internal/domain/model"
-	"anheyu-app/internal/domain/repository"
-	"anheyu-app/internal/pkg/idgen"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/setting"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/utility"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/volume/strategy"
+	"github.com/anzhiyu-c/anheyu-app/internal/constant"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/idgen"
 )
 
 const (

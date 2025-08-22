@@ -2,14 +2,14 @@
 package task
 
 import (
-	"anheyu-app/ent"
-	"anheyu-app/internal/app/service/cleanup"
-	"anheyu-app/internal/app/service/file"
-	"anheyu-app/internal/app/service/setting"
-	"anheyu-app/internal/app/service/statistics"
-	"anheyu-app/internal/app/service/thumbnail"
-	"anheyu-app/internal/app/service/utility"
-	"anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/cleanup"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/file"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/setting"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/statistics"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/thumbnail"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/utility"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
 	"context"
 	"log/slog"
 	"os"

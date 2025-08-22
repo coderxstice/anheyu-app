@@ -1,15 +1,15 @@
 package ent
 
 import (
-	"anheyu-app/internal/domain/model"
-	"anheyu-app/internal/domain/repository"
-	"anheyu-app/internal/pkg/idgen"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/idgen"
 	"context"
 	"errors"
 	"fmt"
 
-	"anheyu-app/ent"
-	"anheyu-app/ent/directlink"
+	"github.com/anzhiyu-c/anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/ent/directlink"
 
 	"entgo.io/ent/dialect/sql"
 )

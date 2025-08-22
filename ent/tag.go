@@ -3,7 +3,7 @@
 package ent
 
 import (
-	"anheyu-app/ent/tag"
+	"github.com/anzhiyu-c/anheyu-app/ent/tag"
 	"fmt"
 	"strings"
 	"time"

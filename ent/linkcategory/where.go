@@ -3,7 +3,7 @@
 package linkcategory
 
 import (
-	"anheyu-app/ent/predicate"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

@@ -3,7 +3,7 @@
 package ent
 
 import (
-	"anheyu-app/ent/linkcategory"
+	"github.com/anzhiyu-c/anheyu-app/ent/linkcategory"
 	"fmt"
 	"strings"
 

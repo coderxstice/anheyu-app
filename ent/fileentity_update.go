@@ -3,10 +3,10 @@
 package ent
 
 import (
-	"anheyu-app/ent/entity"
-	"anheyu-app/ent/file"
-	"anheyu-app/ent/fileentity"
-	"anheyu-app/ent/predicate"
+	"github.com/anzhiyu-c/anheyu-app/ent/entity"
+	"github.com/anzhiyu-c/anheyu-app/ent/file"
+	"github.com/anzhiyu-c/anheyu-app/ent/fileentity"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 	"context"
 	"errors"
 	"fmt"

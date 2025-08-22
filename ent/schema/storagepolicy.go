@@ -10,8 +10,8 @@ package schema
 import (
 	"time"
 
-	"anheyu-app/ent/schema/mixin"
-	"anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/ent/schema/mixin"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"

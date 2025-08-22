@@ -3,8 +3,8 @@
 package ent
 
 import (
-	"anheyu-app/ent/posttag"
-	"anheyu-app/ent/predicate"
+	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 	"context"
 
 	"entgo.io/ent/dialect/sql"

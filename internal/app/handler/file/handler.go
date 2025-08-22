@@ -9,8 +9,8 @@
 package file
 
 import (
-	file_service "anheyu-app/internal/app/service/file"
-	"anheyu-app/internal/app/service/setting"
+	file_service "github.com/anzhiyu-c/anheyu-app/internal/app/service/file"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/setting"
 )
 
 // Handler 负责处理所有与文件相关的HTTP请求

@@ -1,11 +1,11 @@
 package ent
 
 import (
-	"anheyu-app/ent"
-	"anheyu-app/ent/posttag"
-	"anheyu-app/internal/domain/model"
-	"anheyu-app/internal/domain/repository"
-	"anheyu-app/internal/pkg/idgen"
+	"github.com/anzhiyu-c/anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/idgen"
 	"context"
 	"fmt"
 

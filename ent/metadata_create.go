@@ -3,8 +3,8 @@
 package ent
 
 import (
-	"anheyu-app/ent/file"
-	"anheyu-app/ent/metadata"
+	"github.com/anzhiyu-c/anheyu-app/ent/file"
+	"github.com/anzhiyu-c/anheyu-app/ent/metadata"
 	"context"
 	"errors"
 	"fmt"

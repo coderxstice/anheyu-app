@@ -3,11 +3,11 @@
 package ent
 
 import (
-	"anheyu-app/ent/article"
-	"anheyu-app/ent/comment"
-	"anheyu-app/ent/postcategory"
-	"anheyu-app/ent/posttag"
-	"anheyu-app/ent/predicate"
+	"github.com/anzhiyu-c/anheyu-app/ent/article"
+	"github.com/anzhiyu-c/anheyu-app/ent/comment"
+	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
+	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 	"context"
 	"database/sql/driver"
 	"fmt"

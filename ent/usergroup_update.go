@@ -3,10 +3,10 @@
 package ent
 
 import (
-	"anheyu-app/ent/predicate"
-	"anheyu-app/ent/user"
-	"anheyu-app/ent/usergroup"
-	"anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
+	"github.com/anzhiyu-c/anheyu-app/ent/user"
+	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
 	"context"
 	"errors"
 	"fmt"

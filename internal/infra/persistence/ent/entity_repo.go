@@ -1,15 +1,15 @@
 package ent
 
 import (
-	"anheyu-app/internal/domain/model"
-	"anheyu-app/internal/domain/repository"
-	"anheyu-app/internal/pkg/types"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/types"
 	"context"
 	"fmt"
 	"time"
 
-	"anheyu-app/ent"
-	"anheyu-app/ent/entity"
+	"github.com/anzhiyu-c/anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/ent/entity"
 )
 
 // entEntityRepository 是 EntityRepository 接口的 Ent 实现。

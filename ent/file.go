@@ -3,10 +3,10 @@
 package ent
 
 import (
-	"anheyu-app/ent/directlink"
-	"anheyu-app/ent/entity"
-	"anheyu-app/ent/file"
-	"anheyu-app/ent/user"
+	"github.com/anzhiyu-c/anheyu-app/ent/directlink"
+	"github.com/anzhiyu-c/anheyu-app/ent/entity"
+	"github.com/anzhiyu-c/anheyu-app/ent/file"
+	"github.com/anzhiyu-c/anheyu-app/ent/user"
 	"fmt"
 	"strings"
 	"time"

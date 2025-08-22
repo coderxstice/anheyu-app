@@ -8,7 +8,7 @@
 package model
 
 import (
-	"anheyu-app/internal/pkg/types"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/types"
 	"database/sql" // 导入 database/sql 用于 sql.NullString
 	"time"         // 导入 time 包
 )

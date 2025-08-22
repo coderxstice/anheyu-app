@@ -11,7 +11,7 @@ import (
 	"embed"
 	"log"
 
-	"anheyu-app/cmd/server"
+	"github.com/anzhiyu-c/anheyu-app/cmd/server"
 )
 
 //go:embed assets/dist

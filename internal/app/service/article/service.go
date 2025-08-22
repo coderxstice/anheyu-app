@@ -3,16 +3,16 @@ package article
 
 import (
 	// 导入我们新的、功能强大的解析器服务
-	"anheyu-app/internal/app/service/direct_link"
-	"anheyu-app/internal/app/service/file"
-	appParser "anheyu-app/internal/app/service/parser"
-	"anheyu-app/internal/app/service/setting"
-	"anheyu-app/internal/app/service/utility"
-	"anheyu-app/internal/app/task"
-	"anheyu-app/internal/constant"
-	"anheyu-app/internal/domain/model"
-	"anheyu-app/internal/domain/repository"
-	"anheyu-app/internal/pkg/idgen"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/direct_link"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/file"
+	appParser "github.com/anzhiyu-c/anheyu-app/internal/app/service/parser"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/setting"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/utility"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/task"
+	"github.com/anzhiyu-c/anheyu-app/internal/constant"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/idgen"
 	"io"
 	"path"
 

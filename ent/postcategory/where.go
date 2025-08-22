@@ -3,7 +3,7 @@
 package postcategory
 
 import (
-	"anheyu-app/ent/predicate"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 	"time"
 
 	"entgo.io/ent/dialect/sql"

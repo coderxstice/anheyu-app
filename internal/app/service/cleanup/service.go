@@ -8,7 +8,7 @@
 package cleanup
 
 import (
-	"anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
 	"context"
 	"fmt"
 )

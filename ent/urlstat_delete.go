@@ -3,8 +3,8 @@
 package ent
 
 import (
-	"anheyu-app/ent/predicate"
-	"anheyu-app/ent/urlstat"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
+	"github.com/anzhiyu-c/anheyu-app/ent/urlstat"
 	"context"
 
 	"entgo.io/ent/dialect/sql"

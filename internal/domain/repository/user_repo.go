@@ -10,7 +10,7 @@ package repository
 import (
 	"context"
 
-	"anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
 )
 
 // UserRepository 定义了所有用户数据操作的契约。

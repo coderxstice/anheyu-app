@@ -1,12 +1,12 @@
 package file
 
 import (
-	"anheyu-app/internal/constant"
-	"anheyu-app/internal/domain/model"
-	"anheyu-app/internal/domain/repository"
-	"anheyu-app/internal/pkg/idgen"
-	"anheyu-app/internal/pkg/types"
-	"anheyu-app/internal/pkg/uri"
+	"github.com/anzhiyu-c/anheyu-app/internal/constant"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/idgen"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/types"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/uri"
 	"bytes"
 	"context"
 	"database/sql"

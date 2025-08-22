@@ -55,7 +55,7 @@ func ValidColumn(column string) bool {
 // package on the initialization of the application. Therefore,
 // it should be imported in the main as follows:
 //
-//	import _ "anheyu-app/ent/runtime"
+//	import _ "github.com/anzhiyu-c/anheyu-app/ent/runtime"
 var (
 	Hooks [1]ent.Hook
 	// ConfigKeyValidator is a validator for the "config_key" field. It is called by the builders before save.

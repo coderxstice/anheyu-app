@@ -8,12 +8,12 @@
 package ent
 
 import (
-	"anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
 	"context"
 	"database/sql"
 	"fmt"
 
-	"anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/ent"
 )
 
 // entTransactionManager 是最终的、完全基于 Ent 的事务管理器实现。

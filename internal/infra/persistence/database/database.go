@@ -17,8 +17,8 @@ import (
 	"strings"
 	"time"
 
-	"anheyu-app/ent"
-	"anheyu-app/internal/infra/config"
+	"github.com/anzhiyu-c/anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/internal/infra/config"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"

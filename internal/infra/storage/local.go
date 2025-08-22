@@ -2,8 +2,8 @@
 package storage
 
 import (
-	"anheyu-app/internal/constant"
-	"anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/constant"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"

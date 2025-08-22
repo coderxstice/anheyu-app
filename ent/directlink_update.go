@@ -3,9 +3,9 @@
 package ent
 
 import (
-	"anheyu-app/ent/directlink"
-	"anheyu-app/ent/file"
-	"anheyu-app/ent/predicate"
+	"github.com/anzhiyu-c/anheyu-app/ent/directlink"
+	"github.com/anzhiyu-c/anheyu-app/ent/file"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 	"context"
 	"errors"
 	"fmt"

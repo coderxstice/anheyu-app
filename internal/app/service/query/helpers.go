@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"strings"
 
-	"anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
 )
 
 // ApplySorting 对文件列表进行排序

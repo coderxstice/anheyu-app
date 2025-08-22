@@ -3,7 +3,7 @@
 package ent
 
 import (
-	"anheyu-app/ent/visitorlog"
+	"github.com/anzhiyu-c/anheyu-app/ent/visitorlog"
 	"fmt"
 	"strings"
 	"time"

@@ -14,8 +14,8 @@ import (
 	"strings"
 	"time"
 
-	"anheyu-app/internal/app/service/album"
-	"anheyu-app/internal/pkg/response"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/album"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )

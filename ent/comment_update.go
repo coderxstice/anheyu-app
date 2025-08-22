@@ -3,9 +3,9 @@
 package ent
 
 import (
-	"anheyu-app/ent/comment"
-	"anheyu-app/ent/predicate"
-	"anheyu-app/ent/user"
+	"github.com/anzhiyu-c/anheyu-app/ent/comment"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
+	"github.com/anzhiyu-c/anheyu-app/ent/user"
 	"context"
 	"errors"
 	"fmt"

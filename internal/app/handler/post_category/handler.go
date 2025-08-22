@@ -1,11 +1,11 @@
 package post_category
 
 import (
-	"anheyu-app/internal/domain/model"
-	"anheyu-app/internal/pkg/response"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/response"
 	"net/http"
 
-	post_category_service "anheyu-app/internal/app/service/post_category"
+	post_category_service "github.com/anzhiyu-c/anheyu-app/internal/app/service/post_category"
 
 	"github.com/gin-gonic/gin"
 )

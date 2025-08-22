@@ -5,11 +5,11 @@ package enttest
 import (
 	"context"
 
-	"anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/ent"
 	// required by schema hooks.
-	_ "anheyu-app/ent/runtime"
+	_ "github.com/anzhiyu-c/anheyu-app/ent/runtime"
 
-	"anheyu-app/ent/migrate"
+	"github.com/anzhiyu-c/anheyu-app/ent/migrate"
 
 	"entgo.io/ent/dialect/sql/schema"
 )

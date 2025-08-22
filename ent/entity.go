@@ -3,8 +3,8 @@
 package ent
 
 import (
-	"anheyu-app/ent/entity"
-	"anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/ent/entity"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
 	"fmt"
 	"strings"
 	"time"

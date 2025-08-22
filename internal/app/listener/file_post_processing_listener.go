@@ -8,9 +8,9 @@
 package listener
 
 import (
-	"anheyu-app/internal/app/service/file_info"
-	"anheyu-app/internal/app/task"
-	"anheyu-app/internal/pkg/event"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/file_info"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/task"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/event"
 	"context"
 	"log"
 )

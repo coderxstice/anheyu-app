@@ -8,7 +8,7 @@
 package model
 
 import (
-	"anheyu-app/internal/constant"
+	"github.com/anzhiyu-c/anheyu-app/internal/constant"
 	"database/sql/driver"
 	"encoding/json"
 	"errors"

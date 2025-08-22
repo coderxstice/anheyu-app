@@ -2,12 +2,12 @@
 package comment
 
 import (
-	"anheyu-app/ent"
-	"anheyu-app/internal/app/handler/comment/dto"
-	"anheyu-app/internal/app/service/comment"
-	"anheyu-app/internal/constant"
-	"anheyu-app/internal/pkg/auth"
-	"anheyu-app/internal/pkg/response"
+	"github.com/anzhiyu-c/anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/handler/comment/dto"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/comment"
+	"github.com/anzhiyu-c/anheyu-app/internal/constant"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/auth"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/response"
 	"errors"
 	"fmt"
 	"net/http"

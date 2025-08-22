@@ -3,8 +3,8 @@
 package ent
 
 import (
-	"anheyu-app/ent/article"
-	"anheyu-app/ent/postcategory"
+	"github.com/anzhiyu-c/anheyu-app/ent/article"
+	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
 	"context"
 	"errors"
 	"fmt"

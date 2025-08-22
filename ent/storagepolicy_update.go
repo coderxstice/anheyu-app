@@ -3,9 +3,9 @@
 package ent
 
 import (
-	"anheyu-app/ent/predicate"
-	"anheyu-app/ent/storagepolicy"
-	"anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
+	"github.com/anzhiyu-c/anheyu-app/ent/storagepolicy"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
 	"context"
 	"errors"
 	"fmt"

@@ -6,11 +6,11 @@ import (
 	"strings"
 	"time"
 
-	"anheyu-app/internal/app/service/auth"
-	"anheyu-app/internal/app/service/setting"
-	"anheyu-app/internal/constant"
-	"anheyu-app/internal/pkg/idgen"
-	"anheyu-app/internal/pkg/response"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/auth"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/setting"
+	"github.com/anzhiyu-c/anheyu-app/internal/constant"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/idgen"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )

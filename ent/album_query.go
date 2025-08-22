@@ -3,8 +3,8 @@
 package ent
 
 import (
-	"anheyu-app/ent/album"
-	"anheyu-app/ent/predicate"
+	"github.com/anzhiyu-c/anheyu-app/ent/album"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 	"context"
 	"fmt"
 	"math"

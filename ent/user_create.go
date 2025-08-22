@@ -3,10 +3,10 @@
 package ent
 
 import (
-	"anheyu-app/ent/comment"
-	"anheyu-app/ent/file"
-	"anheyu-app/ent/user"
-	"anheyu-app/ent/usergroup"
+	"github.com/anzhiyu-c/anheyu-app/ent/comment"
+	"github.com/anzhiyu-c/anheyu-app/ent/file"
+	"github.com/anzhiyu-c/anheyu-app/ent/user"
+	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
 	"context"
 	"errors"
 	"fmt"

@@ -3,13 +3,13 @@
 package ent
 
 import (
-	"anheyu-app/ent/directlink"
-	"anheyu-app/ent/entity"
-	"anheyu-app/ent/file"
-	"anheyu-app/ent/fileentity"
-	"anheyu-app/ent/metadata"
-	"anheyu-app/ent/predicate"
-	"anheyu-app/ent/user"
+	"github.com/anzhiyu-c/anheyu-app/ent/directlink"
+	"github.com/anzhiyu-c/anheyu-app/ent/entity"
+	"github.com/anzhiyu-c/anheyu-app/ent/file"
+	"github.com/anzhiyu-c/anheyu-app/ent/fileentity"
+	"github.com/anzhiyu-c/anheyu-app/ent/metadata"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
+	"github.com/anzhiyu-c/anheyu-app/ent/user"
 	"context"
 	"database/sql/driver"
 	"fmt"

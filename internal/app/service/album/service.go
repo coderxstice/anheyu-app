@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"anheyu-app/internal/app/service/setting"
-	"anheyu-app/internal/constant"
-	"anheyu-app/internal/domain/model"
-	"anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/setting"
+	"github.com/anzhiyu-c/anheyu-app/internal/constant"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
 )
 
 // CreateAlbumParams 定义了创建相册时需要的参数

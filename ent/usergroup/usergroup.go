@@ -3,7 +3,7 @@
 package usergroup
 
 import (
-	"anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
 	"time"
 
 	"entgo.io/ent"
@@ -75,7 +75,7 @@ func ValidColumn(column string) bool {
 // package on the initialization of the application. Therefore,
 // it should be imported in the main as follows:
 //
-//	import _ "anheyu-app/ent/runtime"
+//	import _ "github.com/anzhiyu-c/anheyu-app/ent/runtime"
 var (
 	Hooks [1]ent.Hook
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.

@@ -11,8 +11,8 @@ import (
 	"context"
 	"time"
 
-	"anheyu-app/ent"
-	"anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
 )
 
 // VisitorStatRepository 访问统计仓储接口

@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"time"
 
-	"anheyu-app/internal/pkg/idgen"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/idgen"
 
 	"github.com/golang-jwt/jwt/v5"
 )

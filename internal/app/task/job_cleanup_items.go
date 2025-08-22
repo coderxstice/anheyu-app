@@ -8,7 +8,7 @@
 package task
 
 import (
-	"anheyu-app/internal/app/service/cleanup"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/cleanup"
 	"context"
 	"log"
 )

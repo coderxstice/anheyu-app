@@ -1,13 +1,13 @@
 package ent
 
 import (
-	"anheyu-app/internal/domain/model"
-	"anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
 	"context"
 	"fmt"
 
-	"anheyu-app/ent"
-	"anheyu-app/ent/setting"
+	"github.com/anzhiyu-c/anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/ent/setting"
 )
 
 // entSettingRepository 是 SettingRepository 接口的 Ent 实现

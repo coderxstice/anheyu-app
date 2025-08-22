@@ -1,12 +1,12 @@
 package ent
 
 import (
-	"anheyu-app/internal/domain/model"
-	"anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
 	"context"
 
-	"anheyu-app/ent"
-	"anheyu-app/ent/usergroup"
+	"github.com/anzhiyu-c/anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
 )
 
 // entUserGroupRepository 是 UserGroupRepository 接口的 Ent 实现

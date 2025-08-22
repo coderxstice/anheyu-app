@@ -13,12 +13,12 @@ import (
 	"regexp"
 	"strings"
 
-	article_service "anheyu-app/internal/app/service/article"
-	"anheyu-app/internal/app/service/setting"
-	"anheyu-app/internal/constant"
-	"anheyu-app/internal/pkg/parser"
-	"anheyu-app/internal/pkg/response"
-	"anheyu-app/internal/pkg/strutil"
+	article_service "github.com/anzhiyu-c/anheyu-app/internal/app/service/article"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/setting"
+	"github.com/anzhiyu-c/anheyu-app/internal/constant"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/parser"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/response"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/strutil"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/render"

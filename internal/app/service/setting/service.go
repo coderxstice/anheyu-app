@@ -9,9 +9,9 @@ import (
 	"strings"
 	"sync"
 
-	"anheyu-app/internal/configdef"
-	"anheyu-app/internal/domain/repository"
-	"anheyu-app/internal/pkg/event"
+	"github.com/anzhiyu-c/anheyu-app/internal/configdef"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/event"
 )
 
 // TopicSettingUpdated 定义了配置更新事件的主题（Topic）

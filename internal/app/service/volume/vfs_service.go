@@ -18,12 +18,12 @@ import (
 	"strings"
 	"time"
 
-	"anheyu-app/internal/app/service/setting"
-	"anheyu-app/internal/app/service/utility"
-	"anheyu-app/internal/constant"
-	"anheyu-app/internal/domain/model"
-	"anheyu-app/internal/domain/repository"
-	"anheyu-app/internal/infra/storage"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/setting"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/utility"
+	"github.com/anzhiyu-c/anheyu-app/internal/constant"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/internal/infra/storage"
 )
 
 // IVFSService 定义了虚拟文件系统服务的接口，专门负责路径解析、策略匹配和文件访问。

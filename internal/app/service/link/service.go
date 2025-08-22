@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	"anheyu-app/internal/app/task"
-	"anheyu-app/internal/domain/model"
-	"anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/task"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
 )
 
 // Service 定义了友链相关的业务逻辑接口。

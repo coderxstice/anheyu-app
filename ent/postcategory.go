@@ -3,7 +3,7 @@
 package ent
 
 import (
-	"anheyu-app/ent/postcategory"
+	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
 	"fmt"
 	"strings"
 	"time"

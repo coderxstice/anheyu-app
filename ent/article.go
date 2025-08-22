@@ -3,7 +3,7 @@
 package ent
 
 import (
-	"anheyu-app/ent/article"
+	"github.com/anzhiyu-c/anheyu-app/ent/article"
 	"encoding/json"
 	"fmt"
 	"strings"

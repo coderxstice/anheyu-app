@@ -9,7 +9,7 @@
 package task
 
 import (
-	"anheyu-app/internal/app/service/thumbnail"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/thumbnail"
 	"context"
 	"fmt"
 	"time"

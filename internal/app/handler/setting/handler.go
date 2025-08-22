@@ -8,10 +8,10 @@
 package setting_handler
 
 import (
-	"anheyu-app/internal/app/handler/setting/dto"
-	"anheyu-app/internal/app/service/setting"
-	"anheyu-app/internal/app/service/utility"
-	"anheyu-app/internal/pkg/response"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/handler/setting/dto"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/setting"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/utility"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/response"
 	"log"
 	"net/http"
 

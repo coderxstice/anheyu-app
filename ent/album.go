@@ -3,7 +3,7 @@
 package ent
 
 import (
-	"anheyu-app/ent/album"
+	"github.com/anzhiyu-c/anheyu-app/ent/album"
 	"fmt"
 	"strings"
 	"time"

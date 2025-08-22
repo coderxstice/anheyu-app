@@ -11,10 +11,10 @@ import (
 	"context"
 	"time"
 
-	"anheyu-app/ent"
-	"anheyu-app/ent/visitorlog"
-	"anheyu-app/internal/domain/model"
-	"anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/ent/visitorlog"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
 )
 
 type entVisitorLogRepository struct {

@@ -7,7 +7,7 @@
 package strategy
 
 import (
-	"anheyu-app/internal/constant"
+	"github.com/anzhiyu-c/anheyu-app/internal/constant"
 	"fmt"
 	"sync"
 )

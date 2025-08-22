@@ -3,9 +3,9 @@
 package ent
 
 import (
-	"anheyu-app/ent/article"
-	"anheyu-app/ent/posttag"
-	"anheyu-app/ent/predicate"
+	"github.com/anzhiyu-c/anheyu-app/ent/article"
+	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 	"context"
 	"database/sql/driver"
 	"fmt"

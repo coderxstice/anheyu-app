@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"anheyu-app/internal/app/service/link"
-	"anheyu-app/internal/domain/model"
-	"anheyu-app/internal/pkg/response"
+	"github.com/anzhiyu-c/anheyu-app/internal/app/service/link"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/response"
 
 	"github.com/gin-gonic/gin"
 )

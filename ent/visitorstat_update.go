@@ -3,8 +3,8 @@
 package ent
 
 import (
-	"anheyu-app/ent/predicate"
-	"anheyu-app/ent/visitorstat"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
+	"github.com/anzhiyu-c/anheyu-app/ent/visitorstat"
 	"context"
 	"errors"
 	"fmt"

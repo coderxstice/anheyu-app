@@ -1,11 +1,11 @@
 package post_tag
 
 import (
-	"anheyu-app/internal/domain/model"
-	"anheyu-app/internal/pkg/response"
+	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/response"
 	"net/http"
 
-	post_tag_service "anheyu-app/internal/app/service/post_tag"
+	post_tag_service "github.com/anzhiyu-c/anheyu-app/internal/app/service/post_tag"
 
 	"github.com/gin-gonic/gin"
 )
