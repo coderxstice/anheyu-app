@@ -30,7 +30,7 @@ import (
 )
 
 type Service interface {
-	UploadArticleImage(ctx context.Context, ownerID uint, fileReader io.Reader, originalFilename string) (string, error)
+	UploadArticleImage(ctx context.Context, ownerID uint, fileReader io.Reader, originalFilename string) (fileURL string, publicFileID string, err error)
 	Create(ctx context.Context, req *model.CreateArticleRequest, ip string) (*model.ArticleResponse, error)
 	Get(ctx context.Context, publicID string) (*model.ArticleResponse, error)
 	Update(ctx context.Context, publicID string, req *model.UpdateArticleRequest, ip string) (*model.ArticleResponse, error)
@@ -91,7 +91,7 @@ func NewService(
 // --- 以下所有方法，接收者都从 *Service 修改为 *serviceImpl ---
 
 // UploadArticleImage 处理文章图片的上传，并为其创建直链。
-func (s *serviceImpl) UploadArticleImage(ctx context.Context, ownerID uint, fileReader io.Reader, originalFilename string) (string, error) {
+func (s *serviceImpl) UploadArticleImage(ctx context.Context, ownerID uint, fileReader io.Reader, originalFilename string) (string, string, error) {
 	ext := path.Ext(originalFilename)
 	uniqueFilename := strconv.FormatInt(time.Now().UnixNano(), 10) + ext
 
@@ -99,7 +99,7 @@ func (s *serviceImpl) UploadArticleImage(ctx context.Context, ownerID uint, file
 	fileItem, err := s.fileSvc.UploadFileByPolicyFlag(ctx, ownerID, fileReader, constant.PolicyFlagArticleImage, uniqueFilename)
 	if err != nil {
 		log.Printf("[文章图片上传] 调用 fileSvc.UploadFileByPolicyFlag 失败: %v", err)
-		return "", fmt.Errorf("文件上传到系统策略失败: %w", err)
+		return "", "", fmt.Errorf("文件上传到系统策略失败: %w", err)
 	}
 	log.Printf("[文章图片上传] 文件上传成功，新文件公共ID: %s", fileItem.ID)
 
@@ -107,28 +107,28 @@ func (s *serviceImpl) UploadArticleImage(ctx context.Context, ownerID uint, file
 	dbFileID, _, err := idgen.DecodePublicID(fileItem.ID)
 	if err != nil {
 		log.Printf("[文章图片上传] 解码文件公共ID '%s' 失败: %v", fileItem.ID, err)
-		return "", fmt.Errorf("无效的文件ID: %w", err)
+		return "", "", fmt.Errorf("无效的文件ID: %w", err)
 	}
 
 	// 3. 为上传成功的文件创建直链
 	linksMap, err := s.directLinkSvc.GetOrCreateDirectLinks(ctx, ownerID, []uint{dbFileID})
 	if err != nil {
 		log.Printf("[文章图片上传] 为文件 %d 创建直链时发生错误: %v", dbFileID, err)
-		return "", fmt.Errorf("创建直链失败: %w", err)
+		return "", "", fmt.Errorf("创建直链失败: %w", err)
 	}
 
 	// 4. 从 map 中通过文件数据库ID获取对应的结果
 	linkResult, ok := linksMap[dbFileID]
 	if !ok || linkResult.URL == "" {
 		log.Printf("[文章图片上传] directLinkSvc 未能返回文件 %d 的直链结果", dbFileID)
-		return "", fmt.Errorf("获取直链URL失败")
+		return "", "", fmt.Errorf("获取直链URL失败")
 	}
 
 	// 5. 直接使用 service 返回的、已经构建好的完整 URL
 	finalURL := linkResult.URL
 	log.Printf("[文章图片上传] 成功获取最终直链URL: %s", finalURL)
 
-	return finalURL, nil
+	return finalURL, fileItem.ID, nil
 }
 
 // 从图片URL获取主色调的私有辅助函数

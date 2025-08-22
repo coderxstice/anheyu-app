@@ -70,17 +70,18 @@ func (h *Handler) UploadImage(c *gin.Context) {
 
 	// 4. 调用Service层处理业务逻辑
 	log.Printf("[Handler.UploadImage] 开始调用Service层处理图片上传")
-	directLinkURL, err := h.svc.UploadArticleImage(c.Request.Context(), ownerID, fileReader, fileHeader.Filename)
+	directLinkURL, publicFileID, err := h.svc.UploadArticleImage(c.Request.Context(), ownerID, fileReader, fileHeader.Filename)
 	if err != nil {
 		log.Printf("[Handler.UploadImage] Service处理失败: %v", err)
 		response.Fail(c, http.StatusInternalServerError, "图片上传失败")
 		return
 	}
-	log.Printf("[Handler.UploadImage] 图片上传成功, URL: %s", directLinkURL)
+	log.Printf("[Handler.UploadImage] 图片上传成功, URL: %s, 文件ID: %s", directLinkURL, publicFileID)
 
-	// 5. 成功响应，返回直链URL
+	// 5. 成功响应，返回直链URL和文件公共ID
 	response.Success(c, gin.H{
-		"url": directLinkURL,
+		"url":     directLinkURL,
+		"file_id": publicFileID,
 	}, "图片上传成功")
 }
 

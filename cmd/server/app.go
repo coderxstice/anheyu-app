@@ -74,6 +74,7 @@ type App struct {
 	storagePolicyService volume.IStoragePolicyService
 	mw                   *middleware.Middleware
 	settingSvc           setting.SettingService
+	fileRepo             repository.FileRepository
 }
 
 // NewApp 是应用的构造函数，它执行所有的初始化和依赖注入工作
@@ -259,6 +260,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		storagePolicyService: storagePolicySvc,
 		mw:                   mw,
 		settingSvc:           settingSvc,
+		fileRepo:             fileRepo,
 	}
 
 	return app, cleanup, nil
@@ -266,6 +268,10 @@ func NewApp(content embed.FS) (*App, func(), error) {
 
 func (a *App) Engine() *gin.Engine {
 	return a.engine
+}
+
+func (a *App) FileRepository() repository.FileRepository {
+	return a.fileRepo
 }
 
 func (a *App) SettingService() setting.SettingService {
