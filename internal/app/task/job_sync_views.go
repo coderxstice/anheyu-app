@@ -8,12 +8,13 @@
 package task
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/utility"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
-	"github.com/anzhiyu-c/anheyu-app/internal/pkg/idgen"
 	"context"
 	"log"
 	"strings"
+
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/utility"
 )
 
 // SyncViewCountsJob 负责将 Redis 中的浏览量同步到数据库。

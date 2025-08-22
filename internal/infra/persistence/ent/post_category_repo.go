@@ -1,12 +1,13 @@
 package ent
 
 import (
+	"context"
+
 	"github.com/anzhiyu-c/anheyu-app/ent"
 	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
-	"github.com/anzhiyu-c/anheyu-app/internal/pkg/idgen"
-	"context"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
 )
 
 type postCategoryRepo struct {

@@ -1,3 +1,4 @@
+// anheyu-app/cmd/server/app.go
 package server
 
 import (
@@ -10,62 +11,66 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/anzhiyu-c/anheyu-app/internal/app/bootstrap"
-	album_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/album"
-	article_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/article"
-	auth_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/auth"
-	comment_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/comment"
-	direct_link_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/direct_link"
-	file_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/file"
-	link_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/link"
-	post_category_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/post_category"
-	post_tag_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/post_tag"
-	public_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/public"
-	setting_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/setting"
-	statistics_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/statistics"
-	storage_policy_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/storage_policy"
-	thumbnail_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/thumbnail"
-	user_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/user"
 	"github.com/anzhiyu-c/anheyu-app/internal/app/listener"
 	"github.com/anzhiyu-c/anheyu-app/internal/app/middleware"
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/album"
-	article_service "github.com/anzhiyu-c/anheyu-app/internal/app/service/article"
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/auth"
-	cleanup_service "github.com/anzhiyu-c/anheyu-app/internal/app/service/cleanup"
-	comment_service "github.com/anzhiyu-c/anheyu-app/internal/app/service/comment"
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/direct_link"
-	file_service "github.com/anzhiyu-c/anheyu-app/internal/app/service/file"
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/file_info"
-	link_service "github.com/anzhiyu-c/anheyu-app/internal/app/service/link"
-	parser_service "github.com/anzhiyu-c/anheyu-app/internal/app/service/parser"
-	post_category_service "github.com/anzhiyu-c/anheyu-app/internal/app/service/post_category"
-	post_tag_service "github.com/anzhiyu-c/anheyu-app/internal/app/service/post_tag"
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/process"
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/setting"
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/statistics"
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/thumbnail"
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/user"
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/utility"
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/volume"
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/volume/strategy"
 	"github.com/anzhiyu-c/anheyu-app/internal/app/task"
-	"github.com/anzhiyu-c/anheyu-app/internal/constant"
-	"github.com/anzhiyu-c/anheyu-app/internal/infra/config"
 	"github.com/anzhiyu-c/anheyu-app/internal/infra/persistence/database"
 	ent_impl "github.com/anzhiyu-c/anheyu-app/internal/infra/persistence/ent"
 	"github.com/anzhiyu-c/anheyu-app/internal/infra/router"
 	"github.com/anzhiyu-c/anheyu-app/internal/infra/storage"
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/event"
-	"github.com/anzhiyu-c/anheyu-app/internal/pkg/idgen"
+	"github.com/anzhiyu-c/anheyu-app/pkg/config"
+	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
+	album_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/album"
+	article_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/article"
+	auth_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/auth"
+	comment_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/comment"
+	direct_link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/direct_link"
+	file_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/file"
+	link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/link"
+	post_category_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_category"
+	post_tag_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_tag"
+	public_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/public"
+	setting_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/setting"
+	statistics_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/statistics"
+	storage_policy_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/storage_policy"
+	thumbnail_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/thumbnail"
+	user_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/user"
+	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/album"
+	article_service "github.com/anzhiyu-c/anheyu-app/pkg/service/article"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/auth"
+	cleanup_service "github.com/anzhiyu-c/anheyu-app/pkg/service/cleanup"
+	comment_service "github.com/anzhiyu-c/anheyu-app/pkg/service/comment"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/direct_link"
+	file_service "github.com/anzhiyu-c/anheyu-app/pkg/service/file"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/file_info"
+	link_service "github.com/anzhiyu-c/anheyu-app/pkg/service/link"
+	parser_service "github.com/anzhiyu-c/anheyu-app/pkg/service/parser"
+	post_category_service "github.com/anzhiyu-c/anheyu-app/pkg/service/post_category"
+	post_tag_service "github.com/anzhiyu-c/anheyu-app/pkg/service/post_tag"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/process"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/statistics"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/thumbnail"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/user"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/utility"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/volume"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/volume/strategy"
 
 	_ "github.com/anzhiyu-c/anheyu-app/ent/runtime"
 )
 
-// App 结构体现在不再需要持有 entClient，因为所有依赖都通过构造函数注入
+// App 结构体，用于封装应用的所有核心组件
 type App struct {
-	cfg        *config.Config
-	engine     *gin.Engine
-	taskBroker *task.Broker
-	sqlDB      *sql.DB // 只持有最底层的连接池，用于优雅关闭
+	cfg               *config.Config
+	engine            *gin.Engine
+	taskBroker        *task.Broker
+	sqlDB             *sql.DB
+	articleService    article_service.Service
+	directLinkService direct_link.Service
+	storagePolicyRepo repository.StoragePolicyRepository
 }
 
 // NewApp 是应用的构造函数，它执行所有的初始化和依赖注入工作
@@ -76,43 +81,36 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		return nil, nil, fmt.Errorf("加载配置失败: %w", err)
 	}
 
-	// --- Phase 2: 初始化基础设施 (纯 Ent 模式) ---
+	// --- Phase 2: 初始化基础设施 ---
 	sqlDB, err := database.NewSQLDB(cfg)
 	if err != nil {
 		return nil, nil, fmt.Errorf("创建数据库连接池失败: %w", err)
 	}
-
 	entClient, err := database.NewEntClient(sqlDB, cfg)
 	if err != nil {
 		sqlDB.Close()
 		return nil, nil, err
 	}
-
 	redisClient, err := database.NewRedisClient(context.Background(), cfg)
 	if err != nil {
 		sqlDB.Close()
 		return nil, nil, fmt.Errorf("连接 Redis 失败: %w", err)
 	}
-
 	cleanup := func() {
 		log.Println("执行清理操作：关闭数据库和Redis连接...")
 		sqlDB.Close()
 		redisClient.Close()
 	}
-
 	if err := idgen.InitSqidsEncoder(); err != nil {
 		return nil, cleanup, fmt.Errorf("初始化 ID 编码器失败: %w", err)
 	}
-
 	eventBus := event.NewEventBus()
-
 	dbType := cfg.GetString(config.KeyDBType)
-	log.Printf("使用的数据库类型: %s", dbType)
 	if dbType == "" {
-		dbType = "mysql" // 确保与 database/db.go 中的默认逻辑一致
+		dbType = "mysql"
 	}
 
-	// --- Phase 3: 初始化数据仓库层 (全部使用 Ent) ---
+	// --- Phase 3: 初始化数据仓库层 ---
 	settingRepo := ent_impl.NewEntSettingRepository(entClient)
 	userRepo := ent_impl.NewEntUserRepository(entClient)
 	userGroupRepo := ent_impl.NewEntUserGroupRepository(entClient)
@@ -140,16 +138,15 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	}
 
 	// --- Phase 5: 初始化业务逻辑层 ---
+	// 注意：这里的 Svc 变量现在都是接口类型，因为它们的构造函数返回接口
 	txManager := ent_impl.NewEntTransactionManager(entClient, sqlDB, dbType)
 	settingSvc := setting.NewSettingService(settingRepo, eventBus)
 	if err := settingSvc.LoadAllSettings(context.Background()); err != nil {
 		return nil, cleanup, fmt.Errorf("从数据库加载站点配置失败: %w", err)
 	}
-
 	strategyManager := strategy.NewManager()
 	strategyManager.Register(constant.PolicyTypeLocal, strategy.NewLocalStrategy())
 	strategyManager.Register(constant.PolicyTypeOneDrive, strategy.NewOneDriveStrategy())
-
 	emailSvc := utility.NewEmailService(settingSvc)
 	cacheSvc := utility.NewCacheService(redisClient)
 	tokenSvc := auth.NewTokenService(userRepo, settingSvc, cacheSvc)
@@ -159,37 +156,29 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	if err != nil {
 		log.Printf("警告: GeoIP 服务初始化失败: %v。IP属地将显示为'未知'", err)
 	}
-
 	albumSvc := album.NewAlbumService(albumRepo, tagRepo, settingSvc)
 	storageProviders := make(map[constant.StoragePolicyType]storage.IStorageProvider)
 	localSigningSecret := settingSvc.Get(constant.KeyLocalFileSigningSecret.String())
 	parserSvc := parser_service.NewService(settingSvc, eventBus)
-
 	storageProviders[constant.PolicyTypeLocal] = storage.NewLocalProvider(localSigningSecret)
 	storageProviders[constant.PolicyTypeOneDrive] = storage.NewOneDriveProvider(storagePolicyRepo)
-
 	metadataSvc := file_info.NewMetadataService(metadataRepo)
 	postTagSvc := post_tag_service.NewService(postTagRepo)
 	postCategorySvc := post_category_service.NewService(postCategoryRepo)
 	cleanupSvc := cleanup_service.NewCleanupService(cleanupRepo)
 	userSvc := user.NewUserService(userRepo)
 	storagePolicySvc := volume.NewStoragePolicyService(storagePolicyRepo, fileRepo, txManager, strategyManager, settingSvc, cacheSvc)
-
 	thumbnailSvc := thumbnail.NewThumbnailService(metadataSvc, fileRepo, entityRepo, storagePolicySvc, settingSvc, storageProviders)
-
 	if err != nil {
 		return nil, cleanup, fmt.Errorf("初始化缩略图服务失败: %w", err)
 	}
 	pathLocker := utility.NewPathLocker()
-
 	syncSvc := process.NewSyncService(txManager, fileRepo, entityRepo, fileEntityRepo, storagePolicySvc, eventBus, storageProviders)
 	vfsSvc := volume.NewVFSService(storagePolicySvc, cacheSvc, fileRepo, entityRepo, settingSvc, storageProviders)
 	extractionSvc := file_info.NewExtractionService(fileRepo, settingSvc, metadataSvc, vfsSvc)
 	fileSvc := file_service.NewService(fileRepo, storagePolicyRepo, txManager, entityRepo, fileEntityRepo, metadataSvc, extractionSvc, cacheSvc, storagePolicySvc, settingSvc, syncSvc, vfsSvc, storageProviders, eventBus, pathLocker)
 	uploadSvc := file_service.NewUploadService(txManager, eventBus, entityRepo, metadataSvc, cacheSvc, storagePolicySvc, settingSvc, storageProviders)
 	directLinkSvc := direct_link.NewDirectLinkService(directLinkRepo, fileRepo, userGroupRepo, settingSvc, storagePolicyRepo)
-
-	// 初始化统计服务
 	statService, err := statistics.NewVisitorStatService(
 		ent_impl.NewVisitorStatRepository(entClient),
 		ent_impl.NewVisitorLogRepository(entClient),
@@ -200,7 +189,6 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	if err != nil {
 		return nil, cleanup, fmt.Errorf("初始化统计服务失败: %w", err)
 	}
-
 	taskBroker := task.NewBroker(uploadSvc, thumbnailSvc, cleanupSvc, articleRepo, commentRepo, emailSvc, cacheSvc, linkCategoryRepo, linkTagRepo, settingSvc, statService)
 	linkSvc := link_service.NewService(linkRepo, linkCategoryRepo, linkTagRepo, txManager, taskBroker)
 	articleSvc := article_service.NewService(articleRepo, postTagRepo, postCategoryRepo, txManager, cacheSvc, geoSvc, taskBroker, settingSvc, parserSvc, fileSvc, directLinkSvc)
@@ -223,8 +211,6 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	postTagHandler := post_tag_handler.NewHandler(postTagSvc)
 	postCategoryHandler := post_category_handler.NewHandler(postCategorySvc)
 	commentHandler := comment_handler.NewHandler(commentSvc)
-
-	// 创建统计处理器
 	statisticsHandler := statistics_handler.NewStatisticsHandler(statService)
 
 	// --- Phase 7: 初始化路由 ---
@@ -254,24 +240,42 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		return nil, nil, fmt.Errorf("设置信任代理失败: %w", err)
 	}
 	engine.ForwardedByClientIP = true
-
 	engine.Use(middleware.Cors())
 	router.SetupFrontend(engine, settingSvc, articleSvc, content)
 	appRouter.Setup(engine)
 
+	// 将所有初始化好的组件装配到 App 实例中
 	app := &App{
-		cfg:        cfg,
-		engine:     engine,
-		taskBroker: taskBroker,
-		sqlDB:      sqlDB,
+		cfg:               cfg,
+		engine:            engine,
+		taskBroker:        taskBroker,
+		sqlDB:             sqlDB,
+		articleService:    articleSvc,
+		directLinkService: directLinkSvc,
+		storagePolicyRepo: storagePolicyRepo,
 	}
 
 	return app, cleanup, nil
 }
 
-// Engine 是一个访问器，它返回私有的 engine 字段。
 func (a *App) Engine() *gin.Engine {
-  return a.engine
+	return a.engine
+}
+
+func (a *App) ArticleService() article_service.Service {
+	return a.articleService
+}
+
+func (a *App) DirectLinkService() direct_link.Service {
+	return a.directLinkService
+}
+
+func (a *App) StoragePolicyRepository() repository.StoragePolicyRepository {
+	return a.storagePolicyRepo
+}
+
+func (a *App) DB() *sql.DB {
+	return a.sqlDB
 }
 
 func (a *App) Run() error {

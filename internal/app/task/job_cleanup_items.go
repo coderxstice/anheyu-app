@@ -8,9 +8,10 @@
 package task
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/cleanup"
 	"context"
 	"log"
+
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/cleanup"
 )
 
 // CleanupOrphanedItemsJob 负责清理无引用的标签和分类。

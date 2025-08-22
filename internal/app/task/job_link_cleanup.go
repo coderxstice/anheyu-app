@@ -8,12 +8,13 @@
 package task
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/setting"
-	"github.com/anzhiyu-c/anheyu-app/internal/constant"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
 	"context"
 	"log"
 	"strconv"
+
+	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 )
 
 // LinkCleanupJob 负责清理不再被任何友链引用的分类和标签。

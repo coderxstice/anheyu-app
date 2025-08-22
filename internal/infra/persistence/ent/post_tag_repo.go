@@ -1,13 +1,14 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent"
-	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
-	"github.com/anzhiyu-c/anheyu-app/internal/pkg/idgen"
 	"context"
 	"fmt"
+
+	"github.com/anzhiyu-c/anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
 
 	"entgo.io/ent/dialect/sql"
 )

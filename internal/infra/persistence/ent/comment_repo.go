@@ -2,14 +2,15 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent"
-	entcomment "github.com/anzhiyu-c/anheyu-app/ent/comment"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
 	"context"
 	"fmt"
 	"log"
 	"time"
+
+	"github.com/anzhiyu-c/anheyu-app/ent"
+	entcomment "github.com/anzhiyu-c/anheyu-app/ent/comment"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
 
 	"entgo.io/ent/dialect/sql"
 )

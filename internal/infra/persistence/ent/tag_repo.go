@@ -8,10 +8,11 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
 	"context"
 	"fmt"
+
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
 
 	"github.com/anzhiyu-c/anheyu-app/ent"
 	"github.com/anzhiyu-c/anheyu-app/ent/tag"

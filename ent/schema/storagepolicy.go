@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/ent/schema/mixin"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"

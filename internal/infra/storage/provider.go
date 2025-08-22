@@ -8,11 +8,12 @@
 package storage
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
 	"context"
 	"errors"
 	"io"
 	"time"
+
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 )
 
 // FileInfo 封装了 List 操作返回的单个文件或目录的信息。

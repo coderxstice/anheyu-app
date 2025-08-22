@@ -2,28 +2,28 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-15 11:30:55
- * @LastEditTime: 2025-08-21 17:44:25
+ * @LastEditTime: 2025-08-22 17:09:55
  * @LastEditors: 安知鱼
  */
 package router
 
 import (
-	album_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/album"
-	article_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/article"
-	auth_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/auth"
-	comment_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/comment"
-	direct_link_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/direct_link"
-	file_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/file"
-	link_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/link"
-	post_category_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/post_category"
-	post_tag_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/post_tag"
-	public_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/public"
-	setting_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/setting"
-	statistics_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/statistics"
-	storage_policy_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/storage_policy"
-	thumbnail_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/thumbnail"
-	user_handler "github.com/anzhiyu-c/anheyu-app/internal/app/handler/user"
 	"github.com/anzhiyu-c/anheyu-app/internal/app/middleware"
+	album_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/album"
+	article_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/article"
+	auth_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/auth"
+	comment_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/comment"
+	direct_link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/direct_link"
+	file_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/file"
+	link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/link"
+	post_category_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_category"
+	post_tag_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_tag"
+	public_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/public"
+	setting_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/setting"
+	statistics_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/statistics"
+	storage_policy_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/storage_policy"
+	thumbnail_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/thumbnail"
+	user_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/user"
 
 	"github.com/gin-gonic/gin"
 )

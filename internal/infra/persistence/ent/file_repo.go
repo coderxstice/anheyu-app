@@ -1,15 +1,16 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/internal/constant"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
-	"github.com/anzhiyu-c/anheyu-app/internal/pkg/types"
 	"context"
 	"database/sql"
 	"fmt"
 	"log"
 	"strings"
+
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/types"
+	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
 
 	"github.com/anzhiyu-c/anheyu-app/ent"
 	"github.com/anzhiyu-c/anheyu-app/ent/file"

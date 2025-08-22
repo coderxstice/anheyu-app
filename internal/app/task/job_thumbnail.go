@@ -9,10 +9,11 @@
 package task
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/thumbnail"
 	"context"
 	"fmt"
 	"time"
+
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/thumbnail"
 )
 
 // ThumbnailGenerationJob 负责执行单个文件的缩略图生成

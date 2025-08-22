@@ -13,12 +13,12 @@ import (
 	"regexp"
 	"strings"
 
-	article_service "github.com/anzhiyu-c/anheyu-app/internal/app/service/article"
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/setting"
-	"github.com/anzhiyu-c/anheyu-app/internal/constant"
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/parser"
-	"github.com/anzhiyu-c/anheyu-app/internal/pkg/response"
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/strutil"
+	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
+	"github.com/anzhiyu-c/anheyu-app/pkg/response"
+	article_service "github.com/anzhiyu-c/anheyu-app/pkg/service/article"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/render"
@@ -31,7 +31,7 @@ func (r CustomHTMLRender) Instance(name string, data interface{}) render.Render 
 }
 
 // SetupFrontend 封装了所有与前端静态资源和模板相关的配置
-func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articleSvc *article_service.Service, embeddedFS embed.FS) {
+func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articleSvc article_service.Service, embeddedFS embed.FS) {
 	engine.GET("/manifest.json", func(c *gin.Context) {
 		type ManifestIcon struct {
 			Src   string `json:"src"`

@@ -13,7 +13,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/anzhiyu-c/anheyu-app/internal/infra/config"
+	"github.com/anzhiyu-c/anheyu-app/pkg/config"
 
 	"github.com/redis/go-redis/v9"
 )

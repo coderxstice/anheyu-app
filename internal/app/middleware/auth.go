@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"strings"
 
-	service_auth "github.com/anzhiyu-c/anheyu-app/internal/app/service/auth"
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/auth"
-	"github.com/anzhiyu-c/anheyu-app/internal/pkg/idgen"
-	"github.com/anzhiyu-c/anheyu-app/internal/pkg/response"
+	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
+	"github.com/anzhiyu-c/anheyu-app/pkg/response"
+	service_auth "github.com/anzhiyu-c/anheyu-app/pkg/service/auth"
 
 	"github.com/gin-gonic/gin"
 )

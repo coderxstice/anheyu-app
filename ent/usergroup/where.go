@@ -3,9 +3,10 @@
 package usergroup
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
 	"time"
+
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

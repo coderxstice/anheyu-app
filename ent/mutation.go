@@ -3,6 +3,12 @@
 package ent
 
 import (
+	"context"
+	"errors"
+	"fmt"
+	"sync"
+	"time"
+
 	"github.com/anzhiyu-c/anheyu-app/ent/album"
 	"github.com/anzhiyu-c/anheyu-app/ent/article"
 	"github.com/anzhiyu-c/anheyu-app/ent/comment"
@@ -25,12 +31,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
 	"github.com/anzhiyu-c/anheyu-app/ent/visitorlog"
 	"github.com/anzhiyu-c/anheyu-app/ent/visitorstat"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
-	"context"
-	"errors"
-	"fmt"
-	"sync"
-	"time"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

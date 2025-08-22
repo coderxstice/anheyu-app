@@ -1,0 +1,195 @@
+package link
+
+import (
+	"context"
+	"errors"
+	"fmt"
+
+	"github.com/anzhiyu-c/anheyu-app/internal/app/task"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
+)
+
+// Service 定义了友链相关的业务逻辑接口。
+type Service interface {
+	// --- 前台接口 ---
+	ApplyLink(ctx context.Context, req *model.ApplyLinkRequest) (*model.LinkDTO, error)
+	ListPublicLinks(ctx context.Context, req *model.ListPublicLinksRequest) (*model.LinkListResponse, error)
+	ListCategories(ctx context.Context) ([]*model.LinkCategoryDTO, error)
+	GetRandomLinks(ctx context.Context, num int) ([]*model.LinkDTO, error)
+
+	// --- 后台接口 ---
+	AdminCreateLink(ctx context.Context, req *model.AdminCreateLinkRequest) (*model.LinkDTO, error)
+	AdminUpdateLink(ctx context.Context, id int, req *model.AdminUpdateLinkRequest) (*model.LinkDTO, error)
+	AdminDeleteLink(ctx context.Context, id int) error
+	ReviewLink(ctx context.Context, id int, req *model.ReviewLinkRequest) error
+	UpdateCategory(ctx context.Context, id int, req *model.UpdateLinkCategoryRequest) (*model.LinkCategoryDTO, error)
+	UpdateTag(ctx context.Context, id int, req *model.UpdateLinkTagRequest) (*model.LinkTagDTO, error)
+	CreateCategory(ctx context.Context, req *model.CreateLinkCategoryRequest) (*model.LinkCategoryDTO, error)
+	CreateTag(ctx context.Context, req *model.CreateLinkTagRequest) (*model.LinkTagDTO, error)
+	ListLinks(ctx context.Context, req *model.ListLinksRequest) (*model.LinkListResponse, error)
+	// --- 新增后台接口 ---
+	AdminListAllTags(ctx context.Context) ([]*model.LinkTagDTO, error)
+}
+
+type service struct {
+	// 用于数据库操作的 Repositories
+	linkRepo         repository.LinkRepository
+	linkCategoryRepo repository.LinkCategoryRepository
+	linkTagRepo      repository.LinkTagRepository
+	// 用于派发异步任务的 Broker
+	broker *task.Broker
+	// 保留事务管理器以备将来使用
+	txManager repository.TransactionManager
+}
+
+// NewService 是 service 的构造函数，注入所有依赖。
+func NewService(
+	linkRepo repository.LinkRepository,
+	linkCategoryRepo repository.LinkCategoryRepository,
+	linkTagRepo repository.LinkTagRepository,
+	txManager repository.TransactionManager,
+	broker *task.Broker,
+) Service {
+	return &service{
+		linkRepo:         linkRepo,
+		linkCategoryRepo: linkCategoryRepo,
+		linkTagRepo:      linkTagRepo,
+		txManager:        txManager,
+		broker:           broker,
+	}
+}
+
+// AdminListAllTags 获取所有友链标签，供后台使用。
+func (s *service) AdminListAllTags(ctx context.Context) ([]*model.LinkTagDTO, error) {
+	return s.linkTagRepo.FindAll(ctx)
+}
+
+func (s *service) UpdateCategory(ctx context.Context, id int, req *model.UpdateLinkCategoryRequest) (*model.LinkCategoryDTO, error) {
+	return s.linkCategoryRepo.Update(ctx, id, req)
+}
+
+func (s *service) UpdateTag(ctx context.Context, id int, req *model.UpdateLinkTagRequest) (*model.LinkTagDTO, error) {
+	return s.linkTagRepo.Update(ctx, id, req)
+}
+
+func (s *service) GetRandomLinks(ctx context.Context, num int) ([]*model.LinkDTO, error) {
+	// 业务逻辑：设置默认值和最大值，防止恶意请求
+	if num <= 0 {
+		num = 5 // 默认获取 5 条
+	}
+	const maxNum = 20 // 最多一次获取 20 条
+	if num > maxNum {
+		num = maxNum
+	}
+
+	return s.linkRepo.GetRandomPublic(ctx, num)
+}
+
+// ApplyLink 处理前台友链申请。
+func (s *service) ApplyLink(ctx context.Context, req *model.ApplyLinkRequest) (*model.LinkDTO, error) {
+	const defaultCategoryID = 1 // 业务逻辑：暂时将所有申请归类到 ID 1
+	return s.linkRepo.Create(ctx, req, defaultCategoryID)
+}
+
+// ListPublicLinks 获取公开的友链列表。
+func (s *service) ListPublicLinks(ctx context.Context, req *model.ListPublicLinksRequest) (*model.LinkListResponse, error) {
+	links, total, err := s.linkRepo.ListPublic(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return &model.LinkListResponse{
+		List:     links,
+		Total:    int64(total),
+		Page:     req.GetPage(),
+		PageSize: req.GetPageSize(),
+	}, nil
+}
+
+// ListCategories 获取所有友链分类。
+func (s *service) ListCategories(ctx context.Context) ([]*model.LinkCategoryDTO, error) {
+	return s.linkCategoryRepo.FindAll(ctx)
+}
+
+// AdminCreateLink 处理后台创建友链，并在成功后派发一个异步清理任务。
+func (s *service) AdminCreateLink(ctx context.Context, req *model.AdminCreateLinkRequest) (*model.LinkDTO, error) {
+	link, err := s.linkRepo.AdminCreate(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	// 操作成功后，派发清理任务，API 无需等待
+	s.broker.DispatchLinkCleanup()
+	return link, nil
+}
+
+// AdminUpdateLink 处理后台更新友链，并在成功后派发一个异步清理任务。
+func (s *service) AdminUpdateLink(ctx context.Context, id int, req *model.AdminUpdateLinkRequest) (*model.LinkDTO, error) {
+	link, err := s.linkRepo.Update(ctx, id, req)
+	if err != nil {
+		return nil, err
+	}
+	// 操作成功后，派发清理任务
+	s.broker.DispatchLinkCleanup()
+	return link, nil
+}
+
+// AdminDeleteLink 处理后台删除友链，并在成功后派发一个异步清理任务。
+func (s *service) AdminDeleteLink(ctx context.Context, id int) error {
+	err := s.linkRepo.Delete(ctx, id)
+	if err != nil {
+		return err
+	}
+	// 操作成功后，派发清理任务
+	s.broker.DispatchLinkCleanup()
+	return nil
+}
+
+// ReviewLink 处理友链审核，这是一个简单操作，无需清理。
+func (s *service) ReviewLink(ctx context.Context, id int, req *model.ReviewLinkRequest) error {
+	// 只有在审核通过时才需要进行特殊校验
+	if req.Status == "APPROVED" {
+		// 1. 获取友链及其分类信息
+		linkToReview, err := s.linkRepo.GetByID(ctx, id)
+		if err != nil {
+			return fmt.Errorf("获取友链信息失败: %w", err)
+		}
+		if linkToReview.Category == nil {
+			return errors.New("无法审核：该友链未关联任何分类")
+		}
+
+		// 2. 检查分类样式是否为 'card'
+		if linkToReview.Category.Style == "card" {
+			// 3. 如果是 card 样式，则 siteshot 必须存在且不为空
+			if req.Siteshot == nil || *req.Siteshot == "" {
+				return errors.New("卡片样式的友链在审核通过时必须提供网站快照(siteshot)")
+			}
+		}
+	}
+
+	// 4. 执行更新状态操作
+	return s.linkRepo.UpdateStatus(ctx, id, req.Status, req.Siteshot)
+}
+
+// CreateCategory 处理创建分类。
+func (s *service) CreateCategory(ctx context.Context, req *model.CreateLinkCategoryRequest) (*model.LinkCategoryDTO, error) {
+	return s.linkCategoryRepo.Create(ctx, req)
+}
+
+// CreateTag 处理创建标签。
+func (s *service) CreateTag(ctx context.Context, req *model.CreateLinkTagRequest) (*model.LinkTagDTO, error) {
+	return s.linkTagRepo.Create(ctx, req)
+}
+
+// ListLinks 获取后台友链列表。
+func (s *service) ListLinks(ctx context.Context, req *model.ListLinksRequest) (*model.LinkListResponse, error) {
+	links, total, err := s.linkRepo.List(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return &model.LinkListResponse{
+		List:     links,
+		Total:    int64(total),
+		Page:     req.GetPage(),
+		PageSize: req.GetPageSize(),
+	}, nil
+}

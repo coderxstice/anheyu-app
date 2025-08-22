@@ -8,12 +8,13 @@
 package ent
 
 import (
+	"context"
+	"fmt"
+
 	"github.com/anzhiyu-c/anheyu-app/ent"
 	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
-	"context"
-	"fmt"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
 )
 
 // cleanupRepo 是 CleanupRepository 的 Ent 实现。

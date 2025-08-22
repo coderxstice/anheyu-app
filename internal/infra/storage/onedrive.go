@@ -21,9 +21,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/anzhiyu-c/anheyu-app/internal/constant"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/microsoft"

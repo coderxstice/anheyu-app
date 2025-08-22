@@ -3,6 +3,8 @@
 package runtime
 
 import (
+	"time"
+
 	"github.com/anzhiyu-c/anheyu-app/ent/album"
 	"github.com/anzhiyu-c/anheyu-app/ent/article"
 	"github.com/anzhiyu-c/anheyu-app/ent/comment"
@@ -25,8 +27,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
 	"github.com/anzhiyu-c/anheyu-app/ent/visitorlog"
 	"github.com/anzhiyu-c/anheyu-app/ent/visitorstat"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
-	"time"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 )
 
 // The init function reads all schema descriptors with runtime code

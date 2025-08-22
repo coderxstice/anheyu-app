@@ -2,8 +2,6 @@
 package storage
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/internal/constant"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
@@ -22,6 +20,9 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 )
 
 // LocalProvider 实现了 IStorageProvider 接口，用于处理与本机磁盘文件系统的所有交互。

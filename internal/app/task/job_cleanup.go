@@ -9,9 +9,10 @@
 package task
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/file"
 	"context"
 	"log"
+
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/file"
 )
 
 // CleanupAbandonedUploadsJob 负责清理被遗弃的上传任务

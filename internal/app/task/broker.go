@@ -2,20 +2,21 @@
 package task
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent"
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/cleanup"
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/file"
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/setting"
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/statistics"
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/thumbnail"
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/utility"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
 	"context"
 	"log/slog"
 	"os"
 	"runtime"
 	"runtime/debug"
 	"time"
+
+	"github.com/anzhiyu-c/anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/cleanup"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/file"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/statistics"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/thumbnail"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/utility"
 
 	"github.com/robfig/cron/v3"
 )

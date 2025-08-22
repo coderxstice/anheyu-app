@@ -9,12 +9,13 @@
 package task
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/utility"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/repository"
 	"context"
 	"fmt"
 	"log"
+
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/utility"
 )
 
 // CommentNotificationJob 负责发送评论通知邮件。

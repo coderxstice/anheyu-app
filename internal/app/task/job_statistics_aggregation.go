@@ -19,7 +19,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/statistics"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/statistics"
 )
 
 // StatisticsAggregationJob 统计数据聚合任务

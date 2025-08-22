@@ -3,13 +3,14 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/entity"
-	"github.com/anzhiyu-c/anheyu-app/ent/fileentity"
-	"github.com/anzhiyu-c/anheyu-app/internal/domain/model"
 	"context"
 	"errors"
 	"fmt"
 	"time"
+
+	"github.com/anzhiyu-c/anheyu-app/ent/entity"
+	"github.com/anzhiyu-c/anheyu-app/ent/fileentity"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

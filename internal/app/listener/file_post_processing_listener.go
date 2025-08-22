@@ -8,11 +8,12 @@
 package listener
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/internal/app/service/file_info"
-	"github.com/anzhiyu-c/anheyu-app/internal/app/task"
-	"github.com/anzhiyu-c/anheyu-app/internal/pkg/event"
 	"context"
 	"log"
+
+	"github.com/anzhiyu-c/anheyu-app/internal/app/task"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/event"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/file_info"
 )
 
 // FilePostProcessingListener 监听 FileCreated 事件，并作为总协调器，
