@@ -29,6 +29,9 @@ func NewHandler(svc articleSvc.Service) *Handler {
 
 // UploadImage 处理文章图片的上传请求。
 func (h *Handler) UploadImage(c *gin.Context) {
+	log.Printf("[Handler.UploadImage] 开始处理图片上传请求")
+	log.Printf("[Handler.UploadImage] 请求方法: %s, 路径: %s", c.Request.Method, c.Request.URL.Path)
+
 	// 1. 从请求中获取文件
 	fileHeader, err := c.FormFile("file")
 	if err != nil {
@@ -36,6 +39,7 @@ func (h *Handler) UploadImage(c *gin.Context) {
 		response.Fail(c, http.StatusBadRequest, "无效的文件上传请求")
 		return
 	}
+	log.Printf("[Handler.UploadImage] 接收到文件: %s, 大小: %d bytes", fileHeader.Filename, fileHeader.Size)
 
 	// 2. 打开文件流
 	fileReader, err := fileHeader.Open()
@@ -46,24 +50,33 @@ func (h *Handler) UploadImage(c *gin.Context) {
 	}
 	defer fileReader.Close()
 
+	// 3. 获取用户认证信息
+	log.Printf("[Handler.UploadImage] 开始获取用户认证信息")
 	claims, err := getClaims(c)
 	if err != nil {
+		log.Printf("[Handler.UploadImage] 认证失败: %v", err)
 		response.Fail(c, http.StatusUnauthorized, err.Error())
 		return
 	}
+	log.Printf("[Handler.UploadImage] 用户认证成功, UserID: %s", claims.UserID)
+
 	ownerID, _, err := idgen.DecodePublicID(claims.UserID)
 	if err != nil {
+		log.Printf("[Handler.UploadImage] 解析用户ID失败: %v", err)
 		response.Fail(c, http.StatusUnauthorized, "无效的用户凭证")
 		return
 	}
+	log.Printf("[Handler.UploadImage] 解析用户ID成功, ownerID: %d", ownerID)
 
 	// 4. 调用Service层处理业务逻辑
+	log.Printf("[Handler.UploadImage] 开始调用Service层处理图片上传")
 	directLinkURL, err := h.svc.UploadArticleImage(c.Request.Context(), ownerID, fileReader, fileHeader.Filename)
 	if err != nil {
 		log.Printf("[Handler.UploadImage] Service处理失败: %v", err)
 		response.Fail(c, http.StatusInternalServerError, "图片上传失败")
 		return
 	}
+	log.Printf("[Handler.UploadImage] 图片上传成功, URL: %s", directLinkURL)
 
 	// 5. 成功响应，返回直链URL
 	response.Success(c, gin.H{

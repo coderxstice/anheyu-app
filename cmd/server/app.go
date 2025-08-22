@@ -72,6 +72,8 @@ type App struct {
 	directLinkService    direct_link.Service
 	storagePolicyRepo    repository.StoragePolicyRepository
 	storagePolicyService volume.IStoragePolicyService
+	mw                   *middleware.Middleware
+	settingSvc           setting.SettingService
 }
 
 // NewApp 是应用的构造函数，它执行所有的初始化和依赖注入工作
@@ -255,6 +257,8 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		directLinkService:    directLinkSvc,
 		storagePolicyRepo:    storagePolicyRepo,
 		storagePolicyService: storagePolicySvc,
+		mw:                   mw,
+		settingSvc:           settingSvc,
 	}
 
 	return app, cleanup, nil
@@ -262,6 +266,14 @@ func NewApp(content embed.FS) (*App, func(), error) {
 
 func (a *App) Engine() *gin.Engine {
 	return a.engine
+}
+
+func (a *App) SettingService() setting.SettingService {
+	return a.settingSvc
+}
+
+func (a *App) Middleware() *middleware.Middleware {
+	return a.mw
 }
 
 func (a *App) ArticleService() article_service.Service {

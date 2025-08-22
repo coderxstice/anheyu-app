@@ -220,7 +220,7 @@ func (s *authService) Register(ctx context.Context, email, password string) (boo
 		}
 
 		// 3e: 将除第一个策略外的其他策略，创建为根目录下的子目录
-		if userGroup.Settings.PolicyOrdering != nil && len(userGroup.Settings.PolicyOrdering) > 1 {
+		if len(userGroup.Settings.PolicyOrdering) > 1 {
 			remainingPolicyIDs := userGroup.Settings.PolicyOrdering[1:]
 			for _, policyID := range remainingPolicyIDs {
 				policy, err := policyRepo.FindByID(ctx, policyID)
