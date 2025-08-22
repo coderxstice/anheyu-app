@@ -201,7 +201,7 @@ func (s *Service) Create(ctx context.Context, req *dto.CreateRequest, ip, ua str
 	return s.toResponseDTO(ctx, newComment, parentComment, false), nil
 }
 
-// ListByPath - 最终正确版本
+// ListByPath
 func (s *Service) ListByPath(ctx context.Context, path string, page, pageSize int) (*dto.ListResponse, error) {
 	// 1. 一次性获取该路径下的所有已发布评论
 	allComments, err := s.repo.FindAllPublishedByPath(ctx, path)

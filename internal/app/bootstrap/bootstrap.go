@@ -11,7 +11,7 @@ import (
 
 	"github.com/anzhiyu-c/anheyu-app/ent"
 	"github.com/anzhiyu-c/anheyu-app/ent/link"
-	"github.com/anzhiyu-c/anheyu-app/ent/linkcategory" // 导入 linkcategory 包
+	"github.com/anzhiyu-c/anheyu-app/ent/linkcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/setting"
 	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
 	"github.com/anzhiyu-c/anheyu-app/internal/configdef"
