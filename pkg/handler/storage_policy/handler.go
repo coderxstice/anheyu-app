@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-15 11:30:55
- * @LastEditTime: 2025-08-17 04:07:04
+ * @LastEditTime: 2025-08-23 01:39:07
  * @LastEditors: 安知鱼
  */
 package storage_policy_handler
@@ -11,7 +11,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"time"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/auth"
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
@@ -19,8 +20,6 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/volume"
-
-	"github.com/gin-gonic/gin"
 )
 
 // CreatePolicyRequest 定义了创建策略时请求体的结构
@@ -48,29 +47,10 @@ type PaginationRequest struct {
 	PageSize int `form:"pageSize"`
 }
 
-// StoragePolicyResponseItem 定义了单个存储策略在响应体中的结构
-type StoragePolicyResponseItem struct {
-	ID          string                 `json:"id"`
-	CreatedAt   time.Time              `json:"created_at"`
-	UpdatedAt   time.Time              `json:"updated_at"`
-	Name        string                 `json:"name"`
-	Type        string                 `json:"type"`
-	Flag        string                 `json:"flag,omitempty"`
-	Server      string                 `json:"server,omitempty"`
-	BucketName  string                 `json:"bucket_name,omitempty"`
-	IsPrivate   bool                   `json:"is_private"`
-	AccessKey   string                 `json:"access_key,omitempty"`
-	SecretKey   string                 `json:"secret_key,omitempty"`
-	MaxSize     int64                  `json:"max_size"`
-	BasePath    string                 `json:"base_path,omitempty"`
-	VirtualPath string                 `json:"virtual_path,omitempty"`
-	Settings    map[string]interface{} `json:"settings,omitempty"`
-}
-
 // PolicyListResponse 定义了存储策略列表的响应结构
 type PolicyListResponse struct {
-	List  []*StoragePolicyResponseItem `json:"list"`
-	Total int64                        `json:"total"`
+	List  []*model.StoragePolicyResponse `json:"list"`
+	Total int64                          `json:"total"`
 }
 
 // StoragePolicyHandler 负责处理所有与存储策略相关的HTTP请求
@@ -191,7 +171,7 @@ func (h *StoragePolicyHandler) List(c *gin.Context) {
 		return
 	}
 
-	responseList := make([]*StoragePolicyResponseItem, len(policies))
+	responseList := make([]*model.StoragePolicyResponse, len(policies))
 	for i, policy := range policies {
 		item, buildErr := h.buildStoragePolicyResponseItem(policy)
 		if buildErr != nil {
@@ -319,8 +299,8 @@ func (h *StoragePolicyHandler) AuthorizeOneDrive(c *gin.Context) {
 	response.Success(c, nil, "授权成功")
 }
 
-// buildStoragePolicyResponseItem 辅助函数，将 model.StoragePolicy 转换为 StoragePolicyResponseItem
-func (h *StoragePolicyHandler) buildStoragePolicyResponseItem(policy *model.StoragePolicy) (*StoragePolicyResponseItem, error) {
+// buildStoragePolicyResponseItem 辅助函数，将 model.StoragePolicy 转换为 model.StoragePolicyResponse
+func (h *StoragePolicyHandler) buildStoragePolicyResponseItem(policy *model.StoragePolicy) (*model.StoragePolicyResponse, error) {
 	if policy == nil {
 		return nil, nil
 	}
@@ -330,7 +310,7 @@ func (h *StoragePolicyHandler) buildStoragePolicyResponseItem(policy *model.Stor
 		return nil, fmt.Errorf("生成存储策略公共ID失败: %w", err)
 	}
 
-	return &StoragePolicyResponseItem{
+	return &model.StoragePolicyResponse{
 		ID:          publicID,
 		CreatedAt:   policy.CreatedAt,
 		UpdatedAt:   policy.UpdatedAt,

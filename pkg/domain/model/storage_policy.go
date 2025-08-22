@@ -2,7 +2,7 @@
  * @Description: 存储策略模型
  * @Author: 安知鱼
  * @Date: 2025-06-28 00:21:55
- * @LastEditTime: 2025-08-22 18:55:55
+ * @LastEditTime: 2025-08-23 01:38:51
  * @LastEditors: 安知鱼
  */
 package model
@@ -80,4 +80,23 @@ type StoragePolicy struct {
 	VirtualPath string                     `json:"virtual_path"`
 	Settings    StoragePolicySettings      `json:"settings"`
 	NodeID      *uint                      `json:"node_id"`
+}
+
+// StoragePolicyResponse 是用于API响应的存储策略数据传输对象 (DTO)。
+type StoragePolicyResponse struct {
+	ID          string                 `json:"id"`
+	CreatedAt   time.Time              `json:"created_at"`
+	UpdatedAt   time.Time              `json:"updated_at"`
+	Name        string                 `json:"name"`
+	Type        string                 `json:"type"`
+	Flag        string                 `json:"flag,omitempty"`
+	Server      string                 `json:"server,omitempty"`
+	BucketName  string                 `json:"bucket_name,omitempty"`
+	IsPrivate   bool                   `json:"is_private"`
+	AccessKey   string                 `json:"access_key,omitempty"`
+	SecretKey   string                 `json:"secret_key,omitempty"`
+	MaxSize     int64                  `json:"max_size"`
+	BasePath    string                 `json:"base_path,omitempty"`
+	VirtualPath string                 `json:"virtual_path,omitempty"`
+	Settings    map[string]interface{} `json:"settings,omitempty"`
 }

@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-23 15:08:11
- * @LastEditTime: 2025-08-17 03:53:55
+ * @LastEditTime: 2025-08-23 01:16:13
  * @LastEditors: 安知鱼
  */
 package ent
@@ -161,7 +161,7 @@ func toDomainStoragePolicy(p *ent.StoragePolicy) *model.StoragePolicy {
 		UpdatedAt:   p.UpdatedAt,
 		Name:        p.Name,
 		Type:        constant.StoragePolicyType(p.Type),
-		Flag:        p.Flag, // <-- 修改点
+		Flag:        p.Flag,
 		Server:      p.Server,
 		BucketName:  p.BucketName,
 		IsPrivate:   p.IsPrivate,
