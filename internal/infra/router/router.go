@@ -2,12 +2,15 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-15 11:30:55
- * @LastEditTime: 2025-08-22 17:09:55
+ * @LastEditTime: 2025-08-22 18:44:04
  * @LastEditors: 安知鱼
  */
+// anheyu-app/pkg/router/router.go
 package router
 
 import (
+	"github.com/gin-gonic/gin"
+
 	"github.com/anzhiyu-c/anheyu-app/internal/app/middleware"
 	album_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/album"
 	article_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/article"
@@ -24,14 +27,10 @@ import (
 	storage_policy_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/storage_policy"
 	thumbnail_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/thumbnail"
 	user_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/user"
-
-	"github.com/gin-gonic/gin"
 )
 
 // Router 封装了应用的所有路由和其依赖的处理器。
-// 它通过构造函数接收所有已经实例化好的依赖。
 type Router struct {
-	// 依赖所有需要被注册的 Handler
 	authHandler          *auth_handler.AuthHandler
 	albumHandler         *album_handler.AlbumHandler
 	userHandler          *user_handler.UserHandler
@@ -50,7 +49,7 @@ type Router struct {
 	mw                   *middleware.Middleware
 }
 
-// NewRouter 是 Router 的构造函数，通过依赖注入接收所有处理器
+// NewRouter 是 Router 的构造函数，通过依赖注入接收所有处理器。
 func NewRouter(
 	authHandler *auth_handler.AuthHandler,
 	albumHandler *album_handler.AlbumHandler,

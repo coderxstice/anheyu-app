@@ -64,13 +64,14 @@ import (
 
 // App 结构体，用于封装应用的所有核心组件
 type App struct {
-	cfg               *config.Config
-	engine            *gin.Engine
-	taskBroker        *task.Broker
-	sqlDB             *sql.DB
-	articleService    article_service.Service
-	directLinkService direct_link.Service
-	storagePolicyRepo repository.StoragePolicyRepository
+	cfg                  *config.Config
+	engine               *gin.Engine
+	taskBroker           *task.Broker
+	sqlDB                *sql.DB
+	articleService       article_service.Service
+	directLinkService    direct_link.Service
+	storagePolicyRepo    repository.StoragePolicyRepository
+	storagePolicyService volume.IStoragePolicyService
 }
 
 // NewApp 是应用的构造函数，它执行所有的初始化和依赖注入工作
@@ -246,13 +247,14 @@ func NewApp(content embed.FS) (*App, func(), error) {
 
 	// 将所有初始化好的组件装配到 App 实例中
 	app := &App{
-		cfg:               cfg,
-		engine:            engine,
-		taskBroker:        taskBroker,
-		sqlDB:             sqlDB,
-		articleService:    articleSvc,
-		directLinkService: directLinkSvc,
-		storagePolicyRepo: storagePolicyRepo,
+		cfg:                  cfg,
+		engine:               engine,
+		taskBroker:           taskBroker,
+		sqlDB:                sqlDB,
+		articleService:       articleSvc,
+		directLinkService:    directLinkSvc,
+		storagePolicyRepo:    storagePolicyRepo,
+		storagePolicyService: storagePolicySvc,
 	}
 
 	return app, cleanup, nil
@@ -276,6 +278,10 @@ func (a *App) StoragePolicyRepository() repository.StoragePolicyRepository {
 
 func (a *App) DB() *sql.DB {
 	return a.sqlDB
+}
+
+func (a *App) StoragePolicyService() volume.IStoragePolicyService {
+	return a.storagePolicyService
 }
 
 func (a *App) Run() error {
