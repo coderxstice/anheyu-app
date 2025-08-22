@@ -1,0 +1,218 @@
+// internal/constant/setting.go
+/*
+ * @Description:
+ * @Author: 安知鱼
+ * @Date: 2025-06-21 17:18:09
+ * @LastEditTime: 2025-08-20 16:50:42
+ * @LastEditors: 安知鱼
+ */
+package constant
+
+// SettingKey 为所有在应用中使用的配置键定义了类型安全的常量。
+type SettingKey string
+
+// ToString 方便地将 SettingKey 转换为 string 类型。
+func (k SettingKey) String() string {
+	return string(k)
+}
+
+const (
+	// --- 站点基础配置 (可暴露给前端) ---
+	KeyAppName                   SettingKey = "APP_NAME"
+	KeySubTitle                  SettingKey = "SUB_TITLE"
+	KeySiteURL                   SettingKey = "SITE_URL"
+	KeyAppVersion                SettingKey = "APP_VERSION"
+	KeyApiURL                    SettingKey = "API_URL"
+	KeyAboutLink                 SettingKey = "ABOUT_LINK"
+	KeyIcpNumber                 SettingKey = "ICP_NUMBER"
+	KeySiteKeywords              SettingKey = "SITE_KEYWORDS"
+	KeySiteDescription           SettingKey = "SITE_DESCRIPTION"
+	KeyUserAvatar                SettingKey = "USER_AVATAR"
+	KeyLogoURL                   SettingKey = "LOGO_URL"
+	KeyLogoURL192                SettingKey = "LOGO_URL_192x192"
+	KeyLogoURL512                SettingKey = "LOGO_URL_512x512"
+	KeyLogoHorizontalDay         SettingKey = "LOGO_HORIZONTAL_DAY"
+	KeyLogoHorizontalNight       SettingKey = "LOGO_HORIZONTAL_NIGHT"
+	KeyIconURL                   SettingKey = "ICON_URL"
+	KeyDefaultThumbParam         SettingKey = "DEFAULT_THUMB_PARAM"
+	KeyDefaultBigParam           SettingKey = "DEFAULT_BIG_PARAM"
+	KeyGravatarURL               SettingKey = "GRAVATAR_URL"
+	KeyDefaultGravatarType       SettingKey = "DEFAULT_GRAVATAR_TYPE"
+	KeyThemeColor                SettingKey = "THEME_COLOR"
+	KeySiteAnnouncement          SettingKey = "SITE_ANNOUNCEMENT"
+	KeyFooterCode                SettingKey = "FOOTER_CODE"
+	KeyHomeTop                   SettingKey = "HOME_TOP"
+	KeyCreativity                SettingKey = "CREATIVITY"
+	KeyUploadAllowedExtensions   SettingKey = "UPLOAD_ALLOWED_EXTENSIONS"
+	KeyUploadDeniedExtensions    SettingKey = "UPLOAD_DENIED_EXTENSIONS"
+	KeyEnableVipsGenerator       SettingKey = "ENABLE_VIPS_GENERATOR"
+	KeyVipsPath                  SettingKey = "VIPS_PATH"
+	KeyVipsSupportedExts         SettingKey = "VIPS_SUPPORTED_EXTS"
+	KeyVipsMaxFileSize           SettingKey = "VIPS_MAX_FILE_SIZE"
+	KeyEnableMusicCoverGenerator SettingKey = "ENABLE_MUSIC_COVER_GENERATOR"
+	KeyMusicCoverSupportedExts   SettingKey = "MUSIC_COVER_SUPPORTED_EXTS"
+	KeyMusicCoverMaxFileSize     SettingKey = "MUSIC_COVER_MAX_FILE_SIZE"
+	KeyEnableFfmpegGenerator     SettingKey = "ENABLE_FFMPEG_GENERATOR"
+	KeyFfmpegPath                SettingKey = "FFMPEG_PATH"
+	KeyFfmpegSupportedExts       SettingKey = "FFMPEG_SUPPORTED_EXTS"
+	KeyFfmpegMaxFileSize         SettingKey = "FFMPEG_MAX_FILE_SIZE"
+	KeyFfmpegCaptureTime         SettingKey = "FFMPEG_CAPTURE_TIME"
+	KeyEnableBuiltinGenerator    SettingKey = "ENABLE_BUILTIN_GENERATOR"
+	KeyBuiltinMaxFileSize        SettingKey = "BUILTIN_MAX_FILE_SIZE"
+	KeyBuiltinDirectServeExts    SettingKey = "BUILTIN_DIRECT_SERVE_EXTS"
+
+	KeyFrontDeskSiteOwnerName  SettingKey = "frontDesk.siteOwner.name"
+	KeyFrontDeskSiteOwnerEmail SettingKey = "frontDesk.siteOwner.email"
+
+	KeyFooterOwnerName          SettingKey = "footer.owner.name"
+	KeyFooterOwnerSince         SettingKey = "footer.owner.since"
+	KeyFooterCustomText         SettingKey = "footer.custom_text"
+	KeyFooterRuntimeEnable      SettingKey = "footer.runtime.enable"
+	KeyFooterRuntimeLaunchTime  SettingKey = "footer.runtime.launch_time"
+	KeyFooterRuntimeWorkImg     SettingKey = "footer.runtime.work_img"
+	KeyFooterRuntimeWorkDesc    SettingKey = "footer.runtime.work_description"
+	KeyFooterRuntimeOffDutyImg  SettingKey = "footer.runtime.offduty_img"
+	KeyFooterRuntimeOffDutyDesc SettingKey = "footer.runtime.offduty_description"
+	KeyFooterSocialBarCenterImg SettingKey = "footer.socialBar.centerImg"
+	KeyFooterListRandomFriends  SettingKey = "footer.list.randomFriends"
+	KeyFooterBarAuthorLink      SettingKey = "footer.bar.authorLink"
+	KeyFooterBarCCLink          SettingKey = "footer.bar.cc.link"
+	KeyFooterBadgeList          SettingKey = "footer.badge.list"
+	KeyFooterSocialBarLeft      SettingKey = "footer.socialBar.left"
+	KeyFooterSocialBarRight     SettingKey = "footer.socialBar.right"
+	KeyFooterProjectList        SettingKey = "footer.project.list"
+	KeyFooterBarLinkList        SettingKey = "footer.bar.linkList"
+
+	KeyFriendLinkApplyCondition  SettingKey = "FRIEND_LINK_APPLY_CONDITION"
+	KeyFriendLinkApplyCustomCode SettingKey = "FRIEND_LINK_APPLY_CUSTOM_CODE"
+	KeyFriendLinkDefaultCategory SettingKey = "FRIEND_LINK_DEFAULTCATEGORY"
+
+	// --- 缩略图生成队列配置 ---
+	KeyQueueThumbConcurrency   SettingKey = "QUEUE_THUMB_CONCURRENCY"
+	KeyQueueThumbMaxExecTime   SettingKey = "QUEUE_THUMB_MAX_EXEC_TIME"
+	KeyQueueThumbBackoffFactor SettingKey = "QUEUE_THUMB_BACKOFF_FACTOR"
+	KeyQueueThumbMaxBackoff    SettingKey = "QUEUE_THUMB_MAX_BACKOFF"
+	KeyQueueThumbMaxRetries    SettingKey = "QUEUE_THUMB_MAX_RETRIES"
+	KeyQueueThumbRetryDelay    SettingKey = "QUEUE_THUMB_RETRY_DELAY"
+
+	// --- 媒体信息提取配置 ---
+	KeyEnableExifExtractor  SettingKey = "ENABLE_EXIF_EXTRACTOR"
+	KeyExifMaxSizeLocal     SettingKey = "EXIF_MAX_SIZE_LOCAL"
+	KeyExifMaxSizeRemote    SettingKey = "EXIF_MAX_SIZE_REMOTE"
+	KeyExifUseBruteForce    SettingKey = "EXIF_USE_BRUTE_FORCE"
+	KeyEnableMusicExtractor SettingKey = "ENABLE_MUSIC_EXTRACTOR"
+	KeyMusicMaxSizeLocal    SettingKey = "MUSIC_MAX_SIZE_LOCAL"
+	KeyMusicMaxSizeRemote   SettingKey = "MUSIC_MAX_SIZE_REMOTE"
+
+	// --- LibRaw / DCRaw 缩略图生成器配置 ---
+	KeyEnableLibrawGenerator SettingKey = "ENABLE_LIBRAW_GENERATOR"
+	KeyLibrawPath            SettingKey = "LIBRAW_PATH"
+	KeyLibrawMaxFileSize     SettingKey = "LIBRAW_MAX_FILE_SIZE"
+	KeyLibrawSupportedExts   SettingKey = "LIBRAW_SUPPORTED_EXTS"
+
+	// --- Header/Nav 配置 ---
+	KeyHeaderMenu      SettingKey = "header.menu"
+	KeyHeaderNavTravel SettingKey = "header.nav.travelling"
+	KeyHeaderNavClock  SettingKey = "header.nav.clock"
+	KeyHeaderNavMenu   SettingKey = "header.nav.menu"
+
+	// 文章相关配置
+	KeyPostDefaultCover              SettingKey = "post.default.cover"
+	KeyPostDefaultDoubleColumn       SettingKey = "post.default.double_column"
+	KeyPostDefaultPageSize           SettingKey = "post.default.page_size"
+	KeyPostThemePrimaryColorAPIURL   SettingKey = "post.theme.primary_color_api_url"
+	KeyPostThemePrimaryColorAPIToken SettingKey = "post.theme.primary_color_api_token"
+	KeyPostExpirationTime            SettingKey = "post.expiration_time"
+	KeyPostRewardEnable              SettingKey = "post.reward.enable"
+	KeyPostRewardWeChatQR            SettingKey = "post.reward.wechat_qr"
+	KeyPostRewardAlipayQR            SettingKey = "post.reward.alipay_qr"
+	KeyPostCodeBlockCodeMaxLines     SettingKey = "post.code_block.code_max_lines"
+
+	KeyPostEquipmentBannerBackground  SettingKey = "equipment.banner.background"
+	KeyPostEquipmentBannerTitle       SettingKey = "equipment.banner.title"
+	KeyPostEquipmentBannerDescription SettingKey = "equipment.banner.description"
+	KeyPostEquipmentBannerTip         SettingKey = "equipment.banner.tip"
+	KeyPostEquipmentList              SettingKey = "equipment.list"
+
+	// 评论配置
+	KeyCommentLoginRequired     SettingKey = "comment.login_required"
+	KeyCommentPageSize          SettingKey = "comment.page_size"
+	KeyCommentMasterTag         SettingKey = "comment.master_tag"
+	KeyCommentPlaceholder       SettingKey = "comment.placeholder"
+	KeyCommentEmojiCDN          SettingKey = "comment.emoji_cdn"
+	KeyCommentBloggerEmail      SettingKey = "comment.blogger_email"
+	KeyCommentShowUA            SettingKey = "comment.show_ua"
+	KeyCommentShowRegion        SettingKey = "comment.show_region"
+	KeyCommentLimitPerMinute    SettingKey = "comment.limit_per_minute"
+	KeyCommentLimitLength       SettingKey = "comment.limit_length"
+	KeyCommentForbiddenWords    SettingKey = "comment.forbidden_words"
+	KeyCommentNotifySpam        SettingKey = "comment.notify_spam"
+	KeyCommentSmtpSenderName    SettingKey = "comment.smtp_sender_name"
+	KeyCommentSmtpSenderEmail   SettingKey = "comment.smtp_sender_email"
+	KeyCommentSmtpHost          SettingKey = "comment.smtp_host"
+	KeyCommentSmtpPort          SettingKey = "comment.smtp_port"
+	KeyCommentSmtpUser          SettingKey = "comment.smtp_user"
+	KeyCommentSmtpPass          SettingKey = "comment.smtp_pass"
+	KeyCommentSmtpSecure        SettingKey = "comment.smtp_secure"
+	KeyCommentMailSubject       SettingKey = "comment.mail_subject"
+	KeyCommentMailTemplate      SettingKey = "comment.mail_template"
+	KeyCommentMailSubjectAdmin  SettingKey = "comment.mail_subject_admin"
+	KeyCommentMailTemplateAdmin SettingKey = "comment.mail_template_admin"
+
+	// 侧边栏配置 ---
+	KeySidebarAuthorEnable           SettingKey = "sidebar.author.enable"
+	KeySidebarAuthorDescription      SettingKey = "sidebar.author.description"
+	KeySidebarAuthorStatusImg        SettingKey = "sidebar.author.statusImg"
+	KeySidebarAuthorSkills           SettingKey = "sidebar.author.skills"
+	KeySidebarAuthorSocial           SettingKey = "sidebar.author.social"
+	KeySidebarWechatEnable           SettingKey = "sidebar.wechat.enable"
+	KeySidebarWechatFace             SettingKey = "sidebar.wechat.face"
+	KeySidebarWechatBackFace         SettingKey = "sidebar.wechat.backFace"
+	KeySidebarWechatBlurBackground   SettingKey = "sidebar.wechat.blurBackground"
+	KeySidebarTagsEnable             SettingKey = "sidebar.tags.enable"
+	KeySidebarTagsHighlight          SettingKey = "sidebar.tags.highlight"
+	KeySidebarSiteInfoRuntimeEnable  SettingKey = "sidebar.siteinfo.runtimeEnable"
+	KeySidebarSiteInfoTotalPostCount SettingKey = "sidebar.siteinfo.totalPostCount"
+	KeySidebarSiteInfoTotalWordCount SettingKey = "sidebar.siteinfo.totalWordCount"
+	KeySidebarArchiveCount           SettingKey = "sidebar.archive.displayMonths"
+
+	// --- 站点敏感或内部配置 (不暴露给前端) ---
+	KeyJWTSecret               SettingKey = "JWT_SECRET"
+	KeyResetPasswordSubject    SettingKey = "DEFAULT_RESET_PASSWORD_SUBJECT"
+	KeyResetPasswordTemplate   SettingKey = "DEFAULT_RESET_PASSWORD_TEMPLATE"
+	KeyActivateAccountSubject  SettingKey = "DEFAULT_ACTIVATE_ACCOUNT_SUBJECT"
+	KeyActivateAccountTemplate SettingKey = "DEFAULT_ACTIVATE_ACCOUNT_TEMPLATE"
+	KeyEnableUserActivation    SettingKey = "ENABLE_USER_ACTIVATION"
+	KeySmtpHost                SettingKey = "SMTP_HOST"
+	KeySmtpPort                SettingKey = "SMTP_PORT"
+	KeySmtpUsername            SettingKey = "SMTP_USERNAME"
+	KeySmtpPassword            SettingKey = "SMTP_PASSWORD"
+	KeySmtpSenderName          SettingKey = "SMTP_SENDER_NAME"
+	KeySmtpSenderEmail         SettingKey = "SMTP_SENDER_EMAIL"
+	KeySmtpReplyToEmail        SettingKey = "SMTP_REPLY_TO_EMAIL"
+	KeySmtpForceSSL            SettingKey = "SMTP_FORCE_SSL"
+	KeyLocalFileSigningSecret  SettingKey = "LOCAL_FILE_SIGNING_SECRET"
+	KeyIPAPI                   SettingKey = "IP_API"
+	KeyIPAPIToKen              SettingKey = "IP_API_TOKEN"
+
+	// --- 关于页面配置 ---
+	KeyAboutPageName                 SettingKey = "about.page.name"
+	KeyAboutPageDescription          SettingKey = "about.page.description"
+	KeyAboutPageAvatarImg            SettingKey = "about.page.avatar_img"
+	KeyAboutPageSubtitle             SettingKey = "about.page.subtitle"
+	KeyAboutPageAvatarSkillsLeft     SettingKey = "about.page.avatar_skills_left"
+	KeyAboutPageAvatarSkillsRight    SettingKey = "about.page.avatar_skills_right"
+	KeyAboutPageAboutSiteTips        SettingKey = "about.page.about_site_tips"
+	KeyAboutPageMap                  SettingKey = "about.page.map"
+	KeyAboutPageSelfInfo             SettingKey = "about.page.self_info"
+	KeyAboutPagePersonalities        SettingKey = "about.page.personalities"
+	KeyAboutPageMaxim                SettingKey = "about.page.maxim"
+	KeyAboutPageBuff                 SettingKey = "about.page.buff"
+	KeyAboutPageGame                 SettingKey = "about.page.game"
+	KeyAboutPageComic                SettingKey = "about.page.comic"
+	KeyAboutPageLike                 SettingKey = "about.page.like"
+	KeyAboutPageMusic                SettingKey = "about.page.music"
+	KeyAboutPageCareers              SettingKey = "about.page.careers"
+	KeyAboutPageSkillsTips           SettingKey = "about.page.skills_tips"
+	KeyAboutPageStatisticsBackground SettingKey = "about.page.statistics_background"
+)

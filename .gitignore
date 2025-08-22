@@ -1,0 +1,14 @@
+node_modules
+.DS_Store
+dist-ssr
+*.local
+.vscode
+/dist
+dist.zip
+anheyu-app
+anheyu-app.exe
+anheyu-app-linux-arm64
+.env
+temp
+/data/storage
+/recycle_bin

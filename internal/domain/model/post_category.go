@@ -1,0 +1,46 @@
+/*
+ * @Description:
+ * @Author: 安知鱼
+ * @Date: 2025-07-25 11:43:47
+ * @LastEditTime: 2025-08-05 10:28:06
+ * @LastEditors: 安知鱼
+ */
+package model
+
+import "time"
+
+// --- 核心领域对象 (Domain Object) ---
+
+// PostCategory 是文章分类的核心领域模型。
+type PostCategory struct {
+	ID          string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	Name        string
+	Description string
+	Count       int
+}
+
+// --- API 数据传输对象 (Data Transfer Objects) ---
+
+// CreatePostCategoryRequest 定义了创建文章分类的请求体
+type CreatePostCategoryRequest struct {
+	Name        string `json:"name" binding:"required"`
+	Description string `json:"description"`
+}
+
+// UpdatePostCategoryRequest 定义了更新文章分类的请求体
+type UpdatePostCategoryRequest struct {
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+}
+
+// PostCategoryResponse 定义了文章分类的标准 API 响应结构
+type PostCategoryResponse struct {
+	ID          string    `json:"id"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Count       int       `json:"count"`
+}
