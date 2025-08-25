@@ -1,6 +1,7 @@
 services:
   anheyu:
-    build: .
+    # build: .
+    image: anheyu/anheyu-backend:latest
     container_name: anheyu-backend
     depends_on:
       - postgresql
