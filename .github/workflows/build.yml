@@ -2,9 +2,8 @@ name: Build and Deploy
 
 on:
   push:
-    branches: [main]
     tags:
-      - "v*" # 添加这一行，以便在推送标签时触发 Release 作业
+      - "v*"
 
 jobs:
   build:
@@ -88,12 +87,12 @@ jobs:
 
   release:
     runs-on: ubuntu-22.04
-    needs: build # 确保在 build 作业完成后再运行
-    if: startsWith(github.ref, 'refs/tags/v') # 仅当是标签推送时才运行此作业
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2 # 需要再次检出代码，以便访问工作目录
+        uses: actions/checkout@v2
 
       - name: Download Linux Artifact
         uses: actions/download-artifact@v4
