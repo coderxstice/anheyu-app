@@ -20,7 +20,7 @@ services:
     volumes:
       - ./data:/anheyu/data
 
-  postgresql:
+  anheyu-postgresql:
     image: postgres:latest
     container_name: postgresql
     ports:
@@ -32,7 +32,7 @@ services:
     volumes:
       - database_postgres:/var/lib/postgresql/data
 
-  redis:
+  anheyu-redis:
     image: redis:latest
     container_name: redis
     volumes:
