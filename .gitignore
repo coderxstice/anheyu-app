@@ -8,6 +8,7 @@ dist.zip
 anheyu-app
 anheyu-app.exe
 anheyu-app-linux-arm64
+anheyu-app-linux-amd64
 .env
 temp
 /data/storage
