@@ -38,10 +38,22 @@ func NewLibrawCliGenerator(cachePath, userConfiguredPath string, exts []string, 
 
 	// 优先使用用户在后台配置的路径
 	if userConfiguredPath != "" {
-		if _, statErr := os.Stat(userConfiguredPath); statErr == nil {
-			foundPath = userConfiguredPath
+		// 检查是否是绝对路径
+		if strings.HasPrefix(userConfiguredPath, "/") {
+			// 绝对路径，使用 os.Stat 检查
+			if _, statErr := os.Stat(userConfiguredPath); statErr == nil {
+				foundPath = userConfiguredPath
+			} else {
+				log.Printf("[LibrawCliGenerator] 警告: 用户配置的 LibRaw/DCRaw 路径 '%s' 无效，将尝试自动搜索。", userConfiguredPath)
+			}
 		} else {
-			log.Printf("[LibrawCliGenerator] 警告: 用户配置的 LibRaw/DCRaw 路径 '%s' 无效，将尝试自动搜索。", userConfiguredPath)
+			// 命令名，使用 exec.LookPath 检查
+			if cmdPath, lookErr := exec.LookPath(userConfiguredPath); lookErr == nil {
+				foundPath = cmdPath
+				log.Printf("[LibrawCliGenerator] 成功找到用户配置的 LibRaw/DCRaw 命令位于 '%s'。", foundPath)
+			} else {
+				log.Printf("[LibrawCliGenerator] 警告: 用户配置的 LibRaw/DCRaw 命令 '%s' 无效，将尝试自动搜索。", userConfiguredPath)
+			}
 		}
 	}
 
