@@ -266,6 +266,10 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	return app, cleanup, nil
 }
 
+func (a *App) Config() *config.Config {
+	return a.cfg
+}
+
 func (a *App) Engine() *gin.Engine {
 	return a.engine
 }
