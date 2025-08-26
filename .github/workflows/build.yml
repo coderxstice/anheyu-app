@@ -30,10 +30,17 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm@9
 
-      - name: Install and Build Frontend
-        working-directory: ./assets
+      - name: Install Frontend
         run: |
+          cd assets # 前端代码目录
+
+          pwd
+
           pnpm install
+
+      - name: Build Frontend
+        run: |
+          cd assets # 前端代码目录
           pnpm run build
 
       - name: Cross-compile for Linux amd64
