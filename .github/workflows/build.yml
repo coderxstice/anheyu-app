@@ -2,11 +2,8 @@
 
 name: Build, Release and Publish Docker Image
 
-# 工作流触发条件：当一个 "v" 开头的 tag 被推送到仓库时
 on:
   push:
-    branches:
-      - main
     tags:
       - "v*"
 
@@ -31,11 +28,11 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm@9
 
-      - name: Install Frontend Dependencies
-        run: cd assets && pnpm install
-
-      - name: Build Frontend
-        run: cd assets && pnpm run build
+      - name: Install and Build Frontend
+        working-directory: ./assets
+        run: |
+          pnpm install
+          pnpm run build
 
       - name: Cross-compile for Linux amd64
         run: GOOS=linux GOARCH=amd64 GOAMD64=v1 go build -trimpath -ldflags="-s -w" -o anheyu-app-linux-amd64 .
@@ -67,38 +64,32 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           name: dist-files
           path: .
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
+          username: ${{ secrets.DOCK-USERNAME }}
+          password: ${{ secrets.DOCK-TOKEN }}
       - name: Extract metadata for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: anheyu/anheyu-backend
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -113,7 +104,6 @@ jobs:
         with:
           name: dist-files
           path: .
-
       - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v2
         with:
