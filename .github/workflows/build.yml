@@ -16,33 +16,50 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+          token: ${{ secrets.GH_PAT }}
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: "1.24"
 
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Download Go modules
+        run: go mod download
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+
+      - name: Cache Node modules
+        uses: actions/cache@v3
+        with:
+          path: assets/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('assets/pnpm-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Install pnpm
         run: npm install -g pnpm@9
 
       - name: Install Frontend
         run: |
-          cd assets # 前端代码目录
-
-          pwd
-
-          ls -la
-
+          cd assets
           pnpm install
 
       - name: Build Frontend
         run: |
-          cd assets # 前端代码目录
+          cd assets
           pnpm run build
 
       - name: Cross-compile for Linux amd64
