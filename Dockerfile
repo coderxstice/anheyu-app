@@ -13,10 +13,14 @@ ENV AN_SETTING_DEFAULT_ENABLE_FFMPEG_GENERATOR=true \
 
 COPY anheyu-app-linux-arm64 ./anheyu-app-linux-arm64
 
-COPY data ./data
+COPY default_files ./default-data
+
+COPY entrypoint.sh ./entrypoint.sh
 
 RUN chmod +x ./anheyu-app-linux-arm64
+RUN chmod +x ./entrypoint.sh
 
 EXPOSE 8091 443
 
+ENTRYPOINT ["./entrypoint.sh"]
 CMD ["./anheyu-app-linux-arm64"]
