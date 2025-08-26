@@ -16,15 +16,11 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 )
 
-// ✅ 第 1 步：定义 Service 接口
-// 这个接口定义了直链服务所有对外可用的功能。
 type Service interface {
 	GetOrCreateDirectLinks(ctx context.Context, userGroupID uint, fileIDs []uint) (map[uint]BatchLinkResult, error)
 	PrepareDownload(ctx context.Context, publicID string) (*model.File, string, *model.StoragePolicy, int64, error)
 }
 
-// ✅ 第 2 步：将原有的 DirectLinkService 结构体重命名为 directLinkServiceImpl
-// 它现在是 Service 接口的一个具体实现。
 type directLinkServiceImpl struct {
 	directLinkRepo    repository.DirectLinkRepository
 	fileRepo          repository.FileRepository
@@ -33,15 +29,13 @@ type directLinkServiceImpl struct {
 	storagePolicyRepo repository.StoragePolicyRepository
 }
 
-// ✅ 第 3 步：修改 NewDirectLinkService 构造函数，使其返回接口类型
-// NewDirectLinkService 是 DirectLinkService 的构造函数。
 func NewDirectLinkService(
 	directLinkRepo repository.DirectLinkRepository,
 	fileRepo repository.FileRepository,
 	userGroupRepo repository.UserGroupRepository,
 	settingSvc setting.SettingService,
 	storagePolicyRepo repository.StoragePolicyRepository,
-) Service { // <-- 注意这里的返回类型是 Service 接口
+) Service {
 	return &directLinkServiceImpl{
 		directLinkRepo:    directLinkRepo,
 		fileRepo:          fileRepo,
@@ -57,35 +51,54 @@ type BatchLinkResult struct {
 	VirtualURI string
 }
 
-// --- 以下所有方法，接收者都从 *DirectLinkService 修改为 *directLinkServiceImpl ---
-
 // GetOrCreateDirectLinks 获取或创建批量文件的直链。
 func (s *directLinkServiceImpl) GetOrCreateDirectLinks(ctx context.Context, userGroupID uint, fileIDs []uint) (map[uint]BatchLinkResult, error) {
-	// 1. 获取用户组信息，以得到创建新链接时需要“快照”的限速值
-	userGroup, err := s.userGroupRepo.FindByID(ctx, userGroupID)
-	if err != nil {
-		return nil, fmt.Errorf("查找用户组信息失败: %w", err)
+	// 1. 获取用户组信息并处理限速
+	var speedLimitBytes int64
+	if userGroupID > 0 {
+		userGroup, err := s.userGroupRepo.FindByID(ctx, userGroupID)
+		if err != nil {
+			return nil, fmt.Errorf("查找用户组信息失败: %w", err)
+		}
+		if userGroup != nil {
+			speedLimitBytes = userGroup.SpeedLimit * 1024 * 1024
+		}
 	}
-	speedLimitBytes := userGroup.SpeedLimit * 1024 * 1024
 
-	// 2. 批量获取文件信息，用于获取创建新链接时需要“快照”的文件名
+	// 2. 批量获取文件信息
 	files, err := s.fileRepo.FindBatchByIDs(ctx, fileIDs)
 	if err != nil {
 		return nil, fmt.Errorf("批量查找文件信息失败: %w", err)
 	}
-	// 检查是否有请求的文件未找到
 	if len(files) != len(fileIDs) {
 		log.Printf("警告：请求 %d 个文件，但只找到了 %d 个", len(fileIDs), len(files))
 	}
 
-	// 3. 准备“查找或创建”的直链领域模型切片
-	linksToProcess := make([]*model.DirectLink, len(files))
-	for i, file := range files {
-		linksToProcess[i] = &model.DirectLink{
+	// 3. 准备“查找或创建”的直链模型，并加入【关键的权限检查】
+	linksToProcess := make([]*model.DirectLink, 0, len(files)) // 初始化容量
+	for _, file := range files {
+		// --- 安全检查 ---
+		// 此处约定：
+		// - userGroupID = 0: 代表一个系统内部的、匿名的调用（例如PRO版的图片代理）。
+		//   这种调用只允许为系统所有（OwnerID=1）的公共资源创建链接。
+		// - userGroupID > 0: 代表一个真实的用户组。由于函数签名限制，无法获得 viewerID，
+		//   因此无法在此处校验文件所有权。这是一个待改进的设计。
+		//   暂时只保护系统调用，防止它访问用户私有文件。
+		if userGroupID == 0 && file.OwnerID != 1 {
+			log.Printf("安全警告：检测到匿名调用 (userGroupID=0) 尝试为用户私有文件 (FileID: %d, OwnerID: %d) 创建直链，操作已被拒绝。", file.ID, file.OwnerID)
+			continue // 跳过这个文件，不允许创建链接
+		}
+
+		linksToProcess = append(linksToProcess, &model.DirectLink{
 			FileID:     file.ID,
 			FileName:   file.Name,
 			SpeedLimit: speedLimitBytes,
-		}
+		})
+	}
+
+	// 如果经过权限过滤后，没有文件可供处理，则提前返回
+	if len(linksToProcess) == 0 {
+		return make(map[uint]BatchLinkResult), nil
 	}
 
 	// 4. 调用仓库进行“查找或创建”操作
@@ -93,24 +106,20 @@ func (s *directLinkServiceImpl) GetOrCreateDirectLinks(ctx context.Context, user
 		return nil, fmt.Errorf("获取或创建直链记录失败: %w", err)
 	}
 
-	// 5. 组装最终返回的 Map，并为每个链接动态生成 PublicID 和 URL
+	// 5. 组装最终返回的 Map
 	siteURL := s.settingSvc.Get(constant.KeySiteURL.String())
 	result := make(map[uint]BatchLinkResult)
 
 	for _, link := range linksToProcess {
-		// 动态生成 PublicID
 		publicID, err := idgen.GeneratePublicID(link.ID, idgen.EntityTypeDirectLink)
 		if err != nil {
 			log.Printf("警告：未能为直链ID %d 生成公共ID: %v", link.ID, err)
-			continue // 跳过这个无法生成ID的链接
+			continue
 		}
-
-		// 为每个文件查找其祖先路径以构建 virtual_uri
 		ancestors, err := s.fileRepo.FindAncestors(ctx, link.FileID)
 		var virtualURI string
 		if err != nil {
 			log.Printf("警告：未能为文件ID %d 查找祖先路径: %v", link.FileID, err)
-			// 即使找不到祖先，也用已知的文件名构建一个基础的URI
 			virtualURI = fmt.Sprintf("anzhiyu://my/%s", link.FileName)
 		} else {
 			var pathSegments []string
@@ -120,11 +129,9 @@ func (s *directLinkServiceImpl) GetOrCreateDirectLinks(ctx context.Context, user
 			filePath := path.Join(pathSegments...)
 			virtualURI = fmt.Sprintf("anzhiyu://my/%s", filePath)
 		}
-
 		trimmedSiteURL := strings.TrimSuffix(siteURL, "/")
 		encodedFileName := url.PathEscape(link.FileName)
 		fullURL := fmt.Sprintf("%s/api/f/%s/%s", trimmedSiteURL, publicID, encodedFileName)
-
 		result[link.FileID] = BatchLinkResult{
 			URL:        fullURL,
 			VirtualURI: virtualURI,

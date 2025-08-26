@@ -21,10 +21,10 @@ import (
 )
 
 // UploadFileByPolicyFlag 根据策略标志（如 article_image）上传文件。
-// 这是新的、推荐的上传系统文件（如文章、评论图片）的方法。
 func (s *serviceImpl) UploadFileByPolicyFlag(ctx context.Context, viewerID uint, fileReader io.Reader, policyFlag, filename string) (*model.FileItem, error) {
 	var createdFileItem *model.FileItem
-	const systemOwnerID uint = 1 // 系统文件所有者为管理员
+	var createdFile *model.File // 将 newFile 提升到事务外部作用域
+	const systemOwnerID uint = 1
 
 	// 1. 根据 Flag 从数据库查找对应的存储策略
 	policy, err := s.storagePolicyRepo.FindByFlag(ctx, policyFlag)
@@ -104,16 +104,16 @@ func (s *serviceImpl) UploadFileByPolicyFlag(ctx context.Context, viewerID uint,
 			return fmt.Errorf("创建文件记录失败: %w", err)
 		}
 
-		// 10. 发布文件创建事件，用于后续处理（如生成缩略图）
-		s.publishFileCreatedEventIfNeeded(newFile)
+		// 将事务内创建的 newFile 赋值给外部变量
+		createdFile = newFile
 
-		// 11. 构建用于API响应的 DTO
-		createdFileItem = s.BuildFileItemDTO(newFile, viewerID, parentVirtualPath, "")
+		// 10. 构建用于API响应的 DTO (注意：已移除此处的事件发布)
+		createdFileItem = s.BuildFileItemDTO(createdFile, viewerID, parentVirtualPath, "")
 
-		// 12. 为 DTO 生成可立即使用的下载链接
-		downloadURL, urlErr := s.GetDownloadURLForFile(ctx, newFile, createdFileItem.ID)
+		// 11. 为 DTO 生成可立即使用的下载链接
+		downloadURL, urlErr := s.GetDownloadURLForFile(ctx, createdFile, createdFileItem.ID)
 		if urlErr != nil {
-			log.Printf("【WARN】为新上传的图片 %s 生成下载链接失败: %v", newFile.Name, urlErr)
+			log.Printf("【WARN】为新上传的图片 %s 生成下载链接失败: %v", createdFile.Name, urlErr)
 		} else {
 			createdFileItem.URL = downloadURL
 		}
@@ -121,7 +121,17 @@ func (s *serviceImpl) UploadFileByPolicyFlag(ctx context.Context, viewerID uint,
 		return nil // 事务成功
 	})
 
-	return createdFileItem, err
+	// 如果事务执行失败，直接返回错误
+	if err != nil {
+		return nil, err
+	}
+
+	// 12. 在事务成功提交后，再发布事件
+	if createdFile != nil && createdFile.Type == model.FileTypeFile {
+		s.publishFileCreatedEventIfNeeded(createdFile)
+	}
+
+	return createdFileItem, nil
 }
 
 // CopyItems 是复制操作的公共入口。
