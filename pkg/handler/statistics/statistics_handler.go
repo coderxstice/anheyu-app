@@ -2,12 +2,13 @@
  * @Description: 访问统计API处理器
  * @Author: 安知鱼
  * @Date: 2025-01-20 15:30:00
- * @LastEditTime: 2025-01-20 15:30:00
+ * @LastEditTime: 2025-08-26 20:02:33
  * @LastEditors: 安知鱼
  */
 package statistics
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -66,6 +67,7 @@ func (h *StatisticsHandler) RecordVisit(c *gin.Context) {
 	}
 
 	if err := h.statService.RecordVisit(c.Request.Context(), c, &req); err != nil {
+		log.Printf("[statistics] RecordVisit service error: %v", err)
 		response.Fail(c, http.StatusInternalServerError, "记录访问失败")
 		return
 	}
