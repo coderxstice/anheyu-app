@@ -1,5 +1,8 @@
-name: Build and Deploy
+# .github/workflows/build.yml
 
+name: Build, Release and Publish Docker Image
+
+# 工作流触发条件：当一个 "v" 开头的 tag 被推送到仓库时
 on:
   push:
     tags:
@@ -7,120 +10,113 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
-
+    name: Build Binaries
+    runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-        with:
-          submodules: "recursive"
-          token: ${{ secrets.GH_PAT }}
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
           go-version: "1.24"
 
-      - name: Cache Go modules
-        uses: actions/cache@v3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      - name: Download Go modules
-        run: go mod download
-
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
 
-      - name: Cache Node modules
-        uses: actions/cache@v3
-        with:
-          path: assets/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('assets/pnpm-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
       - name: Install pnpm
-        run: npm install -g pnpm@10
+        run: npm install -g pnpm@9
 
-      - name: Install Frontend
-        run: |
-          cd assets # 前端代码目录
-          pnpm install
+      - name: Install Frontend Dependencies
+        run: cd assets && pnpm install
 
       - name: Build Frontend
-        run: |
-          cd assets # 前端代码目录
-          pnpm run build
+        run: cd assets && pnpm run build
 
       - name: Cross-compile for Linux amd64
-        run: GOOS=linux GOARCH=amd64 go build -o anheyu-app-linux-amd64
+        run: GOOS=linux GOARCH=amd64 GOAMD64=v1 go build -trimpath -ldflags="-s -w" -o anheyu-app-linux-amd64 .
 
-      - name: Upload Linux Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: anheyu-app-linux-amd64
-          path: anheyu-app-linux-amd64
+      - name: Cross-compile for Linux arm64
+        run: GOOS=linux GOARCH=arm64 go build -trimpath -ldflags="-s -w" -o anheyu-app-linux-arm64 .
 
       - name: Cross-compile for Windows amd64
-        run: GOOS=windows GOARCH=amd64 go build -o anheyu-app-windows-amd64.exe
-
-      - name: Upload Windows Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: anheyu-app-windows-amd64.exe
-          path: anheyu-app-windows-amd64.exe
+        run: GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o anheyu-app-windows-amd64.exe .
 
       - name: Cross-compile for macOS amd64
-        run: GOOS=darwin GOARCH=amd64 go build -o anheyu-app-macos-amd64
+        run: GOOS=darwin GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o anheyu-app-macos-amd64 .
 
-      - name: Upload macOS Artifact
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: anheyu-app-macos-amd64
-          path: anheyu-app-macos-amd64
+          name: dist-files
+          path: |
+            anheyu-app-linux-amd64
+            anheyu-app-linux-arm64
+            anheyu-app-windows-amd64.exe
+            anheyu-app-macos-amd64
+            data/
 
-  release:
-    runs-on: ubuntu-22.04
+  docker:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
     needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Download Linux Artifact
+      - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: anheyu-app-linux-amd64
-          path: . # 下载到当前目录
+          name: dist-files
+          path: .
 
-      - name: Download Windows Artifact
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: anheyu/anheyu-backend
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: anheyu-app-windows-amd64.exe
-          path: . # 下载到当前目录
-
-      - name: Download macOS Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: anheyu-app-macos-amd64
-          path: . # 下载到当前目录
+          name: dist-files
+          path: .
 
       - name: Create Release and Upload Assets
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             anheyu-app-linux-amd64
+            anheyu-app-linux-arm64
             anheyu-app-windows-amd64.exe
             anheyu-app-macos-amd64
-          body: |
-            ✨ 新版本发布！
-            🎉 这个版本包含了针对 Linux, Windows 和 macOS 的可执行文件。
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub 提供的默认 token
