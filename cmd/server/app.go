@@ -154,7 +154,6 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	emailSvc := utility.NewEmailService(settingSvc)
 	cacheSvc := utility.NewCacheService(redisClient)
 	tokenSvc := auth.NewTokenService(userRepo, settingSvc, cacheSvc)
-	authSvc := auth.NewAuthService(userRepo, settingSvc, tokenSvc, emailSvc, txManager)
 	geoIPDbPath := "./data/geoip/GeoLite2-City.mmdb"
 	geoSvc, err := utility.NewGeoIPService(geoIPDbPath, settingSvc)
 	if err != nil {
@@ -196,6 +195,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	taskBroker := task.NewBroker(uploadSvc, thumbnailSvc, cleanupSvc, articleRepo, commentRepo, emailSvc, cacheSvc, linkCategoryRepo, linkTagRepo, settingSvc, statService)
 	linkSvc := link_service.NewService(linkRepo, linkCategoryRepo, linkTagRepo, txManager, taskBroker)
 	articleSvc := article_service.NewService(articleRepo, postTagRepo, postCategoryRepo, txManager, cacheSvc, geoSvc, taskBroker, settingSvc, parserSvc, fileSvc, directLinkSvc)
+	authSvc := auth.NewAuthService(userRepo, settingSvc, tokenSvc, emailSvc, txManager, articleSvc)
 	commentSvc := comment_service.NewService(commentRepo, userRepo, txManager, geoSvc, settingSvc, cacheSvc, taskBroker, fileSvc, parserSvc)
 	_ = listener.NewFilePostProcessingListener(eventBus, taskBroker, extractionSvc)
 

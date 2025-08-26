@@ -1,3 +1,10 @@
+/*
+ * @Description:
+ * @Author: 安知鱼
+ * @Date: 2025-08-22 12:41:16
+ * @LastEditTime: 2025-08-26 11:11:58
+ * @LastEditors: 安知鱼
+ */
 package auth
 
 import (
@@ -7,6 +14,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -16,6 +24,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
 	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
+	articleSvc "github.com/anzhiyu-c/anheyu-app/pkg/service/article"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/utility"
 )
@@ -39,6 +48,7 @@ type authService struct {
 	tokenSvc   TokenService
 	emailSvc   utility.EmailService
 	txManager  repository.TransactionManager
+	articleSvc articleSvc.Service
 }
 
 // NewAuthService 是 authService 的构造函数
@@ -48,6 +58,7 @@ func NewAuthService(
 	tokenSvc TokenService,
 	emailSvc utility.EmailService,
 	txManager repository.TransactionManager,
+	articleSvc articleSvc.Service,
 ) AuthService {
 	return &authService{
 		userRepo:   userRepo,
@@ -55,7 +66,44 @@ func NewAuthService(
 		tokenSvc:   tokenSvc,
 		emailSvc:   emailSvc,
 		txManager:  txManager,
+		articleSvc: articleSvc,
 	}
+}
+
+// createDefaultArticle 为新用户创建一篇默认的欢迎文章。
+// 它在一个独立的 goroutine 中运行，以避免阻塞注册流程。
+func (s *authService) createDefaultArticle(ctx context.Context) {
+	log.Println("[INFO] Starting to create default article for new user.")
+
+	// 步骤 1: 读取默认文章的 Markdown 内容
+	mdBytes, err := os.ReadFile("data/DefaultArticle.md")
+	if err != nil {
+		log.Printf("[ERROR] Failed to read default article file 'data/DefaultArticle.md': %v", err)
+		return
+	}
+	content := string(mdBytes)
+
+	// 步骤 2: 准备创建文章的请求体
+	// 注意：由于文章服务期望 content_html 字段由上游提供，
+	// 我们将文件内容同时赋给 ContentMd 和 ContentHTML。
+	// article.Service 中的 SanitizeHTML 会处理其中的 HTML 标签。
+	req := &model.CreateArticleRequest{
+		Title:       "欢迎使用 Anheyu-App！",
+		ContentMd:   content,
+		ContentHTML: content,     // 将原始内容传递给HTML字段以进行净化
+		Status:      "PUBLISHED", // 默认发布
+		Summaries:   []string{"这是一篇系统生成的默认文章", "你可以编辑或删除它"},
+	}
+
+	// 步骤 3: 调用文章服务创建文章
+	// 使用 "system" 作为 IP 地址标识
+	article, err := s.articleSvc.Create(ctx, req, "system")
+	if err != nil {
+		log.Printf("[ERROR] Failed to create default article: %v", err)
+		return
+	}
+
+	log.Printf("[INFO] Successfully created default article with ID: %s", article.ID)
 }
 
 // Login 实现了用户登录的完整业务逻辑
@@ -247,6 +295,9 @@ func (s *authService) Register(ctx context.Context, email, password string) (boo
 	if err != nil {
 		return false, err
 	}
+
+	// 异步为该用户创建一篇默认文章
+	go s.createDefaultArticle(context.Background())
 
 	// --- 步骤4：事务成功后，发送激活邮件 ---
 	if activationEnabled {
