@@ -36,6 +36,8 @@ jobs:
 
           pwd
 
+          ls -la
+
           pnpm install
 
       - name: Build Frontend
