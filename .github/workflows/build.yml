@@ -68,7 +68,7 @@ jobs:
             anheyu-app-linux-arm64
             anheyu-app-windows-amd64.exe
             anheyu-app-macos-amd64
-            data/
+            default_files/
 
   docker:
     name: Build and Push Docker Image
