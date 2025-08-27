@@ -48,16 +48,16 @@ jobs:
           pnpm run build
 
       - name: Cross-compile for Linux amd64
-        run: GOOS=linux GOARCH=amd64 GOAMD64=v1 go build -trimpath -ldflags="-s -w" -o anheyu-app-linux-amd64 .
+        run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GOAMD64=v1 go build -trimpath -ldflags="-s -w" -o anheyu-app-linux-amd64 .
 
       - name: Cross-compile for Linux arm64
-        run: GOOS=linux GOARCH=arm64 go build -trimpath -ldflags="-s -w" -o anheyu-app-linux-arm64 .
+        run: CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -ldflags="-s -w" -o anheyu-app-linux-arm64 .
 
       - name: Cross-compile for Windows amd64
-        run: GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o anheyu-app-windows-amd64.exe .
+        run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o anheyu-app-windows-amd64.exe .
 
       - name: Cross-compile for macOS amd64
-        run: GOOS=darwin GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o anheyu-app-macos-amd64 .
+        run: CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o anheyu-app-macos-amd64 .
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
