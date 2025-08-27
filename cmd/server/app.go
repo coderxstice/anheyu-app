@@ -7,6 +7,7 @@ import (
 	"embed"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 
@@ -91,7 +92,13 @@ func (a *App) printBanner() {
 `
 	log.Println(banner)
 	log.Println("--------------------------------------------------------")
-	log.Println(" Anheyu App - Community Version")
+
+	// 检查是否为 PRO 版本
+	if os.Getenv("ANHEYU_LICENSE_KEY") != "" {
+		log.Println(" Anheyu App - PRO 专业版")
+	} else {
+		log.Println(" Anheyu App - Community Version")
+	}
 	log.Println("--------------------------------------------------------")
 }
 
