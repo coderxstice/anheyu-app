@@ -17,28 +17,7 @@ import (
 //go:embed assets/dist
 var content embed.FS
 
-const version = "1.0.0" // Community Version
-
-func printBanner() {
-	banner := `
-
-       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
-      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
-      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
-      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
-      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
-      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
-
-`
-	log.Println(banner)
-	log.Println("--------------------------------------------------------")
-	log.Printf(" Anheyu App - Community Version: %s", version)
-	log.Println("--------------------------------------------------------")
-}
-
 func main() {
-	printBanner()
-
 	// 调用位于 cmd/server 包中的 NewApp 函数来构建整个应用
 	app, cleanup, err := server.NewApp(content)
 	if err != nil {

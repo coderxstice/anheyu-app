@@ -77,6 +77,24 @@ type App struct {
 	fileRepo             repository.FileRepository
 }
 
+// printBanner 打印应用启动 banner
+func (a *App) printBanner() {
+	banner := `
+
+       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
+      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
+      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
+      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
+      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
+      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
+
+`
+	log.Println(banner)
+	log.Println("--------------------------------------------------------")
+	log.Println(" Anheyu App - Community Version")
+	log.Println("--------------------------------------------------------")
+}
+
 // NewApp 是应用的构造函数，它执行所有的初始化和依赖注入工作
 func NewApp(content embed.FS) (*App, func(), error) {
 	// --- Phase 1: 加载外部配置 ---
@@ -315,6 +333,10 @@ func (a *App) Run() error {
 		port = "8091"
 	}
 	fmt.Printf("应用程序启动成功，正在监听端口: %s\n", port)
+
+	// 在启动服务器前打印 banner
+	a.printBanner()
+
 	return a.engine.Run(":" + port)
 }
 
