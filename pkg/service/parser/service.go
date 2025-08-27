@@ -68,7 +68,9 @@ func NewService(settingSvc setting.SettingService, bus *event.EventBus) *Service
 	policy.AllowElements("div", "ul", "i", "table", "thead", "tbody", "tr", "th", "td", "button", "a", "img", "span", "code", "pre", "h1", "h2", "h3", "h4", "h5", "h6", "font", "p", "details", "summary", "svg", "path", "circle", "input", "math", "semantics", "mrow", "mi", "mo", "msup", "mn", "annotation", "style", "g", "marker", "rect", "foreignObject", "li", "ol", "strong", "u", "em", "s", "sup", "sub", "blockquote", "figure")
 
 	policy.AllowAttrs("class").Matching(bluemonday.SpaceSeparatedTokens).OnElements("ul", "i", "code", "span", "img", "a", "button", "pre", "div", "table", "thead", "tbody", "tr", "th", "td", "h1", "h2", "h3", "h4", "h5", "h6", "font", "p", "details", "summary", "svg", "path", "circle", "input", "g", "rect", "li", "line", "text", "tspan", "blockquote")
-	policy.AllowAttrs("style").OnElements("div", "span", "p", "font", "th", "td", "rect", "blockquote")
+	policy.AllowAttrs("style").OnElements(
+		"div", "span", "p", "font", "th", "td", "rect", "blockquote", "img", "h1", "h2", "h3", "h4", "h5", "h6", "a", "strong", "b", "em", "i", "u", "s", "strike", "del", "pre", "code", "sub", "sup", "mark", "ul", "ol", "li", "table", "thead", "tbody", "tfoot", "tr", "section", "article", "header", "footer", "nav", "aside", "main", "hr", "figure", "figcaption", "svg", "path", "circle", "line", "g", "text",
+	)
 	policy.AllowAttrs("color").OnElements("font")
 	policy.AllowAttrs("xmlns").OnElements("annotation", "div")
 	policy.AllowAttrs("encoding").OnElements("input")
