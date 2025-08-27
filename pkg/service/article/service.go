@@ -147,7 +147,7 @@ func (s *serviceImpl) getPrimaryColorFromImageURL(ctx context.Context, imageURL 
 
 	q := reqURL.Query()
 	q.Set("key", apiToken)
-	q.Set("url", imageURL)
+	q.Set("img", imageURL)
 	reqURL.RawQuery = q.Encode()
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqURL.String(), nil)
