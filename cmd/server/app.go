@@ -20,6 +20,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/internal/infra/router"
 	"github.com/anzhiyu-c/anheyu-app/internal/infra/storage"
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/event"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/version"
 	"github.com/anzhiyu-c/anheyu-app/pkg/config"
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
@@ -69,6 +70,7 @@ type App struct {
 	engine               *gin.Engine
 	taskBroker           *task.Broker
 	sqlDB                *sql.DB
+	appVersion           string
 	articleService       article_service.Service
 	directLinkService    direct_link.Service
 	storagePolicyRepo    repository.StoragePolicyRepository
@@ -78,8 +80,7 @@ type App struct {
 	fileRepo             repository.FileRepository
 }
 
-// printBanner 打印应用启动 banner
-func (a *App) printBanner() {
+func (a *App) PrintBanner() {
 	banner := `
 
        █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
@@ -93,17 +94,25 @@ func (a *App) printBanner() {
 	log.Println(banner)
 	log.Println("--------------------------------------------------------")
 
-	// 检查是否为 PRO 版本
+	// --- 核心修改在这里 ---
+	// 检查 ANHEYU_LICENSE_KEY 环境变量
 	if os.Getenv("ANHEYU_LICENSE_KEY") != "" {
-		log.Println(" Anheyu App - PRO 专业版")
+		// 如果存在，就认为是 PRO 版本
+		log.Printf(" Anheyu App - PRO Version: %s", a.appVersion)
 	} else {
-		log.Println(" Anheyu App - Community Version")
+		// 如果不存在，就是社区版
+		log.Printf(" Anheyu App - Community Version: %s", a.appVersion)
 	}
+	// ---------------------
+
 	log.Println("--------------------------------------------------------")
 }
 
 // NewApp 是应用的构造函数，它执行所有的初始化和依赖注入工作
 func NewApp(content embed.FS) (*App, func(), error) {
+	// 在初始化早期获取版本信息
+	appVersion := version.GetVersion()
+
 	// --- Phase 1: 加载外部配置 ---
 	cfg, err := config.NewConfig()
 	if err != nil {
@@ -167,7 +176,6 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	}
 
 	// --- Phase 5: 初始化业务逻辑层 ---
-	// 注意：这里的 Svc 变量现在都是接口类型，因为它们的构造函数返回接口
 	txManager := ent_impl.NewEntTransactionManager(entClient, sqlDB, dbType)
 	settingSvc := setting.NewSettingService(settingRepo, eventBus)
 	if err := settingSvc.LoadAllSettings(context.Background()); err != nil {
@@ -262,6 +270,15 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	)
 
 	// --- Phase 8: 配置 Gin 引擎 ---
+
+	if cfg.GetBool("System.Debug") {
+		gin.SetMode(gin.DebugMode)
+		log.Println("运行模式: Debug (Gin 将打印详细路由日志)")
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+		log.Println("运行模式: Release (Gin 启动日志已禁用)")
+	}
+
 	engine := gin.Default()
 	err = engine.SetTrustedProxies(nil)
 	if err != nil {
@@ -278,6 +295,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		engine:               engine,
 		taskBroker:           taskBroker,
 		sqlDB:                sqlDB,
+		appVersion:           appVersion,
 		articleService:       articleSvc,
 		directLinkService:    directLinkSvc,
 		storagePolicyRepo:    storagePolicyRepo,
@@ -330,6 +348,11 @@ func (a *App) StoragePolicyService() volume.IStoragePolicyService {
 	return a.storagePolicyService
 }
 
+// Version 返回应用的版本号
+func (a *App) Version() string {
+	return a.appVersion
+}
+
 func (a *App) Run() error {
 	a.taskBroker.RegisterCronJobs()
 	a.taskBroker.CheckAndRunMissedAggregation()
@@ -339,9 +362,6 @@ func (a *App) Run() error {
 		port = "8091"
 	}
 	fmt.Printf("应用程序启动成功，正在监听端口: %s\n", port)
-
-	// 在启动服务器前打印 banner
-	a.printBanner()
 
 	return a.engine.Run(":" + port)
 }
