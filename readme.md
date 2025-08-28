@@ -1,27 +1,24 @@
-<div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center;    flex-direction: column;">
+<p align="center">
+  <a href="https://github.com/anzhiyu-c/anheyu-app" target="_blank" title="访问项目仓库">
+    <img src="https://upload-bbs.miyoushe.com/upload/2025/08/27/125766904/445bc304fe1a5edf8c0250beac0731b5_953439680145318785.png" height="400" width="600" alt="Logo" />
+  </a>
+</p>
 
-<img src="https://upload-bbs.miyoushe.com/upload/2025/08/27/125766904/445bc304fe1a5edf8c0250beac0731b5_953439680145318785.png" height="400" width="600" alt="Logo" />
+<p align="center"><strong>一个现代化的内容管理与分享平台</strong></p>
 
-
-**一个现代化的内容管理与分享平台**
-
-  <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; margin-bottom: 1em;">
-    <img style="margin: 0 4px;" alt="Go Version" src="https://img.shields.io/badge/Go-%3E%3D%201.24.4-91DEFA?style=flat">
-    <img style="margin: 0 4px;" alt="Node Version" src="https://img.shields.io/badge/Node-%3E%3D%2020.19.4-yellowgreen?style=flat">
-    <img style="margin: 0 4px;" alt="License" src="https://img.shields.io/github/license/anzhiyu-c/anheyu-app.svg?style=flat">
-    <img style="margin: 0 4px;" alt="GitHub Release" src="https://img.shields.io/github/v/release/anzhiyu-c/anheyu-app?style=flat">
-    <img style="margin: 0 4px;" alt="Docker Pull" src="https://img.shields.io/docker/pulls/anheyu/anheyu-backend?color=red&label=Docker%20Pull">
-    <img style="margin: 0 4px;" alt="GitHub Commits" src="https://img.shields.io/github/commit-activity/m/anzhiyu-c/anheyu-app.svg?style=flat&color=brightgreen&label=commits">
-  </div>
-
-  <div style="display: flex; justify-content: center; align-items: center;">
-    <img style="margin: 0 4px; border-radius: 0;" alt="GitHub Watchers" src="https://img.shields.io/github/watchers/anzhiyu-c/anheyu-app.svg?label=Watchers&style=social">
-    <img style="margin: 0 4px; border-radius: 0;" alt="GitHub Stars" src="https://img.shields.io/github/stars/anzhiyu-c/anheyu-app.svg?label=Stars&style=social">
-    <img style="margin: 0 4px; border-radius: 0;" alt="GitHub Forks" src="https://img.shields.io/github/forks/anzhiyu-c/anheyu-app.svg?label=Forks&style=social">
-  </div>
-
-
-</div>
+<p align="center">
+  <a title="Go Version" target="_blank" href="https://go.dev/"><img alt="Go Version" src="https://img.shields.io/badge/Go-%3E%3D%201.24.4-91DEFA?style=flat"></a>
+  <a title="Node.js Version" target="_blank" href="https://nodejs.org/"><img alt="Node Version" src="https://img.shields.io/badge/Node-%3E%3D%2020.19.4-yellowgreen?style=flat"></a>
+  <a title="License" target="_blank" href="https://github.com/anzhiyu-c/anheyu-app/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/anzhiyu-c/anheyu-app.svg?style=flat"></a>
+  <br>
+  <a title="GitHub Release" target="_blank" href="https://github.com/anzhiyu-c/anheyu-app/releases"><img alt="GitHub Release" src="https://img.shields.io/github/v/release/anzhiyu-c/anheyu-app?style=flat"></a>
+  <a title="Docker Pulls" target="_blank" href="https://hub.docker.com/r/anheyu/anheyu-backend"><img alt="Docker Pull" src="https://img.shields.io/docker/pulls/anheyu/anheyu-backend?color=red&label=Docker%20Pull"></a>
+  <a title="GitHub Commits" target="_blank" href="https://github.com/anzhiyu-c/anheyu-app/commits/main"><img alt="GitHub Commits" src="https://img.shields.io/github/commit-activity/m/anzhiyu-c/anheyu-app.svg?style=flat&color=brightgreen&label=commits"></a>
+  <br><br>
+  <a title="GitHub Watchers" target="_blank" href="https://github.com/anzhiyu-c/anheyu-app/watchers"><img alt="GitHub Watchers" src="https://img.shields.io/github/watchers/anzhiyu-c/anheyu-app.svg?label=Watchers&style=social"></a>  
+  <a title="GitHub Stars" target="_blank" href="https://github.com/anzhiyu-c/anheyu-app/stargazers"><img alt="GitHub Stars" src="https://img.shields.io/github/stars/anzhiyu-c/anheyu-app.svg?label=Stars&style=social"></a>  
+  <a title="GitHub Forks" target="_blank" href="https://github.com/anzhiyu-c/anheyu-app/network/members"><img alt="GitHub Forks" src="https://img.shields.io/github/forks/anzhiyu-c/anheyu-app.svg?label=Forks&style=social"></a>  
+</p>
 
 
 如果能给我一个**star**那将是对我莫大的鼓励。使用这个应用之前，你应该明白它是一个完全独立的应用，它需要`服务器`才能进行搭建，推荐使用 docker 部署，能够极大的削弱环境配置带来的问题。
