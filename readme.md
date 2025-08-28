@@ -10,7 +10,7 @@
     <img style="margin: 0 4px;" alt="Node Version" src="https://img.shields.io/badge/Node-%3E%3D%2020.19.4-yellowgreen?style=flat">
     <img style="margin: 0 4px;" alt="License" src="https://img.shields.io/github/license/anzhiyu-c/anheyu-app.svg?style=flat">
     <img style="margin: 0 4px;" alt="GitHub Release" src="https://img.shields.io/github/v/release/anzhiyu-c/anheyu-app?style=flat">
-    <img style="margin: 0 4px;" alt="Docker Pull" src="https://img.shields.io/docker/pulls/anheyu/anheyu-backend?color=red&label=Docker Pull">
+    <img style="margin: 0 4px;" alt="Docker Pull" src="https://img.shields.io/docker/pulls/anheyu/anheyu-backend?color=red&label=Docker%20Pull">
     <img style="margin: 0 4px;" alt="GitHub Commits" src="https://img.shields.io/github/commit-activity/m/anzhiyu-c/anheyu-app.svg?style=flat&color=brightgreen&label=commits">
   </div>
 
