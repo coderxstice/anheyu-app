@@ -179,8 +179,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	emailSvc := utility.NewEmailService(settingSvc)
 	cacheSvc := utility.NewCacheService(redisClient)
 	tokenSvc := auth.NewTokenService(userRepo, settingSvc, cacheSvc)
-	geoIPDbPath := "./data/geoip/GeoLite2-City.mmdb"
-	geoSvc, err := utility.NewGeoIPService(geoIPDbPath, settingSvc)
+	geoSvc, err := utility.NewGeoIPService(settingSvc)
 	if err != nil {
 		log.Printf("警告: GeoIP 服务初始化失败: %v。IP属地将显示为'未知'", err)
 	}

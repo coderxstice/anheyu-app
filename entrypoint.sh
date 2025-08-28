@@ -5,14 +5,6 @@ set -e
 DATA_DIR="/anheyu/data"
 DEFAULT_DIR="/anheyu/default-data"
 
-mkdir -p "$DATA_DIR/geoip"
-
-# GeoIP 数据填充
-if [ ! -f "$DATA_DIR/geoip/GeoLite2-City.mmdb" ] && [ -f "$DEFAULT_DIR/geoip/GeoLite2-City.mmdb" ]; then
-  cp -f "$DEFAULT_DIR/geoip/GeoLite2-City.mmdb" "$DATA_DIR/geoip/GeoLite2-City.mmdb"
-  echo "[entrypoint] Seeded GeoIP database to $DATA_DIR/geoip/GeoLite2-City.mmdb"
-fi
-
 # DefaultArticle.md 填充
 if [ ! -f "$DATA_DIR/DefaultArticle.md" ] && [ -f "$DEFAULT_DIR/DefaultArticle.md" ]; then
   cp -f "$DEFAULT_DIR/DefaultArticle.md" "$DATA_DIR/DefaultArticle.md"
