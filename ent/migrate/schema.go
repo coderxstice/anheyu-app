@@ -361,6 +361,7 @@ var (
 		{Name: "name", Type: field.TypeString, Unique: true},
 		{Name: "description", Type: field.TypeString, Nullable: true},
 		{Name: "count", Type: field.TypeInt, Default: 0},
+		{Name: "is_series", Type: field.TypeBool, Default: false},
 	}
 	// PostCategoriesTable holds the schema information for the "post_categories" table.
 	PostCategoriesTable = &schema.Table{

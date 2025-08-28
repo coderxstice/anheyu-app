@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-07-25 11:32:22
- * @LastEditTime: 2025-08-05 10:13:18
+ * @LastEditTime: 2025-08-28 13:21:59
  * @LastEditors: 安知鱼
  */
 package schema
@@ -57,6 +57,10 @@ func (PostCategory) Fields() []ent.Field {
 			Comment("该分类下的文章数量").
 			Default(0).
 			NonNegative(),
+
+		field.Bool("is_series").
+			Comment("是否为系列").
+			Default(false),
 	}
 }
 

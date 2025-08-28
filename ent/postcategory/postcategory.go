@@ -27,6 +27,8 @@ const (
 	FieldDescription = "description"
 	// FieldCount holds the string denoting the count field in the database.
 	FieldCount = "count"
+	// FieldIsSeries holds the string denoting the is_series field in the database.
+	FieldIsSeries = "is_series"
 	// EdgeArticles holds the string denoting the articles edge name in mutations.
 	EdgeArticles = "articles"
 	// Table holds the table name of the postcategory in the database.
@@ -47,6 +49,7 @@ var Columns = []string{
 	FieldName,
 	FieldDescription,
 	FieldCount,
+	FieldIsSeries,
 }
 
 var (
@@ -84,6 +87,8 @@ var (
 	DefaultCount int
 	// CountValidator is a validator for the "count" field. It is called by the builders before save.
 	CountValidator func(int) error
+	// DefaultIsSeries holds the default value on creation for the "is_series" field.
+	DefaultIsSeries bool
 )
 
 // OrderOption defines the ordering options for the PostCategory queries.
@@ -122,6 +127,11 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 // ByCount orders the results by the count field.
 func ByCount(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCount, opts...).ToFunc()
+}
+
+// ByIsSeries orders the results by the is_series field.
+func ByIsSeries(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsSeries, opts...).ToFunc()
 }
 
 // ByArticlesCount orders the results by articles count.

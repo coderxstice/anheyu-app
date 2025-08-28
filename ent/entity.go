@@ -7,11 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/anzhiyu-c/anheyu-app/ent/entity"
-	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
-
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/anzhiyu-c/anheyu-app/ent/entity"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 )
 
 // Entity is the model entity for the Entity schema.

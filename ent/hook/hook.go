@@ -3,9 +3,10 @@
 package hook
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent"
 	"context"
 	"fmt"
+
+	"github.com/anzhiyu-c/anheyu-app/ent"
 )
 
 // The AlbumFunc type is an adapter to allow the use of ordinary

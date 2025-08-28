@@ -8,13 +8,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
-	"github.com/anzhiyu-c/anheyu-app/ent/storagepolicy"
-	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
-
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
+	"github.com/anzhiyu-c/anheyu-app/ent/storagepolicy"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 )
 
 // StoragePolicyUpdate is the builder for updating StoragePolicy entities.

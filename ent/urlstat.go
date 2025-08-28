@@ -3,13 +3,13 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/urlstat"
 	"fmt"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/anzhiyu-c/anheyu-app/ent/urlstat"
 )
 
 // URLStat is the model entity for the URLStat schema.

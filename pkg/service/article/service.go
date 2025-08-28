@@ -4,6 +4,7 @@ package article
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -273,7 +274,7 @@ func (s *serviceImpl) ToAPIResponse(a *model.Article, useAbbrlinkAsID bool, incl
 	}
 	categories := make([]*model.PostCategoryResponse, len(a.PostCategories))
 	for i, c := range a.PostCategories {
-		categories[i] = &model.PostCategoryResponse{ID: c.ID, CreatedAt: c.CreatedAt, UpdatedAt: c.UpdatedAt, Name: c.Name, Description: c.Description, Count: c.Count}
+		categories[i] = &model.PostCategoryResponse{ID: c.ID, CreatedAt: c.CreatedAt, UpdatedAt: c.UpdatedAt, Name: c.Name, Description: c.Description, Count: c.Count, IsSeries: c.IsSeries}
 	}
 
 	responseID := a.ID
@@ -457,6 +458,16 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 		if err != nil {
 			return err
 		}
+		// 如果文章关联了多个分类，检查其中是否包含“系列”
+		if len(categoryDBIDs) > 1 {
+			isSeries, err := repos.PostCategory.FindAnySeries(ctx, categoryDBIDs)
+			if err != nil {
+				return fmt.Errorf("检查系列分类失败: %w", err)
+			}
+			if isSeries {
+				return errors.New("系列分类不能与其他分类同时选择")
+			}
+		}
 		coverURL := req.CoverURL
 		if coverURL == "" {
 			coverURL = s.settingSvc.Get(constant.KeyPostDefaultCover.String())
@@ -585,6 +596,26 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 			oldCategoryIDs[i], _, _ = idgen.DecodePublicID(c.ID)
 		}
 
+		var newCategoryDBIDs []uint
+		if req.PostCategoryIDs != nil {
+			var err error
+			newCategoryDBIDs, err = idgen.DecodePublicIDBatch(req.PostCategoryIDs)
+			if err != nil {
+				return fmt.Errorf("无效的分类ID: %w", err)
+			}
+
+			// 如果文章被分配到多个分类，则检查其中是否包含“系列”分类
+			if len(newCategoryDBIDs) > 1 {
+				isSeries, err := repos.PostCategory.FindAnySeries(ctx, newCategoryDBIDs)
+				if err != nil {
+					return fmt.Errorf("检查系列分类失败: %w", err)
+				}
+				if isSeries {
+					return errors.New("系列分类不能与其他分类同时选择")
+				}
+			}
+		}
+
 		var computedParams model.UpdateArticleComputedParams
 
 		// 如果 Markdown 内容有更新，则重新计算字数和阅读时间
@@ -657,16 +688,19 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 		}
 		updatedArticle = articleAfterUpdate
 
-		newTagIDs, err := idgen.DecodePublicIDBatch(req.PostTagIDs)
-		if err != nil {
-			return err
+		var newTagIDs []uint
+		// 仅当请求中提供了标签时才解码，用于后续计数
+		if req.PostTagIDs != nil {
+			newTagIDs, err = idgen.DecodePublicIDBatch(req.PostTagIDs)
+			if err != nil {
+				return err
+			}
 		}
-		newCategoryIDs, err := idgen.DecodePublicIDBatch(req.PostCategoryIDs)
-		if err != nil {
-			return err
-		}
+
+		// 计算需要增加和减少计数的标签/分类
 		incTag, decTag := diffIDs(oldTagIDs, newTagIDs)
-		incCat, decCat := diffIDs(oldCategoryIDs, newCategoryIDs)
+		// 使用之前已解码的 newCategoryDBIDs，避免重复操作
+		incCat, decCat := diffIDs(oldCategoryIDs, newCategoryDBIDs)
 
 		if err := repos.PostTag.UpdateCount(ctx, incTag, decTag); err != nil {
 			return fmt.Errorf("更新标签计数失败: %w", err)

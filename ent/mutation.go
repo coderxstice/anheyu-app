@@ -9,6 +9,8 @@ import (
 	"sync"
 	"time"
 
+	"entgo.io/ent"
+	"entgo.io/ent/dialect/sql"
 	"github.com/anzhiyu-c/anheyu-app/ent/album"
 	"github.com/anzhiyu-c/anheyu-app/ent/article"
 	"github.com/anzhiyu-c/anheyu-app/ent/comment"
@@ -32,9 +34,6 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/visitorlog"
 	"github.com/anzhiyu-c/anheyu-app/ent/visitorstat"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
-
-	"entgo.io/ent"
-	"entgo.io/ent/dialect/sql"
 )
 
 const (
@@ -12874,6 +12873,7 @@ type PostCategoryMutation struct {
 	description     *string
 	count           *int
 	addcount        *int
+	is_series       *bool
 	clearedFields   map[string]struct{}
 	articles        map[uint]struct{}
 	removedarticles map[uint]struct{}
@@ -13249,6 +13249,42 @@ func (m *PostCategoryMutation) ResetCount() {
 	m.addcount = nil
 }
 
+// SetIsSeries sets the "is_series" field.
+func (m *PostCategoryMutation) SetIsSeries(b bool) {
+	m.is_series = &b
+}
+
+// IsSeries returns the value of the "is_series" field in the mutation.
+func (m *PostCategoryMutation) IsSeries() (r bool, exists bool) {
+	v := m.is_series
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsSeries returns the old "is_series" field's value of the PostCategory entity.
+// If the PostCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PostCategoryMutation) OldIsSeries(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsSeries is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsSeries requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsSeries: %w", err)
+	}
+	return oldValue.IsSeries, nil
+}
+
+// ResetIsSeries resets all changes to the "is_series" field.
+func (m *PostCategoryMutation) ResetIsSeries() {
+	m.is_series = nil
+}
+
 // AddArticleIDs adds the "articles" edge to the Article entity by ids.
 func (m *PostCategoryMutation) AddArticleIDs(ids ...uint) {
 	if m.articles == nil {
@@ -13337,7 +13373,7 @@ func (m *PostCategoryMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PostCategoryMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.deleted_at != nil {
 		fields = append(fields, postcategory.FieldDeletedAt)
 	}
@@ -13355,6 +13391,9 @@ func (m *PostCategoryMutation) Fields() []string {
 	}
 	if m.count != nil {
 		fields = append(fields, postcategory.FieldCount)
+	}
+	if m.is_series != nil {
+		fields = append(fields, postcategory.FieldIsSeries)
 	}
 	return fields
 }
@@ -13376,6 +13415,8 @@ func (m *PostCategoryMutation) Field(name string) (ent.Value, bool) {
 		return m.Description()
 	case postcategory.FieldCount:
 		return m.Count()
+	case postcategory.FieldIsSeries:
+		return m.IsSeries()
 	}
 	return nil, false
 }
@@ -13397,6 +13438,8 @@ func (m *PostCategoryMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldDescription(ctx)
 	case postcategory.FieldCount:
 		return m.OldCount(ctx)
+	case postcategory.FieldIsSeries:
+		return m.OldIsSeries(ctx)
 	}
 	return nil, fmt.Errorf("unknown PostCategory field %s", name)
 }
@@ -13447,6 +13490,13 @@ func (m *PostCategoryMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCount(v)
+		return nil
+	case postcategory.FieldIsSeries:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsSeries(v)
 		return nil
 	}
 	return fmt.Errorf("unknown PostCategory field %s", name)
@@ -13544,6 +13594,9 @@ func (m *PostCategoryMutation) ResetField(name string) error {
 		return nil
 	case postcategory.FieldCount:
 		m.ResetCount()
+		return nil
+	case postcategory.FieldIsSeries:
+		m.ResetIsSeries()
 		return nil
 	}
 	return fmt.Errorf("unknown PostCategory field %s", name)

@@ -3,11 +3,6 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/comment"
-	"github.com/anzhiyu-c/anheyu-app/ent/file"
-	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
-	"github.com/anzhiyu-c/anheyu-app/ent/user"
-	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
 	"context"
 	"errors"
 	"fmt"
@@ -16,6 +11,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/anzhiyu-c/anheyu-app/ent/comment"
+	"github.com/anzhiyu-c/anheyu-app/ent/file"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
+	"github.com/anzhiyu-c/anheyu-app/ent/user"
+	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
 )
 
 // UserUpdate is the builder for updating User entities.

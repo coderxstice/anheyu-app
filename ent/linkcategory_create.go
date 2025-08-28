@@ -3,8 +3,6 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/link"
-	"github.com/anzhiyu-c/anheyu-app/ent/linkcategory"
 	"context"
 	"errors"
 	"fmt"
@@ -12,6 +10,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/anzhiyu-c/anheyu-app/ent/link"
+	"github.com/anzhiyu-c/anheyu-app/ent/linkcategory"
 )
 
 // LinkCategoryCreate is the builder for creating a LinkCategory entity.

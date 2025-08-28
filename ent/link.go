@@ -3,13 +3,13 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/link"
-	"github.com/anzhiyu-c/anheyu-app/ent/linkcategory"
 	"fmt"
 	"strings"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/anzhiyu-c/anheyu-app/ent/link"
+	"github.com/anzhiyu-c/anheyu-app/ent/linkcategory"
 )
 
 // Link is the model entity for the Link schema.

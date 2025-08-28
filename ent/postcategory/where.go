@@ -3,11 +3,11 @@
 package postcategory
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.
@@ -83,6 +83,11 @@ func Description(v string) predicate.PostCategory {
 // Count applies equality check predicate on the "count" field. It's identical to CountEQ.
 func Count(v int) predicate.PostCategory {
 	return predicate.PostCategory(sql.FieldEQ(FieldCount, v))
+}
+
+// IsSeries applies equality check predicate on the "is_series" field. It's identical to IsSeriesEQ.
+func IsSeries(v bool) predicate.PostCategory {
+	return predicate.PostCategory(sql.FieldEQ(FieldIsSeries, v))
 }
 
 // DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
@@ -393,6 +398,16 @@ func CountLT(v int) predicate.PostCategory {
 // CountLTE applies the LTE predicate on the "count" field.
 func CountLTE(v int) predicate.PostCategory {
 	return predicate.PostCategory(sql.FieldLTE(FieldCount, v))
+}
+
+// IsSeriesEQ applies the EQ predicate on the "is_series" field.
+func IsSeriesEQ(v bool) predicate.PostCategory {
+	return predicate.PostCategory(sql.FieldEQ(FieldIsSeries, v))
+}
+
+// IsSeriesNEQ applies the NEQ predicate on the "is_series" field.
+func IsSeriesNEQ(v bool) predicate.PostCategory {
+	return predicate.PostCategory(sql.FieldNEQ(FieldIsSeries, v))
 }
 
 // HasArticles applies the HasEdge predicate on the "articles" edge.

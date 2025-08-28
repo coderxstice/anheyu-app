@@ -3,8 +3,6 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/album"
-	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 	"context"
 	"fmt"
 	"math"
@@ -13,6 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/anzhiyu-c/anheyu-app/ent/album"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 )
 
 // AlbumQuery is the builder for querying Album entities.

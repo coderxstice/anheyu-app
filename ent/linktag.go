@@ -3,12 +3,12 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/linktag"
 	"fmt"
 	"strings"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/anzhiyu-c/anheyu-app/ent/linktag"
 )
 
 // LinkTag is the model entity for the LinkTag schema.

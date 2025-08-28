@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-07-25 10:48:41
- * @LastEditTime: 2025-08-13 11:23:29
+ * @LastEditTime: 2025-08-28 13:34:08
  * @LastEditors: 安知鱼
  */
 package repository
@@ -72,4 +72,7 @@ type ArticleRepository interface {
 
 	// GetArchiveSummary 获取文章归档摘要
 	GetArchiveSummary(ctx context.Context) ([]*model.ArchiveItem, error)
+
+	// CountByCategoryWithMultipleCategories 计算有多少文章既属于目标分类，又同时属于其他分类。
+	CountByCategoryWithMultipleCategories(ctx context.Context, categoryID uint) (int, error)
 }

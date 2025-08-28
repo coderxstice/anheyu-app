@@ -3,14 +3,14 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/file"
-	"github.com/anzhiyu-c/anheyu-app/ent/metadata"
 	"fmt"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/anzhiyu-c/anheyu-app/ent/file"
+	"github.com/anzhiyu-c/anheyu-app/ent/metadata"
 )
 
 // Metadata is the model entity for the Metadata schema.

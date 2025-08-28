@@ -7,11 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
-	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
-
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 )
 
 // UserGroup is the model entity for the UserGroup schema.

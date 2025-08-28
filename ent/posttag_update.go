@@ -3,9 +3,6 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/article"
-	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
-	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 	"context"
 	"errors"
 	"fmt"
@@ -14,6 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/anzhiyu-c/anheyu-app/ent/article"
+	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 )
 
 // PostTagUpdate is the builder for updating PostTag entities.

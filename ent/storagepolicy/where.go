@@ -5,10 +5,9 @@ package storagepolicy
 import (
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
-
-	"entgo.io/ent/dialect/sql"
 )
 
 // ID filters vertices based on their ID field.

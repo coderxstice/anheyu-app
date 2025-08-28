@@ -7,11 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/anzhiyu-c/anheyu-app/ent/storagepolicy"
-	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
-
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/anzhiyu-c/anheyu-app/ent/storagepolicy"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 )
 
 // StoragePolicy is the model entity for the StoragePolicy schema.

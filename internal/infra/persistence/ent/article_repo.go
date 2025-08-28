@@ -50,7 +50,7 @@ func (r *articleRepo) toModel(a *ent.Article) *model.Article {
 		categories = make([]*model.PostCategory, len(a.Edges.PostCategories))
 		for i, c := range a.Edges.PostCategories {
 			categoryPublicID, _ := idgen.GeneratePublicID(c.ID, idgen.EntityTypePostCategory)
-			categories[i] = &model.PostCategory{ID: categoryPublicID, CreatedAt: c.CreatedAt, UpdatedAt: c.UpdatedAt, Name: c.Name, Description: c.Description}
+			categories[i] = &model.PostCategory{ID: categoryPublicID, CreatedAt: c.CreatedAt, UpdatedAt: c.UpdatedAt, Name: c.Name, Description: c.Description, IsSeries: c.IsSeries}
 		}
 	}
 
@@ -95,6 +95,37 @@ func (r *articleRepo) toModelSlice(entities []*ent.Article) []*model.Article {
 		models[i] = r.toModel(entity)
 	}
 	return models
+}
+
+// CountByCategoryWithMultipleCategories 计算有多少文章既属于目标分类，又同时属于其他分类。
+func (r *articleRepo) CountByCategoryWithMultipleCategories(ctx context.Context, categoryID uint) (int, error) {
+	// 步骤 1: 高效地找出所有隶属于目标分类的文章 ID。
+	articleIDs, err := r.db.Article.Query().
+		Where(article.HasPostCategoriesWith(postcategory.ID(categoryID))).
+		IDs(ctx)
+	if err != nil {
+		return 0, err
+	}
+	// 如果没有文章属于该分类，直接返回 0。
+	if len(articleIDs) == 0 {
+		return 0, nil
+	}
+
+	count, err := r.db.Article.Query().
+		Where(
+			article.IDIn(articleIDs...),
+			predicate.Article(func(s *sql.Selector) {
+				subQuery := sql.Select(sql.Count("*")).
+					// 使用我们定义的常量，而不是硬编码的字符串
+					From(sql.Table("article_post_categories")).
+					Where(sql.ColumnsEQ(s.C(article.FieldID), "article_id"))
+
+				s.Where(sql.ExprP("1 < ?", subQuery))
+			}),
+		).
+		Count(ctx)
+
+	return count, err
 }
 
 // getAdjacentArticle 是一个通用的辅助函数，用于获取上一篇或下一篇文章。

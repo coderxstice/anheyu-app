@@ -3,13 +3,13 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/tag"
 	"fmt"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/anzhiyu-c/anheyu-app/ent/tag"
 )
 
 // Tag is the model entity for the Tag schema.

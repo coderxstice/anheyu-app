@@ -3,11 +3,6 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/article"
-	"github.com/anzhiyu-c/anheyu-app/ent/comment"
-	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
-	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
-	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 	"context"
 	"database/sql/driver"
 	"fmt"
@@ -17,6 +12,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/anzhiyu-c/anheyu-app/ent/article"
+	"github.com/anzhiyu-c/anheyu-app/ent/comment"
+	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
+	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 )
 
 // ArticleQuery is the builder for querying Article entities.

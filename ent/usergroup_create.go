@@ -8,13 +8,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/anzhiyu-c/anheyu-app/ent/user"
-	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
-	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
-
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/anzhiyu-c/anheyu-app/ent/user"
+	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 )
 
 // UserGroupCreate is the builder for creating a UserGroup entity.

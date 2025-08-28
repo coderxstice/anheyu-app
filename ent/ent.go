@@ -3,6 +3,15 @@
 package ent
 
 import (
+	"context"
+	"errors"
+	"fmt"
+	"reflect"
+	"sync"
+
+	"entgo.io/ent"
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/anzhiyu-c/anheyu-app/ent/album"
 	"github.com/anzhiyu-c/anheyu-app/ent/article"
 	"github.com/anzhiyu-c/anheyu-app/ent/comment"
@@ -24,15 +33,6 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
 	"github.com/anzhiyu-c/anheyu-app/ent/visitorlog"
 	"github.com/anzhiyu-c/anheyu-app/ent/visitorstat"
-	"context"
-	"errors"
-	"fmt"
-	"reflect"
-	"sync"
-
-	"entgo.io/ent"
-	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ent aliases to avoid import conflicts in user's code.

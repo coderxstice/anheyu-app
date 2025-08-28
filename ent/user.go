@@ -3,14 +3,14 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/user"
-	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
 	"fmt"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/anzhiyu-c/anheyu-app/ent/user"
+	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
 )
 
 // User is the model entity for the User schema.

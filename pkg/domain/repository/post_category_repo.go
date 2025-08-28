@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-07-25 11:51:57
- * @LastEditTime: 2025-08-05 14:51:01
+ * @LastEditTime: 2025-08-28 13:33:32
  * @LastEditors: 安知鱼
  */
 package repository
@@ -22,4 +22,5 @@ type PostCategoryRepository interface {
 	GetByID(ctx context.Context, id string) (*model.PostCategory, error)
 	UpdateCount(ctx context.Context, incIDs, decIDs []uint) error
 	DeleteIfUnused(ctx context.Context, ids []uint) error
+	FindAnySeries(ctx context.Context, ids []uint) (bool, error)
 }

@@ -19,6 +19,23 @@ func NewPostCategoryRepo(db *ent.Client) repository.PostCategoryRepository {
 	return &postCategoryRepo{db: db}
 }
 
+// FindAnySeries 检查给定的 ID 列表中是否存在任何“系列”分类
+func (r *postCategoryRepo) FindAnySeries(ctx context.Context, ids []uint) (bool, error) {
+	if len(ids) == 0 {
+		return false, nil
+	}
+	count, err := r.db.PostCategory.Query().
+		Where(
+			postcategory.IDIn(ids...),
+			postcategory.IsSeries(true),
+		).
+		Count(ctx)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
 // DeleteIfUnused 实现了删除未使用分类的逻辑
 func (r *postCategoryRepo) DeleteIfUnused(ctx context.Context, ids []uint) error {
 	if len(ids) == 0 {
@@ -65,6 +82,7 @@ func (r *postCategoryRepo) toModel(c *ent.PostCategory) *model.PostCategory {
 		Name:        c.Name,
 		Description: c.Description,
 		Count:       c.Count,
+		IsSeries:    c.IsSeries,
 	}
 }
 
@@ -72,6 +90,7 @@ func (r *postCategoryRepo) Create(ctx context.Context, req *model.CreatePostCate
 	newCategory, err := r.db.PostCategory.Create().
 		SetName(req.Name).
 		SetNillableDescription(&req.Description).
+		SetIsSeries(req.IsSeries).
 		Save(ctx)
 	if err != nil {
 		return nil, err
@@ -90,6 +109,9 @@ func (r *postCategoryRepo) Update(ctx context.Context, publicID string, req *mod
 	}
 	if req.Description != nil {
 		updater.SetDescription(*req.Description)
+	}
+	if req.IsSeries != nil {
+		updater.SetIsSeries(*req.IsSeries)
 	}
 	updatedCategory, err := updater.Save(ctx)
 	if err != nil {

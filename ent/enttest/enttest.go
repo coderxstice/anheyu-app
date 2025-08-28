@@ -9,9 +9,8 @@ import (
 	// required by schema hooks.
 	_ "github.com/anzhiyu-c/anheyu-app/ent/runtime"
 
-	"github.com/anzhiyu-c/anheyu-app/ent/migrate"
-
 	"entgo.io/ent/dialect/sql/schema"
+	"github.com/anzhiyu-c/anheyu-app/ent/migrate"
 )
 
 type (

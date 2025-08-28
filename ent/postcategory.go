@@ -3,13 +3,13 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
 	"fmt"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
 )
 
 // PostCategory is the model entity for the PostCategory schema.
@@ -29,6 +29,8 @@ type PostCategory struct {
 	Description string `json:"description,omitempty"`
 	// 该分类下的文章数量
 	Count int `json:"count,omitempty"`
+	// 是否为系列
+	IsSeries bool `json:"is_series,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PostCategoryQuery when eager-loading is set.
 	Edges        PostCategoryEdges `json:"edges"`
@@ -58,6 +60,8 @@ func (*PostCategory) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case postcategory.FieldIsSeries:
+			values[i] = new(sql.NullBool)
 		case postcategory.FieldID, postcategory.FieldCount:
 			values[i] = new(sql.NullInt64)
 		case postcategory.FieldName, postcategory.FieldDescription:
@@ -122,6 +126,12 @@ func (pc *PostCategory) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pc.Count = int(value.Int64)
 			}
+		case postcategory.FieldIsSeries:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_series", values[i])
+			} else if value.Valid {
+				pc.IsSeries = value.Bool
+			}
 		default:
 			pc.selectValues.Set(columns[i], values[i])
 		}
@@ -182,6 +192,9 @@ func (pc *PostCategory) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("count=")
 	builder.WriteString(fmt.Sprintf("%v", pc.Count))
+	builder.WriteString(", ")
+	builder.WriteString("is_series=")
+	builder.WriteString(fmt.Sprintf("%v", pc.IsSeries))
 	builder.WriteByte(')')
 	return builder.String()
 }

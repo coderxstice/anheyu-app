@@ -3,8 +3,6 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
-	"github.com/anzhiyu-c/anheyu-app/ent/urlstat"
 	"context"
 	"errors"
 	"fmt"
@@ -13,6 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
+	"github.com/anzhiyu-c/anheyu-app/ent/urlstat"
 )
 
 // URLStatUpdate is the builder for updating URLStat entities.

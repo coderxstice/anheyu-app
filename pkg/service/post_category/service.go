@@ -2,26 +2,29 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-07-25 11:50:43
- * @LastEditTime: 2025-08-05 10:44:27
+ * @LastEditTime: 2025-08-28 13:27:36
  * @LastEditors: 安知鱼
  */
 package post_category
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
 )
 
 // Service 封装了文章分类的业务逻辑。
 type Service struct {
-	repo repository.PostCategoryRepository
+	repo        repository.PostCategoryRepository
+	articleRepo repository.ArticleRepository
 }
 
 // NewService 是 PostCategory Service 的构造函数。
-func NewService(repo repository.PostCategoryRepository) *Service {
-	return &Service{repo: repo}
+func NewService(repo repository.PostCategoryRepository, articleRepo repository.ArticleRepository) *Service {
+	return &Service{repo: repo, articleRepo: articleRepo}
 }
 
 // toAPIResponse 是一个私有的辅助函数，将领域模型转换为用于API响应的DTO。
@@ -36,6 +39,7 @@ func (s *Service) toAPIResponse(c *model.PostCategory) *model.PostCategoryRespon
 		Name:        c.Name,
 		Description: c.Description,
 		Count:       c.Count,
+		IsSeries:    c.IsSeries,
 	}
 }
 
@@ -65,6 +69,21 @@ func (s *Service) List(ctx context.Context) ([]*model.PostCategoryResponse, erro
 
 // Update 处理更新分类的业务逻辑。
 func (s *Service) Update(ctx context.Context, publicID string, req *model.UpdatePostCategoryRequest) (*model.PostCategoryResponse, error) {
+	if req.IsSeries != nil && *req.IsSeries {
+		dbID, _, err := idgen.DecodePublicID(publicID)
+		if err != nil {
+			return nil, fmt.Errorf("无效的分类ID: %w", err)
+		}
+
+		// 检查是否有文章同时属于此分类和其他分类
+		count, err := s.articleRepo.CountByCategoryWithMultipleCategories(ctx, dbID)
+		if err != nil {
+			return nil, fmt.Errorf("检查文章关联失败: %w", err)
+		}
+		if count > 0 {
+			return nil, fmt.Errorf("无法将此分类设置为系列，因为有 %d 篇关联文章同时属于其他分类", count)
+		}
+	}
 	updatedCategory, err := s.repo.Update(ctx, publicID, req)
 	if err != nil {
 		return nil, err

@@ -11,6 +11,10 @@ import (
 
 	"github.com/anzhiyu-c/anheyu-app/ent/migrate"
 
+	"entgo.io/ent"
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/anzhiyu-c/anheyu-app/ent/album"
 	"github.com/anzhiyu-c/anheyu-app/ent/article"
 	"github.com/anzhiyu-c/anheyu-app/ent/comment"
@@ -32,11 +36,6 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
 	"github.com/anzhiyu-c/anheyu-app/ent/visitorlog"
 	"github.com/anzhiyu-c/anheyu-app/ent/visitorstat"
-
-	"entgo.io/ent"
-	"entgo.io/ent/dialect"
-	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // Client is the client that holds all ent builders.

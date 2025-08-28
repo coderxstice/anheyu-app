@@ -3,8 +3,6 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/article"
-	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
 	"context"
 	"errors"
 	"fmt"
@@ -13,6 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/anzhiyu-c/anheyu-app/ent/article"
+	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
 )
 
 // PostCategoryCreate is the builder for creating a PostCategory entity.
@@ -99,6 +99,20 @@ func (pcc *PostCategoryCreate) SetNillableCount(i *int) *PostCategoryCreate {
 	return pcc
 }
 
+// SetIsSeries sets the "is_series" field.
+func (pcc *PostCategoryCreate) SetIsSeries(b bool) *PostCategoryCreate {
+	pcc.mutation.SetIsSeries(b)
+	return pcc
+}
+
+// SetNillableIsSeries sets the "is_series" field if the given value is not nil.
+func (pcc *PostCategoryCreate) SetNillableIsSeries(b *bool) *PostCategoryCreate {
+	if b != nil {
+		pcc.SetIsSeries(*b)
+	}
+	return pcc
+}
+
 // SetID sets the "id" field.
 func (pcc *PostCategoryCreate) SetID(u uint) *PostCategoryCreate {
 	pcc.mutation.SetID(u)
@@ -175,6 +189,10 @@ func (pcc *PostCategoryCreate) defaults() error {
 		v := postcategory.DefaultCount
 		pcc.mutation.SetCount(v)
 	}
+	if _, ok := pcc.mutation.IsSeries(); !ok {
+		v := postcategory.DefaultIsSeries
+		pcc.mutation.SetIsSeries(v)
+	}
 	return nil
 }
 
@@ -201,6 +219,9 @@ func (pcc *PostCategoryCreate) check() error {
 		if err := postcategory.CountValidator(v); err != nil {
 			return &ValidationError{Name: "count", err: fmt.Errorf(`ent: validator failed for field "PostCategory.count": %w`, err)}
 		}
+	}
+	if _, ok := pcc.mutation.IsSeries(); !ok {
+		return &ValidationError{Name: "is_series", err: errors.New(`ent: missing required field "PostCategory.is_series"`)}
 	}
 	return nil
 }
@@ -258,6 +279,10 @@ func (pcc *PostCategoryCreate) createSpec() (*PostCategory, *sqlgraph.CreateSpec
 	if value, ok := pcc.mutation.Count(); ok {
 		_spec.SetField(postcategory.FieldCount, field.TypeInt, value)
 		_node.Count = value
+	}
+	if value, ok := pcc.mutation.IsSeries(); ok {
+		_spec.SetField(postcategory.FieldIsSeries, field.TypeBool, value)
+		_node.IsSeries = value
 	}
 	if nodes := pcc.mutation.ArticlesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -405,6 +430,18 @@ func (u *PostCategoryUpsert) AddCount(v int) *PostCategoryUpsert {
 	return u
 }
 
+// SetIsSeries sets the "is_series" field.
+func (u *PostCategoryUpsert) SetIsSeries(v bool) *PostCategoryUpsert {
+	u.Set(postcategory.FieldIsSeries, v)
+	return u
+}
+
+// UpdateIsSeries sets the "is_series" field to the value that was provided on create.
+func (u *PostCategoryUpsert) UpdateIsSeries() *PostCategoryUpsert {
+	u.SetExcluded(postcategory.FieldIsSeries)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -544,6 +581,20 @@ func (u *PostCategoryUpsertOne) AddCount(v int) *PostCategoryUpsertOne {
 func (u *PostCategoryUpsertOne) UpdateCount() *PostCategoryUpsertOne {
 	return u.Update(func(s *PostCategoryUpsert) {
 		s.UpdateCount()
+	})
+}
+
+// SetIsSeries sets the "is_series" field.
+func (u *PostCategoryUpsertOne) SetIsSeries(v bool) *PostCategoryUpsertOne {
+	return u.Update(func(s *PostCategoryUpsert) {
+		s.SetIsSeries(v)
+	})
+}
+
+// UpdateIsSeries sets the "is_series" field to the value that was provided on create.
+func (u *PostCategoryUpsertOne) UpdateIsSeries() *PostCategoryUpsertOne {
+	return u.Update(func(s *PostCategoryUpsert) {
+		s.UpdateIsSeries()
 	})
 }
 
@@ -852,6 +903,20 @@ func (u *PostCategoryUpsertBulk) AddCount(v int) *PostCategoryUpsertBulk {
 func (u *PostCategoryUpsertBulk) UpdateCount() *PostCategoryUpsertBulk {
 	return u.Update(func(s *PostCategoryUpsert) {
 		s.UpdateCount()
+	})
+}
+
+// SetIsSeries sets the "is_series" field.
+func (u *PostCategoryUpsertBulk) SetIsSeries(v bool) *PostCategoryUpsertBulk {
+	return u.Update(func(s *PostCategoryUpsert) {
+		s.SetIsSeries(v)
+	})
+}
+
+// UpdateIsSeries sets the "is_series" field to the value that was provided on create.
+func (u *PostCategoryUpsertBulk) UpdateIsSeries() *PostCategoryUpsertBulk {
+	return u.Update(func(s *PostCategoryUpsert) {
+		s.UpdateIsSeries()
 	})
 }
 

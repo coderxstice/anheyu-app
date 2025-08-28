@@ -8,14 +8,13 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/schema/field"
 	"github.com/anzhiyu-c/anheyu-app/ent/entity"
 	"github.com/anzhiyu-c/anheyu-app/ent/fileentity"
 	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
-
-	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
-	"entgo.io/ent/schema/field"
 )
 
 // EntityUpdate is the builder for updating Entity entities.

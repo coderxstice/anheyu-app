@@ -3,13 +3,13 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/file"
-	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 	"context"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/anzhiyu-c/anheyu-app/ent/file"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 )
 
 // FileDelete is the builder for deleting a File entity.

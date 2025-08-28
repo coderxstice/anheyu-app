@@ -2,4 +2,4 @@
 
 package ent
 
-// The schema-stitching logic is generated in anheyu-app/ent/runtime/runtime.go
+// The schema-stitching logic is generated in github.com/anzhiyu-c/anheyu-app/ent/runtime/runtime.go

@@ -3,7 +3,6 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/article"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -11,6 +10,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/anzhiyu-c/anheyu-app/ent/article"
 )
 
 // Article is the model entity for the Article schema.

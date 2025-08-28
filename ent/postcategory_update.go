@@ -3,9 +3,6 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/article"
-	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
-	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 	"context"
 	"errors"
 	"fmt"
@@ -14,6 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/anzhiyu-c/anheyu-app/ent/article"
+	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 )
 
 // PostCategoryUpdate is the builder for updating PostCategory entities.
@@ -108,6 +108,20 @@ func (pcu *PostCategoryUpdate) SetNillableCount(i *int) *PostCategoryUpdate {
 // AddCount adds i to the "count" field.
 func (pcu *PostCategoryUpdate) AddCount(i int) *PostCategoryUpdate {
 	pcu.mutation.AddCount(i)
+	return pcu
+}
+
+// SetIsSeries sets the "is_series" field.
+func (pcu *PostCategoryUpdate) SetIsSeries(b bool) *PostCategoryUpdate {
+	pcu.mutation.SetIsSeries(b)
+	return pcu
+}
+
+// SetNillableIsSeries sets the "is_series" field if the given value is not nil.
+func (pcu *PostCategoryUpdate) SetNillableIsSeries(b *bool) *PostCategoryUpdate {
+	if b != nil {
+		pcu.SetIsSeries(*b)
+	}
 	return pcu
 }
 
@@ -250,6 +264,9 @@ func (pcu *PostCategoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := pcu.mutation.AddedCount(); ok {
 		_spec.AddField(postcategory.FieldCount, field.TypeInt, value)
+	}
+	if value, ok := pcu.mutation.IsSeries(); ok {
+		_spec.SetField(postcategory.FieldIsSeries, field.TypeBool, value)
 	}
 	if pcu.mutation.ArticlesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -396,6 +413,20 @@ func (pcuo *PostCategoryUpdateOne) SetNillableCount(i *int) *PostCategoryUpdateO
 // AddCount adds i to the "count" field.
 func (pcuo *PostCategoryUpdateOne) AddCount(i int) *PostCategoryUpdateOne {
 	pcuo.mutation.AddCount(i)
+	return pcuo
+}
+
+// SetIsSeries sets the "is_series" field.
+func (pcuo *PostCategoryUpdateOne) SetIsSeries(b bool) *PostCategoryUpdateOne {
+	pcuo.mutation.SetIsSeries(b)
+	return pcuo
+}
+
+// SetNillableIsSeries sets the "is_series" field if the given value is not nil.
+func (pcuo *PostCategoryUpdateOne) SetNillableIsSeries(b *bool) *PostCategoryUpdateOne {
+	if b != nil {
+		pcuo.SetIsSeries(*b)
+	}
 	return pcuo
 }
 
@@ -568,6 +599,9 @@ func (pcuo *PostCategoryUpdateOne) sqlSave(ctx context.Context) (_node *PostCate
 	}
 	if value, ok := pcuo.mutation.AddedCount(); ok {
 		_spec.AddField(postcategory.FieldCount, field.TypeInt, value)
+	}
+	if value, ok := pcuo.mutation.IsSeries(); ok {
+		_spec.SetField(postcategory.FieldIsSeries, field.TypeBool, value)
 	}
 	if pcuo.mutation.ArticlesCleared() {
 		edge := &sqlgraph.EdgeSpec{

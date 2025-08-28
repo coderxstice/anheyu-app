@@ -466,6 +466,10 @@ func init() {
 	postcategory.DefaultCount = postcategoryDescCount.Default.(int)
 	// postcategory.CountValidator is a validator for the "count" field. It is called by the builders before save.
 	postcategory.CountValidator = postcategoryDescCount.Validators[0].(func(int) error)
+	// postcategoryDescIsSeries is the schema descriptor for is_series field.
+	postcategoryDescIsSeries := postcategoryFields[6].Descriptor()
+	// postcategory.DefaultIsSeries holds the default value on creation for the is_series field.
+	postcategory.DefaultIsSeries = postcategoryDescIsSeries.Default.(bool)
 	posttagMixin := schema.PostTag{}.Mixin()
 	posttagMixinHooks0 := posttagMixin[0].Hooks()
 	posttag.Hooks[0] = posttagMixinHooks0[0]

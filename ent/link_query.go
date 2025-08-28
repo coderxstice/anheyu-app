@@ -3,10 +3,6 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/link"
-	"github.com/anzhiyu-c/anheyu-app/ent/linkcategory"
-	"github.com/anzhiyu-c/anheyu-app/ent/linktag"
-	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 	"context"
 	"database/sql/driver"
 	"fmt"
@@ -16,6 +12,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/anzhiyu-c/anheyu-app/ent/link"
+	"github.com/anzhiyu-c/anheyu-app/ent/linkcategory"
+	"github.com/anzhiyu-c/anheyu-app/ent/linktag"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 )
 
 // LinkQuery is the builder for querying Link entities.

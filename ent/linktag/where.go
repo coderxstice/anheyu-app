@@ -3,10 +3,9 @@
 package linktag
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
-
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.

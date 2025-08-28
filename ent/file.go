@@ -3,16 +3,16 @@
 package ent
 
 import (
-	"github.com/anzhiyu-c/anheyu-app/ent/directlink"
-	"github.com/anzhiyu-c/anheyu-app/ent/entity"
-	"github.com/anzhiyu-c/anheyu-app/ent/file"
-	"github.com/anzhiyu-c/anheyu-app/ent/user"
 	"fmt"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/anzhiyu-c/anheyu-app/ent/directlink"
+	"github.com/anzhiyu-c/anheyu-app/ent/entity"
+	"github.com/anzhiyu-c/anheyu-app/ent/file"
+	"github.com/anzhiyu-c/anheyu-app/ent/user"
 )
 
 // File is the model entity for the File schema.

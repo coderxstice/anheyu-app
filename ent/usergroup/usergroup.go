@@ -5,11 +5,10 @@ package usergroup
 import (
 	"time"
 
-	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
-
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 )
 
 const (

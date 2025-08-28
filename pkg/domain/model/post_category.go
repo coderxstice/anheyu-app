@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-07-25 11:43:47
- * @LastEditTime: 2025-08-05 10:28:06
+ * @LastEditTime: 2025-08-28 13:22:38
  * @LastEditors: 安知鱼
  */
 package model
@@ -19,6 +19,7 @@ type PostCategory struct {
 	Name        string
 	Description string
 	Count       int
+	IsSeries    bool
 }
 
 // --- API 数据传输对象 (Data Transfer Objects) ---
@@ -27,12 +28,14 @@ type PostCategory struct {
 type CreatePostCategoryRequest struct {
 	Name        string `json:"name" binding:"required"`
 	Description string `json:"description"`
+	IsSeries    bool   `json:"is_series"`
 }
 
 // UpdatePostCategoryRequest 定义了更新文章分类的请求体
 type UpdatePostCategoryRequest struct {
 	Name        *string `json:"name"`
 	Description *string `json:"description"`
+	IsSeries    *bool   `json:"is_series"`
 }
 
 // PostCategoryResponse 定义了文章分类的标准 API 响应结构
@@ -43,4 +46,5 @@ type PostCategoryResponse struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Count       int       `json:"count"`
+	IsSeries    bool      `json:"is_series"`
 }
