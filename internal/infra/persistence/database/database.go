@@ -142,5 +142,77 @@ func NewEntClient(db *sql.DB, cfg *config.Config) (*ent.Client, error) {
 	}
 
 	log.Println("✅ Ent 客户端初始化成功，并已同步数据库 schema！")
+
+	// 额外校验：检查 post_categories.is_series 列是否存在，便于定位迁移问题
+	if err := verifyPostCategoriesIsSeriesColumn(db, driverName); err != nil {
+		log.Printf("⚠️ 列存在性校验时发生错误: %v", err)
+	}
 	return client, nil
+}
+
+// verifyPostCategoriesIsSeriesColumn 检查表 post_categories 上是否存在 is_series 列，并打印详细结果。
+func verifyPostCategoriesIsSeriesColumn(db *sql.DB, driverName string) error {
+	switch driverName {
+	case "postgres":
+		// 默认 schema=public
+		const q = `SELECT column_name, data_type, is_nullable, column_default
+FROM information_schema.columns
+WHERE table_schema = 'public' AND table_name = 'post_categories' AND column_name = 'is_series'`
+		row := db.QueryRow(q)
+		var name, dataType, isNullable, colDefault string
+		if err := row.Scan(&name, &dataType, &isNullable, &colDefault); err != nil {
+			if err == sql.ErrNoRows {
+				log.Println("❌ 校验结果: 表 post_categories 缺少列 is_series (postgres)")
+				return nil
+			}
+			return fmt.Errorf("postgres 校验查询失败: %w", err)
+		}
+		log.Printf("✅ 校验结果: 列存在 (postgres) -> name=%s, type=%s, nullable=%s, default=%s", name, dataType, isNullable, colDefault)
+		return nil
+	case "mysql":
+		const q = `SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE, COLUMN_DEFAULT
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'post_categories' AND COLUMN_NAME = 'is_series'`
+		row := db.QueryRow(q)
+		var name, dataType, isNullable, colDefault sql.NullString
+		if err := row.Scan(&name, &dataType, &isNullable, &colDefault); err != nil {
+			if err == sql.ErrNoRows {
+				log.Println("❌ 校验结果: 表 post_categories 缺少列 is_series (mysql)")
+				return nil
+			}
+			return fmt.Errorf("mysql 校验查询失败: %w", err)
+		}
+		log.Printf("✅ 校验结果: 列存在 (mysql) -> name=%s, type=%s, nullable=%s, default=%s", name.String, dataType.String, isNullable.String, colDefault.String)
+		return nil
+	case "sqlite", "sqlite3":
+		const q = "PRAGMA table_info('post_categories')"
+		rows, err := db.Query(q)
+		if err != nil {
+			return fmt.Errorf("sqlite 校验查询失败: %w", err)
+		}
+		defer rows.Close()
+		exists := false
+		for rows.Next() {
+			var cid int
+			var name, typ string
+			var notnull int
+			var dflt sql.NullString
+			var pk int
+			if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+				return fmt.Errorf("sqlite 扫描失败: %w", err)
+			}
+			if name == "is_series" {
+				log.Printf("✅ 校验结果: 列存在 (sqlite) -> name=%s, type=%s, notnull=%d, default=%s, pk=%d", name, typ, notnull, dflt.String, pk)
+				exists = true
+				break
+			}
+		}
+		if !exists {
+			log.Println("❌ 校验结果: 表 post_categories 缺少列 is_series (sqlite)")
+		}
+		return nil
+	default:
+		log.Printf("(跳过校验) 未知/不支持的驱动用于列校验: %s", driverName)
+		return nil
+	}
 }

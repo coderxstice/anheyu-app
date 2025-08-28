@@ -98,34 +98,49 @@ func (r *articleRepo) toModelSlice(entities []*ent.Article) []*model.Article {
 }
 
 // CountByCategoryWithMultipleCategories 计算有多少文章既属于目标分类，又同时属于其他分类。
+// 此方法使用 JOIN 和 HAVING 子句，是处理此类聚合过滤的高效方案。
 func (r *articleRepo) CountByCategoryWithMultipleCategories(ctx context.Context, categoryID uint) (int, error) {
-	// 步骤 1: 高效地找出所有隶属于目标分类的文章 ID。
+	// 步骤 1: 同样，先找出所有隶属于目标分类的文章 ID。
+	// 这一步是必要的，因为我们只关心那些“包含目标分类”并且“还包含其他分类”的文章。
 	articleIDs, err := r.db.Article.Query().
 		Where(article.HasPostCategoriesWith(postcategory.ID(categoryID))).
 		IDs(ctx)
 	if err != nil {
 		return 0, err
 	}
-	// 如果没有文章属于该分类，直接返回 0。
 	if len(articleIDs) == 0 {
-		return 0, nil
+		return 0, nil // 如果没有任何文章属于该分类，直接返回 0
 	}
 
-	count, err := r.db.Article.Query().
-		Where(
-			article.IDIn(articleIDs...),
-			predicate.Article(func(s *sql.Selector) {
-				subQuery := sql.Select(sql.Count("*")).
-					// 使用我们定义的常量，而不是硬编码的字符串
-					From(sql.Table("article_post_categories")).
-					Where(sql.ColumnsEQ(s.C(article.FieldID), "article_id"))
+	// 步骤 2: 在这些文章中，找出关联的分类数量大于1的文章。
+	q := r.db.Article.Query().
+		Where(article.IDIn(articleIDs...))
 
-				s.Where(sql.ExprP("1 < ?", subQuery))
-			}),
-		).
-		Count(ctx)
+	q.Modify(func(s *sql.Selector) {
+		// t 指向文章与分类的中间表 (article_post_categories)
+		t := sql.Table(article.PostCategoriesTable)
 
-	return count, err
+		// 使用 JOIN 将文章表与中间表连接起来
+		// 连接条件是文章表的主键 (s.C(article.FieldID)) 与中间表的外键 (t.C(article.PostCategoriesPrimaryKey[0])) 相等
+		// **注意：这里是修正点**
+		s.Join(t).On(s.C(article.FieldID), t.C(article.PostCategoriesPrimaryKey[0]))
+
+		// 按文章 ID 进行分组，以便我们可以对每个文章的分类进行计数
+		s.GroupBy(s.C(article.FieldID))
+
+		// 使用 HAVING 子句来过滤出那些分类数量大于 1 的文章
+		// 我们对中间表中的另一个外键列（分类ID）进行计数
+		// **注意：这里是另一个修正点，使用主键切片的第二个元素**
+		s.Having(sql.GT(sql.Count(t.C(article.PostCategoriesPrimaryKey[1])), 1))
+	})
+
+	// 步骤 3: 获取匹配文章的 ID 列表并计算其数量。
+	ids, err := q.IDs(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	return len(ids), nil
 }
 
 // getAdjacentArticle 是一个通用的辅助函数，用于获取上一篇或下一篇文章。

@@ -95,7 +95,7 @@ func (a *App) printBanner() {
 
 	// 检查是否为 PRO 版本
 	if os.Getenv("ANHEYU_LICENSE_KEY") != "" {
-		log.Println(" Anheyu App - PRO 专业版")
+		log.Println(" Anheyu App 2123123123 - PRO 专业版")
 	} else {
 		log.Println(" Anheyu App - Community Version")
 	}
