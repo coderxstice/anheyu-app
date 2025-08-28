@@ -281,6 +281,11 @@ func (s *serviceImpl) ToAPIResponse(a *model.Article, useAbbrlinkAsID bool, incl
 		responseID = a.Abbrlink
 	}
 
+	effectiveTopImgURL := a.TopImgURL
+	if effectiveTopImgURL == "" {
+		effectiveTopImgURL = a.CoverURL
+	}
+
 	resp := &model.ArticleResponse{
 		ID:                   responseID,
 		CreatedAt:            a.CreatedAt,
@@ -299,7 +304,7 @@ func (s *serviceImpl) ToAPIResponse(a *model.Article, useAbbrlinkAsID bool, incl
 		PostCategories:       categories,
 		HomeSort:             a.HomeSort,
 		PinSort:              a.PinSort,
-		TopImgURL:            a.TopImgURL,
+		TopImgURL:            effectiveTopImgURL,
 		Summaries:            a.Summaries,
 		Abbrlink:             a.Abbrlink,
 		Copyright:            a.Copyright,
