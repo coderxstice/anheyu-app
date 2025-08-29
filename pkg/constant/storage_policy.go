@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-23 15:10:56
- * @LastEditTime: 2025-08-17 04:31:02
+ * @LastEditTime: 2025-08-29 10:13:27
  * @LastEditors: 安知鱼
  */
 package constant
@@ -40,8 +40,8 @@ const (
 const (
 	DefaultArticlePolicyName = "内置-文章图片"
 	DefaultCommentPolicyName = "内置-评论图片"
-	DefaultArticlePolicyPath = "data/storage/article" // 相对于应用根目录
-	DefaultCommentPolicyPath = "data/storage/comment" // 相对于应用根目录
+	DefaultArticlePolicyPath = "data/storage/article_image" // 相对于应用根目录
+	DefaultCommentPolicyPath = "data/storage/comment_image" // 相对于应用根目录
 )
 
 // IsValid 检查给定的类型是否是受支持的存储策略类型

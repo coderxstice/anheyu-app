@@ -447,19 +447,32 @@ func (s *serviceImpl) CreateEmptyFile(ctx context.Context, ownerID uint, req *mo
 			createdFileItem = s.BuildFileItemDTO(existing, ownerID, parentPath, "")
 			return nil
 		}
-		if fileType == model.FileTypeDir {
-			policy, _ := s.vfsSvc.FindPolicyForPath(ctx, parsedURI.Path)
-			if policy != nil {
-				provider, err := s.GetProviderForPolicy(policy)
-				if err != nil {
-					fmt.Printf("警告: 获取provider失败，无法创建物理目录: %v", err)
-				} else {
+
+		// 获取存储策略和提供者
+		policy, _ := s.vfsSvc.FindPolicyForPath(ctx, parsedURI.Path)
+		if policy != nil {
+			provider, err := s.GetProviderForPolicy(policy)
+			if err != nil {
+				log.Printf("警告: 获取provider失败，无法创建物理文件/目录: %v", err)
+			} else {
+				if fileType == model.FileTypeDir {
+					// 创建物理目录
 					if err := provider.CreateDirectory(ctx, policy, parsedURI.Path); err != nil {
 						log.Printf("创建物理目录 '%s' 失败: %v", parsedURI.Path, err)
+					}
+				} else if fileType == model.FileTypeFile {
+					// 创建物理空文件
+					emptyReader := strings.NewReader("")
+					uploadResult, err := provider.Upload(ctx, emptyReader, policy, parsedURI.Path)
+					if err != nil {
+						log.Printf("创建物理空文件 '%s' 失败: %v", parsedURI.Path, err)
+					} else {
+						log.Printf("成功创建物理空文件 '%s'，大小: %d", parsedURI.Path, uploadResult.Size)
 					}
 				}
 			}
 		}
+
 		newFile := &model.File{
 			OwnerID:  ownerID,
 			ParentID: sql.NullInt64{Int64: int64(parentFolder.ID), Valid: true},

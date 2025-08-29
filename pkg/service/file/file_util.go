@@ -534,7 +534,7 @@ func (s *serviceImpl) GetInheritedViewConfig(ctx context.Context, folder *model.
 				if viewConfig.OrderDirection == "" {
 					viewConfig.OrderDirection = defaultView.OrderDirection
 				}
-				if viewConfig.Columns == nil || len(viewConfig.Columns) == 0 {
+				if len(viewConfig.Columns) == 0 {
 					viewConfig.Columns = defaultView.Columns
 				}
 				return &viewConfig
