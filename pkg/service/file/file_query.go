@@ -603,9 +603,16 @@ func (s *serviceImpl) ServeSignedContent(ctx context.Context, token string, writ
 	if err != nil {
 		return constant.ErrNotFound
 	}
+
+	// 检查文件是否有实体记录
 	if !file.PrimaryEntityID.Valid {
-		return fmt.Errorf("file %d has no primary entity: %w", dbID, constant.ErrNotFound)
+		// 对于没有实体记录的文件（如空文件），直接返回空内容
+		writer.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		writer.Header().Set("Content-Length", "0")
+		writer.WriteHeader(http.StatusOK)
+		return nil
 	}
+
 	entity, err := s.entityRepo.FindByID(ctx, uint(file.PrimaryEntityID.Uint64))
 	if err != nil {
 		return fmt.Errorf("entity for file %d not found: %w", dbID, constant.ErrNotFound)

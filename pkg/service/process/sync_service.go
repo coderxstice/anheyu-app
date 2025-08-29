@@ -186,6 +186,13 @@ func (s *syncService) SyncDirectory(ctx context.Context, ownerID uint, policy *m
 				log.Printf("【SYNC SKIP】跳过删除虚拟挂载点: '%s'", dbItem.File.Name)
 				continue
 			}
+
+			// 保护空文件：如果文件没有PrimaryEntityID，说明是有效的空文件，不应该被删除
+			if dbItem.File.Type == model.FileTypeFile && !dbItem.File.PrimaryEntityID.Valid {
+				log.Printf("【SYNC SKIP】跳过删除空文件: '%s' (没有实体记录，是有效的空文件)", dbItem.File.Name)
+				continue
+			}
+
 			log.Printf("【SYNC DELETE】检测到存储中不存在 '%s'，将从数据库删除。", dbItem.File.Name)
 			err := s.txManager.Do(ctx, func(repos repository.Repositories) error {
 				return s.hardDeleteRecursively(ctx, ownerID, dbItem.File.ID, repos.File, repos.Entity, repos.FileEntity, repos.Metadata, repos.StoragePolicy)

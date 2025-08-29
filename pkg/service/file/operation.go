@@ -460,16 +460,8 @@ func (s *serviceImpl) CreateEmptyFile(ctx context.Context, ownerID uint, req *mo
 					if err := provider.CreateDirectory(ctx, policy, parsedURI.Path); err != nil {
 						log.Printf("创建物理目录 '%s' 失败: %v", parsedURI.Path, err)
 					}
-				} else if fileType == model.FileTypeFile {
-					// 创建物理空文件
-					emptyReader := strings.NewReader("")
-					uploadResult, err := provider.Upload(ctx, emptyReader, policy, parsedURI.Path)
-					if err != nil {
-						log.Printf("创建物理空文件 '%s' 失败: %v", parsedURI.Path, err)
-					} else {
-						log.Printf("成功创建物理空文件 '%s'，大小: %d", parsedURI.Path, uploadResult.Size)
-					}
 				}
+				// 对于文件类型，不创建物理文件，只在数据库中创建记录
 			}
 		}
 
@@ -480,6 +472,7 @@ func (s *serviceImpl) CreateEmptyFile(ctx context.Context, ownerID uint, req *mo
 			Size:     0,
 			Type:     fileType,
 		}
+
 		if err := txRepo.Create(ctx, newFile); err != nil {
 			return fmt.Errorf("在数据库中创建记录失败: %w", err)
 		}
