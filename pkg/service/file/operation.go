@@ -311,7 +311,7 @@ func (s *serviceImpl) DeleteItems(ctx context.Context, ownerID uint, publicIDs [
 			}
 
 			// 调用新的 HardDeleteRecursively，并传入所有需要的 repo
-			err = s.HardDeleteRecursively(ctx, ownerID, dbID, repos.File, repos.Entity, repos.FileEntity, repos.Metadata, repos.StoragePolicy)
+			err = s.HardDeleteRecursively(ctx, ownerID, dbID, repos.File, repos.Entity, repos.FileEntity, repos.Metadata, repos.StoragePolicy, repos.DirectLink)
 			if err != nil {
 				return fmt.Errorf("删除项目 '%s' (ID: %d) 失败: %w", publicID, dbID, err)
 			}

@@ -128,6 +128,15 @@ func (r *entDirectLinkRepo) IncrementDownloads(ctx context.Context, id uint) err
 	return nil
 }
 
+// DeleteByFileID 按文件ID删除直链记录
+func (r *entDirectLinkRepo) DeleteByFileID(ctx context.Context, fileID uint) error {
+	_, err := r.client.DirectLink.Delete().Where(directlink.FileIDEQ(fileID)).Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("删除文件ID为 %d 的直链记录失败: %w", fileID, err)
+	}
+	return nil
+}
+
 // toDomainDirectLink 将 *ent.DirectLink 转换为 *model.DirectLink.
 func toDomainDirectLink(l *ent.DirectLink) *model.DirectLink {
 	if l == nil {

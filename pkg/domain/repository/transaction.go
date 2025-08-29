@@ -17,6 +17,7 @@ type Repositories struct {
 	FileEntity    FileEntityRepository
 	Metadata      MetadataRepository
 	StoragePolicy StoragePolicyRepository
+	DirectLink    DirectLinkRepository
 	User          UserRepository
 	UserGroup     UserGroupRepository
 	Article       ArticleRepository

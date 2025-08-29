@@ -195,7 +195,7 @@ func (s *syncService) SyncDirectory(ctx context.Context, ownerID uint, policy *m
 
 			log.Printf("【SYNC DELETE】检测到存储中不存在 '%s'，将从数据库删除。", dbItem.File.Name)
 			err := s.txManager.Do(ctx, func(repos repository.Repositories) error {
-				return s.hardDeleteRecursively(ctx, ownerID, dbItem.File.ID, repos.File, repos.Entity, repos.FileEntity, repos.Metadata, repos.StoragePolicy)
+				return s.hardDeleteRecursively(ctx, ownerID, dbItem.File.ID, repos.File, repos.Entity, repos.FileEntity, repos.Metadata, repos.StoragePolicy, repos.DirectLink)
 			})
 			if err != nil {
 				log.Printf("警告: 同步删除项 '%s' (ID: %d) 失败: %v", dbItem.File.Name, dbItem.File.ID, err)
@@ -337,7 +337,7 @@ func (s *syncService) hardDeleteRecursively(
 	ctx context.Context, ownerID uint, fileID uint,
 	txFileRepo repository.FileRepository, txEntityRepo repository.EntityRepository,
 	txFileEntityRepo repository.FileEntityRepository, txMetadataRepo repository.MetadataRepository,
-	txPolicyRepo repository.StoragePolicyRepository,
+	txPolicyRepo repository.StoragePolicyRepository, txDirectLinkRepo repository.DirectLinkRepository,
 ) error {
 	item, err := txFileRepo.FindByIDUnscoped(ctx, fileID)
 	if err != nil {
@@ -369,7 +369,7 @@ func (s *syncService) hardDeleteRecursively(
 		}
 		for _, childItem := range children {
 			// 递归调用时传入 txPolicyRepo
-			if err := s.hardDeleteRecursively(ctx, ownerID, childItem.File.ID, txFileRepo, txEntityRepo, txFileEntityRepo, txMetadataRepo, txPolicyRepo); err != nil {
+			if err := s.hardDeleteRecursively(ctx, ownerID, childItem.File.ID, txFileRepo, txEntityRepo, txFileEntityRepo, txMetadataRepo, txPolicyRepo, txDirectLinkRepo); err != nil {
 				return err
 			}
 		}
@@ -389,6 +389,15 @@ func (s *syncService) hardDeleteRecursively(
 	log.Printf("【SYNC CLEANUP】正在删除文件/目录 (ID: %d) 的元数据...", item.ID)
 	if err := txMetadataRepo.DeleteByFileID(ctx, item.ID); err != nil {
 		return fmt.Errorf("删除文件 %d 的元数据失败: %w", item.ID, err)
+	}
+
+	// 删除相关的直链记录（如果有的话）
+	if item.Type == model.FileTypeFile {
+		log.Printf("【SYNC CLEANUP】正在删除文件 (ID: %d) 的直链记录...", item.ID)
+		if err := txDirectLinkRepo.DeleteByFileID(ctx, item.ID); err != nil {
+			log.Printf("【SYNC WARN】删除直链记录失败: %v", err)
+			// 不返回错误，继续删除文件记录
+		}
 	}
 
 	log.Printf("【SYNC CLEANUP】正在删除文件/目录记录 (ID: %d)...", item.ID)

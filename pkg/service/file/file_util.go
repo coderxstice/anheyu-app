@@ -173,6 +173,7 @@ func (s *serviceImpl) GetFullVirtualPathWithRepo(ctx context.Context, file *mode
 // @param txFileEntityRepo - 事务性的 FileEntityRepository
 // @param txMetadataRepo - 事务性的 MetadataRepository
 // @param txPolicyRepo - 事务性的 StoragePolicyRepository
+// @param txDirectLinkRepo - 事务性的 DirectLinkRepository
 // @return error - 如果操作过程中出现任何错误，则返回错误
 func (s *serviceImpl) HardDeleteRecursively(
 	ctx context.Context,
@@ -183,6 +184,7 @@ func (s *serviceImpl) HardDeleteRecursively(
 	txFileEntityRepo repository.FileEntityRepository,
 	txMetadataRepo repository.MetadataRepository,
 	txPolicyRepo repository.StoragePolicyRepository,
+	txDirectLinkRepo repository.DirectLinkRepository,
 ) error {
 	// 1. 查找要删除的项目
 	item, err := txFileRepo.FindByIDUnscoped(ctx, fileID)
@@ -221,7 +223,7 @@ func (s *serviceImpl) HardDeleteRecursively(
 		}
 		for _, child := range children {
 			// 递归调用，并传入 txPolicyRepo
-			if err := s.HardDeleteRecursively(ctx, ownerID, child.File.ID, txFileRepo, txEntityRepo, txFileEntityRepo, txMetadataRepo, txPolicyRepo); err != nil {
+			if err := s.HardDeleteRecursively(ctx, ownerID, child.File.ID, txFileRepo, txEntityRepo, txFileEntityRepo, txMetadataRepo, txPolicyRepo, txDirectLinkRepo); err != nil {
 				return err // 如果任何子项删除失败，则中止并回滚
 			}
 		}
@@ -301,6 +303,15 @@ func (s *serviceImpl) HardDeleteRecursively(
 	log.Printf("【DELETE INFO】正在删除文件/目录 (ID: %d) 的所有元数据...", item.ID)
 	if err := txMetadataRepo.DeleteByFileID(ctx, item.ID); err != nil {
 		return fmt.Errorf("删除项目 %d 的元数据失败: %w", item.ID, err)
+	}
+
+	// 4.5. 删除相关的直链记录（如果有的话）
+	if item.Type == model.FileTypeFile {
+		log.Printf("【DELETE INFO】正在删除文件 (ID: %d) 的直链记录...", item.ID)
+		if err := txDirectLinkRepo.DeleteByFileID(ctx, item.ID); err != nil {
+			log.Printf("【DELETE WARN】删除直链记录失败: %v", err)
+			// 不返回错误，继续删除文件记录
+		}
 	}
 
 	// 5. 最后，从 `files` 表中删除项目本身的记录

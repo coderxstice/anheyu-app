@@ -23,4 +23,7 @@ type DirectLinkRepository interface {
 
 	// FindOrCreateBatch 批量创建直链
 	FindOrCreateBatch(ctx context.Context, links []*model.DirectLink) error
+
+	// DeleteByFileID 按文件ID删除直链记录
+	DeleteByFileID(ctx context.Context, fileID uint) error
 }

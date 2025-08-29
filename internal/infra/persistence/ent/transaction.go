@@ -56,6 +56,7 @@ func (tm *entTransactionManager) Do(ctx context.Context, fn func(repos repositor
 		FileEntity:    NewEntFileEntityRepository(tx.Client()),
 		Metadata:      NewEntMetadataRepository(tx.Client()),
 		StoragePolicy: NewEntStoragePolicyRepository(tx.Client()),
+		DirectLink:    NewEntDirectLinkRepository(tx.Client()),
 		User:          NewEntUserRepository(tx.Client()),
 		UserGroup:     NewEntUserGroupRepository(tx.Client()),
 		Article:       NewArticleRepo(tx.Client()),
