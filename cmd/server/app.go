@@ -144,6 +144,9 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	if dbType == "" {
 		dbType = "mysql"
 	}
+	if dbType == "mariadb" {
+		dbType = "mysql"
+	}
 
 	// --- Phase 3: 初始化数据仓库层 ---
 	settingRepo := ent_impl.NewEntSettingRepository(entClient)
