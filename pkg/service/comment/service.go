@@ -388,7 +388,18 @@ func (s *Service) toResponseDTO(ctx context.Context, c *model.Comment, parent *m
 	}
 	publicID, _ := idgen.GeneratePublicID(c.ID, idgen.EntityTypeComment)
 
-	renderedContentHTML, err := s.renderHTMLURLs(ctx, c.ContentHTML)
+	// 统一使用解析后的HTML，确保表情包正确显示
+	parsedHTML, err := s.parserSvc.ToHTML(ctx, c.Content)
+	var renderedContentHTML string
+	if err != nil {
+		log.Printf("【WARN】解析评论 %s 的表情包失败: %v", publicID, err)
+		renderedContentHTML = c.ContentHTML
+	} else {
+		renderedContentHTML = parsedHTML
+	}
+
+	// 渲染图片URL
+	renderedContentHTML, err = s.renderHTMLURLs(ctx, renderedContentHTML)
 	if err != nil {
 		log.Printf("【WARN】渲染评论 %s 的HTML链接失败: %v", publicID, err)
 		renderedContentHTML = c.ContentHTML
