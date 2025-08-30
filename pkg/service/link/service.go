@@ -28,7 +28,6 @@ type Service interface {
 	CreateCategory(ctx context.Context, req *model.CreateLinkCategoryRequest) (*model.LinkCategoryDTO, error)
 	CreateTag(ctx context.Context, req *model.CreateLinkTagRequest) (*model.LinkTagDTO, error)
 	ListLinks(ctx context.Context, req *model.ListLinksRequest) (*model.LinkListResponse, error)
-	// --- 新增后台接口 ---
 	AdminListAllTags(ctx context.Context) ([]*model.LinkTagDTO, error)
 }
 
@@ -109,6 +108,7 @@ func (s *service) ListPublicLinks(ctx context.Context, req *model.ListPublicLink
 	if err != nil {
 		return nil, err
 	}
+
 	return &model.LinkListResponse{
 		List:     links,
 		Total:    int64(total),
