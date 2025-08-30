@@ -2,7 +2,7 @@
  * @Description: Redis 搜索器实现，包含优化后的分词和搜索逻辑
  * @Author: 安知鱼
  * @Date: 2025-08-30 14:01:22
- * @LastEditTime: 2025-08-30 15:31:37
+ * @LastEditTime: 2025-08-30 15:37:40
  * @LastEditors: 安知鱼
  */
 
@@ -142,10 +142,8 @@ func (rs *RedisSearcher) Search(ctx context.Context, query string, page int, siz
 	}
 
 	start := (page - 1) * size
-	// ================= FIX START: 关键修改点 1 =================
-	// 将排序字段从 "publish_date" (字符串) 改为 "publish_timestamp" (数字)
 	sortCmd := &redis.Sort{
-		By:     fmt.Sprintf("search:article:*->publish_timestamp"),
+		By:     "search:article:*->publish_timestamp",
 		Offset: int64(start),
 		Count:  int64(size),
 		Order:  "DESC",
@@ -164,7 +162,6 @@ func (rs *RedisSearcher) Search(ctx context.Context, query string, page int, siz
 			"search:article:*->reading_time",
 		},
 	}
-	// ================= FIX END: 关键修改点 1 =================
 
 	data, err := rs.client.Sort(ctx, tempResultKey, sortCmd).Result()
 	if err != nil {
@@ -238,7 +235,6 @@ func (rs *RedisSearcher) IndexArticle(ctx context.Context, article *model.Articl
 	indexedArticle.Tags = tags
 
 	articleKey := fmt.Sprintf("search:article:%s", article.ID)
-	// ================= FIX START: 关键修改点 2 =================
 	// 额外添加一个 "publish_timestamp" 字段，值为Unix时间戳
 	articleData := map[string]interface{}{
 		"id":                indexedArticle.ID,
@@ -248,7 +244,7 @@ func (rs *RedisSearcher) IndexArticle(ctx context.Context, article *model.Articl
 		"category":          indexedArticle.Category,
 		"tags":              strings.Join(indexedArticle.Tags, ","),
 		"publish_date":      indexedArticle.PublishDate.Format(time.RFC3339),
-		"publish_timestamp": indexedArticle.PublishDate.Unix(), // 新增字段
+		"publish_timestamp": indexedArticle.PublishDate.Unix(),
 		"cover_url":         indexedArticle.CoverURL,
 		"abbrlink":          indexedArticle.Abbrlink,
 		"view_count":        indexedArticle.ViewCount,
@@ -258,7 +254,6 @@ func (rs *RedisSearcher) IndexArticle(ctx context.Context, article *model.Articl
 		"created_at":        indexedArticle.CreatedAt.Format(time.RFC3339),
 		"updated_at":        indexedArticle.UpdatedAt.Format(time.RFC3339),
 	}
-	// ================= FIX END: 关键修改点 2 =================
 
 	pipe := rs.client.Pipeline()
 	pipe.HSet(ctx, articleKey, articleData)
