@@ -116,14 +116,17 @@ func (r *entURLStatRepository) IncrementViews(ctx context.Context, urlPath strin
 				uniqueViews = 1
 			}
 
-			return r.client.URLStat.Create().
-				SetURLPath(urlPath).
-				SetTotalViews(totalViews).
-				SetUniqueViews(uniqueViews).
-				SetBounceCount(0).
-				SetAvgDuration(float64(duration)).
-				SetLastVisitedAt(now).
-				Exec(ctx)
+			// 使用CreateOrUpdate确保原子性，避免竞态条件
+			newStat := &ent.URLStat{
+				URLPath:       urlPath,
+				TotalViews:    totalViews,
+				UniqueViews:   uniqueViews,
+				BounceCount:   0,
+				AvgDuration:   float64(duration),
+				LastVisitedAt: &now,
+			}
+
+			return r.CreateOrUpdate(ctx, newStat)
 		}
 		return err
 	}
