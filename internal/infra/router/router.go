@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-15 11:30:55
- * @LastEditTime: 2025-08-22 18:44:04
+ * @LastEditTime: 2025-08-30 13:37:42
  * @LastEditors: 安知鱼
  */
 // anheyu-app/pkg/router/router.go
@@ -22,6 +22,7 @@ import (
 	post_category_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_category"
 	post_tag_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_tag"
 	public_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/public"
+	search_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/search"
 	setting_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/setting"
 	statistics_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/statistics"
 	storage_policy_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/storage_policy"
@@ -47,6 +48,7 @@ type Router struct {
 	linkHandler          *link_handler.Handler
 	statisticsHandler    *statistics_handler.StatisticsHandler
 	mw                   *middleware.Middleware
+	searchHandler        *search_handler.Handler
 }
 
 // NewRouter 是 Router 的构造函数，通过依赖注入接收所有处理器。
@@ -67,6 +69,7 @@ func NewRouter(
 	linkHandler *link_handler.Handler,
 	statisticsHandler *statistics_handler.StatisticsHandler,
 	mw *middleware.Middleware,
+	searchHandler *search_handler.Handler,
 ) *Router {
 	return &Router{
 		authHandler:          authHandler,
@@ -85,6 +88,7 @@ func NewRouter(
 		linkHandler:          linkHandler,
 		statisticsHandler:    statisticsHandler,
 		mw:                   mw,
+		searchHandler:        searchHandler,
 	}
 }
 
@@ -120,6 +124,7 @@ func (r *Router) Setup(engine *gin.Engine) {
 	r.registerPostTagRoutes(apiGroup)
 	r.registerPostCategoryRoutes(apiGroup)
 	r.registerCommentRoutes(apiGroup)
+	r.registerSearchRoutes(apiGroup)
 	r.registerLinkRoutes(apiGroup)
 	r.registerStatisticsRoutes(apiGroup)
 }
@@ -430,5 +435,15 @@ func (r *Router) registerStatisticsRoutes(api *gin.RouterGroup) {
 
 		// 获取统计概览: GET /api/statistics/summary
 		statisticsAdmin.GET("/summary", r.statisticsHandler.GetStatisticsSummary)
+	}
+}
+
+// registerSearchRoutes 注册搜索相关的路由
+func (r *Router) registerSearchRoutes(api *gin.RouterGroup) {
+	// 搜索接口是公开的，不需要认证
+	searchGroup := api.Group("/search")
+	{
+		// 搜索文章: GET /api/search?q=关键词&page=1&size=10
+		searchGroup.GET("", r.searchHandler.Search)
 	}
 }

@@ -99,6 +99,15 @@ func (r *linkCategoryRepo) Create(ctx context.Context, req *model.CreateLinkCate
 	return mapEntLinkCategoryToDTO(savedCategory), nil
 }
 
+// GetByID 根据ID获取分类信息
+func (r *linkCategoryRepo) GetByID(ctx context.Context, id int) (*model.LinkCategoryDTO, error) {
+	category, err := r.client.LinkCategory.Get(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return mapEntLinkCategoryToDTO(category), nil
+}
+
 func (r *linkCategoryRepo) FindAll(ctx context.Context) ([]*model.LinkCategoryDTO, error) {
 	entCategories, err := r.client.LinkCategory.Query().All(ctx)
 	if err != nil {

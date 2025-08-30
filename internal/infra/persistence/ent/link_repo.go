@@ -37,6 +37,9 @@ func (r *linkRepo) Create(ctx context.Context, req *model.ApplyLinkRequest, cate
 	if req.Description != "" {
 		create.SetDescription(req.Description)
 	}
+	if req.Siteshot != "" {
+		create.SetSiteshot(req.Siteshot)
+	}
 
 	savedLink, err := create.Save(ctx)
 	if err != nil {

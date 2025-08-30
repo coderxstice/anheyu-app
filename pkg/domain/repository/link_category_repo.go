@@ -16,6 +16,7 @@ import (
 type LinkCategoryRepository interface {
 	Create(ctx context.Context, category *model.CreateLinkCategoryRequest) (*model.LinkCategoryDTO, error)
 	FindAll(ctx context.Context) ([]*model.LinkCategoryDTO, error)
+	GetByID(ctx context.Context, id int) (*model.LinkCategoryDTO, error) // 根据ID获取分类信息
 	DeleteIfUnused(ctx context.Context, categoryID int) (bool, error)
 	DeleteAllUnused(ctx context.Context) (int, error)
 	DeleteAllUnusedExcluding(ctx context.Context, excludeIDs []int) (int, error)

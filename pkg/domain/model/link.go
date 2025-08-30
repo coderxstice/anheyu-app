@@ -55,6 +55,7 @@ type ApplyLinkRequest struct {
 	URL         string `json:"url" binding:"required,url"`
 	Logo        string `json:"logo"`
 	Description string `json:"description"`
+	Siteshot    string `json:"siteshot"` // 网站快照URL，可选字段
 }
 
 // CreateLinkCategoryRequest 是后台管理员创建友链分类的请求结构。

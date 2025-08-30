@@ -1,0 +1,74 @@
+/*
+ * @Description: 搜索处理器
+ * @Author: 安知鱼
+ * @Date: 2025-01-27 10:00:00
+ * @LastEditTime: 2025-01-27 10:00:00
+ * @LastEditors: 安知鱼
+ */
+package search
+
+import (
+	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/search"
+)
+
+type Handler struct {
+	searchService *search.SearchService
+}
+
+func NewHandler(searchService *search.SearchService) *Handler {
+	return &Handler{
+		searchService: searchService,
+	}
+}
+
+// Search 搜索接口
+func (h *Handler) Search(c *gin.Context) {
+	// 获取查询参数
+	query := c.Query("q")
+	if query == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "搜索关键词不能为空",
+		})
+		return
+	}
+
+	// 获取分页参数
+	pageStr := c.DefaultQuery("page", "1")
+	sizeStr := c.DefaultQuery("size", "10")
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	size, err := strconv.Atoi(sizeStr)
+	if err != nil || size < 1 || size > 100 {
+		size = 10
+	}
+
+	// 执行搜索
+	result, err := h.searchService.Search(c.Request.Context(), query, page, size)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "搜索失败: " + err.Error(),
+		})
+		return
+	}
+
+	// 返回结果
+	response := &model.SearchResponse{
+		Code:    0,
+		Message: "Success",
+		Data:    result,
+	}
+
+	c.JSON(http.StatusOK, response)
+}

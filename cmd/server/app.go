@@ -23,6 +23,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/version"
 	"github.com/anzhiyu-c/anheyu-app/pkg/config"
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
 	album_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/album"
 	article_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/article"
@@ -34,6 +35,7 @@ import (
 	post_category_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_category"
 	post_tag_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_tag"
 	public_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/public"
+	search_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/search"
 	setting_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/setting"
 	statistics_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/statistics"
 	storage_policy_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/storage_policy"
@@ -53,6 +55,7 @@ import (
 	post_category_service "github.com/anzhiyu-c/anheyu-app/pkg/service/post_category"
 	post_tag_service "github.com/anzhiyu-c/anheyu-app/pkg/service/post_tag"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/process"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/search"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/statistics"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/thumbnail"
@@ -226,7 +229,48 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	}
 	taskBroker := task.NewBroker(uploadSvc, thumbnailSvc, cleanupSvc, articleRepo, commentRepo, emailSvc, cacheSvc, linkCategoryRepo, linkTagRepo, settingSvc, statService)
 	linkSvc := link_service.NewService(linkRepo, linkCategoryRepo, linkTagRepo, txManager, taskBroker)
-	articleSvc := article_service.NewService(articleRepo, postTagRepo, postCategoryRepo, txManager, cacheSvc, geoSvc, taskBroker, settingSvc, parserSvc, fileSvc, directLinkSvc)
+	// 初始化搜索服务
+	if err := search.InitializeSearchEngine(); err != nil {
+		log.Printf("初始化搜索引擎失败: %v", err)
+		// 不返回错误，让应用继续启动
+	}
+
+	searchSvc := search.NewSearchService()
+
+	// 重建所有文章的搜索索引
+	go func() {
+		log.Println("🔄 开始重建搜索索引...")
+		if err := searchSvc.RebuildAllIndexes(context.Background()); err != nil {
+			log.Printf("重建搜索索引失败: %v", err)
+			return
+		}
+
+		// 获取所有文章并建立索引
+		articles, _, err := articleRepo.List(context.Background(), &model.ListArticlesOptions{
+			WithContent: true,
+			Page:        1,
+			PageSize:    1000, // 一次性获取所有文章
+		})
+		if err != nil {
+			log.Printf("获取文章列表失败: %v", err)
+			return
+		}
+
+		log.Printf("📚 找到 %d 篇文章，开始建立搜索索引...", len(articles))
+
+		successCount := 0
+		for _, article := range articles {
+			if err := searchSvc.IndexArticle(context.Background(), article); err != nil {
+				log.Printf("为文章 %s 建立索引失败: %v", article.Title, err)
+			} else {
+				successCount++
+			}
+		}
+
+		log.Printf("✅ 搜索索引重建完成！成功为 %d/%d 篇文章建立索引", successCount, len(articles))
+	}()
+
+	articleSvc := article_service.NewService(articleRepo, postTagRepo, postCategoryRepo, txManager, cacheSvc, geoSvc, taskBroker, settingSvc, parserSvc, fileSvc, directLinkSvc, searchSvc)
 	authSvc := auth.NewAuthService(userRepo, settingSvc, tokenSvc, emailSvc, txManager, articleSvc)
 	commentSvc := comment_service.NewService(commentRepo, userRepo, txManager, geoSvc, settingSvc, cacheSvc, taskBroker, fileSvc, parserSvc)
 	_ = listener.NewFilePostProcessingListener(eventBus, taskBroker, extractionSvc)
@@ -247,6 +291,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	postTagHandler := post_tag_handler.NewHandler(postTagSvc)
 	postCategoryHandler := post_category_handler.NewHandler(postCategorySvc)
 	commentHandler := comment_handler.NewHandler(commentSvc)
+	searchHandler := search_handler.NewHandler(searchSvc)
 	statisticsHandler := statistics_handler.NewStatisticsHandler(statService)
 
 	// --- Phase 7: 初始化路由 ---
@@ -267,6 +312,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		linkHandler,
 		statisticsHandler,
 		mw,
+		searchHandler,
 	)
 
 	// --- Phase 8: 配置 Gin 引擎 ---

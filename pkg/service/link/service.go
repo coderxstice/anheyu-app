@@ -88,6 +88,17 @@ func (s *service) GetRandomLinks(ctx context.Context, num int) ([]*model.LinkDTO
 
 // ApplyLink 处理前台友链申请。
 func (s *service) ApplyLink(ctx context.Context, req *model.ApplyLinkRequest) (*model.LinkDTO, error) {
+	// 获取默认分类信息，用于验证样式要求
+	defaultCategory, err := s.linkCategoryRepo.GetByID(ctx, 1) // 默认分类ID为1
+	if err != nil {
+		return nil, fmt.Errorf("获取默认分类失败: %w", err)
+	}
+
+	// 如果是卡片样式，则要求必须提供网站快照
+	if defaultCategory.Style == "card" && req.Siteshot == "" {
+		return nil, errors.New("卡片样式的友链申请时必须提供网站快照(siteshot)")
+	}
+
 	const defaultCategoryID = 1 // 业务逻辑：暂时将所有申请归类到 ID 1
 	return s.linkRepo.Create(ctx, req, defaultCategoryID)
 }

@@ -26,6 +26,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/direct_link"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/file"
 	appParser "github.com/anzhiyu-c/anheyu-app/pkg/service/parser"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/search"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/utility"
 )
@@ -58,6 +59,7 @@ type serviceImpl struct {
 	parserSvc        *appParser.Service
 	fileSvc          file.FileService
 	directLinkSvc    direct_link.Service
+	searchSvc        *search.SearchService
 }
 
 func NewService(
@@ -72,6 +74,7 @@ func NewService(
 	parserSvc *appParser.Service,
 	fileSvc file.FileService,
 	directLinkSvc direct_link.Service,
+	searchSvc *search.SearchService,
 ) Service {
 	return &serviceImpl{
 		repo:             repo,
@@ -86,6 +89,7 @@ func NewService(
 		parserSvc:        parserSvc,
 		fileSvc:          fileSvc,
 		directLinkSvc:    directLinkSvc,
+		searchSvc:        searchSvc,
 	}
 }
 
@@ -529,6 +533,13 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 
 	s.updateSiteStatsInBackground()
 
+	// 异步更新搜索索引
+	go func() {
+		if err := s.searchSvc.IndexArticle(context.Background(), newArticle); err != nil {
+			log.Printf("[警告] 更新搜索索引失败: %v", err)
+		}
+	}()
+
 	return s.ToAPIResponse(newArticle, false, false), nil
 }
 
@@ -727,6 +738,13 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 
 	s.updateSiteStatsInBackground()
 
+	// 异步更新搜索索引
+	go func() {
+		if err := s.searchSvc.IndexArticle(context.Background(), updatedArticle); err != nil {
+			log.Printf("[警告] 更新搜索索引失败: %v", err)
+		}
+	}()
+
 	return s.ToAPIResponse(updatedArticle, false, false), nil
 }
 
@@ -776,6 +794,13 @@ func (s *serviceImpl) Delete(ctx context.Context, publicID string) error {
 	}
 
 	s.updateSiteStatsInBackground()
+
+	// 异步删除搜索索引
+	go func() {
+		if err := s.searchSvc.DeleteArticle(context.Background(), publicID); err != nil {
+			log.Printf("[警告] 删除搜索索引失败: %v", err)
+		}
+	}()
 
 	return nil
 }
