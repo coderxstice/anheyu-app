@@ -13,7 +13,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/pkg/response"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/search"
 )
 
@@ -32,10 +32,7 @@ func (h *Handler) Search(c *gin.Context) {
 	// 获取查询参数
 	query := c.Query("q")
 	if query == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "搜索关键词不能为空",
-		})
+		response.Fail(c, http.StatusBadRequest, "搜索关键词不能为空")
 		return
 	}
 
@@ -56,19 +53,10 @@ func (h *Handler) Search(c *gin.Context) {
 	// 执行搜索
 	result, err := h.searchService.Search(c.Request.Context(), query, page, size)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "搜索失败: " + err.Error(),
-		})
+		response.Fail(c, http.StatusInternalServerError, "搜索失败: "+err.Error())
 		return
 	}
 
 	// 返回结果
-	response := &model.SearchResponse{
-		Code:    0,
-		Message: "Success",
-		Data:    result,
-	}
-
-	c.JSON(http.StatusOK, response)
+	response.Success(c, result, "搜索成功")
 }
