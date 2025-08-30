@@ -134,7 +134,6 @@ func (s *serviceImpl) ProcessSignedDownload(c context.Context, w http.ResponseWr
 		return constant.ErrNotFound
 	}
 
-	// 3. 【核心修改】在这里处理HTTP缓存
 	// 生成 ETag
 	etag := fmt.Sprintf(`"%s-%d"`, publicFileID, file.UpdatedAt.Unix())
 	w.Header().Set("ETag", etag)

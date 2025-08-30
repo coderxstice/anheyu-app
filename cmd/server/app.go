@@ -94,8 +94,6 @@ func (a *App) PrintBanner() {
 	log.Println(banner)
 	log.Println("--------------------------------------------------------")
 
-	// --- 核心修改在这里 ---
-	// 检查 ANHEYU_LICENSE_KEY 环境变量
 	if os.Getenv("ANHEYU_LICENSE_KEY") != "" {
 		// 如果存在，就认为是 PRO 版本
 		log.Printf(" Anheyu App - PRO Version: %s", a.appVersion)
@@ -103,7 +101,6 @@ func (a *App) PrintBanner() {
 		// 如果不存在，就是社区版
 		log.Printf(" Anheyu App - Community Version: %s", a.appVersion)
 	}
-	// ---------------------
 
 	log.Println("--------------------------------------------------------")
 }
