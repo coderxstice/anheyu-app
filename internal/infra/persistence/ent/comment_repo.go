@@ -115,7 +115,16 @@ func (r *commentRepo) FindAllPublishedByPath(ctx context.Context, path string) (
 		} else {
 			pinnedOrder = fmt.Sprintf(`"%s" DESC NULLS LAST`, entcomment.FieldPinnedAt)
 		}
-		s.OrderBy(pinnedOrder, fmt.Sprintf(`"%s" DESC`, entcomment.FieldCreatedAt))
+
+		// 根据数据库类型使用不同的列名引用方式
+		var createdAtOrder string
+		if r.dbType == "mysql" {
+			createdAtOrder = fmt.Sprintf("`%s` DESC", entcomment.FieldCreatedAt)
+		} else {
+			createdAtOrder = fmt.Sprintf(`"%s" DESC`, entcomment.FieldCreatedAt)
+		}
+
+		s.OrderBy(pinnedOrder, createdAtOrder)
 	}).All(ctx)
 	if err != nil {
 		log.Printf("[ERROR] Repo.FindAllPublishedByPath: 查询失败: %v", err)
@@ -192,7 +201,16 @@ func (r *commentRepo) FindWithConditions(ctx context.Context, params repository.
 		} else {
 			pinnedOrder = fmt.Sprintf(`"%s" DESC NULLS LAST`, entcomment.FieldPinnedAt)
 		}
-		s.OrderBy(pinnedOrder, fmt.Sprintf(`"%s" DESC`, entcomment.FieldCreatedAt))
+
+		// 根据数据库类型使用不同的列名引用方式
+		var createdAtOrder string
+		if r.dbType == "mysql" {
+			createdAtOrder = fmt.Sprintf("`%s` DESC", entcomment.FieldCreatedAt)
+		} else {
+			createdAtOrder = fmt.Sprintf(`"%s" DESC`, entcomment.FieldCreatedAt)
+		}
+
+		s.OrderBy(pinnedOrder, createdAtOrder)
 	}).
 		Limit(params.PageSize).
 		Offset((params.Page - 1) * params.PageSize)
