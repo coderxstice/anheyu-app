@@ -42,7 +42,7 @@ func (r *articleRepo) toModel(a *ent.Article) *model.Article {
 		tags = make([]*model.PostTag, len(a.Edges.PostTags))
 		for i, t := range a.Edges.PostTags {
 			tagPublicID, _ := idgen.GeneratePublicID(t.ID, idgen.EntityTypePostTag)
-			tags[i] = &model.PostTag{ID: tagPublicID, CreatedAt: t.CreatedAt, UpdatedAt: t.UpdatedAt, Name: t.Name}
+			tags[i] = &model.PostTag{ID: tagPublicID, CreatedAt: t.CreatedAt, UpdatedAt: t.UpdatedAt, Name: t.Name, Count: t.Count}
 		}
 	}
 	var categories []*model.PostCategory
@@ -50,7 +50,7 @@ func (r *articleRepo) toModel(a *ent.Article) *model.Article {
 		categories = make([]*model.PostCategory, len(a.Edges.PostCategories))
 		for i, c := range a.Edges.PostCategories {
 			categoryPublicID, _ := idgen.GeneratePublicID(c.ID, idgen.EntityTypePostCategory)
-			categories[i] = &model.PostCategory{ID: categoryPublicID, CreatedAt: c.CreatedAt, UpdatedAt: c.UpdatedAt, Name: c.Name, Description: c.Description, IsSeries: c.IsSeries}
+			categories[i] = &model.PostCategory{ID: categoryPublicID, CreatedAt: c.CreatedAt, UpdatedAt: c.UpdatedAt, Name: c.Name, Description: c.Description, Count: c.Count, IsSeries: c.IsSeries}
 		}
 	}
 
@@ -160,7 +160,7 @@ func (r *articleRepo) getAdjacentArticle(ctx context.Context, currentArticleID u
 			Order(ent.Asc(article.FieldCreatedAt), ent.Asc(article.FieldID))
 	}
 
-	entity, err := query.First(ctx)
+	entity, err := query.WithPostTags().WithPostCategories().First(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, nil // 未找到是正常情况
@@ -258,6 +258,8 @@ func (r *articleRepo) FindRelatedArticles(ctx context.Context, articleModel *mod
 			article.DeletedAtIsNil(),
 			relationPredicate,
 		).
+		WithPostTags().
+		WithPostCategories().
 		Order(ent.Desc(article.FieldCreatedAt)).
 		Limit(limit).
 		All(ctx)
