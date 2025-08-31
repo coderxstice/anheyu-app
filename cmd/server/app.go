@@ -329,7 +329,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	}
 
 	engine := gin.Default()
-	err = engine.SetTrustedProxies(nil)
+	err = engine.SetTrustedProxies([]string{"127.0.0.1", "::1", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"})
 	if err != nil {
 		return nil, nil, fmt.Errorf("设置信任代理失败: %w", err)
 	}
