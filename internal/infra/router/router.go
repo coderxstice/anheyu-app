@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-15 11:30:55
- * @LastEditTime: 2025-08-30 13:37:42
+ * @LastEditTime: 2025-08-31 12:23:35
  * @LastEditors: 安知鱼
  */
 // anheyu-app/pkg/router/router.go
@@ -21,6 +21,7 @@ import (
 	link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/link"
 	post_category_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_category"
 	post_tag_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_tag"
+	proxy_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/proxy"
 	public_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/public"
 	search_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/search"
 	setting_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/setting"
@@ -49,6 +50,7 @@ type Router struct {
 	statisticsHandler    *statistics_handler.StatisticsHandler
 	mw                   *middleware.Middleware
 	searchHandler        *search_handler.Handler
+	proxyHandler         *proxy_handler.ProxyHandler
 }
 
 // NewRouter 是 Router 的构造函数，通过依赖注入接收所有处理器。
@@ -70,6 +72,7 @@ func NewRouter(
 	statisticsHandler *statistics_handler.StatisticsHandler,
 	mw *middleware.Middleware,
 	searchHandler *search_handler.Handler,
+	proxyHandler *proxy_handler.ProxyHandler,
 ) *Router {
 	return &Router{
 		authHandler:          authHandler,
@@ -89,6 +92,7 @@ func NewRouter(
 		statisticsHandler:    statisticsHandler,
 		mw:                   mw,
 		searchHandler:        searchHandler,
+		proxyHandler:         proxyHandler,
 	}
 }
 
@@ -109,6 +113,9 @@ func (r *Router) Setup(engine *gin.Engine) {
 	{
 		downloadGroup.GET("/download/:public_id", r.fileHandler.HandleUniversalSignedDownload)
 	}
+
+	// 代理路由
+	apiGroup.GET("/proxy/download", r.proxyHandler.HandleDownload)
 
 	// 注册各个模块的路由
 	r.registerAuthRoutes(apiGroup)

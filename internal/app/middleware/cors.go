@@ -13,8 +13,9 @@ func Cors() gin.HandlerFunc {
 		// 可以设置为 * 允许所有，或限制域名 origin
 		c.Header("Access-Control-Allow-Origin", origin)
 		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		c.Header("Access-Control-Allow-Headers", "Authorization, Content-Type, X-CSRF-Token, X-Requested-With")
-		c.Header("Access-Control-Expose-Headers", "Authorization")
+		// 添加更多允许的头部，包括文件下载相关的头部
+		c.Header("Access-Control-Allow-Headers", "Authorization, Content-Type, X-CSRF-Token, X-Requested-With, Range, Accept-Ranges, Content-Range, Content-Length, Content-Disposition")
+		c.Header("Access-Control-Expose-Headers", "Authorization, Content-Range, Content-Length, Content-Disposition")
 		c.Header("Access-Control-Allow-Credentials", "true")
 
 		if c.Request.Method == http.MethodOptions {

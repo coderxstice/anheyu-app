@@ -34,6 +34,7 @@ import (
 	link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/link"
 	post_category_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_category"
 	post_tag_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_tag"
+	proxy_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/proxy"
 	public_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/public"
 	search_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/search"
 	setting_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/setting"
@@ -293,6 +294,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	commentHandler := comment_handler.NewHandler(commentSvc)
 	searchHandler := search_handler.NewHandler(searchSvc)
 	statisticsHandler := statistics_handler.NewStatisticsHandler(statService)
+	proxyHandler := proxy_handler.NewHandler()
 
 	// --- Phase 7: 初始化路由 ---
 	appRouter := router.NewRouter(
@@ -313,6 +315,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		statisticsHandler,
 		mw,
 		searchHandler,
+		proxyHandler,
 	)
 
 	// --- Phase 8: 配置 Gin 引擎 ---
