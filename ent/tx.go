@@ -34,6 +34,8 @@ type Tx struct {
 	LinkTag *LinkTagClient
 	// Metadata is the client for interacting with the Metadata builders.
 	Metadata *MetadataClient
+	// Page is the client for interacting with the Page builders.
+	Page *PageClient
 	// PostCategory is the client for interacting with the PostCategory builders.
 	PostCategory *PostCategoryClient
 	// PostTag is the client for interacting with the PostTag builders.
@@ -196,6 +198,7 @@ func (tx *Tx) init() {
 	tx.LinkCategory = NewLinkCategoryClient(tx.config)
 	tx.LinkTag = NewLinkTagClient(tx.config)
 	tx.Metadata = NewMetadataClient(tx.config)
+	tx.Page = NewPageClient(tx.config)
 	tx.PostCategory = NewPostCategoryClient(tx.config)
 	tx.PostTag = NewPostTagClient(tx.config)
 	tx.Setting = NewSettingClient(tx.config)

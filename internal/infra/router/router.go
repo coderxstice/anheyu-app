@@ -19,6 +19,7 @@ import (
 	direct_link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/direct_link"
 	file_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/file"
 	link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/link"
+	page_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/page"
 	post_category_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_category"
 	post_tag_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_tag"
 	proxy_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/proxy"
@@ -47,6 +48,7 @@ type Router struct {
 	postCategoryHandler  *post_category_handler.Handler
 	commentHandler       *comment_handler.Handler
 	linkHandler          *link_handler.Handler
+	pageHandler          *page_handler.Handler
 	statisticsHandler    *statistics_handler.StatisticsHandler
 	mw                   *middleware.Middleware
 	searchHandler        *search_handler.Handler
@@ -69,6 +71,7 @@ func NewRouter(
 	postCategoryHandler *post_category_handler.Handler,
 	commentHandler *comment_handler.Handler,
 	linkHandler *link_handler.Handler,
+	pageHandler *page_handler.Handler,
 	statisticsHandler *statistics_handler.StatisticsHandler,
 	mw *middleware.Middleware,
 	searchHandler *search_handler.Handler,
@@ -89,6 +92,7 @@ func NewRouter(
 		postCategoryHandler:  postCategoryHandler,
 		commentHandler:       commentHandler,
 		linkHandler:          linkHandler,
+		pageHandler:          pageHandler,
 		statisticsHandler:    statisticsHandler,
 		mw:                   mw,
 		searchHandler:        searchHandler,
@@ -131,6 +135,7 @@ func (r *Router) Setup(engine *gin.Engine) {
 	r.registerPostTagRoutes(apiGroup)
 	r.registerPostCategoryRoutes(apiGroup)
 	r.registerCommentRoutes(apiGroup)
+	r.registerPageRoutes(apiGroup)
 	r.registerSearchRoutes(apiGroup)
 	r.registerLinkRoutes(apiGroup)
 	r.registerStatisticsRoutes(apiGroup)
@@ -452,5 +457,27 @@ func (r *Router) registerSearchRoutes(api *gin.RouterGroup) {
 	{
 		// 搜索文章: GET /api/search?q=关键词&page=1&size=10
 		searchGroup.GET("", r.searchHandler.Search)
+	}
+}
+
+// registerPageRoutes 注册页面相关的路由
+func (r *Router) registerPageRoutes(api *gin.RouterGroup) {
+	// --- 前台公开接口 ---
+	pagesPublic := api.Group("/public/pages")
+	{
+		// 根据路径获取页面: GET /api/public/pages/:path
+		pagesPublic.GET("/:path", r.pageHandler.GetByPath)
+	}
+
+	// --- 后台管理接口 ---
+	pagesAdmin := api.Group("/pages").Use(r.mw.JWTAuth(), r.mw.AdminAuth())
+	{
+		// 页面管理
+		pagesAdmin.POST("", r.pageHandler.Create)                            // POST /api/pages
+		pagesAdmin.GET("", r.pageHandler.List)                               // GET /api/pages
+		pagesAdmin.GET("/:id", r.pageHandler.GetByID)                        // GET /api/pages/:id
+		pagesAdmin.PUT("/:id", r.pageHandler.Update)                         // PUT /api/pages/:id
+		pagesAdmin.DELETE("/:id", r.pageHandler.Delete)                      // DELETE /api/pages/:id
+		pagesAdmin.POST("/initialize", r.pageHandler.InitializeDefaultPages) // POST /api/pages/initialize
 	}
 }

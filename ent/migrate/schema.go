@@ -352,6 +352,25 @@ var (
 			},
 		},
 	}
+	// PagesColumns holds the columns for the "pages" table.
+	PagesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint, Increment: true},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "title", Type: field.TypeString, Size: 255},
+		{Name: "path", Type: field.TypeString, Unique: true, Size: 255},
+		{Name: "content", Type: field.TypeString, Size: 2147483647},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "is_published", Type: field.TypeBool, Default: true},
+		{Name: "sort", Type: field.TypeInt, Default: 0},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// PagesTable holds the schema information for the "pages" table.
+	PagesTable = &schema.Table{
+		Name:       "pages",
+		Columns:    PagesColumns,
+		PrimaryKey: []*schema.Column{PagesColumns[0]},
+	}
 	// PostCategoriesColumns holds the columns for the "post_categories" table.
 	PostCategoriesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint, Increment: true},
@@ -693,6 +712,7 @@ var (
 		LinkCategoriesTable,
 		LinkTagsTable,
 		MetadataTable,
+		PagesTable,
 		PostCategoriesTable,
 		PostTagsTable,
 		SettingsTable,

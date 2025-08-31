@@ -16,6 +16,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/linkcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/linktag"
 	"github.com/anzhiyu-c/anheyu-app/ent/metadata"
+	"github.com/anzhiyu-c/anheyu-app/ent/page"
 	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
 	"github.com/anzhiyu-c/anheyu-app/ent/schema"
@@ -441,6 +442,69 @@ func init() {
 			return nil
 		}
 	}()
+	pageMixin := schema.Page{}.Mixin()
+	pageMixinHooks0 := pageMixin[0].Hooks()
+	page.Hooks[0] = pageMixinHooks0[0]
+	pageFields := schema.Page{}.Fields()
+	_ = pageFields
+	// pageDescTitle is the schema descriptor for title field.
+	pageDescTitle := pageFields[1].Descriptor()
+	// page.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	page.TitleValidator = func() func(string) error {
+		validators := pageDescTitle.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(title string) error {
+			for _, fn := range fns {
+				if err := fn(title); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// pageDescPath is the schema descriptor for path field.
+	pageDescPath := pageFields[2].Descriptor()
+	// page.PathValidator is a validator for the "path" field. It is called by the builders before save.
+	page.PathValidator = func() func(string) error {
+		validators := pageDescPath.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(_path string) error {
+			for _, fn := range fns {
+				if err := fn(_path); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// pageDescDescription is the schema descriptor for description field.
+	pageDescDescription := pageFields[4].Descriptor()
+	// page.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	page.DescriptionValidator = pageDescDescription.Validators[0].(func(string) error)
+	// pageDescIsPublished is the schema descriptor for is_published field.
+	pageDescIsPublished := pageFields[5].Descriptor()
+	// page.DefaultIsPublished holds the default value on creation for the is_published field.
+	page.DefaultIsPublished = pageDescIsPublished.Default.(bool)
+	// pageDescSort is the schema descriptor for sort field.
+	pageDescSort := pageFields[6].Descriptor()
+	// page.DefaultSort holds the default value on creation for the sort field.
+	page.DefaultSort = pageDescSort.Default.(int)
+	// pageDescCreatedAt is the schema descriptor for created_at field.
+	pageDescCreatedAt := pageFields[7].Descriptor()
+	// page.DefaultCreatedAt holds the default value on creation for the created_at field.
+	page.DefaultCreatedAt = pageDescCreatedAt.Default.(func() time.Time)
+	// pageDescUpdatedAt is the schema descriptor for updated_at field.
+	pageDescUpdatedAt := pageFields[8].Descriptor()
+	// page.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	page.DefaultUpdatedAt = pageDescUpdatedAt.Default.(func() time.Time)
+	// page.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	page.UpdateDefaultUpdatedAt = pageDescUpdatedAt.UpdateDefault.(func() time.Time)
 	postcategoryMixin := schema.PostCategory{}.Mixin()
 	postcategoryMixinHooks0 := postcategoryMixin[0].Hooks()
 	postcategory.Hooks[0] = postcategoryMixinHooks0[0]

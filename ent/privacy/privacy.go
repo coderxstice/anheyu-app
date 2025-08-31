@@ -374,6 +374,30 @@ func (f MetadataMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutati
 	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.MetadataMutation", m)
 }
 
+// The PageQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type PageQueryRuleFunc func(context.Context, *ent.PageQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f PageQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.PageQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.PageQuery", q)
+}
+
+// The PageMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type PageMutationRuleFunc func(context.Context, *ent.PageMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f PageMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.PageMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.PageMutation", m)
+}
+
 // The PostCategoryQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type PostCategoryQueryRuleFunc func(context.Context, *ent.PostCategoryQuery) error

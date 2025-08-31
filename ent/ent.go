@@ -23,6 +23,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/linkcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/linktag"
 	"github.com/anzhiyu-c/anheyu-app/ent/metadata"
+	"github.com/anzhiyu-c/anheyu-app/ent/page"
 	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
 	"github.com/anzhiyu-c/anheyu-app/ent/setting"
@@ -104,6 +105,7 @@ func checkColumn(table, column string) error {
 			linkcategory.Table:  linkcategory.ValidColumn,
 			linktag.Table:       linktag.ValidColumn,
 			metadata.Table:      metadata.ValidColumn,
+			page.Table:          page.ValidColumn,
 			postcategory.Table:  postcategory.ValidColumn,
 			posttag.Table:       posttag.ValidColumn,
 			setting.Table:       setting.ValidColumn,

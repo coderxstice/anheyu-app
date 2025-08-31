@@ -26,6 +26,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/linkcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/linktag"
 	"github.com/anzhiyu-c/anheyu-app/ent/metadata"
+	"github.com/anzhiyu-c/anheyu-app/ent/page"
 	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
 	"github.com/anzhiyu-c/anheyu-app/ent/setting"
@@ -65,6 +66,8 @@ type Client struct {
 	LinkTag *LinkTagClient
 	// Metadata is the client for interacting with the Metadata builders.
 	Metadata *MetadataClient
+	// Page is the client for interacting with the Page builders.
+	Page *PageClient
 	// PostCategory is the client for interacting with the PostCategory builders.
 	PostCategory *PostCategoryClient
 	// PostTag is the client for interacting with the PostTag builders.
@@ -107,6 +110,7 @@ func (c *Client) init() {
 	c.LinkCategory = NewLinkCategoryClient(c.config)
 	c.LinkTag = NewLinkTagClient(c.config)
 	c.Metadata = NewMetadataClient(c.config)
+	c.Page = NewPageClient(c.config)
 	c.PostCategory = NewPostCategoryClient(c.config)
 	c.PostTag = NewPostTagClient(c.config)
 	c.Setting = NewSettingClient(c.config)
@@ -220,6 +224,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		LinkCategory:  NewLinkCategoryClient(cfg),
 		LinkTag:       NewLinkTagClient(cfg),
 		Metadata:      NewMetadataClient(cfg),
+		Page:          NewPageClient(cfg),
 		PostCategory:  NewPostCategoryClient(cfg),
 		PostTag:       NewPostTagClient(cfg),
 		Setting:       NewSettingClient(cfg),
@@ -260,6 +265,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		LinkCategory:  NewLinkCategoryClient(cfg),
 		LinkTag:       NewLinkTagClient(cfg),
 		Metadata:      NewMetadataClient(cfg),
+		Page:          NewPageClient(cfg),
 		PostCategory:  NewPostCategoryClient(cfg),
 		PostTag:       NewPostTagClient(cfg),
 		Setting:       NewSettingClient(cfg),
@@ -300,8 +306,8 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.Album, c.Article, c.Comment, c.DirectLink, c.Entity, c.File, c.FileEntity,
-		c.Link, c.LinkCategory, c.LinkTag, c.Metadata, c.PostCategory, c.PostTag,
-		c.Setting, c.StoragePolicy, c.Tag, c.URLStat, c.User, c.UserGroup,
+		c.Link, c.LinkCategory, c.LinkTag, c.Metadata, c.Page, c.PostCategory,
+		c.PostTag, c.Setting, c.StoragePolicy, c.Tag, c.URLStat, c.User, c.UserGroup,
 		c.VisitorLog, c.VisitorStat,
 	} {
 		n.Use(hooks...)
@@ -313,8 +319,8 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.Album, c.Article, c.Comment, c.DirectLink, c.Entity, c.File, c.FileEntity,
-		c.Link, c.LinkCategory, c.LinkTag, c.Metadata, c.PostCategory, c.PostTag,
-		c.Setting, c.StoragePolicy, c.Tag, c.URLStat, c.User, c.UserGroup,
+		c.Link, c.LinkCategory, c.LinkTag, c.Metadata, c.Page, c.PostCategory,
+		c.PostTag, c.Setting, c.StoragePolicy, c.Tag, c.URLStat, c.User, c.UserGroup,
 		c.VisitorLog, c.VisitorStat,
 	} {
 		n.Intercept(interceptors...)
@@ -346,6 +352,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.LinkTag.mutate(ctx, m)
 	case *MetadataMutation:
 		return c.Metadata.mutate(ctx, m)
+	case *PageMutation:
+		return c.Page.mutate(ctx, m)
 	case *PostCategoryMutation:
 		return c.PostCategory.mutate(ctx, m)
 	case *PostTagMutation:
@@ -2193,6 +2201,140 @@ func (c *MetadataClient) mutate(ctx context.Context, m *MetadataMutation) (Value
 	}
 }
 
+// PageClient is a client for the Page schema.
+type PageClient struct {
+	config
+}
+
+// NewPageClient returns a client for the Page from the given config.
+func NewPageClient(c config) *PageClient {
+	return &PageClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `page.Hooks(f(g(h())))`.
+func (c *PageClient) Use(hooks ...Hook) {
+	c.hooks.Page = append(c.hooks.Page, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `page.Intercept(f(g(h())))`.
+func (c *PageClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Page = append(c.inters.Page, interceptors...)
+}
+
+// Create returns a builder for creating a Page entity.
+func (c *PageClient) Create() *PageCreate {
+	mutation := newPageMutation(c.config, OpCreate)
+	return &PageCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Page entities.
+func (c *PageClient) CreateBulk(builders ...*PageCreate) *PageCreateBulk {
+	return &PageCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *PageClient) MapCreateBulk(slice any, setFunc func(*PageCreate, int)) *PageCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &PageCreateBulk{err: fmt.Errorf("calling to PageClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*PageCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &PageCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Page.
+func (c *PageClient) Update() *PageUpdate {
+	mutation := newPageMutation(c.config, OpUpdate)
+	return &PageUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *PageClient) UpdateOne(pa *Page) *PageUpdateOne {
+	mutation := newPageMutation(c.config, OpUpdateOne, withPage(pa))
+	return &PageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *PageClient) UpdateOneID(id uint) *PageUpdateOne {
+	mutation := newPageMutation(c.config, OpUpdateOne, withPageID(id))
+	return &PageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Page.
+func (c *PageClient) Delete() *PageDelete {
+	mutation := newPageMutation(c.config, OpDelete)
+	return &PageDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *PageClient) DeleteOne(pa *Page) *PageDeleteOne {
+	return c.DeleteOneID(pa.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *PageClient) DeleteOneID(id uint) *PageDeleteOne {
+	builder := c.Delete().Where(page.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &PageDeleteOne{builder}
+}
+
+// Query returns a query builder for Page.
+func (c *PageClient) Query() *PageQuery {
+	return &PageQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypePage},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Page entity by its id.
+func (c *PageClient) Get(ctx context.Context, id uint) (*Page, error) {
+	return c.Query().Where(page.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *PageClient) GetX(ctx context.Context, id uint) *Page {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *PageClient) Hooks() []Hook {
+	hooks := c.hooks.Page
+	return append(hooks[:len(hooks):len(hooks)], page.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *PageClient) Interceptors() []Interceptor {
+	return c.inters.Page
+}
+
+func (c *PageClient) mutate(ctx context.Context, m *PageMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&PageCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&PageUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&PageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&PageDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Page mutation op: %q", m.Op())
+	}
+}
+
 // PostCategoryClient is a client for the PostCategory schema.
 type PostCategoryClient struct {
 	config
@@ -3630,12 +3772,14 @@ func (c *VisitorStatClient) mutate(ctx context.Context, m *VisitorStatMutation) 
 type (
 	hooks struct {
 		Album, Article, Comment, DirectLink, Entity, File, FileEntity, Link,
-		LinkCategory, LinkTag, Metadata, PostCategory, PostTag, Setting, StoragePolicy,
-		Tag, URLStat, User, UserGroup, VisitorLog, VisitorStat []ent.Hook
+		LinkCategory, LinkTag, Metadata, Page, PostCategory, PostTag, Setting,
+		StoragePolicy, Tag, URLStat, User, UserGroup, VisitorLog,
+		VisitorStat []ent.Hook
 	}
 	inters struct {
 		Album, Article, Comment, DirectLink, Entity, File, FileEntity, Link,
-		LinkCategory, LinkTag, Metadata, PostCategory, PostTag, Setting, StoragePolicy,
-		Tag, URLStat, User, UserGroup, VisitorLog, VisitorStat []ent.Interceptor
+		LinkCategory, LinkTag, Metadata, Page, PostCategory, PostTag, Setting,
+		StoragePolicy, Tag, URLStat, User, UserGroup, VisitorLog,
+		VisitorStat []ent.Interceptor
 	}
 )

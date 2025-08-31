@@ -42,6 +42,7 @@ func (b *Bootstrapper) InitializeDatabase() error {
 	b.initUserGroups()
 	b.initStoragePolicies()
 	b.initLinks()
+	b.initDefaultPages()
 	b.checkUserTable()
 
 	log.Println("--- 数据库初始化引导程序执行完成 ---")
@@ -294,5 +295,137 @@ func (b *Bootstrapper) checkUserTable() {
 		log.Printf("❌ 错误: 查询 User 表记录数量失败: %v", err)
 	} else if userCount == 0 {
 		log.Println("User 表为空，第一个注册的用户将成为管理员。")
+	}
+}
+
+// initDefaultPages 检查并初始化默认页面
+func (b *Bootstrapper) initDefaultPages() {
+	log.Println("--- 开始初始化默认页面 (Page 表) ---")
+	ctx := context.Background()
+
+	// 检查是否已有页面数据
+	pageCount, err := b.entClient.Page.Query().Count(ctx)
+	if err != nil {
+		log.Printf("⚠️ 失败: 查询页面数量失败: %v", err)
+		return
+	}
+
+	if pageCount > 0 {
+		log.Printf("--- 页面表已有 %d 条数据，跳过默认页面初始化。---", pageCount)
+		return
+	}
+
+	// 定义默认页面
+	defaultPages := []struct {
+		title       string
+		path        string
+		content     string
+		description string
+		isPublished bool
+		sort        int
+	}{
+		{
+			title: "隐私政策",
+			path:  "/privacy",
+			content: `<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">隐私政策</h1>
+    <div class="prose max-w-none">
+        <p>本隐私政策描述了本站如何收集、使用和保护您的个人信息。</p>
+        <h2>信息收集</h2>
+        <p>我们可能收集以下类型的信息：</p>
+        <ul>
+            <li>您主动提供的信息</li>
+            <li>自动收集的技术信息</li>
+            <li>第三方来源的信息</li>
+        </ul>
+        <h2>信息使用</h2>
+        <p>我们使用收集的信息来：</p>
+        <ul>
+            <li>提供和改进服务</li>
+            <li>个性化用户体验</li>
+            <li>发送通知和更新</li>
+        </ul>
+        <h2>信息保护</h2>
+        <p>我们采取适当的安全措施来保护您的个人信息。</p>
+    </div>
+</div>`,
+			description: "本站的隐私政策说明",
+			isPublished: true,
+			sort:        1,
+		},
+		{
+			title: "Cookie 政策",
+			path:  "/cookies",
+			content: `<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Cookie 政策</h1>
+    <div class="prose max-w-none">
+        <p>本Cookie政策说明了本站如何使用Cookie和类似技术。</p>
+        <h2>什么是Cookie</h2>
+        <p>Cookie是存储在您设备上的小型文本文件，用于记住您的偏好设置和登录状态。</p>
+        <h2>我们使用的Cookie类型</h2>
+        <ul>
+            <li><strong>必要Cookie</strong>：网站正常运行所必需</li>
+            <li><strong>功能Cookie</strong>：记住您的偏好设置</li>
+            <li><strong>分析Cookie</strong>：帮助我们了解网站使用情况</li>
+        </ul>
+        <h2>管理Cookie</h2>
+        <p>您可以通过浏览器设置来管理Cookie，但禁用某些Cookie可能会影响网站功能。</p>
+    </div>
+</div>`,
+			description: "本站的Cookie使用政策",
+			isPublished: true,
+			sort:        2,
+		},
+		{
+			title: "版权声明",
+			path:  "/copyright",
+			content: `<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">版权声明</h1>
+    <div class="prose max-w-none">
+        <p>本版权声明适用于本站的所有内容。</p>
+        <h2>版权保护</h2>
+        <p>本站的所有内容，包括但不限于文字、图片、音频、视频等，均受版权法保护。</p>
+        <h2>使用许可</h2>
+        <p>未经许可，禁止复制、分发、展示或创建衍生作品。</p>
+        <h2>例外情况</h2>
+        <ul>
+            <li>合理使用（如评论、教育、研究等）</li>
+            <li>获得明确书面许可</li>
+            <li>内容已进入公共领域</li>
+        </ul>
+        <h2>联系我们</h2>
+        <p>如果您需要获得使用许可或有其他版权相关问题，请联系我们。</p>
+    </div>
+</div>`,
+			description: "本站的版权保护声明",
+			isPublished: true,
+			sort:        3,
+		},
+	}
+
+	// 创建默认页面
+	createdCount := 0
+	for _, pageData := range defaultPages {
+		_, err := b.entClient.Page.Create().
+			SetTitle(pageData.title).
+			SetPath(pageData.path).
+			SetContent(pageData.content).
+			SetDescription(pageData.description).
+			SetIsPublished(pageData.isPublished).
+			SetSort(pageData.sort).
+			Save(ctx)
+
+		if err != nil {
+			log.Printf("⚠️ 失败: 创建默认页面 '%s' 失败: %v", pageData.title, err)
+		} else {
+			log.Printf("    - ✅ 默认页面 '%s' (%s) 创建成功。", pageData.title, pageData.path)
+			createdCount++
+		}
+	}
+
+	if createdCount > 0 {
+		log.Printf("--- 默认页面初始化完成，共创建 %d 个页面。---", createdCount)
+	} else {
+		log.Println("--- 默认页面初始化失败，未创建任何页面。---")
 	}
 }
