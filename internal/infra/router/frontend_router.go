@@ -30,6 +30,19 @@ func (r CustomHTMLRender) Instance(name string, data interface{}) render.Render 
 	return render.HTML{Template: r.Templates, Name: name, Data: data}
 }
 
+// getRequestScheme 确定请求的协议 (http 或 https)
+func getRequestScheme(c *gin.Context) string {
+	// 优先检查 X-Forwarded-Proto Header，这在反向代理后很常见
+	if proto := c.GetHeader("X-Forwarded-Proto"); proto != "" {
+		return proto
+	}
+	// 检查请求的 TLS 字段
+	if c.Request.TLS != nil {
+		return "https"
+	}
+	return "http"
+}
+
 // SetupFrontend 封装了所有与前端静态资源和模板相关的配置
 func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articleSvc article_service.Service, embeddedFS embed.FS) {
 	engine.GET("/manifest.json", func(c *gin.Context) {
@@ -106,6 +119,10 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 				response.Fail(c, http.StatusNotFound, "API 路由未找到")
 				return
 			}
+
+			// 获取完整的当前页面 URL
+			fullURL := fmt.Sprintf("%s://%s%s", getRequestScheme(c), c.Request.Host, c.Request.URL.RequestURI())
+
 			isPostDetail, _ := regexp.MatchString(`^/posts/([^/]+)$`, c.Request.URL.Path)
 			if isPostDetail {
 				slug := strings.TrimPrefix(c.Request.URL.Path, "/posts/")
@@ -126,31 +143,52 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 					}
 
 					c.HTML(http.StatusOK, "index.html", gin.H{
-						"siteName":        settingSvc.Get(constant.KeyAppName.String()),
-						"favicon":         settingSvc.Get(constant.KeyIconURL.String()),
-						"keywords":        settingSvc.Get(constant.KeySiteKeywords.String()),
-						"siteScript":      template.HTML(settingSvc.Get(constant.KeyFooterCode.String())),
-						"author":          settingSvc.Get(constant.KeyFrontDeskSiteOwnerName.String()),
+						// --- 基础 SEO 和页面信息 ---
 						"pageTitle":       pageTitle,
 						"pageDescription": pageDescription,
+						"keywords":        settingSvc.Get(constant.KeySiteKeywords.String()),
+						"author":          settingSvc.Get(constant.KeyFrontDeskSiteOwnerName.String()),
 						"themeColor":      articleResponse.PrimaryColor,
-						"initialData":     articleResponse,
+						"favicon":         settingSvc.Get(constant.KeyIconURL.String()),
+						// --- 用于 Vue 水合的数据 ---
+						"initialData":   articleResponse,
+						"ogType":        "article",
+						"ogUrl":         fullURL,
+						"ogTitle":       pageTitle,
+						"ogDescription": pageDescription,
+						"ogImage":       articleResponse.CoverURL,
+						"ogSiteName":    settingSvc.Get(constant.KeyAppName.String()),
+						"ogLocale":      "zh_CN",
+						// --- 网站脚本和额外信息 ---
+						"siteScript": template.HTML(settingSvc.Get(constant.KeyFooterCode.String())),
 					})
 					return
 				}
 			}
+			// --- 默认页面渲染 ---
 			defaultTitle := fmt.Sprintf("%s - %s", settingSvc.Get(constant.KeyAppName.String()), settingSvc.Get(constant.KeySubTitle.String()))
+			defaultDescription := settingSvc.Get(constant.KeySiteDescription.String())
+			defaultImage := settingSvc.Get(constant.KeyLogoURL512.String())
+
 			c.HTML(http.StatusOK, "index.html", gin.H{
-				"siteName":        settingSvc.Get(constant.KeyAppName.String()),
-				"favicon":         settingSvc.Get(constant.KeyIconURL.String()),
-				"keywords":        settingSvc.Get(constant.KeySiteKeywords.String()),
-				"description":     settingSvc.Get(constant.KeySiteDescription.String()),
-				"author":          settingSvc.Get(constant.KeyFrontDeskSiteOwnerName.String()),
-				"siteScript":      template.HTML(settingSvc.Get(constant.KeyFooterCode.String())),
+				// --- 基础 SEO 和页面信息 ---
 				"pageTitle":       defaultTitle,
-				"pageDescription": settingSvc.Get(constant.KeySiteDescription.String()),
-				"themeColor":      "#406eeb",
-				"initialData":     nil,
+				"pageDescription": defaultDescription,
+				"keywords":        settingSvc.Get(constant.KeySiteKeywords.String()),
+				"author":          settingSvc.Get(constant.KeyFrontDeskSiteOwnerName.String()),
+				"themeColor":      "#f7f9fe",
+				"favicon":         settingSvc.Get(constant.KeyIconURL.String()),
+				// --- 用于 Vue 水合的数据 ---
+				"initialData":   nil,
+				"ogType":        "website",
+				"ogUrl":         fullURL,
+				"ogTitle":       defaultTitle,
+				"ogDescription": defaultDescription,
+				"ogImage":       defaultImage,
+				"ogSiteName":    settingSvc.Get(constant.KeyAppName.String()),
+				"ogLocale":      "zh_CN",
+				// --- 网站脚本和额外信息 ---
+				"siteScript": template.HTML(settingSvc.Get(constant.KeyFooterCode.String())),
 			})
 		})
 
@@ -191,6 +229,9 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 				response.Fail(c, http.StatusNotFound, "API 路由未找到")
 				return
 			}
+			// 获取完整的当前页面 URL
+			fullURL := fmt.Sprintf("%s://%s%s", getRequestScheme(c), c.Request.Host, c.Request.URL.RequestURI())
+
 			isPostDetail, _ := regexp.MatchString(`^/posts/([^/]+)$`, c.Request.URL.Path)
 			if isPostDetail {
 				slug := strings.TrimPrefix(c.Request.URL.Path, "/posts/")
@@ -211,31 +252,53 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 					}
 
 					c.HTML(http.StatusOK, "index.html", gin.H{
-						"siteName":        settingSvc.Get(constant.KeyAppName.String()),
-						"favicon":         settingSvc.Get(constant.KeyIconURL.String()),
-						"keywords":        settingSvc.Get(constant.KeySiteKeywords.String()),
-						"siteScript":      template.HTML(settingSvc.Get(constant.KeyFooterCode.String())),
-						"author":          settingSvc.Get(constant.KeyFrontDeskSiteOwnerName.String()),
+						// --- 基础 SEO 和页面信息 ---
 						"pageTitle":       pageTitle,
 						"pageDescription": pageDescription,
+						"keywords":        settingSvc.Get(constant.KeySiteKeywords.String()),
+						"author":          settingSvc.Get(constant.KeyFrontDeskSiteOwnerName.String()),
 						"themeColor":      articleResponse.PrimaryColor,
-						"initialData":     articleResponse,
+						"favicon":         settingSvc.Get(constant.KeyIconURL.String()),
+						// --- 用于 Vue 水合的数据 ---
+						"initialData":   articleResponse,
+						"ogType":        "article",
+						"ogUrl":         fullURL,
+						"ogTitle":       pageTitle,
+						"ogDescription": pageDescription,
+						"ogImage":       articleResponse.CoverURL,
+						"ogSiteName":    settingSvc.Get(constant.KeyAppName.String()),
+						"ogLocale":      "zh_CN",
+						// --- 网站脚本和额外信息 ---
+						"siteScript": template.HTML(settingSvc.Get(constant.KeyFooterCode.String())),
 					})
 					return
 				}
 			}
+
+			// --- 默认页面渲染 ---
 			defaultTitle := fmt.Sprintf("%s - %s", settingSvc.Get(constant.KeyAppName.String()), settingSvc.Get(constant.KeySubTitle.String()))
+			defaultDescription := settingSvc.Get(constant.KeySiteDescription.String())
+			defaultImage := settingSvc.Get(constant.KeyLogoURL512.String())
+
 			c.HTML(http.StatusOK, "index.html", gin.H{
-				"siteName":        settingSvc.Get(constant.KeyAppName.String()),
-				"favicon":         settingSvc.Get(constant.KeyIconURL.String()),
-				"keywords":        settingSvc.Get(constant.KeySiteKeywords.String()),
-				"description":     settingSvc.Get(constant.KeySiteDescription.String()),
-				"author":          settingSvc.Get(constant.KeyFrontDeskSiteOwnerName.String()),
-				"siteScript":      template.HTML(settingSvc.Get(constant.KeyFooterCode.String())),
+				// --- 基础 SEO 和页面信息 ---
 				"pageTitle":       defaultTitle,
-				"pageDescription": settingSvc.Get(constant.KeySiteDescription.String()),
-				"themeColor":      "#406eeb",
-				"initialData":     nil,
+				"pageDescription": defaultDescription,
+				"keywords":        settingSvc.Get(constant.KeySiteKeywords.String()),
+				"author":          settingSvc.Get(constant.KeyFrontDeskSiteOwnerName.String()),
+				"themeColor":      "#f7f9fe",
+				"favicon":         settingSvc.Get(constant.KeyIconURL.String()),
+				// --- 用于 Vue 水合的数据 ---
+				"initialData":   nil,
+				"ogType":        "website",
+				"ogUrl":         fullURL,
+				"ogTitle":       defaultTitle,
+				"ogDescription": defaultDescription,
+				"ogImage":       defaultImage,
+				"ogSiteName":    settingSvc.Get(constant.KeyAppName.String()),
+				"ogLocale":      "zh_CN",
+				// --- 网站脚本和额外信息 ---
+				"siteScript": template.HTML(settingSvc.Get(constant.KeyFooterCode.String())),
 			})
 		})
 	}
