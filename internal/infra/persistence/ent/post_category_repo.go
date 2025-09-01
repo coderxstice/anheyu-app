@@ -98,6 +98,17 @@ func (r *postCategoryRepo) Create(ctx context.Context, req *model.CreatePostCate
 	return r.toModel(newCategory), nil
 }
 
+// ExistsByName 检查指定名称的分类是否已存在
+func (r *postCategoryRepo) ExistsByName(ctx context.Context, name string) (bool, error) {
+	count, err := r.db.PostCategory.Query().
+		Where(postcategory.Name(name)).
+		Count(ctx)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
 func (r *postCategoryRepo) Update(ctx context.Context, publicID string, req *model.UpdatePostCategoryRequest) (*model.PostCategory, error) {
 	dbID, _, err := idgen.DecodePublicID(publicID)
 	if err != nil {

@@ -22,4 +22,5 @@ type PostTagRepository interface {
 	GetByID(ctx context.Context, id string) (*model.PostTag, error)
 	UpdateCount(ctx context.Context, incIDs, decIDs []uint) error
 	DeleteIfUnused(ctx context.Context, ids []uint) error
+	ExistsByName(ctx context.Context, name string) (bool, error)
 }

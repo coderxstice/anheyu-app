@@ -23,4 +23,5 @@ type PostCategoryRepository interface {
 	UpdateCount(ctx context.Context, incIDs, decIDs []uint) error
 	DeleteIfUnused(ctx context.Context, ids []uint) error
 	FindAnySeries(ctx context.Context, ids []uint) (bool, error)
+	ExistsByName(ctx context.Context, name string) (bool, error)
 }

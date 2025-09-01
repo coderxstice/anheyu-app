@@ -9,6 +9,7 @@ package post_tag
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
@@ -40,6 +41,15 @@ func (s *Service) toAPIResponse(t *model.PostTag) *model.PostTagResponse {
 
 // Create 处理创建新标签的业务逻辑。
 func (s *Service) Create(ctx context.Context, req *model.CreatePostTagRequest) (*model.PostTagResponse, error) {
+	// 检查标签名称是否已存在
+	exists, err := s.repo.ExistsByName(ctx, req.Name)
+	if err != nil {
+		return nil, fmt.Errorf("检查标签名称失败: %w", err)
+	}
+	if exists {
+		return nil, fmt.Errorf("标签名称 '%s' 已存在", req.Name)
+	}
+
 	newTag, err := s.repo.Create(ctx, req)
 	if err != nil {
 		return nil, err
