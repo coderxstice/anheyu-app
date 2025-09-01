@@ -30,6 +30,19 @@ func (r CustomHTMLRender) Instance(name string, data interface{}) render.Render 
 	return render.HTML{Template: r.Templates, Name: name, Data: data}
 }
 
+// getRequestScheme 确定请求的协议 (http 或 https)
+func getRequestScheme(c *gin.Context) string {
+	// 优先检查 X-Forwarded-Proto Header，这在反向代理后很常见
+	if proto := c.GetHeader("X-Forwarded-Proto"); proto != "" {
+		return proto
+	}
+	// 检查请求的 TLS 字段
+	if c.Request.TLS != nil {
+		return "https"
+	}
+	return "http"
+}
+
 // SetupFrontend 封装了所有与前端静态资源和模板相关的配置
 func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articleSvc article_service.Service, embeddedFS embed.FS) {
 	engine.GET("/manifest.json", func(c *gin.Context) {
@@ -68,40 +81,132 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 		c.JSON(http.StatusOK, manifest)
 	})
 
-	// 检查是否存在外部 'static' 目录用于覆盖
+	// 准备一个通用的模板函数映射
+	funcMap := template.FuncMap{
+		"json": func(v interface{}) template.JS {
+			a, _ := json.Marshal(v)
+			return template.JS(a)
+		},
+	}
+
 	overrideDir := "static"
 	if _, err := os.Stat(overrideDir); !os.IsNotExist(err) {
-		// --- 模式一: 外部 'static' 目录存在 ---
-		engine.StaticFS("/", http.Dir(overrideDir))
+		// --- 模式一: 外部 'static' 目录存在 (支持SSR) ---
+		log.Println("正在使用 [模式一]: 外部 'static' 目录.")
+
+		parsedTemplates, err := template.New("index.html").Funcs(funcMap).ParseFiles(filepath.Join(overrideDir, "index.html"))
+		if err != nil {
+			log.Fatalf("解析外部HTML模板失败: %v", err)
+		}
+		engine.HTMLRender = CustomHTMLRender{Templates: parsedTemplates}
+
+		engine.StaticFS("/static", http.Dir(filepath.Join(overrideDir, "static")))
+		rootFiles, err := os.ReadDir(overrideDir)
+		if err != nil {
+			log.Fatalf("无法读取外部 'static' 目录: %v", err)
+		}
+		for _, file := range rootFiles {
+			if !file.IsDir() {
+				fileName := file.Name()
+				if fileName != "index.html" {
+					engine.StaticFile("/"+fileName, filepath.Join(overrideDir, fileName))
+				}
+			}
+		}
+
 		engine.NoRoute(func(c *gin.Context) {
 			if strings.HasPrefix(c.Request.URL.Path, "/api/") {
 				response.Fail(c, http.StatusNotFound, "API 路由未找到")
 				return
 			}
-			c.File(filepath.Join(overrideDir, "index.html"))
+
+			// 获取完整的当前页面 URL
+			fullURL := fmt.Sprintf("%s://%s%s", getRequestScheme(c), c.Request.Host, c.Request.URL.RequestURI())
+
+			isPostDetail, _ := regexp.MatchString(`^/posts/([^/]+)$`, c.Request.URL.Path)
+			if isPostDetail {
+				slug := strings.TrimPrefix(c.Request.URL.Path, "/posts/")
+				articleResponse, err := articleSvc.GetPublicBySlugOrID(c.Request.Context(), slug)
+				if err == nil && articleResponse != nil {
+					pageTitle := fmt.Sprintf("%s - %s", articleResponse.Title, settingSvc.Get(constant.KeyAppName.String()))
+
+					var pageDescription string
+					if len(articleResponse.Summaries) > 0 && articleResponse.Summaries[0] != "" {
+						pageDescription = articleResponse.Summaries[0]
+					} else {
+						plainText := parser.StripHTML(articleResponse.ContentHTML)
+						plainText = strings.Join(strings.Fields(plainText), " ")
+						pageDescription = strutil.Truncate(plainText, 150)
+					}
+					if pageDescription == "" {
+						pageDescription = settingSvc.Get(constant.KeySiteDescription.String())
+					}
+
+					c.HTML(http.StatusOK, "index.html", gin.H{
+						// --- 基础 SEO 和页面信息 ---
+						"pageTitle":       pageTitle,
+						"pageDescription": pageDescription,
+						"keywords":        settingSvc.Get(constant.KeySiteKeywords.String()),
+						"author":          settingSvc.Get(constant.KeyFrontDeskSiteOwnerName.String()),
+						"themeColor":      articleResponse.PrimaryColor,
+						"favicon":         settingSvc.Get(constant.KeyIconURL.String()),
+						// --- 用于 Vue 水合的数据 ---
+						"initialData":   articleResponse,
+						"ogType":        "article",
+						"ogUrl":         fullURL,
+						"ogTitle":       pageTitle,
+						"ogDescription": pageDescription,
+						"ogImage":       articleResponse.CoverURL,
+						"ogSiteName":    settingSvc.Get(constant.KeyAppName.String()),
+						"ogLocale":      "zh_CN",
+						// --- 网站脚本和额外信息 ---
+						"siteScript": template.HTML(settingSvc.Get(constant.KeyFooterCode.String())),
+					})
+					return
+				}
+			}
+			// --- 默认页面渲染 ---
+			defaultTitle := fmt.Sprintf("%s - %s", settingSvc.Get(constant.KeyAppName.String()), settingSvc.Get(constant.KeySubTitle.String()))
+			defaultDescription := settingSvc.Get(constant.KeySiteDescription.String())
+			defaultImage := settingSvc.Get(constant.KeyLogoURL512.String())
+
+			c.HTML(http.StatusOK, "index.html", gin.H{
+				// --- 基础 SEO 和页面信息 ---
+				"pageTitle":       defaultTitle,
+				"pageDescription": defaultDescription,
+				"keywords":        settingSvc.Get(constant.KeySiteKeywords.String()),
+				"author":          settingSvc.Get(constant.KeyFrontDeskSiteOwnerName.String()),
+				"themeColor":      "#f7f9fe",
+				"favicon":         settingSvc.Get(constant.KeyIconURL.String()),
+				// --- 用于 Vue 水合的数据 ---
+				"initialData":   nil,
+				"ogType":        "website",
+				"ogUrl":         fullURL,
+				"ogTitle":       defaultTitle,
+				"ogDescription": defaultDescription,
+				"ogImage":       defaultImage,
+				"ogSiteName":    settingSvc.Get(constant.KeyAppName.String()),
+				"ogLocale":      "zh_CN",
+				// --- 网站脚本和额外信息 ---
+				"siteScript": template.HTML(settingSvc.Get(constant.KeyFooterCode.String())),
+			})
 		})
 
 	} else {
 		// --- 模式二: 从嵌入的资源提供服务 ---
+		log.Println("正在使用 [模式二]: 嵌入式静态资源.")
+
 		distFS, err := fs.Sub(embeddedFS, "assets/dist")
 		if err != nil {
 			log.Fatalf("致命错误: 无法从嵌入的资源中创建 'assets/dist' 子文件系统: %v", err)
 		}
 
-		// 使用 template.FuncMap 来安全地序列化 JSON
-		funcMap := template.FuncMap{
-			"json": func(v interface{}) template.JS {
-				a, _ := json.Marshal(v)
-				return template.JS(a)
-			},
-		}
 		parsedTemplates, err := template.New("index.html").Funcs(funcMap).ParseFS(distFS, "index.html")
 		if err != nil {
 			log.Fatalf("解析嵌入式HTML模板失败: %v", err)
 		}
 		engine.HTMLRender = CustomHTMLRender{Templates: parsedTemplates}
 
-		// 静态文件服务
 		staticFS, _ := fs.Sub(distFS, "static")
 		engine.StaticFS("/static", http.FS(staticFS))
 
@@ -109,7 +214,6 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 		if err != nil {
 			log.Fatalf("无法读取嵌入的 dist 根目录: %v", err)
 		}
-
 		for _, file := range rootFiles {
 			if !file.IsDir() {
 				fileName := file.Name()
@@ -120,19 +224,18 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 			}
 		}
 
-		// --- SSR 核心处理器 ---
 		engine.NoRoute(func(c *gin.Context) {
 			if strings.HasPrefix(c.Request.URL.Path, "/api/") {
 				response.Fail(c, http.StatusNotFound, "API 路由未找到")
 				return
 			}
+			// 获取完整的当前页面 URL
+			fullURL := fmt.Sprintf("%s://%s%s", getRequestScheme(c), c.Request.Host, c.Request.URL.RequestURI())
 
-			// 检查是否是文章详情页的请求
 			isPostDetail, _ := regexp.MatchString(`^/posts/([^/]+)$`, c.Request.URL.Path)
 			if isPostDetail {
 				slug := strings.TrimPrefix(c.Request.URL.Path, "/posts/")
 				articleResponse, err := articleSvc.GetPublicBySlugOrID(c.Request.Context(), slug)
-
 				if err == nil && articleResponse != nil {
 					pageTitle := fmt.Sprintf("%s - %s", articleResponse.Title, settingSvc.Get(constant.KeyAppName.String()))
 
@@ -140,46 +243,62 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 					if len(articleResponse.Summaries) > 0 && articleResponse.Summaries[0] != "" {
 						pageDescription = articleResponse.Summaries[0]
 					} else {
-						// 从文章HTML内容生成纯文本
 						plainText := parser.StripHTML(articleResponse.ContentHTML)
-						// 替换掉所有空白字符（换行、tab等），以便更准确地截断
 						plainText = strings.Join(strings.Fields(plainText), " ")
-						// 将纯文本截断到150个字符作为描述
 						pageDescription = strutil.Truncate(plainText, 150)
 					}
-					// 如果自动生成的描述为空，则使用站点默认描述
 					if pageDescription == "" {
 						pageDescription = settingSvc.Get(constant.KeySiteDescription.String())
 					}
 
 					c.HTML(http.StatusOK, "index.html", gin.H{
-						"siteName":        settingSvc.Get(constant.KeyAppName.String()),
-						"favicon":         settingSvc.Get(constant.KeyIconURL.String()),
-						"keywords":        settingSvc.Get(constant.KeySiteKeywords.String()),
-						"siteScript":      template.HTML(settingSvc.Get(constant.KeyFooterCode.String())),
-						"author":          settingSvc.Get(constant.KeyFrontDeskSiteOwnerName.String()),
+						// --- 基础 SEO 和页面信息 ---
 						"pageTitle":       pageTitle,
 						"pageDescription": pageDescription,
+						"keywords":        settingSvc.Get(constant.KeySiteKeywords.String()),
+						"author":          settingSvc.Get(constant.KeyFrontDeskSiteOwnerName.String()),
 						"themeColor":      articleResponse.PrimaryColor,
-						"initialData":     articleResponse,
+						"favicon":         settingSvc.Get(constant.KeyIconURL.String()),
+						// --- 用于 Vue 水合的数据 ---
+						"initialData":   articleResponse,
+						"ogType":        "article",
+						"ogUrl":         fullURL,
+						"ogTitle":       pageTitle,
+						"ogDescription": pageDescription,
+						"ogImage":       articleResponse.CoverURL,
+						"ogSiteName":    settingSvc.Get(constant.KeyAppName.String()),
+						"ogLocale":      "zh_CN",
+						// --- 网站脚本和额外信息 ---
+						"siteScript": template.HTML(settingSvc.Get(constant.KeyFooterCode.String())),
 					})
 					return
 				}
 			}
 
-			// 对于其他所有路径或文章未找到的情况，使用站点默认元数据渲染
+			// --- 默认页面渲染 ---
 			defaultTitle := fmt.Sprintf("%s - %s", settingSvc.Get(constant.KeyAppName.String()), settingSvc.Get(constant.KeySubTitle.String()))
+			defaultDescription := settingSvc.Get(constant.KeySiteDescription.String())
+			defaultImage := settingSvc.Get(constant.KeyLogoURL512.String())
+
 			c.HTML(http.StatusOK, "index.html", gin.H{
-				"siteName":        settingSvc.Get(constant.KeyAppName.String()),
-				"favicon":         settingSvc.Get(constant.KeyIconURL.String()),
-				"keywords":        settingSvc.Get(constant.KeySiteKeywords.String()),
-				"description":     settingSvc.Get(constant.KeySiteDescription.String()),
-				"author":          settingSvc.Get(constant.KeyFrontDeskSiteOwnerName.String()),
-				"siteScript":      template.HTML(settingSvc.Get(constant.KeyFooterCode.String())),
+				// --- 基础 SEO 和页面信息 ---
 				"pageTitle":       defaultTitle,
-				"pageDescription": settingSvc.Get(constant.KeySiteDescription.String()),
-				"themeColor":      "#406eeb",
-				"initialData":     nil,
+				"pageDescription": defaultDescription,
+				"keywords":        settingSvc.Get(constant.KeySiteKeywords.String()),
+				"author":          settingSvc.Get(constant.KeyFrontDeskSiteOwnerName.String()),
+				"themeColor":      "#f7f9fe",
+				"favicon":         settingSvc.Get(constant.KeyIconURL.String()),
+				// --- 用于 Vue 水合的数据 ---
+				"initialData":   nil,
+				"ogType":        "website",
+				"ogUrl":         fullURL,
+				"ogTitle":       defaultTitle,
+				"ogDescription": defaultDescription,
+				"ogImage":       defaultImage,
+				"ogSiteName":    settingSvc.Get(constant.KeyAppName.String()),
+				"ogLocale":      "zh_CN",
+				// --- 网站脚本和额外信息 ---
+				"siteScript": template.HTML(settingSvc.Get(constant.KeyFooterCode.String())),
 			})
 		})
 	}

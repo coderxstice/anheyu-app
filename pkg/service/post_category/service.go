@@ -45,6 +45,15 @@ func (s *Service) toAPIResponse(c *model.PostCategory) *model.PostCategoryRespon
 
 // Create 处理创建新分类的业务逻辑。
 func (s *Service) Create(ctx context.Context, req *model.CreatePostCategoryRequest) (*model.PostCategoryResponse, error) {
+	// 检查分类名称是否已存在
+	exists, err := s.repo.ExistsByName(ctx, req.Name)
+	if err != nil {
+		return nil, fmt.Errorf("检查分类名称失败: %w", err)
+	}
+	if exists {
+		return nil, fmt.Errorf("分类名称 '%s' 已存在", req.Name)
+	}
+
 	newCategory, err := s.repo.Create(ctx, req)
 	if err != nil {
 		return nil, err

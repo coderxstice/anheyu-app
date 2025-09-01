@@ -32,6 +32,7 @@ import (
 	direct_link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/direct_link"
 	file_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/file"
 	link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/link"
+	page_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/page"
 	post_category_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_category"
 	post_tag_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_tag"
 	proxy_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/proxy"
@@ -52,6 +53,7 @@ import (
 	file_service "github.com/anzhiyu-c/anheyu-app/pkg/service/file"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/file_info"
 	link_service "github.com/anzhiyu-c/anheyu-app/pkg/service/link"
+	page_service "github.com/anzhiyu-c/anheyu-app/pkg/service/page"
 	parser_service "github.com/anzhiyu-c/anheyu-app/pkg/service/parser"
 	post_category_service "github.com/anzhiyu-c/anheyu-app/pkg/service/post_category"
 	post_tag_service "github.com/anzhiyu-c/anheyu-app/pkg/service/post_tag"
@@ -172,6 +174,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	linkRepo := ent_impl.NewLinkRepo(entClient, dbType)
 	linkCategoryRepo := ent_impl.NewLinkCategoryRepo(entClient)
 	linkTagRepo := ent_impl.NewLinkTagRepo(entClient)
+	pageRepo := ent_impl.NewEntPageRepository(entClient)
 
 	// --- Phase 4: 初始化应用引导程序 ---
 	bootstrapper := bootstrap.NewBootstrapper(entClient)
@@ -230,6 +233,8 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	}
 	taskBroker := task.NewBroker(uploadSvc, thumbnailSvc, cleanupSvc, articleRepo, commentRepo, emailSvc, cacheSvc, linkCategoryRepo, linkTagRepo, settingSvc, statService)
 	linkSvc := link_service.NewService(linkRepo, linkCategoryRepo, linkTagRepo, txManager, taskBroker)
+	pageSvc := page_service.NewService(pageRepo)
+
 	// 初始化搜索服务
 	if err := search.InitializeSearchEngine(); err != nil {
 		log.Printf("初始化搜索引擎失败: %v", err)
@@ -292,6 +297,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	postTagHandler := post_tag_handler.NewHandler(postTagSvc)
 	postCategoryHandler := post_category_handler.NewHandler(postCategorySvc)
 	commentHandler := comment_handler.NewHandler(commentSvc)
+	pageHandler := page_handler.NewHandler(pageSvc)
 	searchHandler := search_handler.NewHandler(searchSvc)
 	statisticsHandler := statistics_handler.NewStatisticsHandler(statService)
 	proxyHandler := proxy_handler.NewHandler()
@@ -312,6 +318,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		postCategoryHandler,
 		commentHandler,
 		linkHandler,
+		pageHandler,
 		statisticsHandler,
 		mw,
 		searchHandler,

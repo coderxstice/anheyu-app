@@ -113,6 +113,14 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Update Docker Hub README
+        uses: peter-evans/dockerhub-description@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: anheyu/anheyu-backend
+          readme-filepath: ./readme.md
+
   release:
     name: Create GitHub Release
     runs-on: ubuntu-latest

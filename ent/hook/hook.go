@@ -141,6 +141,18 @@ func (f MetadataFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MetadataMutation", m)
 }
 
+// The PageFunc type is an adapter to allow the use of ordinary
+// function as Page mutator.
+type PageFunc func(context.Context, *ent.PageMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f PageFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.PageMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PageMutation", m)
+}
+
 // The PostCategoryFunc type is an adapter to allow the use of ordinary
 // function as PostCategory mutator.
 type PostCategoryFunc func(context.Context, *ent.PostCategoryMutation) (ent.Value, error)

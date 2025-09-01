@@ -167,3 +167,14 @@ func (r *postTagRepo) GetByID(ctx context.Context, publicID string) (*model.Post
 	}
 	return r.toModel(entity), nil
 }
+
+// ExistsByName 检查指定名称的标签是否已存在
+func (r *postTagRepo) ExistsByName(ctx context.Context, name string) (bool, error) {
+	count, err := r.db.PostTag.Query().
+		Where(posttag.Name(name)).
+		Count(ctx)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}

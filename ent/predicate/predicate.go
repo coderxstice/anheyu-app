@@ -39,6 +39,9 @@ type LinkTag func(*sql.Selector)
 // Metadata is the predicate function for metadata builders.
 type Metadata func(*sql.Selector)
 
+// Page is the predicate function for page builders.
+type Page func(*sql.Selector)
+
 // PostCategory is the predicate function for postcategory builders.
 type PostCategory func(*sql.Selector)
 
