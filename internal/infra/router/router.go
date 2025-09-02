@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-15 11:30:55
- * @LastEditTime: 2025-08-31 12:23:35
+ * @LastEditTime: 2025-09-01 23:34:24
  * @LastEditors: 安知鱼
  */
 // anheyu-app/pkg/router/router.go
@@ -146,6 +146,8 @@ func (r *Router) registerCommentRoutes(api *gin.RouterGroup) {
 	commentsPublic := api.Group("/public/comments")
 	{
 		commentsPublic.GET("", r.commentHandler.ListByPath)
+
+		commentsPublic.GET("/latest", r.commentHandler.ListLatest)
 
 		commentsPublic.GET("/:id/children", r.commentHandler.ListChildren)
 

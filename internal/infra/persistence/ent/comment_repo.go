@@ -150,6 +150,62 @@ func (r *commentRepo) FindByID(ctx context.Context, id uint) (*model.Comment, er
 	return toDomain(entComment), nil
 }
 
+// FindManyByIDs 根据一组数据库ID查找多条评论，用于批量查询。
+func (r *commentRepo) FindManyByIDs(ctx context.Context, ids []uint) ([]*model.Comment, error) {
+	// 如果传入的id列表为空，直接返回空切片，避免无效的数据库查询
+	if len(ids) == 0 {
+		return []*model.Comment{}, nil
+	}
+
+	entComments, err := r.db.Comment.Query().
+		Where(entcomment.IDIn(ids...)).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	domainComments := make([]*model.Comment, len(entComments))
+	for i, c := range entComments {
+		domainComments[i] = toDomain(c)
+	}
+	return domainComments, nil
+}
+
+// FindAllPublishedPaginated 分页查找所有已发布的评论，按创建时间降序。
+func (r *commentRepo) FindAllPublishedPaginated(ctx context.Context, page, pageSize int) ([]*model.Comment, int64, error) {
+	// 构建基础查询，筛选未删除的、已发布的评论
+	query := r.db.Comment.Query().
+		Where(
+			entcomment.StatusEQ(int(model.StatusPublished)),
+			entcomment.DeletedAtIsNil(),
+		)
+
+	// 克隆查询以计算总数（在应用分页之前）
+	total, err := query.Clone().Count(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// 在原查询上应用排序和分页
+	entComments, err := query.
+		Order(ent.Desc(entcomment.FieldCreatedAt)). // 按创建时间降序排序
+		Limit(pageSize).
+		Offset((page - 1) * pageSize).
+		All(ctx)
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// 将 ent 对象转换为领域模型对象
+	domainComments := make([]*model.Comment, len(entComments))
+	for i, c := range entComments {
+		domainComments[i] = toDomain(c)
+	}
+
+	return domainComments, int64(total), nil
+}
+
 func (r *commentRepo) IncrementLikeCount(ctx context.Context, id uint) (*model.Comment, error) {
 	_, err := r.db.Comment.UpdateOneID(id).AddLikeCount(1).Save(ctx)
 	if err != nil {

@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-08-11 17:58:40
- * @LastEditTime: 2025-08-20 12:13:28
+ * @LastEditTime: 2025-09-01 22:57:09
  * @LastEditors: 安知鱼
  */
 // internal/domain/model/comment.go
@@ -68,13 +68,11 @@ type TargetMeta struct {
 // --- 领域逻辑方法 ---
 
 // IsPublished 检查评论是否已发布。业务逻辑被封装在模型内部。
-// 此方法不受重构影响。
 func (c *Comment) IsPublished() bool {
 	return c.Status == StatusPublished
 }
 
 // IsTopLevel 检查是否为根评论。
-// 此方法不受重构影响。
 func (c *Comment) IsTopLevel() bool {
 	return c.ParentID == nil
 }
