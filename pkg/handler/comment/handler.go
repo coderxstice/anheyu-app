@@ -107,6 +107,35 @@ func (h *Handler) UploadCommentImage(c *gin.Context) {
 	response.Success(c, respData, "图片上传成功")
 }
 
+// ListLatest
+// @Summary      公开获取最新评论列表
+// @Description  分页获取全站所有最新的已发布评论
+// @Tags         Comment Public
+// @Produce      json
+// @Param        page query int false "页码" default(1)
+// @Param        pageSize query int false "每页数量" default(10)
+// @Success      200 {object} response.Response{data=dto.ListResponse} "成功响应"
+// @Failure      500 {object} response.Response "服务器内部错误"
+// @Router       /public/comments/latest [get]
+func (h *Handler) ListLatest(c *gin.Context) {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 || pageSize > 100 {
+		pageSize = 10
+	}
+
+	commentsResponse, err := h.svc.ListLatest(c.Request.Context(), page, pageSize)
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, "获取最新评论列表失败: "+err.Error())
+		return
+	}
+
+	response.Success(c, commentsResponse, "获取成功")
+}
+
 // SetPin
 // @Summary      管理员置顶或取消置顶评论
 // @Description  设置或取消指定ID评论的置顶状态

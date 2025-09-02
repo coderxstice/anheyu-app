@@ -81,6 +81,68 @@ func (s *Service) UploadImage(ctx context.Context, viewerID uint, originalFilena
 	return fileItem, nil
 }
 
+// ListLatest 获取全站最新的已发布评论列表（分页）。
+func (s *Service) ListLatest(ctx context.Context, page, pageSize int) (*dto.ListResponse, error) {
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 || pageSize > 100 {
+		pageSize = 10
+	}
+
+	comments, total, err := s.repo.FindAllPublishedPaginated(ctx, page, pageSize)
+	if err != nil {
+		return nil, fmt.Errorf("获取最新评论列表失败: %w", err)
+	}
+
+	// 收集所有需要查询的父评论ID
+	parentIDs := make(map[uint]struct{})
+	for _, comment := range comments {
+		if comment.ParentID != nil {
+			parentIDs[*comment.ParentID] = struct{}{}
+		}
+	}
+
+	parentMap := make(map[uint]*model.Comment)
+	if len(parentIDs) > 0 {
+		// 将 map 的 key 转换为 slice
+		ids := make([]uint, 0, len(parentIDs))
+		for id := range parentIDs {
+			ids = append(ids, id)
+		}
+
+		// 使用 FindManyByIDs 一次性批量查询所有父评论
+		parents, err := s.repo.FindManyByIDs(ctx, ids)
+		if err != nil {
+			// 即便查询失败，也不应中断整个请求，仅记录日志。
+			// 这样即使父评论信息丢失，主评论列表依然可以展示。
+			log.Printf("警告：批量获取父评论失败: %v", err)
+		} else {
+			// 将查询结果转换为 map 以便后续快速查找
+			for _, parent := range parents {
+				parentMap[parent.ID] = parent
+			}
+		}
+	}
+
+	responses := make([]*dto.Response, len(comments))
+	for i, comment := range comments {
+		var parent *model.Comment
+		if comment.ParentID != nil {
+			// 从 map 中安全地获取父评论
+			parent = parentMap[*comment.ParentID]
+		}
+		responses[i] = s.toResponseDTO(ctx, comment, parent, false)
+	}
+
+	return &dto.ListResponse{
+		List:     responses,
+		Total:    total,
+		Page:     page,
+		PageSize: pageSize,
+	}, nil
+}
+
 // Create 负责创建评论。逻辑已简化为直接处理路径。
 func (s *Service) Create(ctx context.Context, req *dto.CreateRequest, ip, ua string, claims *auth.CustomClaims) (*dto.Response, error) {
 	limitStr := s.settingSvc.Get(constant.KeyCommentLimitPerMinute.String())
