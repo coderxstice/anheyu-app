@@ -3,14 +3,12 @@ package article
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"log"
 	"math"
 	"net/http"
-	"net/url"
 	"path"
 	"strconv"
 	"strings"
@@ -60,6 +58,7 @@ type serviceImpl struct {
 	fileSvc          file.FileService
 	directLinkSvc    direct_link.Service
 	searchSvc        *search.SearchService
+	colorSvc         *utility.ColorService
 }
 
 func NewService(
@@ -90,10 +89,9 @@ func NewService(
 		fileSvc:          fileSvc,
 		directLinkSvc:    directLinkSvc,
 		searchSvc:        searchSvc,
+		colorSvc:         utility.NewColorService(),
 	}
 }
-
-// --- 以下所有方法，接收者都从 *Service 修改为 *serviceImpl ---
 
 // UploadArticleImage 处理文章图片的上传，并为其创建直链。
 func (s *serviceImpl) UploadArticleImage(ctx context.Context, ownerID uint, fileReader io.Reader, originalFilename string) (string, string, error) {
@@ -136,53 +134,6 @@ func (s *serviceImpl) UploadArticleImage(ctx context.Context, ownerID uint, file
 	return finalURL, fileItem.ID, nil
 }
 
-// 从图片URL获取主色调的私有辅助函数
-func (s *serviceImpl) getPrimaryColorFromImageURL(ctx context.Context, imageURL string) (string, error) {
-	apiURL := s.settingSvc.Get(constant.KeyPostThemePrimaryColorAPIURL.String())
-	apiToken := s.settingSvc.Get(constant.KeyPostThemePrimaryColorAPIToken.String())
-
-	if apiURL == "" || apiToken == "" {
-		return "", fmt.Errorf("主色调API的URL或Token未配置")
-	}
-
-	reqURL, err := url.Parse(apiURL)
-	if err != nil {
-		return "", fmt.Errorf("解析主色调API URL失败: %w", err)
-	}
-
-	q := reqURL.Query()
-	q.Set("key", apiToken)
-	q.Set("img", imageURL)
-	reqURL.RawQuery = q.Encode()
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqURL.String(), nil)
-	if err != nil {
-		return "", fmt.Errorf("创建主色调API请求失败: %w", err)
-	}
-
-	resp, err := s.httpClient.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("请求主色调API失败: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("主色调API返回非200状态码: %d", resp.StatusCode)
-	}
-
-	var apiResp model.ColorAPIResponse
-	if err := json.NewDecoder(resp.Body).Decode(&apiResp); err != nil {
-		return "", fmt.Errorf("解析主色调API响应失败: %w", err)
-	}
-
-	if apiResp.Code != 200 || apiResp.Data.RGB == "" {
-		return "", fmt.Errorf("主色调API业务错误: code=%d, msg=%s", apiResp.Code, apiResp.Msg)
-	}
-
-	return apiResp.Data.RGB, nil
-}
-
-// 封装了确定并获取主色调的逻辑
 func (s *serviceImpl) determinePrimaryColor(ctx context.Context, topImgURL, coverURL string) string {
 	const defaultColor = "#b4bfe2"
 
@@ -197,9 +148,27 @@ func (s *serviceImpl) determinePrimaryColor(ctx context.Context, topImgURL, cove
 		return defaultColor
 	}
 
-	color, err := s.getPrimaryColorFromImageURL(ctx, imageURLToUse)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, imageURLToUse, nil)
 	if err != nil {
-		log.Printf("[警告] 获取主色调失败，将使用默认值。图片URL: %s, 错误: %v", imageURLToUse, err)
+		log.Printf("[警告] 获取主色调失败，创建图片请求失败。图片URL: %s, 错误: %v", imageURLToUse, err)
+		return defaultColor
+	}
+
+	resp, err := s.httpClient.Do(req)
+	if err != nil {
+		log.Printf("[警告] 获取主色调失败，请求图片失败。图片URL: %s, 错误: %v", imageURLToUse, err)
+		return defaultColor
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("[警告] 获取主色调失败，图片URL返回非200状态码: %d。图片URL: %s", resp.StatusCode, imageURLToUse)
+		return defaultColor
+	}
+
+	color, err := s.colorSvc.GetPrimaryColor(resp.Body)
+	if err != nil {
+		log.Printf("[警告] 获取主色调失败，颜色提取失败。图片URL: %s, 错误: %v", imageURLToUse, err)
 		return defaultColor
 	}
 

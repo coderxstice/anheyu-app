@@ -3,7 +3,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-21 17:18:09
- * @LastEditTime: 2025-09-03 10:21:43
+ * @LastEditTime: 2025-09-03 17:39:37
  * @LastEditors: 安知鱼
  */
 package constant
@@ -117,16 +117,14 @@ const (
 	KeyHeaderNavMenu   SettingKey = "header.nav.menu"
 
 	// 文章相关配置
-	KeyPostDefaultCover              SettingKey = "post.default.cover"
-	KeyPostDefaultDoubleColumn       SettingKey = "post.default.double_column"
-	KeyPostDefaultPageSize           SettingKey = "post.default.page_size"
-	KeyPostThemePrimaryColorAPIURL   SettingKey = "post.theme.primary_color_api_url"
-	KeyPostThemePrimaryColorAPIToken SettingKey = "post.theme.primary_color_api_token"
-	KeyPostExpirationTime            SettingKey = "post.expiration_time"
-	KeyPostRewardEnable              SettingKey = "post.reward.enable"
-	KeyPostRewardWeChatQR            SettingKey = "post.reward.wechat_qr"
-	KeyPostRewardAlipayQR            SettingKey = "post.reward.alipay_qr"
-	KeyPostCodeBlockCodeMaxLines     SettingKey = "post.code_block.code_max_lines"
+	KeyPostDefaultCover          SettingKey = "post.default.cover"
+	KeyPostDefaultDoubleColumn   SettingKey = "post.default.double_column"
+	KeyPostDefaultPageSize       SettingKey = "post.default.page_size"
+	KeyPostExpirationTime        SettingKey = "post.expiration_time"
+	KeyPostRewardEnable          SettingKey = "post.reward.enable"
+	KeyPostRewardWeChatQR        SettingKey = "post.reward.wechat_qr"
+	KeyPostRewardAlipayQR        SettingKey = "post.reward.alipay_qr"
+	KeyPostCodeBlockCodeMaxLines SettingKey = "post.code_block.code_max_lines"
 
 	KeyPostEquipmentBannerBackground  SettingKey = "equipment.banner.background"
 	KeyPostEquipmentBannerTitle       SettingKey = "equipment.banner.title"
