@@ -257,6 +257,113 @@ func (h *StatisticsHandler) GetStatisticsSummary(c *gin.Context) {
 	response.Success(c, summary, "获取统计概览成功")
 }
 
+// GetVisitorLogs 获取访客访问日志（后台接口）
+// @Summary 获取访客访问日志
+// @Description 获取指定时间范围内的访客访问日志，支持简单分页
+// @Tags 统计管理
+// @Accept json
+// @Produce json
+// @Param start_date query string false "开始日期 (YYYY-MM-DD)"
+// @Param end_date query string false "结束日期 (YYYY-MM-DD)"
+// @Param page query int false "页码，从1开始" default(1)
+// @Param page_size query int false "每页数量" default(20)
+// @Success 200 {object} response.Response
+// @Security BearerAuth
+// @Router /api/statistics/visitor-logs [get]
+func (h *StatisticsHandler) GetVisitorLogs(c *gin.Context) {
+	startDateStr := c.Query("start_date")
+	endDateStr := c.Query("end_date")
+	pageStr := c.DefaultQuery("page", "1")
+	pageSizeStr := c.DefaultQuery("page_size", "20")
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page <= 0 {
+		page = 1
+	}
+	pageSize, err := strconv.Atoi(pageSizeStr)
+	if err != nil || pageSize <= 0 {
+		pageSize = 20
+	}
+	if pageSize > 200 {
+		pageSize = 200
+	}
+
+	// 默认查询最近7天
+	endDate := time.Now()
+	startDate := endDate.AddDate(0, 0, -7)
+
+	if startDateStr != "" {
+		if t, err := time.Parse("2006-01-02", startDateStr); err == nil {
+			startDate = t
+		} else {
+			response.Fail(c, http.StatusBadRequest, "开始日期格式错误")
+			return
+		}
+	}
+	if endDateStr != "" {
+		if t, err := time.Parse("2006-01-02", endDateStr); err == nil {
+			endDate = t
+		} else {
+			response.Fail(c, http.StatusBadRequest, "结束日期格式错误")
+			return
+		}
+	}
+
+	logs, err := h.statService.GetVisitorLogs(c.Request.Context(), startDate, endDate)
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, "获取访客日志失败")
+		return
+	}
+
+	total := len(logs)
+	offset := (page - 1) * pageSize
+	if offset > total {
+		offset = total
+	}
+	end := offset + pageSize
+	if end > total {
+		end = total
+	}
+	pageItems := logs[offset:end]
+
+	// 精简字段返回
+	type VisitorLogDTO struct {
+		UserAgent string `json:"user_agent"`
+		IPAddress string `json:"ip_address"`
+		City      string `json:"city"`
+		URLPath   string `json:"url_path"`
+		Duration  int    `json:"duration"`
+		CreatedAt string `json:"created_at"`
+	}
+
+	list := make([]VisitorLogDTO, 0, len(pageItems))
+	for _, lg := range pageItems {
+		ua := ""
+		if lg.UserAgent != nil {
+			ua = *lg.UserAgent
+		}
+		city := ""
+		if lg.City != nil {
+			city = *lg.City
+		}
+		list = append(list, VisitorLogDTO{
+			UserAgent: ua,
+			IPAddress: lg.IPAddress,
+			City:      city,
+			URLPath:   lg.URLPath,
+			Duration:  int(lg.Duration),
+			CreatedAt: lg.CreatedAt.Format(time.RFC3339),
+		})
+	}
+
+	response.Success(c, gin.H{
+		"list":      list,
+		"total":     total,
+		"page":      page,
+		"page_size": pageSize,
+	}, "获取访客日志成功")
+}
+
 // StatisticsSummary 统计概览数据结构
 type StatisticsSummary struct {
 	BasicStats *model.VisitorStatistics `json:"basic_stats"`

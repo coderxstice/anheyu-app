@@ -124,8 +124,6 @@ var AllSettings = []Definition{
 	{Key: constant.KeyPostDefaultCover, Value: ``, Comment: "文章默认封面", IsPublic: true},
 	{Key: constant.KeyPostDefaultDoubleColumn, Value: "true", Comment: "文章默认双栏", IsPublic: true},
 	{Key: constant.KeyPostDefaultPageSize, Value: "12", Comment: "文章默认分页大小", IsPublic: true},
-	{Key: constant.KeyPostThemePrimaryColorAPIURL, Value: "https://api.nsmao.net/api/img2color/query", Comment: "文章主题主色调 API 地址", IsPublic: true},
-	{Key: constant.KeyPostThemePrimaryColorAPIToken, Value: "QnNqOJUHuQ2dPwiWqItdr7vX3s", Comment: "文章主题主色调 API Token"},
 	{Key: constant.KeyPostExpirationTime, Value: "365", Comment: "文章过期时间(单位天)", IsPublic: true},
 	{Key: constant.KeyPostRewardEnable, Value: "true", Comment: "文章打赏功能是否启用", IsPublic: true},
 	{Key: constant.KeyPostRewardWeChatQR, Value: "https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png", Comment: "微信打赏二维码图片URL", IsPublic: true},

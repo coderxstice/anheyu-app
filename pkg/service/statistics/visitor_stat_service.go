@@ -52,6 +52,9 @@ type VisitorStatService interface {
 
 	// 获取第一条访问日志的日期
 	GetFirstLogDate(ctx context.Context) (*time.Time, error)
+
+	// 获取访客访问日志（时间范围）
+	GetVisitorLogs(ctx context.Context, startDate, endDate time.Time) ([]*ent.VisitorLog, error)
 }
 
 type visitorStatService struct {
@@ -87,6 +90,11 @@ func (s *visitorStatService) GetLastAggregatedDate(ctx context.Context) (*time.T
 // 获取第一条访问日志的日期
 func (s *visitorStatService) GetFirstLogDate(ctx context.Context) (*time.Time, error) {
 	return s.visitorLogRepo.GetFirstDate(ctx)
+}
+
+// 获取访客访问日志（时间范围）
+func (s *visitorStatService) GetVisitorLogs(ctx context.Context, startDate, endDate time.Time) ([]*ent.VisitorLog, error) {
+	return s.visitorLogRepo.GetByTimeRange(ctx, startDate, endDate)
 }
 
 func (s *visitorStatService) RecordVisit(ctx context.Context, c *gin.Context, req *model.VisitorLogRequest) error {
