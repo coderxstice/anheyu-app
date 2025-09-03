@@ -3,7 +3,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-21 17:18:09
- * @LastEditTime: 2025-08-20 16:50:42
+ * @LastEditTime: 2025-09-03 10:21:43
  * @LastEditors: 安知鱼
  */
 package constant
@@ -133,6 +133,11 @@ const (
 	KeyPostEquipmentBannerDescription SettingKey = "equipment.banner.description"
 	KeyPostEquipmentBannerTip         SettingKey = "equipment.banner.tip"
 	KeyPostEquipmentList              SettingKey = "equipment.list"
+
+	KeyRecentCommentsBannerBackground  SettingKey = "recent_comments.banner.background"
+	KeyRecentCommentsBannerTitle       SettingKey = "recent_comments.banner.title"
+	KeyRecentCommentsBannerDescription SettingKey = "recent_comments.banner.description"
+	KeyRecentCommentsBannerTip         SettingKey = "recent_comments.banner.tip"
 
 	// 评论配置
 	KeyCommentLoginRequired     SettingKey = "comment.login_required"
