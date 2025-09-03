@@ -449,6 +449,9 @@ func (r *Router) registerStatisticsRoutes(api *gin.RouterGroup) {
 
 		// 获取统计概览: GET /api/statistics/summary
 		statisticsAdmin.GET("/summary", r.statisticsHandler.GetStatisticsSummary)
+
+		// 获取访客访问日志: GET /api/statistics/visitor-logs
+		statisticsAdmin.GET("/visitor-logs", r.statisticsHandler.GetVisitorLogs)
 	}
 }
 
