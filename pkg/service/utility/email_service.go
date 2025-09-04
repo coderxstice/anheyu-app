@@ -78,7 +78,17 @@ func (s *emailService) SendCommentNotification(newComment *model.Comment, parent
 
 	// --- 场景一：通知博主有新评论 ---
 	adminEmail := s.settingSvc.Get(constant.KeyFrontDeskSiteOwnerEmail.String())
-	if adminEmail != "" {
+	notifyAdmin := s.settingSvc.GetBool(constant.KeyCommentNotifyAdmin.String())
+	pushChannel := s.settingSvc.Get(constant.KeyPushooChannel.String())
+	scMailNotify := s.settingSvc.GetBool(constant.KeyScMailNotify.String())
+
+	// 邮件通知逻辑：
+	// 1. 如果没有配置即时通知，按原来的逻辑发送邮件
+	// 2. 如果配置了即时通知但开启了双重通知，也发送邮件
+	// 3. 如果配置了即时通知但没有开启双重通知，则不发送邮件
+	shouldSendEmail := notifyAdmin && (pushChannel == "" || scMailNotify)
+
+	if adminEmail != "" && shouldSendEmail {
 		adminSubjectTpl := s.settingSvc.Get(constant.KeyCommentMailSubjectAdmin.String())
 		adminBodyTpl := s.settingSvc.Get(constant.KeyCommentMailTemplateAdmin.String())
 
@@ -100,7 +110,8 @@ func (s *emailService) SendCommentNotification(newComment *model.Comment, parent
 	}
 
 	// --- 场景二：通知被回复者 ---
-	if parentComment != nil && parentComment.AllowNotification && parentComment.Author.Email != nil && *parentComment.Author.Email != "" {
+	notifyReply := s.settingSvc.GetBool(constant.KeyCommentNotifyReply.String())
+	if notifyReply && parentComment != nil && parentComment.AllowNotification && parentComment.Author.Email != nil && *parentComment.Author.Email != "" {
 		if newCommenterEmail != "" && newCommenterEmail == *parentComment.Author.Email {
 			return
 		}

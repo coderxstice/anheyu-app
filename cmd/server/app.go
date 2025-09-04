@@ -277,8 +277,13 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	}()
 
 	articleSvc := article_service.NewService(articleRepo, postTagRepo, postCategoryRepo, txManager, cacheSvc, geoSvc, taskBroker, settingSvc, parserSvc, fileSvc, directLinkSvc, searchSvc)
+	log.Printf("[DEBUG] 正在初始化 PushooService...")
+	pushooSvc := utility.NewPushooService(settingSvc)
+	log.Printf("[DEBUG] PushooService 初始化完成")
 	authSvc := auth.NewAuthService(userRepo, settingSvc, tokenSvc, emailSvc, txManager, articleSvc)
-	commentSvc := comment_service.NewService(commentRepo, userRepo, txManager, geoSvc, settingSvc, cacheSvc, taskBroker, fileSvc, parserSvc)
+	log.Printf("[DEBUG] 正在初始化 CommentService，将注入 PushooService...")
+	commentSvc := comment_service.NewService(commentRepo, userRepo, txManager, geoSvc, settingSvc, cacheSvc, taskBroker, fileSvc, parserSvc, pushooSvc)
+	log.Printf("[DEBUG] CommentService 初始化完成，PushooService 已注入")
 	_ = listener.NewFilePostProcessingListener(eventBus, taskBroker, extractionSvc)
 
 	// --- Phase 6: 初始化表现层 (Handlers) ---

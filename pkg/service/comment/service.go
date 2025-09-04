@@ -44,6 +44,7 @@ type Service struct {
 	broker     *task.Broker
 	fileSvc    filesvc.FileService
 	parserSvc  *parser.Service
+	pushooSvc  utility.PushooService
 }
 
 // NewService 创建一个新的评论服务实例。
@@ -57,6 +58,7 @@ func NewService(
 	broker *task.Broker,
 	fileSvc filesvc.FileService,
 	parserSvc *parser.Service,
+	pushooSvc utility.PushooService,
 ) *Service {
 	return &Service{
 		repo:       repo,
@@ -68,6 +70,7 @@ func NewService(
 		broker:     broker,
 		fileSvc:    fileSvc,
 		parserSvc:  parserSvc,
+		pushooSvc:  pushooSvc,
 	}
 }
 
@@ -143,7 +146,6 @@ func (s *Service) ListLatest(ctx context.Context, page, pageSize int) (*dto.List
 	}, nil
 }
 
-// Create 负责创建评论。逻辑已简化为直接处理路径。
 func (s *Service) Create(ctx context.Context, req *dto.CreateRequest, ip, ua string, claims *auth.CustomClaims) (*dto.Response, error) {
 	limitStr := s.settingSvc.Get(constant.KeyCommentLimitPerMinute.String())
 	limit, err := strconv.Atoi(limitStr)
@@ -257,8 +259,57 @@ func (s *Service) Create(ctx context.Context, req *dto.CreateRequest, ip, ua str
 		return nil, fmt.Errorf("保存评论失败: %w", err)
 	}
 
-	if newComment.IsPublished() && s.broker != nil {
-		go s.broker.DispatchCommentNotification(newComment.ID)
+	if newComment.IsPublished() {
+		log.Printf("[DEBUG] 评论已发布，开始处理通知逻辑，评论ID: %d", newComment.ID)
+
+		// 发送邮件通知
+		if s.broker != nil {
+			log.Printf("[DEBUG] 邮件通知任务已分发，评论ID: %d", newComment.ID)
+			go s.broker.DispatchCommentNotification(newComment.ID)
+		} else {
+			log.Printf("[DEBUG] broker 为 nil，跳过邮件通知")
+		}
+
+		// 发送即时通知
+		log.Printf("[DEBUG] 检查即时通知服务，pushooSvc 是否为 nil: %t", s.pushooSvc == nil)
+		if s.pushooSvc != nil {
+			go func() {
+				log.Printf("[DEBUG] 开始处理即时通知逻辑")
+				pushChannel := s.settingSvc.Get(constant.KeyPushooChannel.String())
+				pushURL := s.settingSvc.Get(constant.KeyPushooURL.String())
+				notifyAdmin := s.settingSvc.GetBool(constant.KeyCommentNotifyAdmin.String())
+				scMailNotify := s.settingSvc.GetBool(constant.KeyScMailNotify.String())
+
+				log.Printf("[DEBUG] 即时通知配置检查:")
+				log.Printf("[DEBUG]   - pushChannel: '%s'", pushChannel)
+				log.Printf("[DEBUG]   - pushURL: '%s'", pushURL)
+				log.Printf("[DEBUG]   - notifyAdmin: %t", notifyAdmin)
+				log.Printf("[DEBUG]   - scMailNotify: %t", scMailNotify)
+
+				if pushChannel != "" {
+					log.Printf("[DEBUG] pushChannel 不为空，继续检查通知条件")
+					// 检查是否需要发送博主通知
+
+					// 如果配置了即时通知且(开启了博主通知或者开启了双重通知)
+					if notifyAdmin || scMailNotify {
+						log.Printf("[DEBUG] 满足通知条件，开始发送即时通知")
+						if err := s.pushooSvc.SendCommentNotification(ctx, newComment, parentComment); err != nil {
+							log.Printf("[ERROR] 发送即时通知失败: %v", err)
+						} else {
+							log.Printf("[DEBUG] 即时通知发送成功")
+						}
+					} else {
+						log.Printf("[DEBUG] 不满足通知条件 (notifyAdmin: %t, scMailNotify: %t)，跳过即时通知", notifyAdmin, scMailNotify)
+					}
+				} else {
+					log.Printf("[DEBUG] pushChannel 为空，跳过即时通知")
+				}
+			}()
+		} else {
+			log.Printf("[DEBUG] pushooSvc 为 nil，跳过即时通知")
+		}
+	} else {
+		log.Printf("[DEBUG] 评论未发布，跳过所有通知逻辑")
 	}
 
 	return s.toResponseDTO(ctx, newComment, parentComment, false), nil
