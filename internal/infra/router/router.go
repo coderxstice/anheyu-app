@@ -413,13 +413,15 @@ func (r *Router) registerLinkRoutes(api *gin.RouterGroup) {
 		linksAdmin.PUT("/:id/review", r.linkHandler.ReviewLink)  // PUT /api/links/:id/review
 
 		// 分类管理
-		linksAdmin.GET("/categories", r.linkHandler.ListCategories)     // GET /api/links/categories
-		linksAdmin.POST("/categories", r.linkHandler.CreateCategory)    // POST /api/links/categories
-		linksAdmin.PUT("/categories/:id", r.linkHandler.UpdateCategory) // PUT /api/links/categories/:id
+		linksAdmin.GET("/categories", r.linkHandler.ListCategories)        // GET /api/links/categories
+		linksAdmin.POST("/categories", r.linkHandler.CreateCategory)       // POST /api/links/categories
+		linksAdmin.PUT("/categories/:id", r.linkHandler.UpdateCategory)    // PUT /api/links/categories/:id
+		linksAdmin.DELETE("/categories/:id", r.linkHandler.DeleteCategory) // DELETE /api/links/categories/:id
 		// 标签管理
-		linksAdmin.GET("/tags", r.linkHandler.ListAllTags)   // GET /api/links/tags
-		linksAdmin.POST("/tags", r.linkHandler.CreateTag)    // POST /api/links/tags
-		linksAdmin.PUT("/tags/:id", r.linkHandler.UpdateTag) // PUT /api/links/tags/:id
+		linksAdmin.GET("/tags", r.linkHandler.ListAllTags)      // GET /api/links/tags
+		linksAdmin.POST("/tags", r.linkHandler.CreateTag)       // POST /api/links/tags
+		linksAdmin.PUT("/tags/:id", r.linkHandler.UpdateTag)    // PUT /api/links/tags/:id
+		linksAdmin.DELETE("/tags/:id", r.linkHandler.DeleteTag) // DELETE /api/links/tags/:id
 	}
 }
 

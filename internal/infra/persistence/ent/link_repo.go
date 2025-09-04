@@ -53,7 +53,6 @@ func (r *linkRepo) List(ctx context.Context, req *model.ListLinksRequest) ([]*mo
 	if req.Name != nil && *req.Name != "" {
 		query = query.Where(link.NameContains(*req.Name))
 	}
-	// ... 其他筛选条件 ...
 	if req.Status != nil && *req.Status != "" {
 		query = query.Where(link.StatusEQ(link.Status(*req.Status)))
 	}
@@ -93,8 +92,12 @@ func (r *linkRepo) AdminCreate(ctx context.Context, req *model.AdminCreateLinkRe
 		SetURL(req.URL).
 		SetStatus(link.Status(req.Status)).
 		SetSiteshot(req.Siteshot).
-		SetCategoryID(req.CategoryID).
-		AddTagIDs(req.TagIDs...)
+		SetCategoryID(req.CategoryID)
+
+	// 处理单个标签
+	if req.TagID != nil {
+		create.AddTagIDs(*req.TagID)
+	}
 
 	if req.Logo != "" {
 		create.SetLogo(req.Logo)
@@ -124,7 +127,7 @@ func (r *linkRepo) AdminCreate(ctx context.Context, req *model.AdminCreateLinkRe
 
 func (r *linkRepo) Update(ctx context.Context, id int, req *model.AdminUpdateLinkRequest) (*model.LinkDTO, error) {
 	// 1. 执行更新操作，使用 _ 忽略用不到的返回值
-	_, err := r.client.Link.UpdateOneID(id).
+	updater := r.client.Link.UpdateOneID(id).
 		SetName(req.Name).
 		SetURL(req.URL).
 		SetLogo(req.Logo).
@@ -132,9 +135,14 @@ func (r *linkRepo) Update(ctx context.Context, id int, req *model.AdminUpdateLin
 		SetDescription(req.Description).
 		SetStatus(link.Status(req.Status)).
 		SetCategoryID(req.CategoryID).
-		ClearTags().
-		AddTagIDs(req.TagIDs...).
-		Save(ctx)
+		ClearTags()
+
+	// 处理单个标签
+	if req.TagID != nil {
+		updater.AddTagIDs(*req.TagID)
+	}
+
+	_, err := updater.Save(ctx)
 
 	if err != nil {
 		return nil, err
@@ -220,10 +228,14 @@ func mapEntLinkToDTO(entLink *ent.Link) *model.LinkDTO {
 			Description: entLink.Edges.Category.Description,
 		}
 	}
+	// 处理单个标签
 	if len(entLink.Edges.Tags) > 0 {
-		dto.Tags = make([]*model.LinkTagDTO, len(entLink.Edges.Tags))
-		for i, entTag := range entLink.Edges.Tags {
-			dto.Tags[i] = &model.LinkTagDTO{ID: entTag.ID, Name: entTag.Name, Color: entTag.Color}
+		// 只取第一个标签
+		entTag := entLink.Edges.Tags[0]
+		dto.Tag = &model.LinkTagDTO{
+			ID:    entTag.ID,
+			Name:  entTag.Name,
+			Color: entTag.Color,
 		}
 	}
 	return dto

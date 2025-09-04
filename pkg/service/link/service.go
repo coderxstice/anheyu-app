@@ -27,6 +27,8 @@ type Service interface {
 	UpdateTag(ctx context.Context, id int, req *model.UpdateLinkTagRequest) (*model.LinkTagDTO, error)
 	CreateCategory(ctx context.Context, req *model.CreateLinkCategoryRequest) (*model.LinkCategoryDTO, error)
 	CreateTag(ctx context.Context, req *model.CreateLinkTagRequest) (*model.LinkTagDTO, error)
+	DeleteCategory(ctx context.Context, id int) error
+	DeleteTag(ctx context.Context, id int) error
 	ListLinks(ctx context.Context, req *model.ListLinksRequest) (*model.LinkListResponse, error)
 	AdminListAllTags(ctx context.Context) ([]*model.LinkTagDTO, error)
 }
@@ -189,6 +191,32 @@ func (s *service) CreateCategory(ctx context.Context, req *model.CreateLinkCateg
 // CreateTag 处理创建标签。
 func (s *service) CreateTag(ctx context.Context, req *model.CreateLinkTagRequest) (*model.LinkTagDTO, error) {
 	return s.linkTagRepo.Create(ctx, req)
+}
+
+// DeleteCategory 删除分类。
+func (s *service) DeleteCategory(ctx context.Context, id int) error {
+	// 使用已有的 DeleteIfUnused 方法，它会检查是否有友链在使用
+	deleted, err := s.linkCategoryRepo.DeleteIfUnused(ctx, id)
+	if err != nil {
+		return err
+	}
+	if !deleted {
+		return errors.New("该分类正在被友链使用，无法删除")
+	}
+	return nil
+}
+
+// DeleteTag 删除标签。
+func (s *service) DeleteTag(ctx context.Context, id int) error {
+	// 使用已有的 DeleteIfUnused 方法，它会检查是否有友链在使用
+	deletedCount, err := s.linkTagRepo.DeleteIfUnused(ctx, []int{id})
+	if err != nil {
+		return err
+	}
+	if deletedCount == 0 {
+		return errors.New("该标签正在被友链使用，无法删除")
+	}
+	return nil
 }
 
 // ListLinks 获取后台友链列表。

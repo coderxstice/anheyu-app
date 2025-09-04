@@ -3,7 +3,7 @@ package model
 // PaginationInput 是分页输入的基础结构，可被其他请求 DTO 嵌入。
 type PaginationInput struct {
 	Page     int `form:"page" binding:"omitempty,gte=1"`
-	PageSize int `form:"pageSize" binding:"omitempty,gte=1,lte=100"`
+	PageSize int `form:"pageSize" binding:"omitempty,gte=1,lte=1000"`
 }
 
 // GetPage 获取经过处理的安全页码，默认为 1。
@@ -44,7 +44,7 @@ type LinkDTO struct {
 	Status      string           `json:"status"`
 	Siteshot    string           `json:"siteshot,omitempty"`
 	Category    *LinkCategoryDTO `json:"category"`
-	Tags        []*LinkTagDTO    `json:"tags"`
+	Tag         *LinkTagDTO      `json:"tag"` // 改为单个标签
 }
 
 // --- API 请求/响应 DTO ---
@@ -78,7 +78,7 @@ type AdminCreateLinkRequest struct {
 	Logo        string `json:"logo"`
 	Description string `json:"description"`
 	CategoryID  int    `json:"category_id" binding:"required"`
-	TagIDs      []int  `json:"tag_ids"`
+	TagID       *int   `json:"tag_id"` // 改为单个标签，可选
 	Status      string `json:"status" binding:"required,oneof=PENDING APPROVED REJECTED INVALID"`
 	Siteshot    string `json:"siteshot"`
 }
@@ -119,7 +119,7 @@ type AdminUpdateLinkRequest struct {
 	Logo        string `json:"logo"`
 	Description string `json:"description"`
 	CategoryID  int    `json:"category_id" binding:"required"`
-	TagIDs      []int  `json:"tag_ids"`
+	TagID       *int   `json:"tag_id"` // 改为单个标签，可选
 	Status      string `json:"status" binding:"required,oneof=PENDING APPROVED REJECTED INVALID"`
 	Siteshot    string `json:"siteshot"`
 }
