@@ -267,3 +267,37 @@ func (h *Handler) UpdateTag(c *gin.Context) {
 	}
 	response.Success(c, tag, "更新成功")
 }
+
+// DeleteCategory 处理后台管理员删除友链分类的请求。
+// @Router /api/links/categories/:id [delete]
+func (h *Handler) DeleteCategory(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		response.Fail(c, http.StatusBadRequest, "ID 格式无效")
+		return
+	}
+
+	err = h.linkSvc.DeleteCategory(c.Request.Context(), id)
+	if err != nil {
+		response.Fail(c, http.StatusBadRequest, "删除分类失败: "+err.Error())
+		return
+	}
+	response.Success(c, nil, "删除成功")
+}
+
+// DeleteTag 处理后台管理员删除友链标签的请求。
+// @Router /api/links/tags/:id [delete]
+func (h *Handler) DeleteTag(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		response.Fail(c, http.StatusBadRequest, "ID 格式无效")
+		return
+	}
+
+	err = h.linkSvc.DeleteTag(c.Request.Context(), id)
+	if err != nil {
+		response.Fail(c, http.StatusBadRequest, "删除标签失败: "+err.Error())
+		return
+	}
+	response.Success(c, nil, "删除成功")
+}

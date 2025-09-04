@@ -9,6 +9,8 @@ package ent
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/anzhiyu-c/anheyu-app/ent"
 	"github.com/anzhiyu-c/anheyu-app/ent/link"
@@ -77,6 +79,11 @@ func (r *linkTagRepo) Create(ctx context.Context, req *model.CreateLinkTagReques
 
 	savedTag, err := create.Save(ctx)
 	if err != nil {
+		// 检查是否是重复名称错误
+		if strings.Contains(err.Error(), "duplicate key value violates unique constraint") &&
+			strings.Contains(err.Error(), "link_tags_name_key") {
+			return nil, fmt.Errorf("标签名称 '%s' 已存在，请使用其他名称", req.Name)
+		}
 		return nil, err
 	}
 
