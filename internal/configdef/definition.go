@@ -24,7 +24,7 @@ type UserGroupDefinition struct {
 	Settings    model.GroupSettings
 }
 
-// AllSettings 是我们系统中所有配置项的“单一事实来源”
+// AllSettings 是我们系统中所有配置项的"单一事实来源"
 var AllSettings = []Definition{
 	// --- 站点基础配置 ---
 	{Key: constant.KeyAppName, Value: "安和鱼", Comment: "应用名称", IsPublic: true},
@@ -152,7 +152,11 @@ var AllSettings = []Definition{
 	{Key: constant.KeyCommentLimitPerMinute, Value: "5", Comment: "单个IP每分钟允许提交的评论数", IsPublic: false},
 	{Key: constant.KeyCommentLimitLength, Value: "10000", Comment: "单条评论最大字数", IsPublic: true},
 	{Key: constant.KeyCommentForbiddenWords, Value: "习近平,空包,毛泽东,代发", Comment: "违禁词列表，逗号分隔，匹配到的评论将进入待审", IsPublic: false},
-	{Key: constant.KeyCommentNotifySpam, Value: "false", Comment: "是否在收到垃圾评论时邮件通知博主", IsPublic: false},
+	{Key: constant.KeyCommentNotifyAdmin, Value: "false", Comment: "是否在收到评论时邮件通知博主", IsPublic: false},
+	{Key: constant.KeyCommentNotifyReply, Value: "true", Comment: "是否开启评论回复邮件通知功能", IsPublic: false},
+	{Key: constant.KeyPushooChannel, Value: "", Comment: "即时消息推送平台名称，支持：bark, webhook", IsPublic: false},
+	{Key: constant.KeyPushooURL, Value: "", Comment: "即时消息推送URL地址 (支持模板变量)", IsPublic: false},
+	{Key: constant.KeyScMailNotify, Value: "false", Comment: "是否同时通过IM和邮件2种方式通知博主 (默认仅IM)", IsPublic: false},
 	{Key: constant.KeyCommentMailSubject, Value: "您在 [{{.SITE_NAME}}] 上的评论收到了新回复", Comment: "用户收到回复的邮件主题模板", IsPublic: false},
 	{Key: constant.KeyCommentMailSubjectAdmin, Value: "您的博客 [{{.SITE_NAME}}] 上有新评论了", Comment: "博主收到新评论的邮件主题模板", IsPublic: false},
 	{Key: constant.KeyCommentMailTemplate, Value: `<div class="page flex-col"><div class="box_3 flex-col" style="display: flex;position: relative;width: 100%;height: 206px;background: #ef859d2e;top: 0;left: 0;justify-content: center;"><div class="section_1 flex-col" style="background-image: url('{{.PARENT_IMG}}');position: absolute;width: 152px;height: 152px;display: flex;top: 130px;background-size: cover;border-radius: 50%;"></div></div><div class="box_4 flex-col" style="margin-top: 92px;display: flex;flex-direction: column;align-items: center;"><div class="text-group_5 flex-col justify-between" style="display: flex;flex-direction: column;align-items: center;margin: 0 20px;"><span class="text_1" style="font-size: 26px;font-family: PingFang-SC-Bold, PingFang-SC;font-weight: bold;color: #000000;line-height: 37px;text-align: center;">嘿！你在&nbsp;{{.SITE_NAME}}&nbsp;博客中收到一条新回复。</span><span class="text_2" style="font-size: 16px;font-family: PingFang-SC-Bold, PingFang-SC;font-weight: bold;color: #00000030;line-height: 22px;margin-top: 21px;text-align: center;">你之前的评论&nbsp;在&nbsp;{{.SITE_NAME}} 博客中收到来自&nbsp;{{.NICK}}&nbsp;的回复</span></div><div class="box_2 flex-row" style="margin: 0 20px;min-height: 128px;background: #F7F7F7;border-radius: 12px;margin-top: 34px;display: flex;flex-direction: column;align-items: flex-start;padding: 32px 16px;width: calc(100% - 40px);"><div class="text-wrapper_4 flex-col justify-between" style="display: flex;flex-direction: column;margin-left: 30px;margin-bottom: 16px;"><span class="text_3" style="height: 22px;font-size: 16px;font-family: PingFang-SC-Bold, PingFang-SC;font-weight: bold;color: #C5343E;line-height: 22px;">{{.PARENT_NICK}}</span><span class="text_4" style="margin-top: 6px;margin-right: 22px;font-size: 16px;font-family: PingFangSC-Regular, PingFang SC;font-weight: 400;color: #000000;line-height: 22px;">{{.PARENT_COMMENT}}</span></div><hr style="display: flex;position: relative;border: 1px dashed #ef859d2e;box-sizing: content-box;height: 0px;overflow: visible;width: 100%;"><div class="text-wrapper_4 flex-col justify-between" style="display: flex;flex-direction: column;margin-left: 30px;"><hr><span class="text_3" style="height: 22px;font-size: 16px;font-family: PingFang-SC-Bold, PingFang-SC;font-weight: bold;color: #C5343E;line-height: 22px;">{{.NICK}}</span><span class="text_4" style="margin-top: 6px;margin-right: 22px;font-size: 16px;font-family: PingFangSC-Regular, PingFang SC;font-weight: 400;color: #000000;line-height: 22px;">{{.COMMENT}}</span></div><a class="text-wrapper_2 flex-col" style="min-width: 106px;height: 38px;background: #ef859d38;border-radius: 32px;display: flex;align-items: center;justify-content: center;text-decoration: none;margin: auto;margin-top: 32px;" href="{{.POST_URL}}"><span class="text_5" style="color: #DB214B;">查看详情</span></a></div><div class="text-group_6 flex-col justify-between" style="display: flex;flex-direction: column;align-items: center;margin-top: 34px;"><span class="text_6" style="height: 17px;font-size: 12px;font-family: PingFangSC-Regular, PingFang SC;font-weight: 400;color: #00000045;line-height: 17px;">此邮件由评论服务自动发出，直接回复无效。</span><a class="text_7" style="height: 17px;font-size: 12px;font-family: PingFangSC-Regular, PingFang SC;font-weight: 400;color: #DB214B;line-height: 17px;margin-top: 6px;text-decoration: none;" href="{{.SITE_URL}}">前往博客</a></div></div></div>`, Comment: "用户收到回复的邮件HTML模板", IsPublic: false},
@@ -217,7 +221,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyAboutPageSkillsTips, Value: `{"tips":"技能","title":"开启创造力"}`, Comment: "技能信息提示配置 (JSON格式)", IsPublic: true},
 }
 
-// AllUserGroups 是所有默认用户组的“单一事实来源”
+// AllUserGroups 是所有默认用户组的"单一事实来源"
 var AllUserGroups = []UserGroupDefinition{
 	{
 		ID:          1,
