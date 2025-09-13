@@ -20,7 +20,6 @@
   <a title="GitHub Forks" target="_blank" href="https://github.com/anzhiyu-c/anheyu-app/network/members"><img alt="GitHub Forks" src="https://img.shields.io/github/forks/anzhiyu-c/anheyu-app.svg?label=Forks&style=social"></a>  
 </p>
 
-
 如果能给我一个**star**那将是对我莫大的鼓励。使用这个应用之前，你应该明白它是一个完全独立的应用，它需要`服务器`才能进行搭建，推荐使用 docker 部署，能够极大的削弱环境配置带来的问题。
 
 由 [安知鱼](https://github.com/anzhiyu-c) 负责开发与维护。
@@ -30,12 +29,6 @@ GitHub: https://github.com/anzhiyu-c/anheyu-app
 预览: 👍 [AnZhiYu](https://anheyu.com/) || 🤞 [AnZhiYu](https://index.anheyu.com/)
 
 文档: 📖 [AnHeYu Docs](https://anheyu.com/posts/Z3MC)
-
-# 目前内测阶段，请勿用于正式生产环境❗️❗️❗️
-# 目前内测阶段，请勿用于正式生产环境❗️❗️❗️
-# 目前内测阶段，请勿用于正式生产环境❗️❗️❗️
-# 目前内测阶段，请勿用于正式生产环境❗️❗️❗️
-# 目前内测阶段，请勿用于正式生产环境❗️❗️❗️
 
 ## 🌟 系统简介
 
@@ -57,11 +50,11 @@ GitHub: https://github.com/anzhiyu-c/anheyu-app
 - ✅ 丰富多样化的标签选项快速构建你想要的功能
 - ✅ 支持定制化的主色调随封面图片颜色变化
 - ✅ 支持沉浸式状态栏
-- ✅ 支持高度自定义的inject
+- ✅ 支持高度自定义的 inject
 - ✅ 支持广告挂载
 - ✅ 支持图片大图查看
 - ✅ 支持优秀的相册集
-- ✅ 支持高速缓存的渐进式Web应用
+- ✅ 支持高速缓存的渐进式 Web 应用
 - ✅ 优秀的隐私协议支持
 - ✅ 支持 LaTeX 数学公式
 - ✅ 支持 mermaid 流程图
@@ -76,9 +69,10 @@ GitHub: https://github.com/anzhiyu-c/anheyu-app
 - ❌ 支持定制化的右键菜单(待支持)
 - ❌ 支持全局中控台(待支持)
 - ❌ 支持快捷键选项(待支持)
-- ✅ 文章AI摘要支持(Pro)
+- ✅ 文章 AI 摘要支持(Pro)
 
 ## 🏗️ 技术架构
+
 Go + Vue + Ent
 
 MySQL/PostgreSQL/SQLite (支持多种数据库)
@@ -101,6 +95,6 @@ MySQL/PostgreSQL/SQLite (支持多种数据库)
 
 ## 交流群
 
-QQ群组：[464636182](https://jq.qq.com/?_wv=1027&k=v7NK7ELr)
+QQ 群组：[464636182](https://jq.qq.com/?_wv=1027&k=v7NK7ELr)
 
 ![QQ群组](https://upload-bbs.miyoushe.com/upload/2025/07/09/125766904/1e8ea817c197fb98e4dbd9ed2500d923_6382092418395407285.webp)
