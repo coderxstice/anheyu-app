@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/parser"
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/strutil"
@@ -142,6 +143,12 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 						pageDescription = settingSvc.Get(constant.KeySiteDescription.String())
 					}
 
+					// 构建文章标签列表
+					articleTags := make([]string, len(articleResponse.PostTags))
+					for i, tag := range articleResponse.PostTags {
+						articleTags[i] = tag.Name
+					}
+
 					c.HTML(http.StatusOK, "index.html", gin.H{
 						// --- 基础 SEO 和页面信息 ---
 						"pageTitle":       pageTitle,
@@ -159,6 +166,11 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 						"ogImage":       articleResponse.CoverURL,
 						"ogSiteName":    settingSvc.Get(constant.KeyAppName.String()),
 						"ogLocale":      "zh_CN",
+						// --- Article 元标签数据 ---
+						"articlePublishedTime": articleResponse.CreatedAt.Format(time.RFC3339),
+						"articleModifiedTime":  articleResponse.UpdatedAt.Format(time.RFC3339),
+						"articleAuthor":        articleResponse.CopyrightAuthor,
+						"articleTags":          articleTags,
 						// --- 网站脚本和额外信息 ---
 						"siteScript": template.HTML(settingSvc.Get(constant.KeyFooterCode.String())),
 					})
@@ -187,6 +199,11 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 				"ogImage":       defaultImage,
 				"ogSiteName":    settingSvc.Get(constant.KeyAppName.String()),
 				"ogLocale":      "zh_CN",
+				// --- Article 元标签数据 (默认为空) ---
+				"articlePublishedTime": nil,
+				"articleModifiedTime":  nil,
+				"articleAuthor":        nil,
+				"articleTags":          nil,
 				// --- 网站脚本和额外信息 ---
 				"siteScript": template.HTML(settingSvc.Get(constant.KeyFooterCode.String())),
 			})
@@ -251,6 +268,12 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 						pageDescription = settingSvc.Get(constant.KeySiteDescription.String())
 					}
 
+					// 构建文章标签列表
+					articleTags := make([]string, len(articleResponse.PostTags))
+					for i, tag := range articleResponse.PostTags {
+						articleTags[i] = tag.Name
+					}
+
 					c.HTML(http.StatusOK, "index.html", gin.H{
 						// --- 基础 SEO 和页面信息 ---
 						"pageTitle":       pageTitle,
@@ -268,6 +291,11 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 						"ogImage":       articleResponse.CoverURL,
 						"ogSiteName":    settingSvc.Get(constant.KeyAppName.String()),
 						"ogLocale":      "zh_CN",
+						// --- Article 元标签数据 ---
+						"articlePublishedTime": articleResponse.CreatedAt.Format(time.RFC3339),
+						"articleModifiedTime":  articleResponse.UpdatedAt.Format(time.RFC3339),
+						"articleAuthor":        articleResponse.CopyrightAuthor,
+						"articleTags":          articleTags,
 						// --- 网站脚本和额外信息 ---
 						"siteScript": template.HTML(settingSvc.Get(constant.KeyFooterCode.String())),
 					})
@@ -297,6 +325,11 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 				"ogImage":       defaultImage,
 				"ogSiteName":    settingSvc.Get(constant.KeyAppName.String()),
 				"ogLocale":      "zh_CN",
+				// --- Article 元标签数据 (默认为空) ---
+				"articlePublishedTime": nil,
+				"articleModifiedTime":  nil,
+				"articleAuthor":        nil,
+				"articleTags":          nil,
 				// --- 网站脚本和额外信息 ---
 				"siteScript": template.HTML(settingSvc.Get(constant.KeyFooterCode.String())),
 			})
