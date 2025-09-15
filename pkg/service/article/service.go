@@ -460,6 +460,14 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 			copyright = *req.Copyright
 		}
 
+		// 过滤空的摘要字符串
+		filteredSummaries := make([]string, 0, len(req.Summaries))
+		for _, summary := range req.Summaries {
+			if strings.TrimSpace(summary) != "" {
+				filteredSummaries = append(filteredSummaries, summary)
+			}
+		}
+
 		params := &model.CreateArticleParams{
 			Title:                req.Title,
 			ContentMd:            req.ContentMd, // 存储Markdown原文
@@ -474,7 +482,7 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 			HomeSort:             req.HomeSort,
 			PinSort:              req.PinSort,
 			TopImgURL:            req.TopImgURL,
-			Summaries:            req.Summaries,
+			Summaries:            filteredSummaries,
 			PrimaryColor:         primaryColor,
 			IsPrimaryColorManual: isManual,
 			Abbrlink:             req.Abbrlink,
@@ -644,6 +652,17 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 				newColor := s.determinePrimaryColor(ctx, newTopImgURL, newCoverURL)
 				computedParams.PrimaryColor = &newColor
 			}
+		}
+
+		// 如果更新了Summaries，过滤空的摘要字符串
+		if req.Summaries != nil {
+			filteredSummaries := make([]string, 0, len(req.Summaries))
+			for _, summary := range req.Summaries {
+				if strings.TrimSpace(summary) != "" {
+					filteredSummaries = append(filteredSummaries, summary)
+				}
+			}
+			req.Summaries = filteredSummaries
 		}
 
 		if req.IPLocation != nil && *req.IPLocation == "" {

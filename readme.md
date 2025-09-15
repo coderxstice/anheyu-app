@@ -83,6 +83,36 @@ GitHub: https://github.com/anzhiyu-c/anheyu-app
 - ✅ 支持快捷键选项
 - ✅ 付费文章内容 (PRO)
 
+## 部分功能展示
+
+**沉浸式状态栏** 沉浸阅读。
+
+![沉浸式状态栏](https://upload-bbs.miyoushe.com/upload/2025/09/14/125766904/bf586849d38243f9d62ffd10aaac9c92_3495839897391648835.png?x-oss-process=image/format,avif)
+
+**在线编辑器** Markdown 编辑
+
+![在线编辑器](https://upload-bbs.miyoushe.com/upload/2025/09/15/125766904/d48ebac100429fe8dce19e48ec3b40a3_3855955480928949790.png?x-oss-process=image/format,avif)
+
+**优秀方便的右键菜单**
+
+<img
+  src="https://upload-bbs.miyoushe.com/upload/2025/09/14/125766904/ab037790230c2a67f7c8e426cd8ce677_4442694850992921405.png?x-oss-process=image/format,avif"
+  alt="优秀方便的右键菜单"
+  className="w-[50%]"
+/>
+
+**AI 摘要** 迅速读取文章内容。
+
+![AI摘要](https://upload-bbs.miyoushe.com/upload/2025/09/14/125766904/3e4d676c64930e1c573393420dc2cba5_2848259665925430.png?x-oss-process=image/format,avif)
+
+**让人眼前一亮的清爽界面**
+
+![](https://upload-bbs.miyoushe.com/upload/2025/09/14/125766904/22019d7c234b154ae6745ae8960188c4_4555570664614593804.png?x-oss-process=image/format,avif)
+
+**评论弹幕**
+
+![评论弹幕](https://upload-bbs.miyoushe.com/upload/2025/09/14/125766904/9ad29d18db96115f483ddf15b8af9b57_7214154697962036777.png?x-oss-process=image/format,avif)
+
 ## 🏗️ 技术架构
 
 Go + Vue3 + Ent
