@@ -398,7 +398,7 @@ func (r *Router) registerLinkRoutes(api *gin.RouterGroup) {
 
 	linkCategoriesPublic := api.Group("/public/link-categories")
 	{
-		// 获取友链分类列表: GET /api/public/link-categories
+		// 获取有已审核通过友链的分类列表: GET /api/public/link-categories
 		linkCategoriesPublic.GET("", r.linkHandler.ListPublicCategories)
 	}
 

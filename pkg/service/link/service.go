@@ -16,7 +16,7 @@ type Service interface {
 	ApplyLink(ctx context.Context, req *model.ApplyLinkRequest) (*model.LinkDTO, error)
 	ListPublicLinks(ctx context.Context, req *model.ListPublicLinksRequest) (*model.LinkListResponse, error)
 	ListCategories(ctx context.Context) ([]*model.LinkCategoryDTO, error)
-	ListPublicCategories(ctx context.Context) ([]*model.LinkCategoryDTO, error) // 只返回有友链的分类
+	ListPublicCategories(ctx context.Context) ([]*model.LinkCategoryDTO, error) // 只返回有已审核通过友链的分类
 	GetRandomLinks(ctx context.Context, num int) ([]*model.LinkDTO, error)
 
 	// --- 后台接口 ---
@@ -125,7 +125,7 @@ func (s *service) ListCategories(ctx context.Context) ([]*model.LinkCategoryDTO,
 	return s.linkCategoryRepo.FindAll(ctx)
 }
 
-// ListPublicCategories 获取有友链的分类，用于前台公开接口。
+// ListPublicCategories 获取有已审核通过友链的分类，用于前台公开接口。
 func (s *service) ListPublicCategories(ctx context.Context) ([]*model.LinkCategoryDTO, error) {
 	return s.linkCategoryRepo.FindAllWithLinks(ctx)
 }
