@@ -97,6 +97,10 @@ func NewService(settingSvc setting.SettingService, bus *event.EventBus) *Service
 	policy.AllowAttrs("data-href").OnElements("button")
 	policy.AllowAttrs("type").OnElements("button")
 	policy.AllowAttrs("aria-label").OnElements("button")
+
+	// 密码保护内容相关属性
+	policy.AllowAttrs("data-content-id", "data-title", "data-hint", "data-placeholder").OnElements("div", "input", "button")
+	policy.AllowAttrs("placeholder").OnElements("input")
 	policy.AllowAttrs("xmlns", "width", "height", "viewBox", "fill", "stroke", "stroke-width", "stroke-linecap", "stroke-linejoin", "preserveAspectRatio", "aria-roledescription", "role", "style", "xmlns:xlink", "id", "t").OnElements("svg")
 	policy.AllowAttrs("cx", "cy", "r").OnElements("circle")
 	policy.AllowAttrs("d", "style", "class", "marker-end", "fill", "p-id", "t").OnElements("path")
