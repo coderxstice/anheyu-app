@@ -17,7 +17,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
@@ -46,11 +48,12 @@ var (
 
 // RedisSearcher 使用 Redis 实现的搜索器
 type RedisSearcher struct {
-	client *redis.Client
+	client     *redis.Client
+	settingSvc setting.SettingService
 }
 
 // NewRedisSearcher 创建新的 Redis 搜索器
-func NewRedisSearcher() (*RedisSearcher, error) {
+func NewRedisSearcher(settingSvc setting.SettingService) (*RedisSearcher, error) {
 	redisAddr := os.Getenv("ANHEYU_REDIS_ADDR")
 	if redisAddr == "" {
 		redisAddr = DefaultRedisAddr
@@ -70,7 +73,8 @@ func NewRedisSearcher() (*RedisSearcher, error) {
 	}
 
 	return &RedisSearcher{
-		client: rdb,
+		client:     rdb,
+		settingSvc: settingSvc,
 	}, nil
 }
 
@@ -324,7 +328,7 @@ func (rs *RedisSearcher) IndexArticle(ctx context.Context, article *model.Articl
 		"id":           article.ID,
 		"title":        article.Title,
 		"content":      article.ContentHTML,
-		"author":       "安知鱼",
+		"author":       rs.settingSvc.Get(constant.KeyFrontDeskSiteOwnerName.String()),
 		"category":     category,
 		"publish_date": article.CreatedAt.Format(time.RFC3339),
 		"cover_url":    article.CoverURL,

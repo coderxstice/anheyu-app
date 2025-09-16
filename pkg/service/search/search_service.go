@@ -13,6 +13,7 @@ import (
 	"log"
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 )
 
 // AppSearcher 全局搜索器实例
@@ -92,9 +93,9 @@ func (s *SearchService) clearAllIndexes(ctx context.Context) error {
 }
 
 // InitializeSearchEngine 初始化搜索引擎
-func InitializeSearchEngine() error {
+func InitializeSearchEngine(settingSvc setting.SettingService) error {
 	// 使用 Redis 搜索模式
-	redisSearcher, err := NewRedisSearcher()
+	redisSearcher, err := NewRedisSearcher(settingSvc)
 	if err != nil {
 		return fmt.Errorf("Redis 搜索初始化失败: %w", err)
 	}

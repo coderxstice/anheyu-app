@@ -236,7 +236,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	pageSvc := page_service.NewService(pageRepo)
 
 	// 初始化搜索服务
-	if err := search.InitializeSearchEngine(); err != nil {
+	if err := search.InitializeSearchEngine(settingSvc); err != nil {
 		log.Printf("初始化搜索引擎失败: %v", err)
 		// 不返回错误，让应用继续启动
 	}
