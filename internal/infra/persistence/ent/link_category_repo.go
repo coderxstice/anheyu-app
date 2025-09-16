@@ -125,7 +125,7 @@ func (r *linkCategoryRepo) FindAll(ctx context.Context) ([]*model.LinkCategoryDT
 
 func (r *linkCategoryRepo) FindAllWithLinks(ctx context.Context) ([]*model.LinkCategoryDTO, error) {
 	entCategories, err := r.client.LinkCategory.Query().
-		Where(linkcategory.HasLinks()).
+		Where(linkcategory.HasLinksWith(link.StatusEQ(link.StatusAPPROVED))).
 		All(ctx)
 	if err != nil {
 		return nil, err

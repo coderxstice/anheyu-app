@@ -82,7 +82,7 @@ func (h *Handler) ListCategories(c *gin.Context) {
 	response.Success(c, categories, "获取成功")
 }
 
-// ListPublicCategories 获取有友链的分类列表，用于前台。
+// ListPublicCategories 获取有已审核通过友链的分类列表，用于前台。
 // @Router /api/public/link-categories [get]
 func (h *Handler) ListPublicCategories(c *gin.Context) {
 	categories, err := h.linkSvc.ListPublicCategories(c.Request.Context())
