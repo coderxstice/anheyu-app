@@ -72,10 +72,20 @@ func (h *Handler) ListPublicLinks(c *gin.Context) {
 }
 
 // ListCategories 获取友链分类列表。
-// @Router /api/public/link-categories [get]
 // @Router /api/links/categories [get]
 func (h *Handler) ListCategories(c *gin.Context) {
 	categories, err := h.linkSvc.ListCategories(c.Request.Context())
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, "获取分类列表失败: "+err.Error())
+		return
+	}
+	response.Success(c, categories, "获取成功")
+}
+
+// ListPublicCategories 获取有友链的分类列表，用于前台。
+// @Router /api/public/link-categories [get]
+func (h *Handler) ListPublicCategories(c *gin.Context) {
+	categories, err := h.linkSvc.ListPublicCategories(c.Request.Context())
 	if err != nil {
 		response.Fail(c, http.StatusInternalServerError, "获取分类列表失败: "+err.Error())
 		return

@@ -399,7 +399,7 @@ func (r *Router) registerLinkRoutes(api *gin.RouterGroup) {
 	linkCategoriesPublic := api.Group("/public/link-categories")
 	{
 		// 获取友链分类列表: GET /api/public/link-categories
-		linkCategoriesPublic.GET("", r.linkHandler.ListCategories)
+		linkCategoriesPublic.GET("", r.linkHandler.ListPublicCategories)
 	}
 
 	// --- 后台管理接口 ---

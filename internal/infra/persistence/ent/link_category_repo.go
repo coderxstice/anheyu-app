@@ -123,6 +123,16 @@ func (r *linkCategoryRepo) FindAll(ctx context.Context) ([]*model.LinkCategoryDT
 	return mapEntLinkCategoriesToDTOs(entCategories), nil
 }
 
+func (r *linkCategoryRepo) FindAllWithLinks(ctx context.Context) ([]*model.LinkCategoryDTO, error) {
+	entCategories, err := r.client.LinkCategory.Query().
+		Where(linkcategory.HasLinks()).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return mapEntLinkCategoriesToDTOs(entCategories), nil
+}
+
 // --- 辅助函数 ---
 
 func mapEntLinkCategoryToDTO(entCategory *ent.LinkCategory) *model.LinkCategoryDTO {
