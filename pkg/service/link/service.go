@@ -16,6 +16,7 @@ type Service interface {
 	ApplyLink(ctx context.Context, req *model.ApplyLinkRequest) (*model.LinkDTO, error)
 	ListPublicLinks(ctx context.Context, req *model.ListPublicLinksRequest) (*model.LinkListResponse, error)
 	ListCategories(ctx context.Context) ([]*model.LinkCategoryDTO, error)
+	ListPublicCategories(ctx context.Context) ([]*model.LinkCategoryDTO, error) // 只返回有友链的分类
 	GetRandomLinks(ctx context.Context, num int) ([]*model.LinkDTO, error)
 
 	// --- 后台接口 ---
@@ -122,6 +123,11 @@ func (s *service) ListPublicLinks(ctx context.Context, req *model.ListPublicLink
 // ListCategories 获取所有友链分类。
 func (s *service) ListCategories(ctx context.Context) ([]*model.LinkCategoryDTO, error) {
 	return s.linkCategoryRepo.FindAll(ctx)
+}
+
+// ListPublicCategories 获取有友链的分类，用于前台公开接口。
+func (s *service) ListPublicCategories(ctx context.Context) ([]*model.LinkCategoryDTO, error) {
+	return s.linkCategoryRepo.FindAllWithLinks(ctx)
 }
 
 // AdminCreateLink 处理后台创建友链，并在成功后派发一个异步清理任务。
