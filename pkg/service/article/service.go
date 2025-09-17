@@ -410,19 +410,32 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 		wordCount, readingTime := calculatePostStats(req.ContentMd)
 
 		var ipLocation string
+		log.Printf("[新增文章] 开始处理IP属地设置 - 传入IP: %s, 请求中的IPLocation: %s", ip, req.IPLocation)
+
 		if req.IPLocation != "" {
 			ipLocation = req.IPLocation
+			log.Printf("[新增文章] ✅ 使用请求中提供的IP属地 - 结果: %s", ipLocation)
 		} else {
+			log.Printf("[新增文章] 请求中未提供IP属地，开始自动获取...")
 			ipLocation = "未知"
-			if ip != "" && s.geoService != nil {
+
+			if ip == "" {
+				log.Printf("[新增文章] ❌ IP属地设为'未知' - 原因: 传入的IP地址为空")
+			} else if s.geoService == nil {
+				log.Printf("[新增文章] ❌ IP属地设为'未知' - 原因: GeoIP服务未初始化 (IP: %s)", ip)
+			} else {
+				log.Printf("[新增文章] 开始调用GeoIP服务查询IP属地 - IP: %s", ip)
 				location, err := s.geoService.Lookup(ip)
 				if err == nil {
 					ipLocation = location
+					log.Printf("[新增文章] ✅ IP属地自动获取成功 - IP: %s, 结果: %s", ip, ipLocation)
 				} else {
-					log.Printf("创建文章时自动获取 IP 属地失败: %v", err)
+					log.Printf("[新增文章] ❌ IP属地最终设为'未知' - IP: %s, GeoIP查询失败: %v", ip, err)
 				}
 			}
 		}
+
+		log.Printf("[新增文章] IP属地处理完成 - 最终结果: %s", ipLocation)
 		tagDBIDs, err := idgen.DecodePublicIDBatch(req.PostTagIDs)
 		if err != nil {
 			return err
@@ -666,16 +679,26 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 		}
 
 		if req.IPLocation != nil && *req.IPLocation == "" {
+			log.Printf("[更新文章] 检测到IPLocation为空字符串，开始自动获取IP属地 - 传入IP: %s", ip)
 			location := "未知"
-			if ip != "" && s.geoService != nil {
+
+			if ip == "" {
+				log.Printf("[更新文章] ❌ IP属地设为'未知' - 原因: 传入的IP地址为空")
+			} else if s.geoService == nil {
+				log.Printf("[更新文章] ❌ IP属地设为'未知' - 原因: GeoIP服务未初始化 (IP: %s)", ip)
+			} else {
+				log.Printf("[更新文章] 开始调用GeoIP服务查询IP属地 - IP: %s", ip)
 				fetchedLocation, err := s.geoService.Lookup(ip)
 				if err == nil {
 					location = fetchedLocation
+					log.Printf("[更新文章] ✅ IP属地自动获取成功 - IP: %s, 结果: %s", ip, location)
 				} else {
-					log.Printf("更新文章时自动获取 IP 属地失败: %v", err)
+					log.Printf("[更新文章] ❌ IP属地最终设为'未知' - IP: %s, GeoIP查询失败: %v", ip, err)
 				}
 			}
+
 			*req.IPLocation = location
+			log.Printf("[更新文章] IP属地自动获取完成 - 最终结果: %s", location)
 		}
 		if req.CoverURL != nil && *req.CoverURL == "" {
 			*req.CoverURL = s.settingSvc.Get(constant.KeyPostDefaultCover.String())
