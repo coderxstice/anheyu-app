@@ -33,6 +33,22 @@ import (
 	user_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/user"
 )
 
+// NoCacheMiddleware 全局反缓存中间件，确保所有API响应都不会被CDN缓存
+func NoCacheMiddleware() gin.HandlerFunc {
+	return gin.HandlerFunc(func(c *gin.Context) {
+		// 🚫 强制禁用所有形式的缓存
+		c.Header("Cache-Control", "no-cache, no-store, must-revalidate, private, max-age=0")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
+		c.Header("X-Content-Type-Options", "nosniff")
+		c.Header("X-Frame-Options", "DENY")
+		c.Header("X-XSS-Protection", "1; mode=block")
+
+		// 继续处理请求
+		c.Next()
+	})
+}
+
 // Router 封装了应用的所有路由和其依赖的处理器。
 type Router struct {
 	authHandler          *auth_handler.AuthHandler
@@ -109,6 +125,8 @@ func NewRouter(
 func (r *Router) Setup(engine *gin.Engine) {
 	// 创建 /api 分组
 	apiGroup := engine.Group("/api")
+	// 应用全局反缓存中间件
+	apiGroup.Use(NoCacheMiddleware())
 
 	// 文件下载
 	apiGroup.GET("/f/:publicID/*filename", r.directLinkHandler.HandleDirectDownload)

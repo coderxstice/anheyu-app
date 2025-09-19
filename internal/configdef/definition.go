@@ -156,6 +156,8 @@ var AllSettings = []Definition{
 	{Key: constant.KeyCommentNotifyReply, Value: "true", Comment: "是否开启评论回复邮件通知功能", IsPublic: false},
 	{Key: constant.KeyPushooChannel, Value: "", Comment: "即时消息推送平台名称，支持：bark, webhook", IsPublic: false},
 	{Key: constant.KeyPushooURL, Value: "", Comment: "即时消息推送URL地址 (支持模板变量)", IsPublic: false},
+	{Key: constant.KeyWebhookRequestBody, Value: `{"title":"#{TITLE}","content":"#{BODY}","site_name":"#{SITE_NAME}","comment_author":"#{NICK}","comment_content":"#{COMMENT}","parent_author":"#{PARENT_NICK}","parent_content":"#{PARENT_COMMENT}","post_url":"#{POST_URL}","author_email":"#{MAIL}","author_ip":"#{IP}","time":"#{TIME}"}`, Comment: "Webhook自定义请求体模板，支持变量替换：#{TITLE}, #{BODY}, #{SITE_NAME}, #{NICK}, #{COMMENT}, #{PARENT_NICK}, #{PARENT_COMMENT}, #{POST_URL}, #{MAIL}, #{IP}, #{TIME}", IsPublic: false},
+	{Key: constant.KeyWebhookHeaders, Value: "", Comment: "Webhook自定义请求头，每行一个，格式：Header-Name: Header-Value", IsPublic: false},
 	{Key: constant.KeyScMailNotify, Value: "false", Comment: "是否同时通过IM和邮件2种方式通知博主 (默认仅IM)", IsPublic: false},
 	{Key: constant.KeyCommentMailSubject, Value: "您在 [{{.SITE_NAME}}] 上的评论收到了新回复", Comment: "用户收到回复的邮件主题模板", IsPublic: false},
 	{Key: constant.KeyCommentMailSubjectAdmin, Value: "您的博客 [{{.SITE_NAME}}] 上有新评论了", Comment: "博主收到新评论的邮件主题模板", IsPublic: false},

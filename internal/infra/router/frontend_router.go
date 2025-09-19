@@ -1,6 +1,7 @@
 package router
 
 import (
+	"crypto/md5"
 	"embed"
 	"encoding/json"
 	"fmt"
@@ -29,6 +30,60 @@ type CustomHTMLRender struct{ Templates *template.Template }
 
 func (r CustomHTMLRender) Instance(name string, data interface{}) render.Render {
 	return render.HTML{Template: r.Templates, Name: name, Data: data}
+}
+
+// Context7最佳实践：生成内容ETag
+func generateContentETag(content interface{}) string {
+	data, _ := json.Marshal(content)
+	hash := md5.Sum(data)
+	return fmt.Sprintf(`"ctx7-%x"`, hash)
+}
+
+// Context7最佳实践：设置智能缓存策略
+func setSmartCacheHeaders(c *gin.Context, pageType string, etag string, maxAge int) {
+	switch pageType {
+	case "article_detail":
+		// 文章详情页：短期缓存，依赖ETag
+		c.Header("Cache-Control", fmt.Sprintf("public, max-age=%d, must-revalidate", maxAge))
+		c.Header("ETag", etag)
+		c.Header("Vary", "Accept-Encoding")
+		c.Header("X-Content-Type-Options", "nosniff")
+
+	case "home_page":
+		// 首页：中等缓存，频繁更新
+		c.Header("Cache-Control", "public, max-age=300, must-revalidate") // 5分钟
+		c.Header("ETag", etag)
+		c.Header("Vary", "Accept-Encoding")
+
+	case "static_page":
+		// 静态页面：长期缓存
+		c.Header("Cache-Control", "public, max-age=1800, must-revalidate") // 30分钟
+		c.Header("ETag", etag)
+		c.Header("Vary", "Accept-Encoding")
+
+	default:
+		// 默认：谨慎缓存
+		c.Header("Cache-Control", "public, max-age=180, must-revalidate") // 3分钟
+		c.Header("ETag", etag)
+		c.Header("Vary", "Accept-Encoding")
+	}
+
+	// Context7推荐的安全头
+	c.Header("X-Frame-Options", "SAMEORIGIN")
+	c.Header("X-XSS-Protection", "1; mode=block")
+}
+
+// Context7最佳实践：处理条件请求
+func handleConditionalRequest(c *gin.Context, etag string) bool {
+	// 检查 If-None-Match 头
+	ifNoneMatch := c.GetHeader("If-None-Match")
+	if ifNoneMatch != "" && ifNoneMatch == etag {
+		// 内容未修改，返回304
+		c.Header("ETag", etag)
+		c.Status(http.StatusNotModified)
+		return true
+	}
+	return false
 }
 
 // getRequestScheme 确定请求的协议 (http 或 https)
@@ -278,7 +333,7 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 	log.Println("动态前端路由系统配置完成")
 }
 
-// renderHTMLPage 渲染HTML页面的通用函数
+// renderHTMLPage 渲染HTML页面的通用函数（Context7最佳实践版本）
 func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSvc article_service.Service, templates *template.Template) {
 	// 获取完整的当前页面 URL
 	fullURL := fmt.Sprintf("%s://%s%s", getRequestScheme(c), c.Request.Host, c.Request.URL.RequestURI())
@@ -288,6 +343,36 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 		slug := strings.TrimPrefix(c.Request.URL.Path, "/posts/")
 		articleResponse, err := articleSvc.GetPublicBySlugOrID(c.Request.Context(), slug)
 		if err == nil && articleResponse != nil {
+			// 🎯 Context7最佳实践：生成文章内容ETag（基于更新时间和内容）
+			contentForETag := struct {
+				UpdatedAt   time.Time `json:"updated_at"`
+				Title       string    `json:"title"`
+				ContentHash string    `json:"content_hash"`
+			}{
+				UpdatedAt:   articleResponse.UpdatedAt,
+				Title:       articleResponse.Title,
+				ContentHash: fmt.Sprintf("%x", md5.Sum([]byte(articleResponse.ContentHTML))),
+			}
+			etag := generateContentETag(contentForETag)
+
+			// 🚀 Context7最佳实践：处理条件请求
+			if handleConditionalRequest(c, etag) {
+				return // 返回304 Not Modified
+			}
+
+			// 📊 Context7最佳实践：设置文章页面缓存策略（基于更新时间动态调整）
+			timeSinceUpdate := time.Since(articleResponse.UpdatedAt)
+			var cacheMaxAge int
+			if timeSinceUpdate < 24*time.Hour {
+				cacheMaxAge = 300 // 新文章：5分钟缓存
+			} else if timeSinceUpdate < 7*24*time.Hour {
+				cacheMaxAge = 600 // 一周内：10分钟缓存
+			} else {
+				cacheMaxAge = 1800 // 老文章：30分钟缓存
+			}
+
+			setSmartCacheHeaders(c, "article_detail", etag, cacheMaxAge)
+
 			pageTitle := fmt.Sprintf("%s - %s", articleResponse.Title, settingSvc.Get(constant.KeyAppName.String()))
 
 			var pageDescription string
@@ -343,6 +428,34 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 	defaultTitle := fmt.Sprintf("%s - %s", settingSvc.Get(constant.KeyAppName.String()), settingSvc.Get(constant.KeySubTitle.String()))
 	defaultDescription := settingSvc.Get(constant.KeySiteDescription.String())
 	defaultImage := settingSvc.Get(constant.KeyLogoURL512.String())
+
+	// 🎯 Context7最佳实践：为默认页面生成ETag（基于站点配置）
+	siteConfigForETag := struct {
+		Title       string `json:"title"`
+		Description string `json:"description"`
+		Path        string `json:"path"`
+		Timestamp   int64  `json:"timestamp"`
+	}{
+		Title:       defaultTitle,
+		Description: defaultDescription,
+		Path:        c.Request.URL.Path,
+		Timestamp:   time.Now().Unix() / 300, // 5分钟粒度
+	}
+	defaultETag := generateContentETag(siteConfigForETag)
+
+	// 🚀 Context7最佳实践：处理条件请求
+	if handleConditionalRequest(c, defaultETag) {
+		return // 返回304 Not Modified
+	}
+
+	// 📊 Context7最佳实践：根据页面类型设置缓存策略
+	var pageType string
+	if c.Request.URL.Path == "/" || c.Request.URL.Path == "/index" {
+		pageType = "home_page"
+	} else {
+		pageType = "static_page"
+	}
+	setSmartCacheHeaders(c, pageType, defaultETag, 0) // maxAge由pageType决定
 
 	// 使用传入的模板实例渲染
 	render := CustomHTMLRender{Templates: templates}

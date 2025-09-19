@@ -153,6 +153,8 @@ const (
 	KeyCommentNotifyReply       SettingKey = "comment.notify_reply"
 	KeyPushooChannel            SettingKey = "pushoo.channel"
 	KeyPushooURL                SettingKey = "pushoo.url"
+	KeyWebhookRequestBody       SettingKey = "webhook.request_body"
+	KeyWebhookHeaders           SettingKey = "webhook.headers"
 	KeyScMailNotify             SettingKey = "sc.mail_notify"
 	KeyCommentSmtpSenderName    SettingKey = "comment.smtp_sender_name"
 	KeyCommentSmtpSenderEmail   SettingKey = "comment.smtp_sender_email"
