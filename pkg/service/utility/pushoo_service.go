@@ -1,3 +1,10 @@
+/*
+ * @Description:
+ * @Author: 安知鱼
+ * @Date: 2025-09-04 10:46:35
+ * @LastEditTime: 2025-09-19 16:18:15
+ * @LastEditors: 安知鱼
+ */
 // pkg/service/utility/pushoo_service.go
 package utility
 
@@ -7,6 +14,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -143,7 +151,7 @@ func (s *pushooService) sendBarkPush(ctx context.Context, pushURLTpl string, dat
 	finalURL, err := renderPushooTemplate(pushURLTpl, data)
 	if err != nil {
 		log.Printf("[ERROR] 渲染Bark URL模板失败: %v", err)
-		return fmt.Errorf("渲染Bark URL模板失败: %w", err)
+		return fmt.Errorf("渲染bark URL模板失败: %w", err)
 	}
 	log.Printf("[DEBUG] Bark URL模板渲染完成: %s", finalURL)
 
@@ -152,7 +160,7 @@ func (s *pushooService) sendBarkPush(ctx context.Context, pushURLTpl string, dat
 	_, err = url.Parse(finalURL)
 	if err != nil {
 		log.Printf("[ERROR] 解析Bark URL失败: %v", err)
-		return fmt.Errorf("解析Bark URL失败: %w", err)
+		return fmt.Errorf("解析bark URL失败: %w", err)
 	}
 
 	// 重新构建正确的URL，不对路径进行额外编码
@@ -166,7 +174,7 @@ func (s *pushooService) sendBarkPush(ctx context.Context, pushURLTpl string, dat
 	req, err := http.NewRequestWithContext(reqCtx, "GET", finalEncodedURL, nil)
 	if err != nil {
 		log.Printf("[ERROR] 创建Bark请求失败: %v", err)
-		return fmt.Errorf("创建Bark请求失败: %w", err)
+		return fmt.Errorf("创建bark请求失败: %w", err)
 	}
 
 	log.Printf("[DEBUG] 开始发送Bark HTTP请求")
@@ -182,57 +190,108 @@ func (s *pushooService) sendBarkPush(ctx context.Context, pushURLTpl string, dat
 		log.Printf("[DEBUG] 错误类型: %T", err)
 		// 尝试手动测试连接
 		log.Printf("[DEBUG] 建议手动测试: curl -I https://api.day.app")
-		return fmt.Errorf("发送Bark推送失败: %w", err)
+		return fmt.Errorf("发送bark推送失败: %w", err)
 	}
 	defer resp.Body.Close()
 
 	log.Printf("[DEBUG] Bark推送响应状态码: %d", resp.StatusCode)
 	if resp.StatusCode != http.StatusOK {
 		log.Printf("[ERROR] Bark推送返回错误状态码: %d", resp.StatusCode)
-		return fmt.Errorf("Bark推送返回错误状态码: %d", resp.StatusCode)
+		return fmt.Errorf("bark推送返回错误状态码: %d", resp.StatusCode)
 	}
 
 	log.Printf("[INFO] Bark推送发送成功: %s", data["TITLE"])
 	return nil
 }
 
-// sendWebhookPush 发送包含完整信息的Webhook推送
+// sendWebhookPush 发送灵活配置的Webhook推送
 func (s *pushooService) sendWebhookPush(ctx context.Context, webhookURL string, data map[string]interface{}) error {
 	log.Printf("[DEBUG] sendWebhookPush 开始执行，URL: %s", webhookURL)
 
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		log.Printf("[ERROR] 序列化Webhook数据失败: %v", err)
-		return fmt.Errorf("序列化Webhook数据失败: %w", err)
-	}
-	log.Printf("[DEBUG] Webhook数据序列化完成，数据长度: %d bytes", len(jsonData))
+	// 获取自定义配置
+	requestBodyTpl := strings.TrimSpace(s.settingSvc.Get(constant.KeyWebhookRequestBody.String()))
+	customHeaders := strings.TrimSpace(s.settingSvc.Get(constant.KeyWebhookHeaders.String()))
 
-	// 创建一个独立的context，避免继承已经超时的context
+	// 处理URL模板
+	finalURL, err := s.replaceWebhookParameters(webhookURL, data)
+	if err != nil {
+		log.Printf("[ERROR] 处理Webhook URL模板失败: %v", err)
+		return fmt.Errorf("处理webhook URL模板失败: %w", err)
+	}
+
+	// 确定请求方法和内容
+	method := "GET"
+	var requestBody string
+	var contentType string
+
+	if requestBodyTpl != "" {
+		method = "POST"
+		requestBody, err = s.replaceWebhookParameters(requestBodyTpl, data)
+		if err != nil {
+			log.Printf("[ERROR] 处理Webhook请求体模板失败: %v", err)
+			return fmt.Errorf("处理webhook请求体模板失败: %w", err)
+		}
+
+		// 自动检测Content-Type
+		if s.hasJSONPrefix(requestBody) {
+			if json.Valid([]byte(requestBody)) {
+				contentType = "application/json"
+			} else {
+				log.Printf("[WARN] Webhook请求体JSON格式无效，但具有JSON前缀")
+				contentType = "application/json"
+			}
+		} else {
+			contentType = "application/x-www-form-urlencoded"
+		}
+	}
+
+	log.Printf("[DEBUG] Webhook请求配置: 方法=%s, URL=%s, Content-Type=%s", method, finalURL, contentType)
+
+	// 创建独立的context
 	reqCtx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(reqCtx, "POST", webhookURL, bytes.NewBuffer(jsonData))
+	// 创建请求
+	var reqBody io.Reader
+	if requestBody != "" {
+		reqBody = strings.NewReader(requestBody)
+		log.Printf("[DEBUG] Webhook请求体长度: %d bytes", len(requestBody))
+	}
+
+	req, err := http.NewRequestWithContext(reqCtx, method, finalURL, reqBody)
 	if err != nil {
 		log.Printf("[ERROR] 创建Webhook请求失败: %v", err)
-		return fmt.Errorf("创建Webhook请求失败: %w", err)
+		return fmt.Errorf("创建webhook请求失败: %w", err)
 	}
-	req.Header.Set("Content-Type", "application/json")
+
+	// 设置自定义请求头
+	if customHeaders != "" {
+		headers := s.extractWebhookHeaders(customHeaders)
+		for key, value := range headers {
+			req.Header.Set(key, value)
+		}
+	}
+
+	// 设置Content-Type
+	if contentType != "" {
+		req.Header.Set("Content-Type", contentType)
+	}
 
 	log.Printf("[DEBUG] 开始发送Webhook HTTP请求")
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
 		log.Printf("[ERROR] 发送Webhook推送失败: %v", err)
-		return fmt.Errorf("发送Webhook推送失败: %w", err)
+		return fmt.Errorf("发送webhook推送失败: %w", err)
 	}
 	defer resp.Body.Close()
 
 	log.Printf("[DEBUG] Webhook推送响应状态码: %d", resp.StatusCode)
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		log.Printf("[ERROR] Webhook推送返回错误状态码: %d", resp.StatusCode)
-		return fmt.Errorf("Webhook推送返回错误状态码: %d", resp.StatusCode)
+		return fmt.Errorf("webhook推送返回错误状态码: %d", resp.StatusCode)
 	}
 
-	log.Printf("[INFO] Webhook推送发送成功: %s", data["TITLE"])
+	log.Printf("[INFO] Webhook推送发送成功")
 	return nil
 }
 
@@ -247,4 +306,76 @@ func renderPushooTemplate(tplStr string, data interface{}) (string, error) {
 		return "", err
 	}
 	return buf.String(), nil
+}
+
+// replaceWebhookParameters 替换webhook参数，使用#{parameter}格式
+func (s *pushooService) replaceWebhookParameters(template string, data map[string]interface{}) (string, error) {
+	result := template
+
+	// 创建参数替换映射
+	replacements := map[string]string{
+		"#{SITE_NAME}":      getString(data["SITE_NAME"]),
+		"#{SITE_URL}":       getString(data["SITE_URL"]),
+		"#{POST_URL}":       getString(data["POST_URL"]),
+		"#{TITLE}":          getString(data["TITLE"]),
+		"#{BODY}":           getString(data["BODY"]),
+		"#{NICK}":           getString(data["NICK"]),
+		"#{COMMENT}":        getString(data["COMMENT"]),
+		"#{IP}":             getString(data["IP"]),
+		"#{MAIL}":           getString(data["MAIL"]),
+		"#{PARENT_NICK}":    getString(data["PARENT_NICK"]),
+		"#{PARENT_COMMENT}": getString(data["PARENT_COMMENT"]),
+		"#{TIME}":           getString(data["TIME"]),
+	}
+
+	// 执行替换
+	for placeholder, value := range replacements {
+		result = strings.ReplaceAll(result, placeholder, value)
+	}
+
+	return result, nil
+}
+
+// hasJSONPrefix 检查字符串是否以JSON格式开头
+func (s *pushooService) hasJSONPrefix(str string) bool {
+	trimmed := strings.TrimSpace(str)
+	return strings.HasPrefix(trimmed, "{") || strings.HasPrefix(trimmed, "[")
+}
+
+// extractWebhookHeaders 从字符串中提取请求头
+func (s *pushooService) extractWebhookHeaders(headersStr string) map[string]string {
+	lines := strings.Split(headersStr, "\n")
+	headers := make(map[string]string, len(lines))
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+
+		parts := strings.SplitN(line, ":", 2)
+		if len(parts) != 2 {
+			log.Printf("[WARN] Webhook请求头格式不正确: %s", line)
+			continue
+		}
+
+		key := strings.TrimSpace(parts[0])
+		value := strings.TrimSpace(parts[1])
+		if key != "" {
+			headers[key] = value
+		}
+	}
+
+	return headers
+}
+
+// getString 安全地从interface{}中获取字符串
+func getString(v interface{}) string {
+	if v == nil {
+		return ""
+	}
+	if s, ok := v.(string); ok {
+		return s
+	}
+	return fmt.Sprintf("%v", v)
 }
