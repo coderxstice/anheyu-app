@@ -26,378 +26,378 @@ type ArticleCreate struct {
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (ac *ArticleCreate) SetDeletedAt(t time.Time) *ArticleCreate {
-	ac.mutation.SetDeletedAt(t)
-	return ac
+func (_c *ArticleCreate) SetDeletedAt(v time.Time) *ArticleCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableDeletedAt(t *time.Time) *ArticleCreate {
-	if t != nil {
-		ac.SetDeletedAt(*t)
+func (_c *ArticleCreate) SetNillableDeletedAt(v *time.Time) *ArticleCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (ac *ArticleCreate) SetCreatedAt(t time.Time) *ArticleCreate {
-	ac.mutation.SetCreatedAt(t)
-	return ac
+func (_c *ArticleCreate) SetCreatedAt(v time.Time) *ArticleCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableCreatedAt(t *time.Time) *ArticleCreate {
-	if t != nil {
-		ac.SetCreatedAt(*t)
+func (_c *ArticleCreate) SetNillableCreatedAt(v *time.Time) *ArticleCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (ac *ArticleCreate) SetUpdatedAt(t time.Time) *ArticleCreate {
-	ac.mutation.SetUpdatedAt(t)
-	return ac
+func (_c *ArticleCreate) SetUpdatedAt(v time.Time) *ArticleCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableUpdatedAt(t *time.Time) *ArticleCreate {
-	if t != nil {
-		ac.SetUpdatedAt(*t)
+func (_c *ArticleCreate) SetNillableUpdatedAt(v *time.Time) *ArticleCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetTitle sets the "title" field.
-func (ac *ArticleCreate) SetTitle(s string) *ArticleCreate {
-	ac.mutation.SetTitle(s)
-	return ac
+func (_c *ArticleCreate) SetTitle(v string) *ArticleCreate {
+	_c.mutation.SetTitle(v)
+	return _c
 }
 
 // SetContentMd sets the "content_md" field.
-func (ac *ArticleCreate) SetContentMd(s string) *ArticleCreate {
-	ac.mutation.SetContentMd(s)
-	return ac
+func (_c *ArticleCreate) SetContentMd(v string) *ArticleCreate {
+	_c.mutation.SetContentMd(v)
+	return _c
 }
 
 // SetNillableContentMd sets the "content_md" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableContentMd(s *string) *ArticleCreate {
-	if s != nil {
-		ac.SetContentMd(*s)
+func (_c *ArticleCreate) SetNillableContentMd(v *string) *ArticleCreate {
+	if v != nil {
+		_c.SetContentMd(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetContentHTML sets the "content_html" field.
-func (ac *ArticleCreate) SetContentHTML(s string) *ArticleCreate {
-	ac.mutation.SetContentHTML(s)
-	return ac
+func (_c *ArticleCreate) SetContentHTML(v string) *ArticleCreate {
+	_c.mutation.SetContentHTML(v)
+	return _c
 }
 
 // SetNillableContentHTML sets the "content_html" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableContentHTML(s *string) *ArticleCreate {
-	if s != nil {
-		ac.SetContentHTML(*s)
+func (_c *ArticleCreate) SetNillableContentHTML(v *string) *ArticleCreate {
+	if v != nil {
+		_c.SetContentHTML(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetCoverURL sets the "cover_url" field.
-func (ac *ArticleCreate) SetCoverURL(s string) *ArticleCreate {
-	ac.mutation.SetCoverURL(s)
-	return ac
+func (_c *ArticleCreate) SetCoverURL(v string) *ArticleCreate {
+	_c.mutation.SetCoverURL(v)
+	return _c
 }
 
 // SetNillableCoverURL sets the "cover_url" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableCoverURL(s *string) *ArticleCreate {
-	if s != nil {
-		ac.SetCoverURL(*s)
+func (_c *ArticleCreate) SetNillableCoverURL(v *string) *ArticleCreate {
+	if v != nil {
+		_c.SetCoverURL(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetStatus sets the "status" field.
-func (ac *ArticleCreate) SetStatus(a article.Status) *ArticleCreate {
-	ac.mutation.SetStatus(a)
-	return ac
+func (_c *ArticleCreate) SetStatus(v article.Status) *ArticleCreate {
+	_c.mutation.SetStatus(v)
+	return _c
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableStatus(a *article.Status) *ArticleCreate {
-	if a != nil {
-		ac.SetStatus(*a)
+func (_c *ArticleCreate) SetNillableStatus(v *article.Status) *ArticleCreate {
+	if v != nil {
+		_c.SetStatus(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetViewCount sets the "view_count" field.
-func (ac *ArticleCreate) SetViewCount(i int) *ArticleCreate {
-	ac.mutation.SetViewCount(i)
-	return ac
+func (_c *ArticleCreate) SetViewCount(v int) *ArticleCreate {
+	_c.mutation.SetViewCount(v)
+	return _c
 }
 
 // SetNillableViewCount sets the "view_count" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableViewCount(i *int) *ArticleCreate {
-	if i != nil {
-		ac.SetViewCount(*i)
+func (_c *ArticleCreate) SetNillableViewCount(v *int) *ArticleCreate {
+	if v != nil {
+		_c.SetViewCount(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetWordCount sets the "word_count" field.
-func (ac *ArticleCreate) SetWordCount(i int) *ArticleCreate {
-	ac.mutation.SetWordCount(i)
-	return ac
+func (_c *ArticleCreate) SetWordCount(v int) *ArticleCreate {
+	_c.mutation.SetWordCount(v)
+	return _c
 }
 
 // SetNillableWordCount sets the "word_count" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableWordCount(i *int) *ArticleCreate {
-	if i != nil {
-		ac.SetWordCount(*i)
+func (_c *ArticleCreate) SetNillableWordCount(v *int) *ArticleCreate {
+	if v != nil {
+		_c.SetWordCount(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetReadingTime sets the "reading_time" field.
-func (ac *ArticleCreate) SetReadingTime(i int) *ArticleCreate {
-	ac.mutation.SetReadingTime(i)
-	return ac
+func (_c *ArticleCreate) SetReadingTime(v int) *ArticleCreate {
+	_c.mutation.SetReadingTime(v)
+	return _c
 }
 
 // SetNillableReadingTime sets the "reading_time" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableReadingTime(i *int) *ArticleCreate {
-	if i != nil {
-		ac.SetReadingTime(*i)
+func (_c *ArticleCreate) SetNillableReadingTime(v *int) *ArticleCreate {
+	if v != nil {
+		_c.SetReadingTime(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetIPLocation sets the "ip_location" field.
-func (ac *ArticleCreate) SetIPLocation(s string) *ArticleCreate {
-	ac.mutation.SetIPLocation(s)
-	return ac
+func (_c *ArticleCreate) SetIPLocation(v string) *ArticleCreate {
+	_c.mutation.SetIPLocation(v)
+	return _c
 }
 
 // SetNillableIPLocation sets the "ip_location" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableIPLocation(s *string) *ArticleCreate {
-	if s != nil {
-		ac.SetIPLocation(*s)
+func (_c *ArticleCreate) SetNillableIPLocation(v *string) *ArticleCreate {
+	if v != nil {
+		_c.SetIPLocation(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetPrimaryColor sets the "primary_color" field.
-func (ac *ArticleCreate) SetPrimaryColor(s string) *ArticleCreate {
-	ac.mutation.SetPrimaryColor(s)
-	return ac
+func (_c *ArticleCreate) SetPrimaryColor(v string) *ArticleCreate {
+	_c.mutation.SetPrimaryColor(v)
+	return _c
 }
 
 // SetNillablePrimaryColor sets the "primary_color" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillablePrimaryColor(s *string) *ArticleCreate {
-	if s != nil {
-		ac.SetPrimaryColor(*s)
+func (_c *ArticleCreate) SetNillablePrimaryColor(v *string) *ArticleCreate {
+	if v != nil {
+		_c.SetPrimaryColor(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetIsPrimaryColorManual sets the "is_primary_color_manual" field.
-func (ac *ArticleCreate) SetIsPrimaryColorManual(b bool) *ArticleCreate {
-	ac.mutation.SetIsPrimaryColorManual(b)
-	return ac
+func (_c *ArticleCreate) SetIsPrimaryColorManual(v bool) *ArticleCreate {
+	_c.mutation.SetIsPrimaryColorManual(v)
+	return _c
 }
 
 // SetNillableIsPrimaryColorManual sets the "is_primary_color_manual" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableIsPrimaryColorManual(b *bool) *ArticleCreate {
-	if b != nil {
-		ac.SetIsPrimaryColorManual(*b)
+func (_c *ArticleCreate) SetNillableIsPrimaryColorManual(v *bool) *ArticleCreate {
+	if v != nil {
+		_c.SetIsPrimaryColorManual(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetHomeSort sets the "home_sort" field.
-func (ac *ArticleCreate) SetHomeSort(i int) *ArticleCreate {
-	ac.mutation.SetHomeSort(i)
-	return ac
+func (_c *ArticleCreate) SetHomeSort(v int) *ArticleCreate {
+	_c.mutation.SetHomeSort(v)
+	return _c
 }
 
 // SetNillableHomeSort sets the "home_sort" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableHomeSort(i *int) *ArticleCreate {
-	if i != nil {
-		ac.SetHomeSort(*i)
+func (_c *ArticleCreate) SetNillableHomeSort(v *int) *ArticleCreate {
+	if v != nil {
+		_c.SetHomeSort(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetPinSort sets the "pin_sort" field.
-func (ac *ArticleCreate) SetPinSort(i int) *ArticleCreate {
-	ac.mutation.SetPinSort(i)
-	return ac
+func (_c *ArticleCreate) SetPinSort(v int) *ArticleCreate {
+	_c.mutation.SetPinSort(v)
+	return _c
 }
 
 // SetNillablePinSort sets the "pin_sort" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillablePinSort(i *int) *ArticleCreate {
-	if i != nil {
-		ac.SetPinSort(*i)
+func (_c *ArticleCreate) SetNillablePinSort(v *int) *ArticleCreate {
+	if v != nil {
+		_c.SetPinSort(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetTopImgURL sets the "top_img_url" field.
-func (ac *ArticleCreate) SetTopImgURL(s string) *ArticleCreate {
-	ac.mutation.SetTopImgURL(s)
-	return ac
+func (_c *ArticleCreate) SetTopImgURL(v string) *ArticleCreate {
+	_c.mutation.SetTopImgURL(v)
+	return _c
 }
 
 // SetNillableTopImgURL sets the "top_img_url" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableTopImgURL(s *string) *ArticleCreate {
-	if s != nil {
-		ac.SetTopImgURL(*s)
+func (_c *ArticleCreate) SetNillableTopImgURL(v *string) *ArticleCreate {
+	if v != nil {
+		_c.SetTopImgURL(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetSummaries sets the "summaries" field.
-func (ac *ArticleCreate) SetSummaries(s []string) *ArticleCreate {
-	ac.mutation.SetSummaries(s)
-	return ac
+func (_c *ArticleCreate) SetSummaries(v []string) *ArticleCreate {
+	_c.mutation.SetSummaries(v)
+	return _c
 }
 
 // SetAbbrlink sets the "abbrlink" field.
-func (ac *ArticleCreate) SetAbbrlink(s string) *ArticleCreate {
-	ac.mutation.SetAbbrlink(s)
-	return ac
+func (_c *ArticleCreate) SetAbbrlink(v string) *ArticleCreate {
+	_c.mutation.SetAbbrlink(v)
+	return _c
 }
 
 // SetNillableAbbrlink sets the "abbrlink" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableAbbrlink(s *string) *ArticleCreate {
-	if s != nil {
-		ac.SetAbbrlink(*s)
+func (_c *ArticleCreate) SetNillableAbbrlink(v *string) *ArticleCreate {
+	if v != nil {
+		_c.SetAbbrlink(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetCopyright sets the "copyright" field.
-func (ac *ArticleCreate) SetCopyright(b bool) *ArticleCreate {
-	ac.mutation.SetCopyright(b)
-	return ac
+func (_c *ArticleCreate) SetCopyright(v bool) *ArticleCreate {
+	_c.mutation.SetCopyright(v)
+	return _c
 }
 
 // SetNillableCopyright sets the "copyright" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableCopyright(b *bool) *ArticleCreate {
-	if b != nil {
-		ac.SetCopyright(*b)
+func (_c *ArticleCreate) SetNillableCopyright(v *bool) *ArticleCreate {
+	if v != nil {
+		_c.SetCopyright(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetCopyrightAuthor sets the "copyright_author" field.
-func (ac *ArticleCreate) SetCopyrightAuthor(s string) *ArticleCreate {
-	ac.mutation.SetCopyrightAuthor(s)
-	return ac
+func (_c *ArticleCreate) SetCopyrightAuthor(v string) *ArticleCreate {
+	_c.mutation.SetCopyrightAuthor(v)
+	return _c
 }
 
 // SetNillableCopyrightAuthor sets the "copyright_author" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableCopyrightAuthor(s *string) *ArticleCreate {
-	if s != nil {
-		ac.SetCopyrightAuthor(*s)
+func (_c *ArticleCreate) SetNillableCopyrightAuthor(v *string) *ArticleCreate {
+	if v != nil {
+		_c.SetCopyrightAuthor(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetCopyrightAuthorHref sets the "copyright_author_href" field.
-func (ac *ArticleCreate) SetCopyrightAuthorHref(s string) *ArticleCreate {
-	ac.mutation.SetCopyrightAuthorHref(s)
-	return ac
+func (_c *ArticleCreate) SetCopyrightAuthorHref(v string) *ArticleCreate {
+	_c.mutation.SetCopyrightAuthorHref(v)
+	return _c
 }
 
 // SetNillableCopyrightAuthorHref sets the "copyright_author_href" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableCopyrightAuthorHref(s *string) *ArticleCreate {
-	if s != nil {
-		ac.SetCopyrightAuthorHref(*s)
+func (_c *ArticleCreate) SetNillableCopyrightAuthorHref(v *string) *ArticleCreate {
+	if v != nil {
+		_c.SetCopyrightAuthorHref(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetCopyrightURL sets the "copyright_url" field.
-func (ac *ArticleCreate) SetCopyrightURL(s string) *ArticleCreate {
-	ac.mutation.SetCopyrightURL(s)
-	return ac
+func (_c *ArticleCreate) SetCopyrightURL(v string) *ArticleCreate {
+	_c.mutation.SetCopyrightURL(v)
+	return _c
 }
 
 // SetNillableCopyrightURL sets the "copyright_url" field if the given value is not nil.
-func (ac *ArticleCreate) SetNillableCopyrightURL(s *string) *ArticleCreate {
-	if s != nil {
-		ac.SetCopyrightURL(*s)
+func (_c *ArticleCreate) SetNillableCopyrightURL(v *string) *ArticleCreate {
+	if v != nil {
+		_c.SetCopyrightURL(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetID sets the "id" field.
-func (ac *ArticleCreate) SetID(u uint) *ArticleCreate {
-	ac.mutation.SetID(u)
-	return ac
+func (_c *ArticleCreate) SetID(v uint) *ArticleCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // AddPostTagIDs adds the "post_tags" edge to the PostTag entity by IDs.
-func (ac *ArticleCreate) AddPostTagIDs(ids ...uint) *ArticleCreate {
-	ac.mutation.AddPostTagIDs(ids...)
-	return ac
+func (_c *ArticleCreate) AddPostTagIDs(ids ...uint) *ArticleCreate {
+	_c.mutation.AddPostTagIDs(ids...)
+	return _c
 }
 
 // AddPostTags adds the "post_tags" edges to the PostTag entity.
-func (ac *ArticleCreate) AddPostTags(p ...*PostTag) *ArticleCreate {
-	ids := make([]uint, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+func (_c *ArticleCreate) AddPostTags(v ...*PostTag) *ArticleCreate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ac.AddPostTagIDs(ids...)
+	return _c.AddPostTagIDs(ids...)
 }
 
 // AddPostCategoryIDs adds the "post_categories" edge to the PostCategory entity by IDs.
-func (ac *ArticleCreate) AddPostCategoryIDs(ids ...uint) *ArticleCreate {
-	ac.mutation.AddPostCategoryIDs(ids...)
-	return ac
+func (_c *ArticleCreate) AddPostCategoryIDs(ids ...uint) *ArticleCreate {
+	_c.mutation.AddPostCategoryIDs(ids...)
+	return _c
 }
 
 // AddPostCategories adds the "post_categories" edges to the PostCategory entity.
-func (ac *ArticleCreate) AddPostCategories(p ...*PostCategory) *ArticleCreate {
-	ids := make([]uint, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+func (_c *ArticleCreate) AddPostCategories(v ...*PostCategory) *ArticleCreate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ac.AddPostCategoryIDs(ids...)
+	return _c.AddPostCategoryIDs(ids...)
 }
 
 // AddCommentIDs adds the "comments" edge to the Comment entity by IDs.
-func (ac *ArticleCreate) AddCommentIDs(ids ...uint) *ArticleCreate {
-	ac.mutation.AddCommentIDs(ids...)
-	return ac
+func (_c *ArticleCreate) AddCommentIDs(ids ...uint) *ArticleCreate {
+	_c.mutation.AddCommentIDs(ids...)
+	return _c
 }
 
 // AddComments adds the "comments" edges to the Comment entity.
-func (ac *ArticleCreate) AddComments(c ...*Comment) *ArticleCreate {
-	ids := make([]uint, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
+func (_c *ArticleCreate) AddComments(v ...*Comment) *ArticleCreate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ac.AddCommentIDs(ids...)
+	return _c.AddCommentIDs(ids...)
 }
 
 // Mutation returns the ArticleMutation object of the builder.
-func (ac *ArticleCreate) Mutation() *ArticleMutation {
-	return ac.mutation
+func (_c *ArticleCreate) Mutation() *ArticleMutation {
+	return _c.mutation
 }
 
 // Save creates the Article in the database.
-func (ac *ArticleCreate) Save(ctx context.Context) (*Article, error) {
-	if err := ac.defaults(); err != nil {
+func (_c *ArticleCreate) Save(ctx context.Context) (*Article, error) {
+	if err := _c.defaults(); err != nil {
 		return nil, err
 	}
-	return withHooks(ctx, ac.sqlSave, ac.mutation, ac.hooks)
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (ac *ArticleCreate) SaveX(ctx context.Context) *Article {
-	v, err := ac.Save(ctx)
+func (_c *ArticleCreate) SaveX(ctx context.Context) *Article {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -405,152 +405,152 @@ func (ac *ArticleCreate) SaveX(ctx context.Context) *Article {
 }
 
 // Exec executes the query.
-func (ac *ArticleCreate) Exec(ctx context.Context) error {
-	_, err := ac.Save(ctx)
+func (_c *ArticleCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ac *ArticleCreate) ExecX(ctx context.Context) {
-	if err := ac.Exec(ctx); err != nil {
+func (_c *ArticleCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (ac *ArticleCreate) defaults() error {
-	if _, ok := ac.mutation.CreatedAt(); !ok {
+func (_c *ArticleCreate) defaults() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		if article.DefaultCreatedAt == nil {
 			return fmt.Errorf("ent: uninitialized article.DefaultCreatedAt (forgotten import ent/runtime?)")
 		}
 		v := article.DefaultCreatedAt()
-		ac.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := ac.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		if article.DefaultUpdatedAt == nil {
 			return fmt.Errorf("ent: uninitialized article.DefaultUpdatedAt (forgotten import ent/runtime?)")
 		}
 		v := article.DefaultUpdatedAt()
-		ac.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := ac.mutation.Status(); !ok {
+	if _, ok := _c.mutation.Status(); !ok {
 		v := article.DefaultStatus
-		ac.mutation.SetStatus(v)
+		_c.mutation.SetStatus(v)
 	}
-	if _, ok := ac.mutation.ViewCount(); !ok {
+	if _, ok := _c.mutation.ViewCount(); !ok {
 		v := article.DefaultViewCount
-		ac.mutation.SetViewCount(v)
+		_c.mutation.SetViewCount(v)
 	}
-	if _, ok := ac.mutation.WordCount(); !ok {
+	if _, ok := _c.mutation.WordCount(); !ok {
 		v := article.DefaultWordCount
-		ac.mutation.SetWordCount(v)
+		_c.mutation.SetWordCount(v)
 	}
-	if _, ok := ac.mutation.ReadingTime(); !ok {
+	if _, ok := _c.mutation.ReadingTime(); !ok {
 		v := article.DefaultReadingTime
-		ac.mutation.SetReadingTime(v)
+		_c.mutation.SetReadingTime(v)
 	}
-	if _, ok := ac.mutation.PrimaryColor(); !ok {
+	if _, ok := _c.mutation.PrimaryColor(); !ok {
 		v := article.DefaultPrimaryColor
-		ac.mutation.SetPrimaryColor(v)
+		_c.mutation.SetPrimaryColor(v)
 	}
-	if _, ok := ac.mutation.IsPrimaryColorManual(); !ok {
+	if _, ok := _c.mutation.IsPrimaryColorManual(); !ok {
 		v := article.DefaultIsPrimaryColorManual
-		ac.mutation.SetIsPrimaryColorManual(v)
+		_c.mutation.SetIsPrimaryColorManual(v)
 	}
-	if _, ok := ac.mutation.HomeSort(); !ok {
+	if _, ok := _c.mutation.HomeSort(); !ok {
 		v := article.DefaultHomeSort
-		ac.mutation.SetHomeSort(v)
+		_c.mutation.SetHomeSort(v)
 	}
-	if _, ok := ac.mutation.PinSort(); !ok {
+	if _, ok := _c.mutation.PinSort(); !ok {
 		v := article.DefaultPinSort
-		ac.mutation.SetPinSort(v)
+		_c.mutation.SetPinSort(v)
 	}
-	if _, ok := ac.mutation.Copyright(); !ok {
+	if _, ok := _c.mutation.Copyright(); !ok {
 		v := article.DefaultCopyright
-		ac.mutation.SetCopyright(v)
+		_c.mutation.SetCopyright(v)
 	}
 	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ac *ArticleCreate) check() error {
-	if _, ok := ac.mutation.CreatedAt(); !ok {
+func (_c *ArticleCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Article.created_at"`)}
 	}
-	if _, ok := ac.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Article.updated_at"`)}
 	}
-	if _, ok := ac.mutation.Title(); !ok {
+	if _, ok := _c.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Article.title"`)}
 	}
-	if v, ok := ac.mutation.Title(); ok {
+	if v, ok := _c.mutation.Title(); ok {
 		if err := article.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Article.title": %w`, err)}
 		}
 	}
-	if _, ok := ac.mutation.Status(); !ok {
+	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Article.status"`)}
 	}
-	if v, ok := ac.mutation.Status(); ok {
+	if v, ok := _c.mutation.Status(); ok {
 		if err := article.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Article.status": %w`, err)}
 		}
 	}
-	if _, ok := ac.mutation.ViewCount(); !ok {
+	if _, ok := _c.mutation.ViewCount(); !ok {
 		return &ValidationError{Name: "view_count", err: errors.New(`ent: missing required field "Article.view_count"`)}
 	}
-	if v, ok := ac.mutation.ViewCount(); ok {
+	if v, ok := _c.mutation.ViewCount(); ok {
 		if err := article.ViewCountValidator(v); err != nil {
 			return &ValidationError{Name: "view_count", err: fmt.Errorf(`ent: validator failed for field "Article.view_count": %w`, err)}
 		}
 	}
-	if _, ok := ac.mutation.WordCount(); !ok {
+	if _, ok := _c.mutation.WordCount(); !ok {
 		return &ValidationError{Name: "word_count", err: errors.New(`ent: missing required field "Article.word_count"`)}
 	}
-	if v, ok := ac.mutation.WordCount(); ok {
+	if v, ok := _c.mutation.WordCount(); ok {
 		if err := article.WordCountValidator(v); err != nil {
 			return &ValidationError{Name: "word_count", err: fmt.Errorf(`ent: validator failed for field "Article.word_count": %w`, err)}
 		}
 	}
-	if _, ok := ac.mutation.ReadingTime(); !ok {
+	if _, ok := _c.mutation.ReadingTime(); !ok {
 		return &ValidationError{Name: "reading_time", err: errors.New(`ent: missing required field "Article.reading_time"`)}
 	}
-	if v, ok := ac.mutation.ReadingTime(); ok {
+	if v, ok := _c.mutation.ReadingTime(); ok {
 		if err := article.ReadingTimeValidator(v); err != nil {
 			return &ValidationError{Name: "reading_time", err: fmt.Errorf(`ent: validator failed for field "Article.reading_time": %w`, err)}
 		}
 	}
-	if _, ok := ac.mutation.IsPrimaryColorManual(); !ok {
+	if _, ok := _c.mutation.IsPrimaryColorManual(); !ok {
 		return &ValidationError{Name: "is_primary_color_manual", err: errors.New(`ent: missing required field "Article.is_primary_color_manual"`)}
 	}
-	if _, ok := ac.mutation.HomeSort(); !ok {
+	if _, ok := _c.mutation.HomeSort(); !ok {
 		return &ValidationError{Name: "home_sort", err: errors.New(`ent: missing required field "Article.home_sort"`)}
 	}
-	if v, ok := ac.mutation.HomeSort(); ok {
+	if v, ok := _c.mutation.HomeSort(); ok {
 		if err := article.HomeSortValidator(v); err != nil {
 			return &ValidationError{Name: "home_sort", err: fmt.Errorf(`ent: validator failed for field "Article.home_sort": %w`, err)}
 		}
 	}
-	if _, ok := ac.mutation.PinSort(); !ok {
+	if _, ok := _c.mutation.PinSort(); !ok {
 		return &ValidationError{Name: "pin_sort", err: errors.New(`ent: missing required field "Article.pin_sort"`)}
 	}
-	if v, ok := ac.mutation.PinSort(); ok {
+	if v, ok := _c.mutation.PinSort(); ok {
 		if err := article.PinSortValidator(v); err != nil {
 			return &ValidationError{Name: "pin_sort", err: fmt.Errorf(`ent: validator failed for field "Article.pin_sort": %w`, err)}
 		}
 	}
-	if _, ok := ac.mutation.Copyright(); !ok {
+	if _, ok := _c.mutation.Copyright(); !ok {
 		return &ValidationError{Name: "copyright", err: errors.New(`ent: missing required field "Article.copyright"`)}
 	}
 	return nil
 }
 
-func (ac *ArticleCreate) sqlSave(ctx context.Context) (*Article, error) {
-	if err := ac.check(); err != nil {
+func (_c *ArticleCreate) sqlSave(ctx context.Context) (*Article, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := ac.createSpec()
-	if err := sqlgraph.CreateNode(ctx, ac.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -560,114 +560,114 @@ func (ac *ArticleCreate) sqlSave(ctx context.Context) (*Article, error) {
 		id := _spec.ID.Value.(int64)
 		_node.ID = uint(id)
 	}
-	ac.mutation.id = &_node.ID
-	ac.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (ac *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
+func (_c *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Article{config: ac.config}
+		_node = &Article{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(article.Table, sqlgraph.NewFieldSpec(article.FieldID, field.TypeUint))
 	)
-	_spec.OnConflict = ac.conflict
-	if id, ok := ac.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := ac.mutation.DeletedAt(); ok {
+	if value, ok := _c.mutation.DeletedAt(); ok {
 		_spec.SetField(article.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
 	}
-	if value, ok := ac.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(article.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := ac.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(article.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if value, ok := ac.mutation.Title(); ok {
+	if value, ok := _c.mutation.Title(); ok {
 		_spec.SetField(article.FieldTitle, field.TypeString, value)
 		_node.Title = value
 	}
-	if value, ok := ac.mutation.ContentMd(); ok {
+	if value, ok := _c.mutation.ContentMd(); ok {
 		_spec.SetField(article.FieldContentMd, field.TypeString, value)
 		_node.ContentMd = value
 	}
-	if value, ok := ac.mutation.ContentHTML(); ok {
+	if value, ok := _c.mutation.ContentHTML(); ok {
 		_spec.SetField(article.FieldContentHTML, field.TypeString, value)
 		_node.ContentHTML = value
 	}
-	if value, ok := ac.mutation.CoverURL(); ok {
+	if value, ok := _c.mutation.CoverURL(); ok {
 		_spec.SetField(article.FieldCoverURL, field.TypeString, value)
 		_node.CoverURL = value
 	}
-	if value, ok := ac.mutation.Status(); ok {
+	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(article.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
 	}
-	if value, ok := ac.mutation.ViewCount(); ok {
+	if value, ok := _c.mutation.ViewCount(); ok {
 		_spec.SetField(article.FieldViewCount, field.TypeInt, value)
 		_node.ViewCount = value
 	}
-	if value, ok := ac.mutation.WordCount(); ok {
+	if value, ok := _c.mutation.WordCount(); ok {
 		_spec.SetField(article.FieldWordCount, field.TypeInt, value)
 		_node.WordCount = value
 	}
-	if value, ok := ac.mutation.ReadingTime(); ok {
+	if value, ok := _c.mutation.ReadingTime(); ok {
 		_spec.SetField(article.FieldReadingTime, field.TypeInt, value)
 		_node.ReadingTime = value
 	}
-	if value, ok := ac.mutation.IPLocation(); ok {
+	if value, ok := _c.mutation.IPLocation(); ok {
 		_spec.SetField(article.FieldIPLocation, field.TypeString, value)
 		_node.IPLocation = value
 	}
-	if value, ok := ac.mutation.PrimaryColor(); ok {
+	if value, ok := _c.mutation.PrimaryColor(); ok {
 		_spec.SetField(article.FieldPrimaryColor, field.TypeString, value)
 		_node.PrimaryColor = value
 	}
-	if value, ok := ac.mutation.IsPrimaryColorManual(); ok {
+	if value, ok := _c.mutation.IsPrimaryColorManual(); ok {
 		_spec.SetField(article.FieldIsPrimaryColorManual, field.TypeBool, value)
 		_node.IsPrimaryColorManual = value
 	}
-	if value, ok := ac.mutation.HomeSort(); ok {
+	if value, ok := _c.mutation.HomeSort(); ok {
 		_spec.SetField(article.FieldHomeSort, field.TypeInt, value)
 		_node.HomeSort = value
 	}
-	if value, ok := ac.mutation.PinSort(); ok {
+	if value, ok := _c.mutation.PinSort(); ok {
 		_spec.SetField(article.FieldPinSort, field.TypeInt, value)
 		_node.PinSort = value
 	}
-	if value, ok := ac.mutation.TopImgURL(); ok {
+	if value, ok := _c.mutation.TopImgURL(); ok {
 		_spec.SetField(article.FieldTopImgURL, field.TypeString, value)
 		_node.TopImgURL = value
 	}
-	if value, ok := ac.mutation.Summaries(); ok {
+	if value, ok := _c.mutation.Summaries(); ok {
 		_spec.SetField(article.FieldSummaries, field.TypeJSON, value)
 		_node.Summaries = value
 	}
-	if value, ok := ac.mutation.Abbrlink(); ok {
+	if value, ok := _c.mutation.Abbrlink(); ok {
 		_spec.SetField(article.FieldAbbrlink, field.TypeString, value)
 		_node.Abbrlink = &value
 	}
-	if value, ok := ac.mutation.Copyright(); ok {
+	if value, ok := _c.mutation.Copyright(); ok {
 		_spec.SetField(article.FieldCopyright, field.TypeBool, value)
 		_node.Copyright = value
 	}
-	if value, ok := ac.mutation.CopyrightAuthor(); ok {
+	if value, ok := _c.mutation.CopyrightAuthor(); ok {
 		_spec.SetField(article.FieldCopyrightAuthor, field.TypeString, value)
 		_node.CopyrightAuthor = value
 	}
-	if value, ok := ac.mutation.CopyrightAuthorHref(); ok {
+	if value, ok := _c.mutation.CopyrightAuthorHref(); ok {
 		_spec.SetField(article.FieldCopyrightAuthorHref, field.TypeString, value)
 		_node.CopyrightAuthorHref = value
 	}
-	if value, ok := ac.mutation.CopyrightURL(); ok {
+	if value, ok := _c.mutation.CopyrightURL(); ok {
 		_spec.SetField(article.FieldCopyrightURL, field.TypeString, value)
 		_node.CopyrightURL = value
 	}
-	if nodes := ac.mutation.PostTagsIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.PostTagsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -683,7 +683,7 @@ func (ac *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := ac.mutation.PostCategoriesIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.PostCategoriesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -699,7 +699,7 @@ func (ac *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := ac.mutation.CommentsIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.CommentsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -734,10 +734,10 @@ func (ac *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 //			SetDeletedAt(v+v).
 //		}).
 //		Exec(ctx)
-func (ac *ArticleCreate) OnConflict(opts ...sql.ConflictOption) *ArticleUpsertOne {
-	ac.conflict = opts
+func (_c *ArticleCreate) OnConflict(opts ...sql.ConflictOption) *ArticleUpsertOne {
+	_c.conflict = opts
 	return &ArticleUpsertOne{
-		create: ac,
+		create: _c,
 	}
 }
 
@@ -747,10 +747,10 @@ func (ac *ArticleCreate) OnConflict(opts ...sql.ConflictOption) *ArticleUpsertOn
 //	client.Article.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (ac *ArticleCreate) OnConflictColumns(columns ...string) *ArticleUpsertOne {
-	ac.conflict = append(ac.conflict, sql.ConflictColumns(columns...))
+func (_c *ArticleCreate) OnConflictColumns(columns ...string) *ArticleUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &ArticleUpsertOne{
-		create: ac,
+		create: _c,
 	}
 }
 
@@ -1653,16 +1653,16 @@ type ArticleCreateBulk struct {
 }
 
 // Save creates the Article entities in the database.
-func (acb *ArticleCreateBulk) Save(ctx context.Context) ([]*Article, error) {
-	if acb.err != nil {
-		return nil, acb.err
+func (_c *ArticleCreateBulk) Save(ctx context.Context) ([]*Article, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(acb.builders))
-	nodes := make([]*Article, len(acb.builders))
-	mutators := make([]Mutator, len(acb.builders))
-	for i := range acb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*Article, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := acb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*ArticleMutation)
@@ -1676,12 +1676,12 @@ func (acb *ArticleCreateBulk) Save(ctx context.Context) ([]*Article, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, acb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = acb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, acb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -1705,7 +1705,7 @@ func (acb *ArticleCreateBulk) Save(ctx context.Context) ([]*Article, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, acb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -1713,8 +1713,8 @@ func (acb *ArticleCreateBulk) Save(ctx context.Context) ([]*Article, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (acb *ArticleCreateBulk) SaveX(ctx context.Context) []*Article {
-	v, err := acb.Save(ctx)
+func (_c *ArticleCreateBulk) SaveX(ctx context.Context) []*Article {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -1722,14 +1722,14 @@ func (acb *ArticleCreateBulk) SaveX(ctx context.Context) []*Article {
 }
 
 // Exec executes the query.
-func (acb *ArticleCreateBulk) Exec(ctx context.Context) error {
-	_, err := acb.Save(ctx)
+func (_c *ArticleCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (acb *ArticleCreateBulk) ExecX(ctx context.Context) {
-	if err := acb.Exec(ctx); err != nil {
+func (_c *ArticleCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -1749,10 +1749,10 @@ func (acb *ArticleCreateBulk) ExecX(ctx context.Context) {
 //			SetDeletedAt(v+v).
 //		}).
 //		Exec(ctx)
-func (acb *ArticleCreateBulk) OnConflict(opts ...sql.ConflictOption) *ArticleUpsertBulk {
-	acb.conflict = opts
+func (_c *ArticleCreateBulk) OnConflict(opts ...sql.ConflictOption) *ArticleUpsertBulk {
+	_c.conflict = opts
 	return &ArticleUpsertBulk{
-		create: acb,
+		create: _c,
 	}
 }
 
@@ -1762,10 +1762,10 @@ func (acb *ArticleCreateBulk) OnConflict(opts ...sql.ConflictOption) *ArticleUps
 //	client.Article.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (acb *ArticleCreateBulk) OnConflictColumns(columns ...string) *ArticleUpsertBulk {
-	acb.conflict = append(acb.conflict, sql.ConflictColumns(columns...))
+func (_c *ArticleCreateBulk) OnConflictColumns(columns ...string) *ArticleUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &ArticleUpsertBulk{
-		create: acb,
+		create: _c,
 	}
 }
 

@@ -32,6 +32,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/urlstat"
 	"github.com/anzhiyu-c/anheyu-app/ent/user"
 	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
+	"github.com/anzhiyu-c/anheyu-app/ent/userinstalledtheme"
 	"github.com/anzhiyu-c/anheyu-app/ent/visitorlog"
 	"github.com/anzhiyu-c/anheyu-app/ent/visitorstat"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
@@ -46,28 +47,29 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeAlbum         = "Album"
-	TypeArticle       = "Article"
-	TypeComment       = "Comment"
-	TypeDirectLink    = "DirectLink"
-	TypeEntity        = "Entity"
-	TypeFile          = "File"
-	TypeFileEntity    = "FileEntity"
-	TypeLink          = "Link"
-	TypeLinkCategory  = "LinkCategory"
-	TypeLinkTag       = "LinkTag"
-	TypeMetadata      = "Metadata"
-	TypePage          = "Page"
-	TypePostCategory  = "PostCategory"
-	TypePostTag       = "PostTag"
-	TypeSetting       = "Setting"
-	TypeStoragePolicy = "StoragePolicy"
-	TypeTag           = "Tag"
-	TypeURLStat       = "URLStat"
-	TypeUser          = "User"
-	TypeUserGroup     = "UserGroup"
-	TypeVisitorLog    = "VisitorLog"
-	TypeVisitorStat   = "VisitorStat"
+	TypeAlbum              = "Album"
+	TypeArticle            = "Article"
+	TypeComment            = "Comment"
+	TypeDirectLink         = "DirectLink"
+	TypeEntity             = "Entity"
+	TypeFile               = "File"
+	TypeFileEntity         = "FileEntity"
+	TypeLink               = "Link"
+	TypeLinkCategory       = "LinkCategory"
+	TypeLinkTag            = "LinkTag"
+	TypeMetadata           = "Metadata"
+	TypePage               = "Page"
+	TypePostCategory       = "PostCategory"
+	TypePostTag            = "PostTag"
+	TypeSetting            = "Setting"
+	TypeStoragePolicy      = "StoragePolicy"
+	TypeTag                = "Tag"
+	TypeURLStat            = "URLStat"
+	TypeUser               = "User"
+	TypeUserGroup          = "UserGroup"
+	TypeUserInstalledTheme = "UserInstalledTheme"
+	TypeVisitorLog         = "VisitorLog"
+	TypeVisitorStat        = "VisitorStat"
 )
 
 // AlbumMutation represents an operation that mutates the Album nodes in the graph.
@@ -18768,32 +18770,35 @@ func (m *URLStatMutation) ResetEdge(name string) error {
 // UserMutation represents an operation that mutates the User nodes in the graph.
 type UserMutation struct {
 	config
-	op                Op
-	typ               string
-	id                *uint
-	deleted_at        *time.Time
-	created_at        *time.Time
-	updated_at        *time.Time
-	username          *string
-	password_hash     *string
-	nickname          *string
-	avatar            *string
-	email             *string
-	last_login_at     *time.Time
-	status            *int
-	addstatus         *int
-	clearedFields     map[string]struct{}
-	user_group        *uint
-	cleareduser_group bool
-	files             map[uint]struct{}
-	removedfiles      map[uint]struct{}
-	clearedfiles      bool
-	comments          map[uint]struct{}
-	removedcomments   map[uint]struct{}
-	clearedcomments   bool
-	done              bool
-	oldValue          func(context.Context) (*User, error)
-	predicates        []predicate.User
+	op                      Op
+	typ                     string
+	id                      *uint
+	deleted_at              *time.Time
+	created_at              *time.Time
+	updated_at              *time.Time
+	username                *string
+	password_hash           *string
+	nickname                *string
+	avatar                  *string
+	email                   *string
+	last_login_at           *time.Time
+	status                  *int
+	addstatus               *int
+	clearedFields           map[string]struct{}
+	user_group              *uint
+	cleareduser_group       bool
+	files                   map[uint]struct{}
+	removedfiles            map[uint]struct{}
+	clearedfiles            bool
+	comments                map[uint]struct{}
+	removedcomments         map[uint]struct{}
+	clearedcomments         bool
+	installed_themes        map[uint]struct{}
+	removedinstalled_themes map[uint]struct{}
+	clearedinstalled_themes bool
+	done                    bool
+	oldValue                func(context.Context) (*User, error)
+	predicates              []predicate.User
 }
 
 var _ ent.Mutation = (*UserMutation)(nil)
@@ -19492,6 +19497,60 @@ func (m *UserMutation) ResetComments() {
 	m.removedcomments = nil
 }
 
+// AddInstalledThemeIDs adds the "installed_themes" edge to the UserInstalledTheme entity by ids.
+func (m *UserMutation) AddInstalledThemeIDs(ids ...uint) {
+	if m.installed_themes == nil {
+		m.installed_themes = make(map[uint]struct{})
+	}
+	for i := range ids {
+		m.installed_themes[ids[i]] = struct{}{}
+	}
+}
+
+// ClearInstalledThemes clears the "installed_themes" edge to the UserInstalledTheme entity.
+func (m *UserMutation) ClearInstalledThemes() {
+	m.clearedinstalled_themes = true
+}
+
+// InstalledThemesCleared reports if the "installed_themes" edge to the UserInstalledTheme entity was cleared.
+func (m *UserMutation) InstalledThemesCleared() bool {
+	return m.clearedinstalled_themes
+}
+
+// RemoveInstalledThemeIDs removes the "installed_themes" edge to the UserInstalledTheme entity by IDs.
+func (m *UserMutation) RemoveInstalledThemeIDs(ids ...uint) {
+	if m.removedinstalled_themes == nil {
+		m.removedinstalled_themes = make(map[uint]struct{})
+	}
+	for i := range ids {
+		delete(m.installed_themes, ids[i])
+		m.removedinstalled_themes[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedInstalledThemes returns the removed IDs of the "installed_themes" edge to the UserInstalledTheme entity.
+func (m *UserMutation) RemovedInstalledThemesIDs() (ids []uint) {
+	for id := range m.removedinstalled_themes {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// InstalledThemesIDs returns the "installed_themes" edge IDs in the mutation.
+func (m *UserMutation) InstalledThemesIDs() (ids []uint) {
+	for id := range m.installed_themes {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetInstalledThemes resets all changes to the "installed_themes" edge.
+func (m *UserMutation) ResetInstalledThemes() {
+	m.installed_themes = nil
+	m.clearedinstalled_themes = false
+	m.removedinstalled_themes = nil
+}
+
 // Where appends a list predicates to the UserMutation builder.
 func (m *UserMutation) Where(ps ...predicate.User) {
 	m.predicates = append(m.predicates, ps...)
@@ -19826,7 +19885,7 @@ func (m *UserMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.user_group != nil {
 		edges = append(edges, user.EdgeUserGroup)
 	}
@@ -19835,6 +19894,9 @@ func (m *UserMutation) AddedEdges() []string {
 	}
 	if m.comments != nil {
 		edges = append(edges, user.EdgeComments)
+	}
+	if m.installed_themes != nil {
+		edges = append(edges, user.EdgeInstalledThemes)
 	}
 	return edges
 }
@@ -19859,18 +19921,27 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeInstalledThemes:
+		ids := make([]ent.Value, 0, len(m.installed_themes))
+		for id := range m.installed_themes {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.removedfiles != nil {
 		edges = append(edges, user.EdgeFiles)
 	}
 	if m.removedcomments != nil {
 		edges = append(edges, user.EdgeComments)
+	}
+	if m.removedinstalled_themes != nil {
+		edges = append(edges, user.EdgeInstalledThemes)
 	}
 	return edges
 }
@@ -19891,13 +19962,19 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeInstalledThemes:
+		ids := make([]ent.Value, 0, len(m.removedinstalled_themes))
+		for id := range m.removedinstalled_themes {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.cleareduser_group {
 		edges = append(edges, user.EdgeUserGroup)
 	}
@@ -19906,6 +19983,9 @@ func (m *UserMutation) ClearedEdges() []string {
 	}
 	if m.clearedcomments {
 		edges = append(edges, user.EdgeComments)
+	}
+	if m.clearedinstalled_themes {
+		edges = append(edges, user.EdgeInstalledThemes)
 	}
 	return edges
 }
@@ -19920,6 +20000,8 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 		return m.clearedfiles
 	case user.EdgeComments:
 		return m.clearedcomments
+	case user.EdgeInstalledThemes:
+		return m.clearedinstalled_themes
 	}
 	return false
 }
@@ -19947,6 +20029,9 @@ func (m *UserMutation) ResetEdge(name string) error {
 		return nil
 	case user.EdgeComments:
 		m.ResetComments()
+		return nil
+	case user.EdgeInstalledThemes:
+		m.ResetInstalledThemes()
 		return nil
 	}
 	return fmt.Errorf("unknown User edge %s", name)
@@ -20917,6 +21002,994 @@ func (m *UserGroupMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown UserGroup edge %s", name)
+}
+
+// UserInstalledThemeMutation represents an operation that mutates the UserInstalledTheme nodes in the graph.
+type UserInstalledThemeMutation struct {
+	config
+	op                 Op
+	typ                string
+	id                 *uint
+	deleted_at         *time.Time
+	created_at         *time.Time
+	updated_at         *time.Time
+	theme_name         *string
+	theme_market_id    *int
+	addtheme_market_id *int
+	is_current         *bool
+	install_time       *time.Time
+	user_theme_config  *map[string]interface{}
+	installed_version  *string
+	clearedFields      map[string]struct{}
+	user               *uint
+	cleareduser        bool
+	done               bool
+	oldValue           func(context.Context) (*UserInstalledTheme, error)
+	predicates         []predicate.UserInstalledTheme
+}
+
+var _ ent.Mutation = (*UserInstalledThemeMutation)(nil)
+
+// userinstalledthemeOption allows management of the mutation configuration using functional options.
+type userinstalledthemeOption func(*UserInstalledThemeMutation)
+
+// newUserInstalledThemeMutation creates new mutation for the UserInstalledTheme entity.
+func newUserInstalledThemeMutation(c config, op Op, opts ...userinstalledthemeOption) *UserInstalledThemeMutation {
+	m := &UserInstalledThemeMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeUserInstalledTheme,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withUserInstalledThemeID sets the ID field of the mutation.
+func withUserInstalledThemeID(id uint) userinstalledthemeOption {
+	return func(m *UserInstalledThemeMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *UserInstalledTheme
+		)
+		m.oldValue = func(ctx context.Context) (*UserInstalledTheme, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().UserInstalledTheme.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withUserInstalledTheme sets the old UserInstalledTheme of the mutation.
+func withUserInstalledTheme(node *UserInstalledTheme) userinstalledthemeOption {
+	return func(m *UserInstalledThemeMutation) {
+		m.oldValue = func(context.Context) (*UserInstalledTheme, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m UserInstalledThemeMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m UserInstalledThemeMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of UserInstalledTheme entities.
+func (m *UserInstalledThemeMutation) SetID(id uint) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *UserInstalledThemeMutation) ID() (id uint, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *UserInstalledThemeMutation) IDs(ctx context.Context) ([]uint, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uint{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().UserInstalledTheme.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *UserInstalledThemeMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *UserInstalledThemeMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the UserInstalledTheme entity.
+// If the UserInstalledTheme object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserInstalledThemeMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (m *UserInstalledThemeMutation) ClearDeletedAt() {
+	m.deleted_at = nil
+	m.clearedFields[userinstalledtheme.FieldDeletedAt] = struct{}{}
+}
+
+// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
+func (m *UserInstalledThemeMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[userinstalledtheme.FieldDeletedAt]
+	return ok
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *UserInstalledThemeMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	delete(m.clearedFields, userinstalledtheme.FieldDeletedAt)
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *UserInstalledThemeMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *UserInstalledThemeMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the UserInstalledTheme entity.
+// If the UserInstalledTheme object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserInstalledThemeMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *UserInstalledThemeMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *UserInstalledThemeMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *UserInstalledThemeMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the UserInstalledTheme entity.
+// If the UserInstalledTheme object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserInstalledThemeMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *UserInstalledThemeMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetUserID sets the "user_id" field.
+func (m *UserInstalledThemeMutation) SetUserID(u uint) {
+	m.user = &u
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *UserInstalledThemeMutation) UserID() (r uint, exists bool) {
+	v := m.user
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the UserInstalledTheme entity.
+// If the UserInstalledTheme object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserInstalledThemeMutation) OldUserID(ctx context.Context) (v uint, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *UserInstalledThemeMutation) ResetUserID() {
+	m.user = nil
+}
+
+// SetThemeName sets the "theme_name" field.
+func (m *UserInstalledThemeMutation) SetThemeName(s string) {
+	m.theme_name = &s
+}
+
+// ThemeName returns the value of the "theme_name" field in the mutation.
+func (m *UserInstalledThemeMutation) ThemeName() (r string, exists bool) {
+	v := m.theme_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldThemeName returns the old "theme_name" field's value of the UserInstalledTheme entity.
+// If the UserInstalledTheme object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserInstalledThemeMutation) OldThemeName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldThemeName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldThemeName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldThemeName: %w", err)
+	}
+	return oldValue.ThemeName, nil
+}
+
+// ResetThemeName resets all changes to the "theme_name" field.
+func (m *UserInstalledThemeMutation) ResetThemeName() {
+	m.theme_name = nil
+}
+
+// SetThemeMarketID sets the "theme_market_id" field.
+func (m *UserInstalledThemeMutation) SetThemeMarketID(i int) {
+	m.theme_market_id = &i
+	m.addtheme_market_id = nil
+}
+
+// ThemeMarketID returns the value of the "theme_market_id" field in the mutation.
+func (m *UserInstalledThemeMutation) ThemeMarketID() (r int, exists bool) {
+	v := m.theme_market_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldThemeMarketID returns the old "theme_market_id" field's value of the UserInstalledTheme entity.
+// If the UserInstalledTheme object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserInstalledThemeMutation) OldThemeMarketID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldThemeMarketID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldThemeMarketID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldThemeMarketID: %w", err)
+	}
+	return oldValue.ThemeMarketID, nil
+}
+
+// AddThemeMarketID adds i to the "theme_market_id" field.
+func (m *UserInstalledThemeMutation) AddThemeMarketID(i int) {
+	if m.addtheme_market_id != nil {
+		*m.addtheme_market_id += i
+	} else {
+		m.addtheme_market_id = &i
+	}
+}
+
+// AddedThemeMarketID returns the value that was added to the "theme_market_id" field in this mutation.
+func (m *UserInstalledThemeMutation) AddedThemeMarketID() (r int, exists bool) {
+	v := m.addtheme_market_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearThemeMarketID clears the value of the "theme_market_id" field.
+func (m *UserInstalledThemeMutation) ClearThemeMarketID() {
+	m.theme_market_id = nil
+	m.addtheme_market_id = nil
+	m.clearedFields[userinstalledtheme.FieldThemeMarketID] = struct{}{}
+}
+
+// ThemeMarketIDCleared returns if the "theme_market_id" field was cleared in this mutation.
+func (m *UserInstalledThemeMutation) ThemeMarketIDCleared() bool {
+	_, ok := m.clearedFields[userinstalledtheme.FieldThemeMarketID]
+	return ok
+}
+
+// ResetThemeMarketID resets all changes to the "theme_market_id" field.
+func (m *UserInstalledThemeMutation) ResetThemeMarketID() {
+	m.theme_market_id = nil
+	m.addtheme_market_id = nil
+	delete(m.clearedFields, userinstalledtheme.FieldThemeMarketID)
+}
+
+// SetIsCurrent sets the "is_current" field.
+func (m *UserInstalledThemeMutation) SetIsCurrent(b bool) {
+	m.is_current = &b
+}
+
+// IsCurrent returns the value of the "is_current" field in the mutation.
+func (m *UserInstalledThemeMutation) IsCurrent() (r bool, exists bool) {
+	v := m.is_current
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsCurrent returns the old "is_current" field's value of the UserInstalledTheme entity.
+// If the UserInstalledTheme object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserInstalledThemeMutation) OldIsCurrent(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsCurrent is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsCurrent requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsCurrent: %w", err)
+	}
+	return oldValue.IsCurrent, nil
+}
+
+// ResetIsCurrent resets all changes to the "is_current" field.
+func (m *UserInstalledThemeMutation) ResetIsCurrent() {
+	m.is_current = nil
+}
+
+// SetInstallTime sets the "install_time" field.
+func (m *UserInstalledThemeMutation) SetInstallTime(t time.Time) {
+	m.install_time = &t
+}
+
+// InstallTime returns the value of the "install_time" field in the mutation.
+func (m *UserInstalledThemeMutation) InstallTime() (r time.Time, exists bool) {
+	v := m.install_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldInstallTime returns the old "install_time" field's value of the UserInstalledTheme entity.
+// If the UserInstalledTheme object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserInstalledThemeMutation) OldInstallTime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldInstallTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldInstallTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldInstallTime: %w", err)
+	}
+	return oldValue.InstallTime, nil
+}
+
+// ResetInstallTime resets all changes to the "install_time" field.
+func (m *UserInstalledThemeMutation) ResetInstallTime() {
+	m.install_time = nil
+}
+
+// SetUserThemeConfig sets the "user_theme_config" field.
+func (m *UserInstalledThemeMutation) SetUserThemeConfig(value map[string]interface{}) {
+	m.user_theme_config = &value
+}
+
+// UserThemeConfig returns the value of the "user_theme_config" field in the mutation.
+func (m *UserInstalledThemeMutation) UserThemeConfig() (r map[string]interface{}, exists bool) {
+	v := m.user_theme_config
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserThemeConfig returns the old "user_theme_config" field's value of the UserInstalledTheme entity.
+// If the UserInstalledTheme object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserInstalledThemeMutation) OldUserThemeConfig(ctx context.Context) (v map[string]interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserThemeConfig is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserThemeConfig requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserThemeConfig: %w", err)
+	}
+	return oldValue.UserThemeConfig, nil
+}
+
+// ClearUserThemeConfig clears the value of the "user_theme_config" field.
+func (m *UserInstalledThemeMutation) ClearUserThemeConfig() {
+	m.user_theme_config = nil
+	m.clearedFields[userinstalledtheme.FieldUserThemeConfig] = struct{}{}
+}
+
+// UserThemeConfigCleared returns if the "user_theme_config" field was cleared in this mutation.
+func (m *UserInstalledThemeMutation) UserThemeConfigCleared() bool {
+	_, ok := m.clearedFields[userinstalledtheme.FieldUserThemeConfig]
+	return ok
+}
+
+// ResetUserThemeConfig resets all changes to the "user_theme_config" field.
+func (m *UserInstalledThemeMutation) ResetUserThemeConfig() {
+	m.user_theme_config = nil
+	delete(m.clearedFields, userinstalledtheme.FieldUserThemeConfig)
+}
+
+// SetInstalledVersion sets the "installed_version" field.
+func (m *UserInstalledThemeMutation) SetInstalledVersion(s string) {
+	m.installed_version = &s
+}
+
+// InstalledVersion returns the value of the "installed_version" field in the mutation.
+func (m *UserInstalledThemeMutation) InstalledVersion() (r string, exists bool) {
+	v := m.installed_version
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldInstalledVersion returns the old "installed_version" field's value of the UserInstalledTheme entity.
+// If the UserInstalledTheme object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserInstalledThemeMutation) OldInstalledVersion(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldInstalledVersion is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldInstalledVersion requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldInstalledVersion: %w", err)
+	}
+	return oldValue.InstalledVersion, nil
+}
+
+// ClearInstalledVersion clears the value of the "installed_version" field.
+func (m *UserInstalledThemeMutation) ClearInstalledVersion() {
+	m.installed_version = nil
+	m.clearedFields[userinstalledtheme.FieldInstalledVersion] = struct{}{}
+}
+
+// InstalledVersionCleared returns if the "installed_version" field was cleared in this mutation.
+func (m *UserInstalledThemeMutation) InstalledVersionCleared() bool {
+	_, ok := m.clearedFields[userinstalledtheme.FieldInstalledVersion]
+	return ok
+}
+
+// ResetInstalledVersion resets all changes to the "installed_version" field.
+func (m *UserInstalledThemeMutation) ResetInstalledVersion() {
+	m.installed_version = nil
+	delete(m.clearedFields, userinstalledtheme.FieldInstalledVersion)
+}
+
+// ClearUser clears the "user" edge to the User entity.
+func (m *UserInstalledThemeMutation) ClearUser() {
+	m.cleareduser = true
+	m.clearedFields[userinstalledtheme.FieldUserID] = struct{}{}
+}
+
+// UserCleared reports if the "user" edge to the User entity was cleared.
+func (m *UserInstalledThemeMutation) UserCleared() bool {
+	return m.cleareduser
+}
+
+// UserIDs returns the "user" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// UserID instead. It exists only for internal usage by the builders.
+func (m *UserInstalledThemeMutation) UserIDs() (ids []uint) {
+	if id := m.user; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetUser resets all changes to the "user" edge.
+func (m *UserInstalledThemeMutation) ResetUser() {
+	m.user = nil
+	m.cleareduser = false
+}
+
+// Where appends a list predicates to the UserInstalledThemeMutation builder.
+func (m *UserInstalledThemeMutation) Where(ps ...predicate.UserInstalledTheme) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the UserInstalledThemeMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *UserInstalledThemeMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.UserInstalledTheme, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *UserInstalledThemeMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *UserInstalledThemeMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (UserInstalledTheme).
+func (m *UserInstalledThemeMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *UserInstalledThemeMutation) Fields() []string {
+	fields := make([]string, 0, 10)
+	if m.deleted_at != nil {
+		fields = append(fields, userinstalledtheme.FieldDeletedAt)
+	}
+	if m.created_at != nil {
+		fields = append(fields, userinstalledtheme.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, userinstalledtheme.FieldUpdatedAt)
+	}
+	if m.user != nil {
+		fields = append(fields, userinstalledtheme.FieldUserID)
+	}
+	if m.theme_name != nil {
+		fields = append(fields, userinstalledtheme.FieldThemeName)
+	}
+	if m.theme_market_id != nil {
+		fields = append(fields, userinstalledtheme.FieldThemeMarketID)
+	}
+	if m.is_current != nil {
+		fields = append(fields, userinstalledtheme.FieldIsCurrent)
+	}
+	if m.install_time != nil {
+		fields = append(fields, userinstalledtheme.FieldInstallTime)
+	}
+	if m.user_theme_config != nil {
+		fields = append(fields, userinstalledtheme.FieldUserThemeConfig)
+	}
+	if m.installed_version != nil {
+		fields = append(fields, userinstalledtheme.FieldInstalledVersion)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *UserInstalledThemeMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case userinstalledtheme.FieldDeletedAt:
+		return m.DeletedAt()
+	case userinstalledtheme.FieldCreatedAt:
+		return m.CreatedAt()
+	case userinstalledtheme.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case userinstalledtheme.FieldUserID:
+		return m.UserID()
+	case userinstalledtheme.FieldThemeName:
+		return m.ThemeName()
+	case userinstalledtheme.FieldThemeMarketID:
+		return m.ThemeMarketID()
+	case userinstalledtheme.FieldIsCurrent:
+		return m.IsCurrent()
+	case userinstalledtheme.FieldInstallTime:
+		return m.InstallTime()
+	case userinstalledtheme.FieldUserThemeConfig:
+		return m.UserThemeConfig()
+	case userinstalledtheme.FieldInstalledVersion:
+		return m.InstalledVersion()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *UserInstalledThemeMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case userinstalledtheme.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case userinstalledtheme.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case userinstalledtheme.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case userinstalledtheme.FieldUserID:
+		return m.OldUserID(ctx)
+	case userinstalledtheme.FieldThemeName:
+		return m.OldThemeName(ctx)
+	case userinstalledtheme.FieldThemeMarketID:
+		return m.OldThemeMarketID(ctx)
+	case userinstalledtheme.FieldIsCurrent:
+		return m.OldIsCurrent(ctx)
+	case userinstalledtheme.FieldInstallTime:
+		return m.OldInstallTime(ctx)
+	case userinstalledtheme.FieldUserThemeConfig:
+		return m.OldUserThemeConfig(ctx)
+	case userinstalledtheme.FieldInstalledVersion:
+		return m.OldInstalledVersion(ctx)
+	}
+	return nil, fmt.Errorf("unknown UserInstalledTheme field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *UserInstalledThemeMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case userinstalledtheme.FieldDeletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case userinstalledtheme.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case userinstalledtheme.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case userinstalledtheme.FieldUserID:
+		v, ok := value.(uint)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	case userinstalledtheme.FieldThemeName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetThemeName(v)
+		return nil
+	case userinstalledtheme.FieldThemeMarketID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetThemeMarketID(v)
+		return nil
+	case userinstalledtheme.FieldIsCurrent:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsCurrent(v)
+		return nil
+	case userinstalledtheme.FieldInstallTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetInstallTime(v)
+		return nil
+	case userinstalledtheme.FieldUserThemeConfig:
+		v, ok := value.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserThemeConfig(v)
+		return nil
+	case userinstalledtheme.FieldInstalledVersion:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetInstalledVersion(v)
+		return nil
+	}
+	return fmt.Errorf("unknown UserInstalledTheme field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *UserInstalledThemeMutation) AddedFields() []string {
+	var fields []string
+	if m.addtheme_market_id != nil {
+		fields = append(fields, userinstalledtheme.FieldThemeMarketID)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *UserInstalledThemeMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case userinstalledtheme.FieldThemeMarketID:
+		return m.AddedThemeMarketID()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *UserInstalledThemeMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case userinstalledtheme.FieldThemeMarketID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddThemeMarketID(v)
+		return nil
+	}
+	return fmt.Errorf("unknown UserInstalledTheme numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *UserInstalledThemeMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(userinstalledtheme.FieldDeletedAt) {
+		fields = append(fields, userinstalledtheme.FieldDeletedAt)
+	}
+	if m.FieldCleared(userinstalledtheme.FieldThemeMarketID) {
+		fields = append(fields, userinstalledtheme.FieldThemeMarketID)
+	}
+	if m.FieldCleared(userinstalledtheme.FieldUserThemeConfig) {
+		fields = append(fields, userinstalledtheme.FieldUserThemeConfig)
+	}
+	if m.FieldCleared(userinstalledtheme.FieldInstalledVersion) {
+		fields = append(fields, userinstalledtheme.FieldInstalledVersion)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *UserInstalledThemeMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *UserInstalledThemeMutation) ClearField(name string) error {
+	switch name {
+	case userinstalledtheme.FieldDeletedAt:
+		m.ClearDeletedAt()
+		return nil
+	case userinstalledtheme.FieldThemeMarketID:
+		m.ClearThemeMarketID()
+		return nil
+	case userinstalledtheme.FieldUserThemeConfig:
+		m.ClearUserThemeConfig()
+		return nil
+	case userinstalledtheme.FieldInstalledVersion:
+		m.ClearInstalledVersion()
+		return nil
+	}
+	return fmt.Errorf("unknown UserInstalledTheme nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *UserInstalledThemeMutation) ResetField(name string) error {
+	switch name {
+	case userinstalledtheme.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case userinstalledtheme.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case userinstalledtheme.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case userinstalledtheme.FieldUserID:
+		m.ResetUserID()
+		return nil
+	case userinstalledtheme.FieldThemeName:
+		m.ResetThemeName()
+		return nil
+	case userinstalledtheme.FieldThemeMarketID:
+		m.ResetThemeMarketID()
+		return nil
+	case userinstalledtheme.FieldIsCurrent:
+		m.ResetIsCurrent()
+		return nil
+	case userinstalledtheme.FieldInstallTime:
+		m.ResetInstallTime()
+		return nil
+	case userinstalledtheme.FieldUserThemeConfig:
+		m.ResetUserThemeConfig()
+		return nil
+	case userinstalledtheme.FieldInstalledVersion:
+		m.ResetInstalledVersion()
+		return nil
+	}
+	return fmt.Errorf("unknown UserInstalledTheme field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *UserInstalledThemeMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.user != nil {
+		edges = append(edges, userinstalledtheme.EdgeUser)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *UserInstalledThemeMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case userinstalledtheme.EdgeUser:
+		if id := m.user; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *UserInstalledThemeMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *UserInstalledThemeMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *UserInstalledThemeMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.cleareduser {
+		edges = append(edges, userinstalledtheme.EdgeUser)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *UserInstalledThemeMutation) EdgeCleared(name string) bool {
+	switch name {
+	case userinstalledtheme.EdgeUser:
+		return m.cleareduser
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *UserInstalledThemeMutation) ClearEdge(name string) error {
+	switch name {
+	case userinstalledtheme.EdgeUser:
+		m.ClearUser()
+		return nil
+	}
+	return fmt.Errorf("unknown UserInstalledTheme unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *UserInstalledThemeMutation) ResetEdge(name string) error {
+	switch name {
+	case userinstalledtheme.EdgeUser:
+		m.ResetUser()
+		return nil
+	}
+	return fmt.Errorf("unknown UserInstalledTheme edge %s", name)
 }
 
 // VisitorLogMutation represents an operation that mutates the VisitorLog nodes in the graph.

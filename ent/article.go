@@ -134,7 +134,7 @@ func (*Article) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Article fields.
-func (a *Article) assignValues(columns []string, values []any) error {
+func (_m *Article) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -145,115 +145,115 @@ func (a *Article) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			a.ID = uint(value.Int64)
+			_m.ID = uint(value.Int64)
 		case article.FieldDeletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
-				a.DeletedAt = new(time.Time)
-				*a.DeletedAt = value.Time
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
 			}
 		case article.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				a.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case article.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				a.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		case article.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field title", values[i])
 			} else if value.Valid {
-				a.Title = value.String
+				_m.Title = value.String
 			}
 		case article.FieldContentMd:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field content_md", values[i])
 			} else if value.Valid {
-				a.ContentMd = value.String
+				_m.ContentMd = value.String
 			}
 		case article.FieldContentHTML:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field content_html", values[i])
 			} else if value.Valid {
-				a.ContentHTML = value.String
+				_m.ContentHTML = value.String
 			}
 		case article.FieldCoverURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field cover_url", values[i])
 			} else if value.Valid {
-				a.CoverURL = value.String
+				_m.CoverURL = value.String
 			}
 		case article.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				a.Status = article.Status(value.String)
+				_m.Status = article.Status(value.String)
 			}
 		case article.FieldViewCount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field view_count", values[i])
 			} else if value.Valid {
-				a.ViewCount = int(value.Int64)
+				_m.ViewCount = int(value.Int64)
 			}
 		case article.FieldWordCount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field word_count", values[i])
 			} else if value.Valid {
-				a.WordCount = int(value.Int64)
+				_m.WordCount = int(value.Int64)
 			}
 		case article.FieldReadingTime:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field reading_time", values[i])
 			} else if value.Valid {
-				a.ReadingTime = int(value.Int64)
+				_m.ReadingTime = int(value.Int64)
 			}
 		case article.FieldIPLocation:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field ip_location", values[i])
 			} else if value.Valid {
-				a.IPLocation = value.String
+				_m.IPLocation = value.String
 			}
 		case article.FieldPrimaryColor:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field primary_color", values[i])
 			} else if value.Valid {
-				a.PrimaryColor = value.String
+				_m.PrimaryColor = value.String
 			}
 		case article.FieldIsPrimaryColorManual:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field is_primary_color_manual", values[i])
 			} else if value.Valid {
-				a.IsPrimaryColorManual = value.Bool
+				_m.IsPrimaryColorManual = value.Bool
 			}
 		case article.FieldHomeSort:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field home_sort", values[i])
 			} else if value.Valid {
-				a.HomeSort = int(value.Int64)
+				_m.HomeSort = int(value.Int64)
 			}
 		case article.FieldPinSort:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field pin_sort", values[i])
 			} else if value.Valid {
-				a.PinSort = int(value.Int64)
+				_m.PinSort = int(value.Int64)
 			}
 		case article.FieldTopImgURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field top_img_url", values[i])
 			} else if value.Valid {
-				a.TopImgURL = value.String
+				_m.TopImgURL = value.String
 			}
 		case article.FieldSummaries:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field summaries", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &a.Summaries); err != nil {
+				if err := json.Unmarshal(*value, &_m.Summaries); err != nil {
 					return fmt.Errorf("unmarshal field summaries: %w", err)
 				}
 			}
@@ -261,35 +261,35 @@ func (a *Article) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field abbrlink", values[i])
 			} else if value.Valid {
-				a.Abbrlink = new(string)
-				*a.Abbrlink = value.String
+				_m.Abbrlink = new(string)
+				*_m.Abbrlink = value.String
 			}
 		case article.FieldCopyright:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field copyright", values[i])
 			} else if value.Valid {
-				a.Copyright = value.Bool
+				_m.Copyright = value.Bool
 			}
 		case article.FieldCopyrightAuthor:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field copyright_author", values[i])
 			} else if value.Valid {
-				a.CopyrightAuthor = value.String
+				_m.CopyrightAuthor = value.String
 			}
 		case article.FieldCopyrightAuthorHref:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field copyright_author_href", values[i])
 			} else if value.Valid {
-				a.CopyrightAuthorHref = value.String
+				_m.CopyrightAuthorHref = value.String
 			}
 		case article.FieldCopyrightURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field copyright_url", values[i])
 			} else if value.Valid {
-				a.CopyrightURL = value.String
+				_m.CopyrightURL = value.String
 			}
 		default:
-			a.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -297,120 +297,120 @@ func (a *Article) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the Article.
 // This includes values selected through modifiers, order, etc.
-func (a *Article) Value(name string) (ent.Value, error) {
-	return a.selectValues.Get(name)
+func (_m *Article) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryPostTags queries the "post_tags" edge of the Article entity.
-func (a *Article) QueryPostTags() *PostTagQuery {
-	return NewArticleClient(a.config).QueryPostTags(a)
+func (_m *Article) QueryPostTags() *PostTagQuery {
+	return NewArticleClient(_m.config).QueryPostTags(_m)
 }
 
 // QueryPostCategories queries the "post_categories" edge of the Article entity.
-func (a *Article) QueryPostCategories() *PostCategoryQuery {
-	return NewArticleClient(a.config).QueryPostCategories(a)
+func (_m *Article) QueryPostCategories() *PostCategoryQuery {
+	return NewArticleClient(_m.config).QueryPostCategories(_m)
 }
 
 // QueryComments queries the "comments" edge of the Article entity.
-func (a *Article) QueryComments() *CommentQuery {
-	return NewArticleClient(a.config).QueryComments(a)
+func (_m *Article) QueryComments() *CommentQuery {
+	return NewArticleClient(_m.config).QueryComments(_m)
 }
 
 // Update returns a builder for updating this Article.
 // Note that you need to call Article.Unwrap() before calling this method if this Article
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (a *Article) Update() *ArticleUpdateOne {
-	return NewArticleClient(a.config).UpdateOne(a)
+func (_m *Article) Update() *ArticleUpdateOne {
+	return NewArticleClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Article entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (a *Article) Unwrap() *Article {
-	_tx, ok := a.config.driver.(*txDriver)
+func (_m *Article) Unwrap() *Article {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: Article is not a transactional entity")
 	}
-	a.config.driver = _tx.drv
-	return a
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (a *Article) String() string {
+func (_m *Article) String() string {
 	var builder strings.Builder
 	builder.WriteString("Article(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", a.ID))
-	if v := a.DeletedAt; v != nil {
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	if v := _m.DeletedAt; v != nil {
 		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(a.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(a.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("title=")
-	builder.WriteString(a.Title)
+	builder.WriteString(_m.Title)
 	builder.WriteString(", ")
 	builder.WriteString("content_md=")
-	builder.WriteString(a.ContentMd)
+	builder.WriteString(_m.ContentMd)
 	builder.WriteString(", ")
 	builder.WriteString("content_html=")
-	builder.WriteString(a.ContentHTML)
+	builder.WriteString(_m.ContentHTML)
 	builder.WriteString(", ")
 	builder.WriteString("cover_url=")
-	builder.WriteString(a.CoverURL)
+	builder.WriteString(_m.CoverURL)
 	builder.WriteString(", ")
 	builder.WriteString("status=")
-	builder.WriteString(fmt.Sprintf("%v", a.Status))
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
 	builder.WriteString(", ")
 	builder.WriteString("view_count=")
-	builder.WriteString(fmt.Sprintf("%v", a.ViewCount))
+	builder.WriteString(fmt.Sprintf("%v", _m.ViewCount))
 	builder.WriteString(", ")
 	builder.WriteString("word_count=")
-	builder.WriteString(fmt.Sprintf("%v", a.WordCount))
+	builder.WriteString(fmt.Sprintf("%v", _m.WordCount))
 	builder.WriteString(", ")
 	builder.WriteString("reading_time=")
-	builder.WriteString(fmt.Sprintf("%v", a.ReadingTime))
+	builder.WriteString(fmt.Sprintf("%v", _m.ReadingTime))
 	builder.WriteString(", ")
 	builder.WriteString("ip_location=")
-	builder.WriteString(a.IPLocation)
+	builder.WriteString(_m.IPLocation)
 	builder.WriteString(", ")
 	builder.WriteString("primary_color=")
-	builder.WriteString(a.PrimaryColor)
+	builder.WriteString(_m.PrimaryColor)
 	builder.WriteString(", ")
 	builder.WriteString("is_primary_color_manual=")
-	builder.WriteString(fmt.Sprintf("%v", a.IsPrimaryColorManual))
+	builder.WriteString(fmt.Sprintf("%v", _m.IsPrimaryColorManual))
 	builder.WriteString(", ")
 	builder.WriteString("home_sort=")
-	builder.WriteString(fmt.Sprintf("%v", a.HomeSort))
+	builder.WriteString(fmt.Sprintf("%v", _m.HomeSort))
 	builder.WriteString(", ")
 	builder.WriteString("pin_sort=")
-	builder.WriteString(fmt.Sprintf("%v", a.PinSort))
+	builder.WriteString(fmt.Sprintf("%v", _m.PinSort))
 	builder.WriteString(", ")
 	builder.WriteString("top_img_url=")
-	builder.WriteString(a.TopImgURL)
+	builder.WriteString(_m.TopImgURL)
 	builder.WriteString(", ")
 	builder.WriteString("summaries=")
-	builder.WriteString(fmt.Sprintf("%v", a.Summaries))
+	builder.WriteString(fmt.Sprintf("%v", _m.Summaries))
 	builder.WriteString(", ")
-	if v := a.Abbrlink; v != nil {
+	if v := _m.Abbrlink; v != nil {
 		builder.WriteString("abbrlink=")
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	builder.WriteString("copyright=")
-	builder.WriteString(fmt.Sprintf("%v", a.Copyright))
+	builder.WriteString(fmt.Sprintf("%v", _m.Copyright))
 	builder.WriteString(", ")
 	builder.WriteString("copyright_author=")
-	builder.WriteString(a.CopyrightAuthor)
+	builder.WriteString(_m.CopyrightAuthor)
 	builder.WriteString(", ")
 	builder.WriteString("copyright_author_href=")
-	builder.WriteString(a.CopyrightAuthorHref)
+	builder.WriteString(_m.CopyrightAuthorHref)
 	builder.WriteString(", ")
 	builder.WriteString("copyright_url=")
-	builder.WriteString(a.CopyrightURL)
+	builder.WriteString(_m.CopyrightURL)
 	builder.WriteByte(')')
 	return builder.String()
 }

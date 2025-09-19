@@ -32,6 +32,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/urlstat"
 	"github.com/anzhiyu-c/anheyu-app/ent/user"
 	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
+	"github.com/anzhiyu-c/anheyu-app/ent/userinstalledtheme"
 	"github.com/anzhiyu-c/anheyu-app/ent/visitorlog"
 	"github.com/anzhiyu-c/anheyu-app/ent/visitorstat"
 )
@@ -91,34 +92,35 @@ var (
 )
 
 // checkColumn checks if the column exists in the given table.
-func checkColumn(table, column string) error {
+func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			album.Table:         album.ValidColumn,
-			article.Table:       article.ValidColumn,
-			comment.Table:       comment.ValidColumn,
-			directlink.Table:    directlink.ValidColumn,
-			entity.Table:        entity.ValidColumn,
-			file.Table:          file.ValidColumn,
-			fileentity.Table:    fileentity.ValidColumn,
-			link.Table:          link.ValidColumn,
-			linkcategory.Table:  linkcategory.ValidColumn,
-			linktag.Table:       linktag.ValidColumn,
-			metadata.Table:      metadata.ValidColumn,
-			page.Table:          page.ValidColumn,
-			postcategory.Table:  postcategory.ValidColumn,
-			posttag.Table:       posttag.ValidColumn,
-			setting.Table:       setting.ValidColumn,
-			storagepolicy.Table: storagepolicy.ValidColumn,
-			tag.Table:           tag.ValidColumn,
-			urlstat.Table:       urlstat.ValidColumn,
-			user.Table:          user.ValidColumn,
-			usergroup.Table:     usergroup.ValidColumn,
-			visitorlog.Table:    visitorlog.ValidColumn,
-			visitorstat.Table:   visitorstat.ValidColumn,
+			album.Table:              album.ValidColumn,
+			article.Table:            article.ValidColumn,
+			comment.Table:            comment.ValidColumn,
+			directlink.Table:         directlink.ValidColumn,
+			entity.Table:             entity.ValidColumn,
+			file.Table:               file.ValidColumn,
+			fileentity.Table:         fileentity.ValidColumn,
+			link.Table:               link.ValidColumn,
+			linkcategory.Table:       linkcategory.ValidColumn,
+			linktag.Table:            linktag.ValidColumn,
+			metadata.Table:           metadata.ValidColumn,
+			page.Table:               page.ValidColumn,
+			postcategory.Table:       postcategory.ValidColumn,
+			posttag.Table:            posttag.ValidColumn,
+			setting.Table:            setting.ValidColumn,
+			storagepolicy.Table:      storagepolicy.ValidColumn,
+			tag.Table:                tag.ValidColumn,
+			urlstat.Table:            urlstat.ValidColumn,
+			user.Table:               user.ValidColumn,
+			usergroup.Table:          usergroup.ValidColumn,
+			userinstalledtheme.Table: userinstalledtheme.ValidColumn,
+			visitorlog.Table:         visitorlog.ValidColumn,
+			visitorstat.Table:        visitorstat.ValidColumn,
 		})
 	})
-	return columnCheck(table, column)
+	return columnCheck(t, c)
 }
 
 // Asc applies the given fields in ASC order.

@@ -160,7 +160,7 @@ func (*File) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the File fields.
-func (f *File) assignValues(columns []string, values []any) error {
+func (_m *File) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -171,79 +171,79 @@ func (f *File) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			f.ID = uint(value.Int64)
+			_m.ID = uint(value.Int64)
 		case file.FieldDeletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
-				f.DeletedAt = new(time.Time)
-				*f.DeletedAt = value.Time
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
 			}
 		case file.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				f.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case file.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				f.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		case file.FieldType:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field type", values[i])
 			} else if value.Valid {
-				f.Type = int(value.Int64)
+				_m.Type = int(value.Int64)
 			}
 		case file.FieldOwnerID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field owner_id", values[i])
 			} else if value.Valid {
-				f.OwnerID = uint(value.Int64)
+				_m.OwnerID = uint(value.Int64)
 			}
 		case file.FieldParentID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field parent_id", values[i])
 			} else if value.Valid {
-				f.ParentID = new(uint)
-				*f.ParentID = uint(value.Int64)
+				_m.ParentID = new(uint)
+				*_m.ParentID = uint(value.Int64)
 			}
 		case file.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				f.Name = value.String
+				_m.Name = value.String
 			}
 		case file.FieldSize:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field size", values[i])
 			} else if value.Valid {
-				f.Size = value.Int64
+				_m.Size = value.Int64
 			}
 		case file.FieldPrimaryEntityID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field primary_entity_id", values[i])
 			} else if value.Valid {
-				f.PrimaryEntityID = new(uint)
-				*f.PrimaryEntityID = uint(value.Int64)
+				_m.PrimaryEntityID = new(uint)
+				*_m.PrimaryEntityID = uint(value.Int64)
 			}
 		case file.FieldChildrenCount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field children_count", values[i])
 			} else if value.Valid {
-				f.ChildrenCount = value.Int64
+				_m.ChildrenCount = value.Int64
 			}
 		case file.FieldViewConfig:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field view_config", values[i])
 			} else if value.Valid {
-				f.ViewConfig = new(string)
-				*f.ViewConfig = value.String
+				_m.ViewConfig = new(string)
+				*_m.ViewConfig = value.String
 			}
 		default:
-			f.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -251,105 +251,105 @@ func (f *File) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the File.
 // This includes values selected through modifiers, order, etc.
-func (f *File) Value(name string) (ent.Value, error) {
-	return f.selectValues.Get(name)
+func (_m *File) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryOwner queries the "owner" edge of the File entity.
-func (f *File) QueryOwner() *UserQuery {
-	return NewFileClient(f.config).QueryOwner(f)
+func (_m *File) QueryOwner() *UserQuery {
+	return NewFileClient(_m.config).QueryOwner(_m)
 }
 
 // QueryParent queries the "parent" edge of the File entity.
-func (f *File) QueryParent() *FileQuery {
-	return NewFileClient(f.config).QueryParent(f)
+func (_m *File) QueryParent() *FileQuery {
+	return NewFileClient(_m.config).QueryParent(_m)
 }
 
 // QueryChildren queries the "children" edge of the File entity.
-func (f *File) QueryChildren() *FileQuery {
-	return NewFileClient(f.config).QueryChildren(f)
+func (_m *File) QueryChildren() *FileQuery {
+	return NewFileClient(_m.config).QueryChildren(_m)
 }
 
 // QueryPrimaryEntity queries the "primary_entity" edge of the File entity.
-func (f *File) QueryPrimaryEntity() *EntityQuery {
-	return NewFileClient(f.config).QueryPrimaryEntity(f)
+func (_m *File) QueryPrimaryEntity() *EntityQuery {
+	return NewFileClient(_m.config).QueryPrimaryEntity(_m)
 }
 
 // QueryVersions queries the "versions" edge of the File entity.
-func (f *File) QueryVersions() *FileEntityQuery {
-	return NewFileClient(f.config).QueryVersions(f)
+func (_m *File) QueryVersions() *FileEntityQuery {
+	return NewFileClient(_m.config).QueryVersions(_m)
 }
 
 // QueryDirectLink queries the "direct_link" edge of the File entity.
-func (f *File) QueryDirectLink() *DirectLinkQuery {
-	return NewFileClient(f.config).QueryDirectLink(f)
+func (_m *File) QueryDirectLink() *DirectLinkQuery {
+	return NewFileClient(_m.config).QueryDirectLink(_m)
 }
 
 // QueryMetadata queries the "metadata" edge of the File entity.
-func (f *File) QueryMetadata() *MetadataQuery {
-	return NewFileClient(f.config).QueryMetadata(f)
+func (_m *File) QueryMetadata() *MetadataQuery {
+	return NewFileClient(_m.config).QueryMetadata(_m)
 }
 
 // Update returns a builder for updating this File.
 // Note that you need to call File.Unwrap() before calling this method if this File
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (f *File) Update() *FileUpdateOne {
-	return NewFileClient(f.config).UpdateOne(f)
+func (_m *File) Update() *FileUpdateOne {
+	return NewFileClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the File entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (f *File) Unwrap() *File {
-	_tx, ok := f.config.driver.(*txDriver)
+func (_m *File) Unwrap() *File {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: File is not a transactional entity")
 	}
-	f.config.driver = _tx.drv
-	return f
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (f *File) String() string {
+func (_m *File) String() string {
 	var builder strings.Builder
 	builder.WriteString("File(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", f.ID))
-	if v := f.DeletedAt; v != nil {
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	if v := _m.DeletedAt; v != nil {
 		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(f.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(f.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("type=")
-	builder.WriteString(fmt.Sprintf("%v", f.Type))
+	builder.WriteString(fmt.Sprintf("%v", _m.Type))
 	builder.WriteString(", ")
 	builder.WriteString("owner_id=")
-	builder.WriteString(fmt.Sprintf("%v", f.OwnerID))
+	builder.WriteString(fmt.Sprintf("%v", _m.OwnerID))
 	builder.WriteString(", ")
-	if v := f.ParentID; v != nil {
+	if v := _m.ParentID; v != nil {
 		builder.WriteString("parent_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("name=")
-	builder.WriteString(f.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("size=")
-	builder.WriteString(fmt.Sprintf("%v", f.Size))
+	builder.WriteString(fmt.Sprintf("%v", _m.Size))
 	builder.WriteString(", ")
-	if v := f.PrimaryEntityID; v != nil {
+	if v := _m.PrimaryEntityID; v != nil {
 		builder.WriteString("primary_entity_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("children_count=")
-	builder.WriteString(fmt.Sprintf("%v", f.ChildrenCount))
+	builder.WriteString(fmt.Sprintf("%v", _m.ChildrenCount))
 	builder.WriteString(", ")
-	if v := f.ViewConfig; v != nil {
+	if v := _m.ViewConfig; v != nil {
 		builder.WriteString("view_config=")
 		builder.WriteString(*v)
 	}

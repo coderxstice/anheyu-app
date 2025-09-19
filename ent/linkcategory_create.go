@@ -23,68 +23,68 @@ type LinkCategoryCreate struct {
 }
 
 // SetName sets the "name" field.
-func (lcc *LinkCategoryCreate) SetName(s string) *LinkCategoryCreate {
-	lcc.mutation.SetName(s)
-	return lcc
+func (_c *LinkCategoryCreate) SetName(v string) *LinkCategoryCreate {
+	_c.mutation.SetName(v)
+	return _c
 }
 
 // SetDescription sets the "description" field.
-func (lcc *LinkCategoryCreate) SetDescription(s string) *LinkCategoryCreate {
-	lcc.mutation.SetDescription(s)
-	return lcc
+func (_c *LinkCategoryCreate) SetDescription(v string) *LinkCategoryCreate {
+	_c.mutation.SetDescription(v)
+	return _c
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (lcc *LinkCategoryCreate) SetNillableDescription(s *string) *LinkCategoryCreate {
-	if s != nil {
-		lcc.SetDescription(*s)
+func (_c *LinkCategoryCreate) SetNillableDescription(v *string) *LinkCategoryCreate {
+	if v != nil {
+		_c.SetDescription(*v)
 	}
-	return lcc
+	return _c
 }
 
 // SetStyle sets the "style" field.
-func (lcc *LinkCategoryCreate) SetStyle(l linkcategory.Style) *LinkCategoryCreate {
-	lcc.mutation.SetStyle(l)
-	return lcc
+func (_c *LinkCategoryCreate) SetStyle(v linkcategory.Style) *LinkCategoryCreate {
+	_c.mutation.SetStyle(v)
+	return _c
 }
 
 // SetNillableStyle sets the "style" field if the given value is not nil.
-func (lcc *LinkCategoryCreate) SetNillableStyle(l *linkcategory.Style) *LinkCategoryCreate {
-	if l != nil {
-		lcc.SetStyle(*l)
+func (_c *LinkCategoryCreate) SetNillableStyle(v *linkcategory.Style) *LinkCategoryCreate {
+	if v != nil {
+		_c.SetStyle(*v)
 	}
-	return lcc
+	return _c
 }
 
 // AddLinkIDs adds the "links" edge to the Link entity by IDs.
-func (lcc *LinkCategoryCreate) AddLinkIDs(ids ...int) *LinkCategoryCreate {
-	lcc.mutation.AddLinkIDs(ids...)
-	return lcc
+func (_c *LinkCategoryCreate) AddLinkIDs(ids ...int) *LinkCategoryCreate {
+	_c.mutation.AddLinkIDs(ids...)
+	return _c
 }
 
 // AddLinks adds the "links" edges to the Link entity.
-func (lcc *LinkCategoryCreate) AddLinks(l ...*Link) *LinkCategoryCreate {
-	ids := make([]int, len(l))
-	for i := range l {
-		ids[i] = l[i].ID
+func (_c *LinkCategoryCreate) AddLinks(v ...*Link) *LinkCategoryCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return lcc.AddLinkIDs(ids...)
+	return _c.AddLinkIDs(ids...)
 }
 
 // Mutation returns the LinkCategoryMutation object of the builder.
-func (lcc *LinkCategoryCreate) Mutation() *LinkCategoryMutation {
-	return lcc.mutation
+func (_c *LinkCategoryCreate) Mutation() *LinkCategoryMutation {
+	return _c.mutation
 }
 
 // Save creates the LinkCategory in the database.
-func (lcc *LinkCategoryCreate) Save(ctx context.Context) (*LinkCategory, error) {
-	lcc.defaults()
-	return withHooks(ctx, lcc.sqlSave, lcc.mutation, lcc.hooks)
+func (_c *LinkCategoryCreate) Save(ctx context.Context) (*LinkCategory, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (lcc *LinkCategoryCreate) SaveX(ctx context.Context) *LinkCategory {
-	v, err := lcc.Save(ctx)
+func (_c *LinkCategoryCreate) SaveX(ctx context.Context) *LinkCategory {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -92,40 +92,40 @@ func (lcc *LinkCategoryCreate) SaveX(ctx context.Context) *LinkCategory {
 }
 
 // Exec executes the query.
-func (lcc *LinkCategoryCreate) Exec(ctx context.Context) error {
-	_, err := lcc.Save(ctx)
+func (_c *LinkCategoryCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (lcc *LinkCategoryCreate) ExecX(ctx context.Context) {
-	if err := lcc.Exec(ctx); err != nil {
+func (_c *LinkCategoryCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (lcc *LinkCategoryCreate) defaults() {
-	if _, ok := lcc.mutation.Style(); !ok {
+func (_c *LinkCategoryCreate) defaults() {
+	if _, ok := _c.mutation.Style(); !ok {
 		v := linkcategory.DefaultStyle
-		lcc.mutation.SetStyle(v)
+		_c.mutation.SetStyle(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (lcc *LinkCategoryCreate) check() error {
-	if _, ok := lcc.mutation.Name(); !ok {
+func (_c *LinkCategoryCreate) check() error {
+	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "LinkCategory.name"`)}
 	}
-	if v, ok := lcc.mutation.Name(); ok {
+	if v, ok := _c.mutation.Name(); ok {
 		if err := linkcategory.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "LinkCategory.name": %w`, err)}
 		}
 	}
-	if _, ok := lcc.mutation.Style(); !ok {
+	if _, ok := _c.mutation.Style(); !ok {
 		return &ValidationError{Name: "style", err: errors.New(`ent: missing required field "LinkCategory.style"`)}
 	}
-	if v, ok := lcc.mutation.Style(); ok {
+	if v, ok := _c.mutation.Style(); ok {
 		if err := linkcategory.StyleValidator(v); err != nil {
 			return &ValidationError{Name: "style", err: fmt.Errorf(`ent: validator failed for field "LinkCategory.style": %w`, err)}
 		}
@@ -133,12 +133,12 @@ func (lcc *LinkCategoryCreate) check() error {
 	return nil
 }
 
-func (lcc *LinkCategoryCreate) sqlSave(ctx context.Context) (*LinkCategory, error) {
-	if err := lcc.check(); err != nil {
+func (_c *LinkCategoryCreate) sqlSave(ctx context.Context) (*LinkCategory, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := lcc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, lcc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -146,30 +146,30 @@ func (lcc *LinkCategoryCreate) sqlSave(ctx context.Context) (*LinkCategory, erro
 	}
 	id := _spec.ID.Value.(int64)
 	_node.ID = int(id)
-	lcc.mutation.id = &_node.ID
-	lcc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (lcc *LinkCategoryCreate) createSpec() (*LinkCategory, *sqlgraph.CreateSpec) {
+func (_c *LinkCategoryCreate) createSpec() (*LinkCategory, *sqlgraph.CreateSpec) {
 	var (
-		_node = &LinkCategory{config: lcc.config}
+		_node = &LinkCategory{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(linkcategory.Table, sqlgraph.NewFieldSpec(linkcategory.FieldID, field.TypeInt))
 	)
-	_spec.OnConflict = lcc.conflict
-	if value, ok := lcc.mutation.Name(); ok {
+	_spec.OnConflict = _c.conflict
+	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(linkcategory.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := lcc.mutation.Description(); ok {
+	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(linkcategory.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
-	if value, ok := lcc.mutation.Style(); ok {
+	if value, ok := _c.mutation.Style(); ok {
 		_spec.SetField(linkcategory.FieldStyle, field.TypeEnum, value)
 		_node.Style = value
 	}
-	if nodes := lcc.mutation.LinksIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.LinksIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -204,10 +204,10 @@ func (lcc *LinkCategoryCreate) createSpec() (*LinkCategory, *sqlgraph.CreateSpec
 //			SetName(v+v).
 //		}).
 //		Exec(ctx)
-func (lcc *LinkCategoryCreate) OnConflict(opts ...sql.ConflictOption) *LinkCategoryUpsertOne {
-	lcc.conflict = opts
+func (_c *LinkCategoryCreate) OnConflict(opts ...sql.ConflictOption) *LinkCategoryUpsertOne {
+	_c.conflict = opts
 	return &LinkCategoryUpsertOne{
-		create: lcc,
+		create: _c,
 	}
 }
 
@@ -217,10 +217,10 @@ func (lcc *LinkCategoryCreate) OnConflict(opts ...sql.ConflictOption) *LinkCateg
 //	client.LinkCategory.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (lcc *LinkCategoryCreate) OnConflictColumns(columns ...string) *LinkCategoryUpsertOne {
-	lcc.conflict = append(lcc.conflict, sql.ConflictColumns(columns...))
+func (_c *LinkCategoryCreate) OnConflictColumns(columns ...string) *LinkCategoryUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &LinkCategoryUpsertOne{
-		create: lcc,
+		create: _c,
 	}
 }
 
@@ -410,16 +410,16 @@ type LinkCategoryCreateBulk struct {
 }
 
 // Save creates the LinkCategory entities in the database.
-func (lccb *LinkCategoryCreateBulk) Save(ctx context.Context) ([]*LinkCategory, error) {
-	if lccb.err != nil {
-		return nil, lccb.err
+func (_c *LinkCategoryCreateBulk) Save(ctx context.Context) ([]*LinkCategory, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(lccb.builders))
-	nodes := make([]*LinkCategory, len(lccb.builders))
-	mutators := make([]Mutator, len(lccb.builders))
-	for i := range lccb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*LinkCategory, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := lccb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*LinkCategoryMutation)
@@ -433,12 +433,12 @@ func (lccb *LinkCategoryCreateBulk) Save(ctx context.Context) ([]*LinkCategory, 
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, lccb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = lccb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, lccb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -462,7 +462,7 @@ func (lccb *LinkCategoryCreateBulk) Save(ctx context.Context) ([]*LinkCategory, 
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, lccb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -470,8 +470,8 @@ func (lccb *LinkCategoryCreateBulk) Save(ctx context.Context) ([]*LinkCategory, 
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (lccb *LinkCategoryCreateBulk) SaveX(ctx context.Context) []*LinkCategory {
-	v, err := lccb.Save(ctx)
+func (_c *LinkCategoryCreateBulk) SaveX(ctx context.Context) []*LinkCategory {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -479,14 +479,14 @@ func (lccb *LinkCategoryCreateBulk) SaveX(ctx context.Context) []*LinkCategory {
 }
 
 // Exec executes the query.
-func (lccb *LinkCategoryCreateBulk) Exec(ctx context.Context) error {
-	_, err := lccb.Save(ctx)
+func (_c *LinkCategoryCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (lccb *LinkCategoryCreateBulk) ExecX(ctx context.Context) {
-	if err := lccb.Exec(ctx); err != nil {
+func (_c *LinkCategoryCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -506,10 +506,10 @@ func (lccb *LinkCategoryCreateBulk) ExecX(ctx context.Context) {
 //			SetName(v+v).
 //		}).
 //		Exec(ctx)
-func (lccb *LinkCategoryCreateBulk) OnConflict(opts ...sql.ConflictOption) *LinkCategoryUpsertBulk {
-	lccb.conflict = opts
+func (_c *LinkCategoryCreateBulk) OnConflict(opts ...sql.ConflictOption) *LinkCategoryUpsertBulk {
+	_c.conflict = opts
 	return &LinkCategoryUpsertBulk{
-		create: lccb,
+		create: _c,
 	}
 }
 
@@ -519,10 +519,10 @@ func (lccb *LinkCategoryCreateBulk) OnConflict(opts ...sql.ConflictOption) *Link
 //	client.LinkCategory.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (lccb *LinkCategoryCreateBulk) OnConflictColumns(columns ...string) *LinkCategoryUpsertBulk {
-	lccb.conflict = append(lccb.conflict, sql.ConflictColumns(columns...))
+func (_c *LinkCategoryCreateBulk) OnConflictColumns(columns ...string) *LinkCategoryUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &LinkCategoryUpsertBulk{
-		create: lccb,
+		create: _c,
 	}
 }
 

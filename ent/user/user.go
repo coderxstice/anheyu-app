@@ -41,6 +41,8 @@ const (
 	EdgeFiles = "files"
 	// EdgeComments holds the string denoting the comments edge name in mutations.
 	EdgeComments = "comments"
+	// EdgeInstalledThemes holds the string denoting the installed_themes edge name in mutations.
+	EdgeInstalledThemes = "installed_themes"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// UserGroupTable is the table that holds the user_group relation/edge.
@@ -64,6 +66,13 @@ const (
 	CommentsInverseTable = "comments"
 	// CommentsColumn is the table column denoting the comments relation/edge.
 	CommentsColumn = "user_id"
+	// InstalledThemesTable is the table that holds the installed_themes relation/edge.
+	InstalledThemesTable = "user_installed_themes"
+	// InstalledThemesInverseTable is the table name for the UserInstalledTheme entity.
+	// It exists in this package in order to avoid circular dependency with the "userinstalledtheme" package.
+	InstalledThemesInverseTable = "user_installed_themes"
+	// InstalledThemesColumn is the table column denoting the installed_themes relation/edge.
+	InstalledThemesColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -221,6 +230,20 @@ func ByComments(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newCommentsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByInstalledThemesCount orders the results by installed_themes count.
+func ByInstalledThemesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newInstalledThemesStep(), opts...)
+	}
+}
+
+// ByInstalledThemes orders the results by installed_themes terms.
+func ByInstalledThemes(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newInstalledThemesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newUserGroupStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -240,5 +263,12 @@ func newCommentsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(CommentsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, CommentsTable, CommentsColumn),
+	)
+}
+func newInstalledThemesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(InstalledThemesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, InstalledThemesTable, InstalledThemesColumn),
 	)
 }

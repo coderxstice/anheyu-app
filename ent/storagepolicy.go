@@ -77,7 +77,7 @@ func (*StoragePolicy) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the StoragePolicy fields.
-func (sp *StoragePolicy) assignValues(columns []string, values []any) error {
+func (_m *StoragePolicy) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -88,107 +88,107 @@ func (sp *StoragePolicy) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			sp.ID = uint(value.Int64)
+			_m.ID = uint(value.Int64)
 		case storagepolicy.FieldDeletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
-				sp.DeletedAt = new(time.Time)
-				*sp.DeletedAt = value.Time
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
 			}
 		case storagepolicy.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				sp.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case storagepolicy.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				sp.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		case storagepolicy.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				sp.Name = value.String
+				_m.Name = value.String
 			}
 		case storagepolicy.FieldType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field type", values[i])
 			} else if value.Valid {
-				sp.Type = value.String
+				_m.Type = value.String
 			}
 		case storagepolicy.FieldFlag:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field flag", values[i])
 			} else if value.Valid {
-				sp.Flag = value.String
+				_m.Flag = value.String
 			}
 		case storagepolicy.FieldServer:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field server", values[i])
 			} else if value.Valid {
-				sp.Server = value.String
+				_m.Server = value.String
 			}
 		case storagepolicy.FieldBucketName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field bucket_name", values[i])
 			} else if value.Valid {
-				sp.BucketName = value.String
+				_m.BucketName = value.String
 			}
 		case storagepolicy.FieldIsPrivate:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field is_private", values[i])
 			} else if value.Valid {
-				sp.IsPrivate = value.Bool
+				_m.IsPrivate = value.Bool
 			}
 		case storagepolicy.FieldAccessKey:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field access_key", values[i])
 			} else if value.Valid {
-				sp.AccessKey = value.String
+				_m.AccessKey = value.String
 			}
 		case storagepolicy.FieldSecretKey:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field secret_key", values[i])
 			} else if value.Valid {
-				sp.SecretKey = value.String
+				_m.SecretKey = value.String
 			}
 		case storagepolicy.FieldMaxSize:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field max_size", values[i])
 			} else if value.Valid {
-				sp.MaxSize = value.Int64
+				_m.MaxSize = value.Int64
 			}
 		case storagepolicy.FieldBasePath:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field base_path", values[i])
 			} else if value.Valid {
-				sp.BasePath = value.String
+				_m.BasePath = value.String
 			}
 		case storagepolicy.FieldVirtualPath:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field virtual_path", values[i])
 			} else if value.Valid {
-				sp.VirtualPath = value.String
+				_m.VirtualPath = value.String
 			}
 		case storagepolicy.FieldSettings:
 			if value, ok := values[i].(*model.StoragePolicySettings); !ok {
 				return fmt.Errorf("unexpected type %T for field settings", values[i])
 			} else if value != nil {
-				sp.Settings = *value
+				_m.Settings = *value
 			}
 		case storagepolicy.FieldNodeID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field node_id", values[i])
 			} else if value.Valid {
-				sp.NodeID = new(uint)
-				*sp.NodeID = uint(value.Int64)
+				_m.NodeID = new(uint)
+				*_m.NodeID = uint(value.Int64)
 			}
 		default:
-			sp.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -196,81 +196,81 @@ func (sp *StoragePolicy) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the StoragePolicy.
 // This includes values selected through modifiers, order, etc.
-func (sp *StoragePolicy) Value(name string) (ent.Value, error) {
-	return sp.selectValues.Get(name)
+func (_m *StoragePolicy) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // Update returns a builder for updating this StoragePolicy.
 // Note that you need to call StoragePolicy.Unwrap() before calling this method if this StoragePolicy
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (sp *StoragePolicy) Update() *StoragePolicyUpdateOne {
-	return NewStoragePolicyClient(sp.config).UpdateOne(sp)
+func (_m *StoragePolicy) Update() *StoragePolicyUpdateOne {
+	return NewStoragePolicyClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the StoragePolicy entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (sp *StoragePolicy) Unwrap() *StoragePolicy {
-	_tx, ok := sp.config.driver.(*txDriver)
+func (_m *StoragePolicy) Unwrap() *StoragePolicy {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: StoragePolicy is not a transactional entity")
 	}
-	sp.config.driver = _tx.drv
-	return sp
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (sp *StoragePolicy) String() string {
+func (_m *StoragePolicy) String() string {
 	var builder strings.Builder
 	builder.WriteString("StoragePolicy(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", sp.ID))
-	if v := sp.DeletedAt; v != nil {
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	if v := _m.DeletedAt; v != nil {
 		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(sp.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(sp.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("name=")
-	builder.WriteString(sp.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("type=")
-	builder.WriteString(sp.Type)
+	builder.WriteString(_m.Type)
 	builder.WriteString(", ")
 	builder.WriteString("flag=")
-	builder.WriteString(sp.Flag)
+	builder.WriteString(_m.Flag)
 	builder.WriteString(", ")
 	builder.WriteString("server=")
-	builder.WriteString(sp.Server)
+	builder.WriteString(_m.Server)
 	builder.WriteString(", ")
 	builder.WriteString("bucket_name=")
-	builder.WriteString(sp.BucketName)
+	builder.WriteString(_m.BucketName)
 	builder.WriteString(", ")
 	builder.WriteString("is_private=")
-	builder.WriteString(fmt.Sprintf("%v", sp.IsPrivate))
+	builder.WriteString(fmt.Sprintf("%v", _m.IsPrivate))
 	builder.WriteString(", ")
 	builder.WriteString("access_key=")
-	builder.WriteString(sp.AccessKey)
+	builder.WriteString(_m.AccessKey)
 	builder.WriteString(", ")
 	builder.WriteString("secret_key=")
-	builder.WriteString(sp.SecretKey)
+	builder.WriteString(_m.SecretKey)
 	builder.WriteString(", ")
 	builder.WriteString("max_size=")
-	builder.WriteString(fmt.Sprintf("%v", sp.MaxSize))
+	builder.WriteString(fmt.Sprintf("%v", _m.MaxSize))
 	builder.WriteString(", ")
 	builder.WriteString("base_path=")
-	builder.WriteString(sp.BasePath)
+	builder.WriteString(_m.BasePath)
 	builder.WriteString(", ")
 	builder.WriteString("virtual_path=")
-	builder.WriteString(sp.VirtualPath)
+	builder.WriteString(_m.VirtualPath)
 	builder.WriteString(", ")
 	builder.WriteString("settings=")
-	builder.WriteString(fmt.Sprintf("%v", sp.Settings))
+	builder.WriteString(fmt.Sprintf("%v", _m.Settings))
 	builder.WriteString(", ")
-	if v := sp.NodeID; v != nil {
+	if v := _m.NodeID; v != nil {
 		builder.WriteString("node_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}

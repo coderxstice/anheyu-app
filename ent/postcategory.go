@@ -77,7 +77,7 @@ func (*PostCategory) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the PostCategory fields.
-func (pc *PostCategory) assignValues(columns []string, values []any) error {
+func (_m *PostCategory) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -88,52 +88,52 @@ func (pc *PostCategory) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			pc.ID = uint(value.Int64)
+			_m.ID = uint(value.Int64)
 		case postcategory.FieldDeletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
-				pc.DeletedAt = new(time.Time)
-				*pc.DeletedAt = value.Time
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
 			}
 		case postcategory.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				pc.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case postcategory.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				pc.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		case postcategory.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				pc.Name = value.String
+				_m.Name = value.String
 			}
 		case postcategory.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				pc.Description = value.String
+				_m.Description = value.String
 			}
 		case postcategory.FieldCount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field count", values[i])
 			} else if value.Valid {
-				pc.Count = int(value.Int64)
+				_m.Count = int(value.Int64)
 			}
 		case postcategory.FieldIsSeries:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field is_series", values[i])
 			} else if value.Valid {
-				pc.IsSeries = value.Bool
+				_m.IsSeries = value.Bool
 			}
 		default:
-			pc.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -141,60 +141,60 @@ func (pc *PostCategory) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the PostCategory.
 // This includes values selected through modifiers, order, etc.
-func (pc *PostCategory) Value(name string) (ent.Value, error) {
-	return pc.selectValues.Get(name)
+func (_m *PostCategory) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryArticles queries the "articles" edge of the PostCategory entity.
-func (pc *PostCategory) QueryArticles() *ArticleQuery {
-	return NewPostCategoryClient(pc.config).QueryArticles(pc)
+func (_m *PostCategory) QueryArticles() *ArticleQuery {
+	return NewPostCategoryClient(_m.config).QueryArticles(_m)
 }
 
 // Update returns a builder for updating this PostCategory.
 // Note that you need to call PostCategory.Unwrap() before calling this method if this PostCategory
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (pc *PostCategory) Update() *PostCategoryUpdateOne {
-	return NewPostCategoryClient(pc.config).UpdateOne(pc)
+func (_m *PostCategory) Update() *PostCategoryUpdateOne {
+	return NewPostCategoryClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the PostCategory entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (pc *PostCategory) Unwrap() *PostCategory {
-	_tx, ok := pc.config.driver.(*txDriver)
+func (_m *PostCategory) Unwrap() *PostCategory {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: PostCategory is not a transactional entity")
 	}
-	pc.config.driver = _tx.drv
-	return pc
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (pc *PostCategory) String() string {
+func (_m *PostCategory) String() string {
 	var builder strings.Builder
 	builder.WriteString("PostCategory(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", pc.ID))
-	if v := pc.DeletedAt; v != nil {
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	if v := _m.DeletedAt; v != nil {
 		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(pc.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(pc.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("name=")
-	builder.WriteString(pc.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("description=")
-	builder.WriteString(pc.Description)
+	builder.WriteString(_m.Description)
 	builder.WriteString(", ")
 	builder.WriteString("count=")
-	builder.WriteString(fmt.Sprintf("%v", pc.Count))
+	builder.WriteString(fmt.Sprintf("%v", _m.Count))
 	builder.WriteString(", ")
 	builder.WriteString("is_series=")
-	builder.WriteString(fmt.Sprintf("%v", pc.IsSeries))
+	builder.WriteString(fmt.Sprintf("%v", _m.IsSeries))
 	builder.WriteByte(')')
 	return builder.String()
 }

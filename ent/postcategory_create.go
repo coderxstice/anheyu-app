@@ -24,132 +24,132 @@ type PostCategoryCreate struct {
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (pcc *PostCategoryCreate) SetDeletedAt(t time.Time) *PostCategoryCreate {
-	pcc.mutation.SetDeletedAt(t)
-	return pcc
+func (_c *PostCategoryCreate) SetDeletedAt(v time.Time) *PostCategoryCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (pcc *PostCategoryCreate) SetNillableDeletedAt(t *time.Time) *PostCategoryCreate {
-	if t != nil {
-		pcc.SetDeletedAt(*t)
+func (_c *PostCategoryCreate) SetNillableDeletedAt(v *time.Time) *PostCategoryCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
 	}
-	return pcc
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (pcc *PostCategoryCreate) SetCreatedAt(t time.Time) *PostCategoryCreate {
-	pcc.mutation.SetCreatedAt(t)
-	return pcc
+func (_c *PostCategoryCreate) SetCreatedAt(v time.Time) *PostCategoryCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (pcc *PostCategoryCreate) SetNillableCreatedAt(t *time.Time) *PostCategoryCreate {
-	if t != nil {
-		pcc.SetCreatedAt(*t)
+func (_c *PostCategoryCreate) SetNillableCreatedAt(v *time.Time) *PostCategoryCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return pcc
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (pcc *PostCategoryCreate) SetUpdatedAt(t time.Time) *PostCategoryCreate {
-	pcc.mutation.SetUpdatedAt(t)
-	return pcc
+func (_c *PostCategoryCreate) SetUpdatedAt(v time.Time) *PostCategoryCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (pcc *PostCategoryCreate) SetNillableUpdatedAt(t *time.Time) *PostCategoryCreate {
-	if t != nil {
-		pcc.SetUpdatedAt(*t)
+func (_c *PostCategoryCreate) SetNillableUpdatedAt(v *time.Time) *PostCategoryCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return pcc
+	return _c
 }
 
 // SetName sets the "name" field.
-func (pcc *PostCategoryCreate) SetName(s string) *PostCategoryCreate {
-	pcc.mutation.SetName(s)
-	return pcc
+func (_c *PostCategoryCreate) SetName(v string) *PostCategoryCreate {
+	_c.mutation.SetName(v)
+	return _c
 }
 
 // SetDescription sets the "description" field.
-func (pcc *PostCategoryCreate) SetDescription(s string) *PostCategoryCreate {
-	pcc.mutation.SetDescription(s)
-	return pcc
+func (_c *PostCategoryCreate) SetDescription(v string) *PostCategoryCreate {
+	_c.mutation.SetDescription(v)
+	return _c
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (pcc *PostCategoryCreate) SetNillableDescription(s *string) *PostCategoryCreate {
-	if s != nil {
-		pcc.SetDescription(*s)
+func (_c *PostCategoryCreate) SetNillableDescription(v *string) *PostCategoryCreate {
+	if v != nil {
+		_c.SetDescription(*v)
 	}
-	return pcc
+	return _c
 }
 
 // SetCount sets the "count" field.
-func (pcc *PostCategoryCreate) SetCount(i int) *PostCategoryCreate {
-	pcc.mutation.SetCount(i)
-	return pcc
+func (_c *PostCategoryCreate) SetCount(v int) *PostCategoryCreate {
+	_c.mutation.SetCount(v)
+	return _c
 }
 
 // SetNillableCount sets the "count" field if the given value is not nil.
-func (pcc *PostCategoryCreate) SetNillableCount(i *int) *PostCategoryCreate {
-	if i != nil {
-		pcc.SetCount(*i)
+func (_c *PostCategoryCreate) SetNillableCount(v *int) *PostCategoryCreate {
+	if v != nil {
+		_c.SetCount(*v)
 	}
-	return pcc
+	return _c
 }
 
 // SetIsSeries sets the "is_series" field.
-func (pcc *PostCategoryCreate) SetIsSeries(b bool) *PostCategoryCreate {
-	pcc.mutation.SetIsSeries(b)
-	return pcc
+func (_c *PostCategoryCreate) SetIsSeries(v bool) *PostCategoryCreate {
+	_c.mutation.SetIsSeries(v)
+	return _c
 }
 
 // SetNillableIsSeries sets the "is_series" field if the given value is not nil.
-func (pcc *PostCategoryCreate) SetNillableIsSeries(b *bool) *PostCategoryCreate {
-	if b != nil {
-		pcc.SetIsSeries(*b)
+func (_c *PostCategoryCreate) SetNillableIsSeries(v *bool) *PostCategoryCreate {
+	if v != nil {
+		_c.SetIsSeries(*v)
 	}
-	return pcc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (pcc *PostCategoryCreate) SetID(u uint) *PostCategoryCreate {
-	pcc.mutation.SetID(u)
-	return pcc
+func (_c *PostCategoryCreate) SetID(v uint) *PostCategoryCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // AddArticleIDs adds the "articles" edge to the Article entity by IDs.
-func (pcc *PostCategoryCreate) AddArticleIDs(ids ...uint) *PostCategoryCreate {
-	pcc.mutation.AddArticleIDs(ids...)
-	return pcc
+func (_c *PostCategoryCreate) AddArticleIDs(ids ...uint) *PostCategoryCreate {
+	_c.mutation.AddArticleIDs(ids...)
+	return _c
 }
 
 // AddArticles adds the "articles" edges to the Article entity.
-func (pcc *PostCategoryCreate) AddArticles(a ...*Article) *PostCategoryCreate {
-	ids := make([]uint, len(a))
-	for i := range a {
-		ids[i] = a[i].ID
+func (_c *PostCategoryCreate) AddArticles(v ...*Article) *PostCategoryCreate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return pcc.AddArticleIDs(ids...)
+	return _c.AddArticleIDs(ids...)
 }
 
 // Mutation returns the PostCategoryMutation object of the builder.
-func (pcc *PostCategoryCreate) Mutation() *PostCategoryMutation {
-	return pcc.mutation
+func (_c *PostCategoryCreate) Mutation() *PostCategoryMutation {
+	return _c.mutation
 }
 
 // Save creates the PostCategory in the database.
-func (pcc *PostCategoryCreate) Save(ctx context.Context) (*PostCategory, error) {
-	if err := pcc.defaults(); err != nil {
+func (_c *PostCategoryCreate) Save(ctx context.Context) (*PostCategory, error) {
+	if err := _c.defaults(); err != nil {
 		return nil, err
 	}
-	return withHooks(ctx, pcc.sqlSave, pcc.mutation, pcc.hooks)
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (pcc *PostCategoryCreate) SaveX(ctx context.Context) *PostCategory {
-	v, err := pcc.Save(ctx)
+func (_c *PostCategoryCreate) SaveX(ctx context.Context) *PostCategory {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -157,81 +157,81 @@ func (pcc *PostCategoryCreate) SaveX(ctx context.Context) *PostCategory {
 }
 
 // Exec executes the query.
-func (pcc *PostCategoryCreate) Exec(ctx context.Context) error {
-	_, err := pcc.Save(ctx)
+func (_c *PostCategoryCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (pcc *PostCategoryCreate) ExecX(ctx context.Context) {
-	if err := pcc.Exec(ctx); err != nil {
+func (_c *PostCategoryCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (pcc *PostCategoryCreate) defaults() error {
-	if _, ok := pcc.mutation.CreatedAt(); !ok {
+func (_c *PostCategoryCreate) defaults() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		if postcategory.DefaultCreatedAt == nil {
 			return fmt.Errorf("ent: uninitialized postcategory.DefaultCreatedAt (forgotten import ent/runtime?)")
 		}
 		v := postcategory.DefaultCreatedAt()
-		pcc.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := pcc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		if postcategory.DefaultUpdatedAt == nil {
 			return fmt.Errorf("ent: uninitialized postcategory.DefaultUpdatedAt (forgotten import ent/runtime?)")
 		}
 		v := postcategory.DefaultUpdatedAt()
-		pcc.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := pcc.mutation.Count(); !ok {
+	if _, ok := _c.mutation.Count(); !ok {
 		v := postcategory.DefaultCount
-		pcc.mutation.SetCount(v)
+		_c.mutation.SetCount(v)
 	}
-	if _, ok := pcc.mutation.IsSeries(); !ok {
+	if _, ok := _c.mutation.IsSeries(); !ok {
 		v := postcategory.DefaultIsSeries
-		pcc.mutation.SetIsSeries(v)
+		_c.mutation.SetIsSeries(v)
 	}
 	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (pcc *PostCategoryCreate) check() error {
-	if _, ok := pcc.mutation.CreatedAt(); !ok {
+func (_c *PostCategoryCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "PostCategory.created_at"`)}
 	}
-	if _, ok := pcc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "PostCategory.updated_at"`)}
 	}
-	if _, ok := pcc.mutation.Name(); !ok {
+	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "PostCategory.name"`)}
 	}
-	if v, ok := pcc.mutation.Name(); ok {
+	if v, ok := _c.mutation.Name(); ok {
 		if err := postcategory.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "PostCategory.name": %w`, err)}
 		}
 	}
-	if _, ok := pcc.mutation.Count(); !ok {
+	if _, ok := _c.mutation.Count(); !ok {
 		return &ValidationError{Name: "count", err: errors.New(`ent: missing required field "PostCategory.count"`)}
 	}
-	if v, ok := pcc.mutation.Count(); ok {
+	if v, ok := _c.mutation.Count(); ok {
 		if err := postcategory.CountValidator(v); err != nil {
 			return &ValidationError{Name: "count", err: fmt.Errorf(`ent: validator failed for field "PostCategory.count": %w`, err)}
 		}
 	}
-	if _, ok := pcc.mutation.IsSeries(); !ok {
+	if _, ok := _c.mutation.IsSeries(); !ok {
 		return &ValidationError{Name: "is_series", err: errors.New(`ent: missing required field "PostCategory.is_series"`)}
 	}
 	return nil
 }
 
-func (pcc *PostCategoryCreate) sqlSave(ctx context.Context) (*PostCategory, error) {
-	if err := pcc.check(); err != nil {
+func (_c *PostCategoryCreate) sqlSave(ctx context.Context) (*PostCategory, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := pcc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, pcc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -241,50 +241,50 @@ func (pcc *PostCategoryCreate) sqlSave(ctx context.Context) (*PostCategory, erro
 		id := _spec.ID.Value.(int64)
 		_node.ID = uint(id)
 	}
-	pcc.mutation.id = &_node.ID
-	pcc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (pcc *PostCategoryCreate) createSpec() (*PostCategory, *sqlgraph.CreateSpec) {
+func (_c *PostCategoryCreate) createSpec() (*PostCategory, *sqlgraph.CreateSpec) {
 	var (
-		_node = &PostCategory{config: pcc.config}
+		_node = &PostCategory{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(postcategory.Table, sqlgraph.NewFieldSpec(postcategory.FieldID, field.TypeUint))
 	)
-	_spec.OnConflict = pcc.conflict
-	if id, ok := pcc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := pcc.mutation.DeletedAt(); ok {
+	if value, ok := _c.mutation.DeletedAt(); ok {
 		_spec.SetField(postcategory.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
 	}
-	if value, ok := pcc.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(postcategory.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := pcc.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(postcategory.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if value, ok := pcc.mutation.Name(); ok {
+	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(postcategory.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := pcc.mutation.Description(); ok {
+	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(postcategory.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
-	if value, ok := pcc.mutation.Count(); ok {
+	if value, ok := _c.mutation.Count(); ok {
 		_spec.SetField(postcategory.FieldCount, field.TypeInt, value)
 		_node.Count = value
 	}
-	if value, ok := pcc.mutation.IsSeries(); ok {
+	if value, ok := _c.mutation.IsSeries(); ok {
 		_spec.SetField(postcategory.FieldIsSeries, field.TypeBool, value)
 		_node.IsSeries = value
 	}
-	if nodes := pcc.mutation.ArticlesIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.ArticlesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -319,10 +319,10 @@ func (pcc *PostCategoryCreate) createSpec() (*PostCategory, *sqlgraph.CreateSpec
 //			SetDeletedAt(v+v).
 //		}).
 //		Exec(ctx)
-func (pcc *PostCategoryCreate) OnConflict(opts ...sql.ConflictOption) *PostCategoryUpsertOne {
-	pcc.conflict = opts
+func (_c *PostCategoryCreate) OnConflict(opts ...sql.ConflictOption) *PostCategoryUpsertOne {
+	_c.conflict = opts
 	return &PostCategoryUpsertOne{
-		create: pcc,
+		create: _c,
 	}
 }
 
@@ -332,10 +332,10 @@ func (pcc *PostCategoryCreate) OnConflict(opts ...sql.ConflictOption) *PostCateg
 //	client.PostCategory.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (pcc *PostCategoryCreate) OnConflictColumns(columns ...string) *PostCategoryUpsertOne {
-	pcc.conflict = append(pcc.conflict, sql.ConflictColumns(columns...))
+func (_c *PostCategoryCreate) OnConflictColumns(columns ...string) *PostCategoryUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &PostCategoryUpsertOne{
-		create: pcc,
+		create: _c,
 	}
 }
 
@@ -640,16 +640,16 @@ type PostCategoryCreateBulk struct {
 }
 
 // Save creates the PostCategory entities in the database.
-func (pccb *PostCategoryCreateBulk) Save(ctx context.Context) ([]*PostCategory, error) {
-	if pccb.err != nil {
-		return nil, pccb.err
+func (_c *PostCategoryCreateBulk) Save(ctx context.Context) ([]*PostCategory, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(pccb.builders))
-	nodes := make([]*PostCategory, len(pccb.builders))
-	mutators := make([]Mutator, len(pccb.builders))
-	for i := range pccb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*PostCategory, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := pccb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*PostCategoryMutation)
@@ -663,12 +663,12 @@ func (pccb *PostCategoryCreateBulk) Save(ctx context.Context) ([]*PostCategory, 
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, pccb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = pccb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, pccb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -692,7 +692,7 @@ func (pccb *PostCategoryCreateBulk) Save(ctx context.Context) ([]*PostCategory, 
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, pccb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -700,8 +700,8 @@ func (pccb *PostCategoryCreateBulk) Save(ctx context.Context) ([]*PostCategory, 
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (pccb *PostCategoryCreateBulk) SaveX(ctx context.Context) []*PostCategory {
-	v, err := pccb.Save(ctx)
+func (_c *PostCategoryCreateBulk) SaveX(ctx context.Context) []*PostCategory {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -709,14 +709,14 @@ func (pccb *PostCategoryCreateBulk) SaveX(ctx context.Context) []*PostCategory {
 }
 
 // Exec executes the query.
-func (pccb *PostCategoryCreateBulk) Exec(ctx context.Context) error {
-	_, err := pccb.Save(ctx)
+func (_c *PostCategoryCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (pccb *PostCategoryCreateBulk) ExecX(ctx context.Context) {
-	if err := pccb.Exec(ctx); err != nil {
+func (_c *PostCategoryCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -736,10 +736,10 @@ func (pccb *PostCategoryCreateBulk) ExecX(ctx context.Context) {
 //			SetDeletedAt(v+v).
 //		}).
 //		Exec(ctx)
-func (pccb *PostCategoryCreateBulk) OnConflict(opts ...sql.ConflictOption) *PostCategoryUpsertBulk {
-	pccb.conflict = opts
+func (_c *PostCategoryCreateBulk) OnConflict(opts ...sql.ConflictOption) *PostCategoryUpsertBulk {
+	_c.conflict = opts
 	return &PostCategoryUpsertBulk{
-		create: pccb,
+		create: _c,
 	}
 }
 
@@ -749,10 +749,10 @@ func (pccb *PostCategoryCreateBulk) OnConflict(opts ...sql.ConflictOption) *Post
 //	client.PostCategory.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (pccb *PostCategoryCreateBulk) OnConflictColumns(columns ...string) *PostCategoryUpsertBulk {
-	pccb.conflict = append(pccb.conflict, sql.ConflictColumns(columns...))
+func (_c *PostCategoryCreateBulk) OnConflictColumns(columns ...string) *PostCategoryUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &PostCategoryUpsertBulk{
-		create: pccb,
+		create: _c,
 	}
 }
 

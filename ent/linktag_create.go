@@ -23,54 +23,54 @@ type LinkTagCreate struct {
 }
 
 // SetName sets the "name" field.
-func (ltc *LinkTagCreate) SetName(s string) *LinkTagCreate {
-	ltc.mutation.SetName(s)
-	return ltc
+func (_c *LinkTagCreate) SetName(v string) *LinkTagCreate {
+	_c.mutation.SetName(v)
+	return _c
 }
 
 // SetColor sets the "color" field.
-func (ltc *LinkTagCreate) SetColor(s string) *LinkTagCreate {
-	ltc.mutation.SetColor(s)
-	return ltc
+func (_c *LinkTagCreate) SetColor(v string) *LinkTagCreate {
+	_c.mutation.SetColor(v)
+	return _c
 }
 
 // SetNillableColor sets the "color" field if the given value is not nil.
-func (ltc *LinkTagCreate) SetNillableColor(s *string) *LinkTagCreate {
-	if s != nil {
-		ltc.SetColor(*s)
+func (_c *LinkTagCreate) SetNillableColor(v *string) *LinkTagCreate {
+	if v != nil {
+		_c.SetColor(*v)
 	}
-	return ltc
+	return _c
 }
 
 // AddLinkIDs adds the "links" edge to the Link entity by IDs.
-func (ltc *LinkTagCreate) AddLinkIDs(ids ...int) *LinkTagCreate {
-	ltc.mutation.AddLinkIDs(ids...)
-	return ltc
+func (_c *LinkTagCreate) AddLinkIDs(ids ...int) *LinkTagCreate {
+	_c.mutation.AddLinkIDs(ids...)
+	return _c
 }
 
 // AddLinks adds the "links" edges to the Link entity.
-func (ltc *LinkTagCreate) AddLinks(l ...*Link) *LinkTagCreate {
-	ids := make([]int, len(l))
-	for i := range l {
-		ids[i] = l[i].ID
+func (_c *LinkTagCreate) AddLinks(v ...*Link) *LinkTagCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ltc.AddLinkIDs(ids...)
+	return _c.AddLinkIDs(ids...)
 }
 
 // Mutation returns the LinkTagMutation object of the builder.
-func (ltc *LinkTagCreate) Mutation() *LinkTagMutation {
-	return ltc.mutation
+func (_c *LinkTagCreate) Mutation() *LinkTagMutation {
+	return _c.mutation
 }
 
 // Save creates the LinkTag in the database.
-func (ltc *LinkTagCreate) Save(ctx context.Context) (*LinkTag, error) {
-	ltc.defaults()
-	return withHooks(ctx, ltc.sqlSave, ltc.mutation, ltc.hooks)
+func (_c *LinkTagCreate) Save(ctx context.Context) (*LinkTag, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (ltc *LinkTagCreate) SaveX(ctx context.Context) *LinkTag {
-	v, err := ltc.Save(ctx)
+func (_c *LinkTagCreate) SaveX(ctx context.Context) *LinkTag {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -78,48 +78,48 @@ func (ltc *LinkTagCreate) SaveX(ctx context.Context) *LinkTag {
 }
 
 // Exec executes the query.
-func (ltc *LinkTagCreate) Exec(ctx context.Context) error {
-	_, err := ltc.Save(ctx)
+func (_c *LinkTagCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ltc *LinkTagCreate) ExecX(ctx context.Context) {
-	if err := ltc.Exec(ctx); err != nil {
+func (_c *LinkTagCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (ltc *LinkTagCreate) defaults() {
-	if _, ok := ltc.mutation.Color(); !ok {
+func (_c *LinkTagCreate) defaults() {
+	if _, ok := _c.mutation.Color(); !ok {
 		v := linktag.DefaultColor
-		ltc.mutation.SetColor(v)
+		_c.mutation.SetColor(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ltc *LinkTagCreate) check() error {
-	if _, ok := ltc.mutation.Name(); !ok {
+func (_c *LinkTagCreate) check() error {
+	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "LinkTag.name"`)}
 	}
-	if v, ok := ltc.mutation.Name(); ok {
+	if v, ok := _c.mutation.Name(); ok {
 		if err := linktag.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "LinkTag.name": %w`, err)}
 		}
 	}
-	if _, ok := ltc.mutation.Color(); !ok {
+	if _, ok := _c.mutation.Color(); !ok {
 		return &ValidationError{Name: "color", err: errors.New(`ent: missing required field "LinkTag.color"`)}
 	}
 	return nil
 }
 
-func (ltc *LinkTagCreate) sqlSave(ctx context.Context) (*LinkTag, error) {
-	if err := ltc.check(); err != nil {
+func (_c *LinkTagCreate) sqlSave(ctx context.Context) (*LinkTag, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := ltc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, ltc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -127,26 +127,26 @@ func (ltc *LinkTagCreate) sqlSave(ctx context.Context) (*LinkTag, error) {
 	}
 	id := _spec.ID.Value.(int64)
 	_node.ID = int(id)
-	ltc.mutation.id = &_node.ID
-	ltc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (ltc *LinkTagCreate) createSpec() (*LinkTag, *sqlgraph.CreateSpec) {
+func (_c *LinkTagCreate) createSpec() (*LinkTag, *sqlgraph.CreateSpec) {
 	var (
-		_node = &LinkTag{config: ltc.config}
+		_node = &LinkTag{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(linktag.Table, sqlgraph.NewFieldSpec(linktag.FieldID, field.TypeInt))
 	)
-	_spec.OnConflict = ltc.conflict
-	if value, ok := ltc.mutation.Name(); ok {
+	_spec.OnConflict = _c.conflict
+	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(linktag.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := ltc.mutation.Color(); ok {
+	if value, ok := _c.mutation.Color(); ok {
 		_spec.SetField(linktag.FieldColor, field.TypeString, value)
 		_node.Color = value
 	}
-	if nodes := ltc.mutation.LinksIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.LinksIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -181,10 +181,10 @@ func (ltc *LinkTagCreate) createSpec() (*LinkTag, *sqlgraph.CreateSpec) {
 //			SetName(v+v).
 //		}).
 //		Exec(ctx)
-func (ltc *LinkTagCreate) OnConflict(opts ...sql.ConflictOption) *LinkTagUpsertOne {
-	ltc.conflict = opts
+func (_c *LinkTagCreate) OnConflict(opts ...sql.ConflictOption) *LinkTagUpsertOne {
+	_c.conflict = opts
 	return &LinkTagUpsertOne{
-		create: ltc,
+		create: _c,
 	}
 }
 
@@ -194,10 +194,10 @@ func (ltc *LinkTagCreate) OnConflict(opts ...sql.ConflictOption) *LinkTagUpsertO
 //	client.LinkTag.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (ltc *LinkTagCreate) OnConflictColumns(columns ...string) *LinkTagUpsertOne {
-	ltc.conflict = append(ltc.conflict, sql.ConflictColumns(columns...))
+func (_c *LinkTagCreate) OnConflictColumns(columns ...string) *LinkTagUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &LinkTagUpsertOne{
-		create: ltc,
+		create: _c,
 	}
 }
 
@@ -348,16 +348,16 @@ type LinkTagCreateBulk struct {
 }
 
 // Save creates the LinkTag entities in the database.
-func (ltcb *LinkTagCreateBulk) Save(ctx context.Context) ([]*LinkTag, error) {
-	if ltcb.err != nil {
-		return nil, ltcb.err
+func (_c *LinkTagCreateBulk) Save(ctx context.Context) ([]*LinkTag, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(ltcb.builders))
-	nodes := make([]*LinkTag, len(ltcb.builders))
-	mutators := make([]Mutator, len(ltcb.builders))
-	for i := range ltcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*LinkTag, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := ltcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*LinkTagMutation)
@@ -371,12 +371,12 @@ func (ltcb *LinkTagCreateBulk) Save(ctx context.Context) ([]*LinkTag, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, ltcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = ltcb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, ltcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -400,7 +400,7 @@ func (ltcb *LinkTagCreateBulk) Save(ctx context.Context) ([]*LinkTag, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, ltcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -408,8 +408,8 @@ func (ltcb *LinkTagCreateBulk) Save(ctx context.Context) ([]*LinkTag, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (ltcb *LinkTagCreateBulk) SaveX(ctx context.Context) []*LinkTag {
-	v, err := ltcb.Save(ctx)
+func (_c *LinkTagCreateBulk) SaveX(ctx context.Context) []*LinkTag {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -417,14 +417,14 @@ func (ltcb *LinkTagCreateBulk) SaveX(ctx context.Context) []*LinkTag {
 }
 
 // Exec executes the query.
-func (ltcb *LinkTagCreateBulk) Exec(ctx context.Context) error {
-	_, err := ltcb.Save(ctx)
+func (_c *LinkTagCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ltcb *LinkTagCreateBulk) ExecX(ctx context.Context) {
-	if err := ltcb.Exec(ctx); err != nil {
+func (_c *LinkTagCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -444,10 +444,10 @@ func (ltcb *LinkTagCreateBulk) ExecX(ctx context.Context) {
 //			SetName(v+v).
 //		}).
 //		Exec(ctx)
-func (ltcb *LinkTagCreateBulk) OnConflict(opts ...sql.ConflictOption) *LinkTagUpsertBulk {
-	ltcb.conflict = opts
+func (_c *LinkTagCreateBulk) OnConflict(opts ...sql.ConflictOption) *LinkTagUpsertBulk {
+	_c.conflict = opts
 	return &LinkTagUpsertBulk{
-		create: ltcb,
+		create: _c,
 	}
 }
 
@@ -457,10 +457,10 @@ func (ltcb *LinkTagCreateBulk) OnConflict(opts ...sql.ConflictOption) *LinkTagUp
 //	client.LinkTag.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (ltcb *LinkTagCreateBulk) OnConflictColumns(columns ...string) *LinkTagUpsertBulk {
-	ltcb.conflict = append(ltcb.conflict, sql.ConflictColumns(columns...))
+func (_c *LinkTagCreateBulk) OnConflictColumns(columns ...string) *LinkTagUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &LinkTagUpsertBulk{
-		create: ltcb,
+		create: _c,
 	}
 }
 

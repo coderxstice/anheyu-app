@@ -66,6 +66,9 @@ type User func(*sql.Selector)
 // UserGroup is the predicate function for usergroup builders.
 type UserGroup func(*sql.Selector)
 
+// UserInstalledTheme is the predicate function for userinstalledtheme builders.
+type UserInstalledTheme func(*sql.Selector)
+
 // VisitorLog is the predicate function for visitorlog builders.
 type VisitorLog func(*sql.Selector)
 

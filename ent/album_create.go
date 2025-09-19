@@ -23,263 +23,263 @@ type AlbumCreate struct {
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (ac *AlbumCreate) SetDeletedAt(t time.Time) *AlbumCreate {
-	ac.mutation.SetDeletedAt(t)
-	return ac
+func (_c *AlbumCreate) SetDeletedAt(v time.Time) *AlbumCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (ac *AlbumCreate) SetNillableDeletedAt(t *time.Time) *AlbumCreate {
-	if t != nil {
-		ac.SetDeletedAt(*t)
+func (_c *AlbumCreate) SetNillableDeletedAt(v *time.Time) *AlbumCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (ac *AlbumCreate) SetCreatedAt(t time.Time) *AlbumCreate {
-	ac.mutation.SetCreatedAt(t)
-	return ac
+func (_c *AlbumCreate) SetCreatedAt(v time.Time) *AlbumCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (ac *AlbumCreate) SetNillableCreatedAt(t *time.Time) *AlbumCreate {
-	if t != nil {
-		ac.SetCreatedAt(*t)
+func (_c *AlbumCreate) SetNillableCreatedAt(v *time.Time) *AlbumCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (ac *AlbumCreate) SetUpdatedAt(t time.Time) *AlbumCreate {
-	ac.mutation.SetUpdatedAt(t)
-	return ac
+func (_c *AlbumCreate) SetUpdatedAt(v time.Time) *AlbumCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (ac *AlbumCreate) SetNillableUpdatedAt(t *time.Time) *AlbumCreate {
-	if t != nil {
-		ac.SetUpdatedAt(*t)
+func (_c *AlbumCreate) SetNillableUpdatedAt(v *time.Time) *AlbumCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetImageURL sets the "image_url" field.
-func (ac *AlbumCreate) SetImageURL(s string) *AlbumCreate {
-	ac.mutation.SetImageURL(s)
-	return ac
+func (_c *AlbumCreate) SetImageURL(v string) *AlbumCreate {
+	_c.mutation.SetImageURL(v)
+	return _c
 }
 
 // SetBigImageURL sets the "big_image_url" field.
-func (ac *AlbumCreate) SetBigImageURL(s string) *AlbumCreate {
-	ac.mutation.SetBigImageURL(s)
-	return ac
+func (_c *AlbumCreate) SetBigImageURL(v string) *AlbumCreate {
+	_c.mutation.SetBigImageURL(v)
+	return _c
 }
 
 // SetNillableBigImageURL sets the "big_image_url" field if the given value is not nil.
-func (ac *AlbumCreate) SetNillableBigImageURL(s *string) *AlbumCreate {
-	if s != nil {
-		ac.SetBigImageURL(*s)
+func (_c *AlbumCreate) SetNillableBigImageURL(v *string) *AlbumCreate {
+	if v != nil {
+		_c.SetBigImageURL(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetDownloadURL sets the "download_url" field.
-func (ac *AlbumCreate) SetDownloadURL(s string) *AlbumCreate {
-	ac.mutation.SetDownloadURL(s)
-	return ac
+func (_c *AlbumCreate) SetDownloadURL(v string) *AlbumCreate {
+	_c.mutation.SetDownloadURL(v)
+	return _c
 }
 
 // SetNillableDownloadURL sets the "download_url" field if the given value is not nil.
-func (ac *AlbumCreate) SetNillableDownloadURL(s *string) *AlbumCreate {
-	if s != nil {
-		ac.SetDownloadURL(*s)
+func (_c *AlbumCreate) SetNillableDownloadURL(v *string) *AlbumCreate {
+	if v != nil {
+		_c.SetDownloadURL(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetThumbParam sets the "thumb_param" field.
-func (ac *AlbumCreate) SetThumbParam(s string) *AlbumCreate {
-	ac.mutation.SetThumbParam(s)
-	return ac
+func (_c *AlbumCreate) SetThumbParam(v string) *AlbumCreate {
+	_c.mutation.SetThumbParam(v)
+	return _c
 }
 
 // SetNillableThumbParam sets the "thumb_param" field if the given value is not nil.
-func (ac *AlbumCreate) SetNillableThumbParam(s *string) *AlbumCreate {
-	if s != nil {
-		ac.SetThumbParam(*s)
+func (_c *AlbumCreate) SetNillableThumbParam(v *string) *AlbumCreate {
+	if v != nil {
+		_c.SetThumbParam(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetBigParam sets the "big_param" field.
-func (ac *AlbumCreate) SetBigParam(s string) *AlbumCreate {
-	ac.mutation.SetBigParam(s)
-	return ac
+func (_c *AlbumCreate) SetBigParam(v string) *AlbumCreate {
+	_c.mutation.SetBigParam(v)
+	return _c
 }
 
 // SetNillableBigParam sets the "big_param" field if the given value is not nil.
-func (ac *AlbumCreate) SetNillableBigParam(s *string) *AlbumCreate {
-	if s != nil {
-		ac.SetBigParam(*s)
+func (_c *AlbumCreate) SetNillableBigParam(v *string) *AlbumCreate {
+	if v != nil {
+		_c.SetBigParam(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetTags sets the "tags" field.
-func (ac *AlbumCreate) SetTags(s string) *AlbumCreate {
-	ac.mutation.SetTags(s)
-	return ac
+func (_c *AlbumCreate) SetTags(v string) *AlbumCreate {
+	_c.mutation.SetTags(v)
+	return _c
 }
 
 // SetNillableTags sets the "tags" field if the given value is not nil.
-func (ac *AlbumCreate) SetNillableTags(s *string) *AlbumCreate {
-	if s != nil {
-		ac.SetTags(*s)
+func (_c *AlbumCreate) SetNillableTags(v *string) *AlbumCreate {
+	if v != nil {
+		_c.SetTags(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetViewCount sets the "view_count" field.
-func (ac *AlbumCreate) SetViewCount(i int) *AlbumCreate {
-	ac.mutation.SetViewCount(i)
-	return ac
+func (_c *AlbumCreate) SetViewCount(v int) *AlbumCreate {
+	_c.mutation.SetViewCount(v)
+	return _c
 }
 
 // SetNillableViewCount sets the "view_count" field if the given value is not nil.
-func (ac *AlbumCreate) SetNillableViewCount(i *int) *AlbumCreate {
-	if i != nil {
-		ac.SetViewCount(*i)
+func (_c *AlbumCreate) SetNillableViewCount(v *int) *AlbumCreate {
+	if v != nil {
+		_c.SetViewCount(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetDownloadCount sets the "download_count" field.
-func (ac *AlbumCreate) SetDownloadCount(i int) *AlbumCreate {
-	ac.mutation.SetDownloadCount(i)
-	return ac
+func (_c *AlbumCreate) SetDownloadCount(v int) *AlbumCreate {
+	_c.mutation.SetDownloadCount(v)
+	return _c
 }
 
 // SetNillableDownloadCount sets the "download_count" field if the given value is not nil.
-func (ac *AlbumCreate) SetNillableDownloadCount(i *int) *AlbumCreate {
-	if i != nil {
-		ac.SetDownloadCount(*i)
+func (_c *AlbumCreate) SetNillableDownloadCount(v *int) *AlbumCreate {
+	if v != nil {
+		_c.SetDownloadCount(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetWidth sets the "width" field.
-func (ac *AlbumCreate) SetWidth(i int) *AlbumCreate {
-	ac.mutation.SetWidth(i)
-	return ac
+func (_c *AlbumCreate) SetWidth(v int) *AlbumCreate {
+	_c.mutation.SetWidth(v)
+	return _c
 }
 
 // SetNillableWidth sets the "width" field if the given value is not nil.
-func (ac *AlbumCreate) SetNillableWidth(i *int) *AlbumCreate {
-	if i != nil {
-		ac.SetWidth(*i)
+func (_c *AlbumCreate) SetNillableWidth(v *int) *AlbumCreate {
+	if v != nil {
+		_c.SetWidth(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetHeight sets the "height" field.
-func (ac *AlbumCreate) SetHeight(i int) *AlbumCreate {
-	ac.mutation.SetHeight(i)
-	return ac
+func (_c *AlbumCreate) SetHeight(v int) *AlbumCreate {
+	_c.mutation.SetHeight(v)
+	return _c
 }
 
 // SetNillableHeight sets the "height" field if the given value is not nil.
-func (ac *AlbumCreate) SetNillableHeight(i *int) *AlbumCreate {
-	if i != nil {
-		ac.SetHeight(*i)
+func (_c *AlbumCreate) SetNillableHeight(v *int) *AlbumCreate {
+	if v != nil {
+		_c.SetHeight(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetFileSize sets the "file_size" field.
-func (ac *AlbumCreate) SetFileSize(i int64) *AlbumCreate {
-	ac.mutation.SetFileSize(i)
-	return ac
+func (_c *AlbumCreate) SetFileSize(v int64) *AlbumCreate {
+	_c.mutation.SetFileSize(v)
+	return _c
 }
 
 // SetNillableFileSize sets the "file_size" field if the given value is not nil.
-func (ac *AlbumCreate) SetNillableFileSize(i *int64) *AlbumCreate {
-	if i != nil {
-		ac.SetFileSize(*i)
+func (_c *AlbumCreate) SetNillableFileSize(v *int64) *AlbumCreate {
+	if v != nil {
+		_c.SetFileSize(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetFormat sets the "format" field.
-func (ac *AlbumCreate) SetFormat(s string) *AlbumCreate {
-	ac.mutation.SetFormat(s)
-	return ac
+func (_c *AlbumCreate) SetFormat(v string) *AlbumCreate {
+	_c.mutation.SetFormat(v)
+	return _c
 }
 
 // SetNillableFormat sets the "format" field if the given value is not nil.
-func (ac *AlbumCreate) SetNillableFormat(s *string) *AlbumCreate {
-	if s != nil {
-		ac.SetFormat(*s)
+func (_c *AlbumCreate) SetNillableFormat(v *string) *AlbumCreate {
+	if v != nil {
+		_c.SetFormat(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetAspectRatio sets the "aspect_ratio" field.
-func (ac *AlbumCreate) SetAspectRatio(s string) *AlbumCreate {
-	ac.mutation.SetAspectRatio(s)
-	return ac
+func (_c *AlbumCreate) SetAspectRatio(v string) *AlbumCreate {
+	_c.mutation.SetAspectRatio(v)
+	return _c
 }
 
 // SetNillableAspectRatio sets the "aspect_ratio" field if the given value is not nil.
-func (ac *AlbumCreate) SetNillableAspectRatio(s *string) *AlbumCreate {
-	if s != nil {
-		ac.SetAspectRatio(*s)
+func (_c *AlbumCreate) SetNillableAspectRatio(v *string) *AlbumCreate {
+	if v != nil {
+		_c.SetAspectRatio(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetFileHash sets the "file_hash" field.
-func (ac *AlbumCreate) SetFileHash(s string) *AlbumCreate {
-	ac.mutation.SetFileHash(s)
-	return ac
+func (_c *AlbumCreate) SetFileHash(v string) *AlbumCreate {
+	_c.mutation.SetFileHash(v)
+	return _c
 }
 
 // SetDisplayOrder sets the "display_order" field.
-func (ac *AlbumCreate) SetDisplayOrder(i int) *AlbumCreate {
-	ac.mutation.SetDisplayOrder(i)
-	return ac
+func (_c *AlbumCreate) SetDisplayOrder(v int) *AlbumCreate {
+	_c.mutation.SetDisplayOrder(v)
+	return _c
 }
 
 // SetNillableDisplayOrder sets the "display_order" field if the given value is not nil.
-func (ac *AlbumCreate) SetNillableDisplayOrder(i *int) *AlbumCreate {
-	if i != nil {
-		ac.SetDisplayOrder(*i)
+func (_c *AlbumCreate) SetNillableDisplayOrder(v *int) *AlbumCreate {
+	if v != nil {
+		_c.SetDisplayOrder(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetID sets the "id" field.
-func (ac *AlbumCreate) SetID(u uint) *AlbumCreate {
-	ac.mutation.SetID(u)
-	return ac
+func (_c *AlbumCreate) SetID(v uint) *AlbumCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // Mutation returns the AlbumMutation object of the builder.
-func (ac *AlbumCreate) Mutation() *AlbumMutation {
-	return ac.mutation
+func (_c *AlbumCreate) Mutation() *AlbumMutation {
+	return _c.mutation
 }
 
 // Save creates the Album in the database.
-func (ac *AlbumCreate) Save(ctx context.Context) (*Album, error) {
-	if err := ac.defaults(); err != nil {
+func (_c *AlbumCreate) Save(ctx context.Context) (*Album, error) {
+	if err := _c.defaults(); err != nil {
 		return nil, err
 	}
-	return withHooks(ctx, ac.sqlSave, ac.mutation, ac.hooks)
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (ac *AlbumCreate) SaveX(ctx context.Context) *Album {
-	v, err := ac.Save(ctx)
+func (_c *AlbumCreate) SaveX(ctx context.Context) *Album {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -287,126 +287,126 @@ func (ac *AlbumCreate) SaveX(ctx context.Context) *Album {
 }
 
 // Exec executes the query.
-func (ac *AlbumCreate) Exec(ctx context.Context) error {
-	_, err := ac.Save(ctx)
+func (_c *AlbumCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ac *AlbumCreate) ExecX(ctx context.Context) {
-	if err := ac.Exec(ctx); err != nil {
+func (_c *AlbumCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (ac *AlbumCreate) defaults() error {
-	if _, ok := ac.mutation.CreatedAt(); !ok {
+func (_c *AlbumCreate) defaults() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		if album.DefaultCreatedAt == nil {
 			return fmt.Errorf("ent: uninitialized album.DefaultCreatedAt (forgotten import ent/runtime?)")
 		}
 		v := album.DefaultCreatedAt()
-		ac.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := ac.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		if album.DefaultUpdatedAt == nil {
 			return fmt.Errorf("ent: uninitialized album.DefaultUpdatedAt (forgotten import ent/runtime?)")
 		}
 		v := album.DefaultUpdatedAt()
-		ac.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := ac.mutation.ViewCount(); !ok {
+	if _, ok := _c.mutation.ViewCount(); !ok {
 		v := album.DefaultViewCount
-		ac.mutation.SetViewCount(v)
+		_c.mutation.SetViewCount(v)
 	}
-	if _, ok := ac.mutation.DownloadCount(); !ok {
+	if _, ok := _c.mutation.DownloadCount(); !ok {
 		v := album.DefaultDownloadCount
-		ac.mutation.SetDownloadCount(v)
+		_c.mutation.SetDownloadCount(v)
 	}
-	if _, ok := ac.mutation.DisplayOrder(); !ok {
+	if _, ok := _c.mutation.DisplayOrder(); !ok {
 		v := album.DefaultDisplayOrder
-		ac.mutation.SetDisplayOrder(v)
+		_c.mutation.SetDisplayOrder(v)
 	}
 	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ac *AlbumCreate) check() error {
-	if _, ok := ac.mutation.CreatedAt(); !ok {
+func (_c *AlbumCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Album.created_at"`)}
 	}
-	if _, ok := ac.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Album.updated_at"`)}
 	}
-	if _, ok := ac.mutation.ImageURL(); !ok {
+	if _, ok := _c.mutation.ImageURL(); !ok {
 		return &ValidationError{Name: "image_url", err: errors.New(`ent: missing required field "Album.image_url"`)}
 	}
-	if v, ok := ac.mutation.ImageURL(); ok {
+	if v, ok := _c.mutation.ImageURL(); ok {
 		if err := album.ImageURLValidator(v); err != nil {
 			return &ValidationError{Name: "image_url", err: fmt.Errorf(`ent: validator failed for field "Album.image_url": %w`, err)}
 		}
 	}
-	if v, ok := ac.mutation.BigImageURL(); ok {
+	if v, ok := _c.mutation.BigImageURL(); ok {
 		if err := album.BigImageURLValidator(v); err != nil {
 			return &ValidationError{Name: "big_image_url", err: fmt.Errorf(`ent: validator failed for field "Album.big_image_url": %w`, err)}
 		}
 	}
-	if v, ok := ac.mutation.DownloadURL(); ok {
+	if v, ok := _c.mutation.DownloadURL(); ok {
 		if err := album.DownloadURLValidator(v); err != nil {
 			return &ValidationError{Name: "download_url", err: fmt.Errorf(`ent: validator failed for field "Album.download_url": %w`, err)}
 		}
 	}
-	if v, ok := ac.mutation.ThumbParam(); ok {
+	if v, ok := _c.mutation.ThumbParam(); ok {
 		if err := album.ThumbParamValidator(v); err != nil {
 			return &ValidationError{Name: "thumb_param", err: fmt.Errorf(`ent: validator failed for field "Album.thumb_param": %w`, err)}
 		}
 	}
-	if v, ok := ac.mutation.BigParam(); ok {
+	if v, ok := _c.mutation.BigParam(); ok {
 		if err := album.BigParamValidator(v); err != nil {
 			return &ValidationError{Name: "big_param", err: fmt.Errorf(`ent: validator failed for field "Album.big_param": %w`, err)}
 		}
 	}
-	if v, ok := ac.mutation.Tags(); ok {
+	if v, ok := _c.mutation.Tags(); ok {
 		if err := album.TagsValidator(v); err != nil {
 			return &ValidationError{Name: "tags", err: fmt.Errorf(`ent: validator failed for field "Album.tags": %w`, err)}
 		}
 	}
-	if _, ok := ac.mutation.ViewCount(); !ok {
+	if _, ok := _c.mutation.ViewCount(); !ok {
 		return &ValidationError{Name: "view_count", err: errors.New(`ent: missing required field "Album.view_count"`)}
 	}
-	if _, ok := ac.mutation.DownloadCount(); !ok {
+	if _, ok := _c.mutation.DownloadCount(); !ok {
 		return &ValidationError{Name: "download_count", err: errors.New(`ent: missing required field "Album.download_count"`)}
 	}
-	if v, ok := ac.mutation.Format(); ok {
+	if v, ok := _c.mutation.Format(); ok {
 		if err := album.FormatValidator(v); err != nil {
 			return &ValidationError{Name: "format", err: fmt.Errorf(`ent: validator failed for field "Album.format": %w`, err)}
 		}
 	}
-	if v, ok := ac.mutation.AspectRatio(); ok {
+	if v, ok := _c.mutation.AspectRatio(); ok {
 		if err := album.AspectRatioValidator(v); err != nil {
 			return &ValidationError{Name: "aspect_ratio", err: fmt.Errorf(`ent: validator failed for field "Album.aspect_ratio": %w`, err)}
 		}
 	}
-	if _, ok := ac.mutation.FileHash(); !ok {
+	if _, ok := _c.mutation.FileHash(); !ok {
 		return &ValidationError{Name: "file_hash", err: errors.New(`ent: missing required field "Album.file_hash"`)}
 	}
-	if v, ok := ac.mutation.FileHash(); ok {
+	if v, ok := _c.mutation.FileHash(); ok {
 		if err := album.FileHashValidator(v); err != nil {
 			return &ValidationError{Name: "file_hash", err: fmt.Errorf(`ent: validator failed for field "Album.file_hash": %w`, err)}
 		}
 	}
-	if _, ok := ac.mutation.DisplayOrder(); !ok {
+	if _, ok := _c.mutation.DisplayOrder(); !ok {
 		return &ValidationError{Name: "display_order", err: errors.New(`ent: missing required field "Album.display_order"`)}
 	}
 	return nil
 }
 
-func (ac *AlbumCreate) sqlSave(ctx context.Context) (*Album, error) {
-	if err := ac.check(); err != nil {
+func (_c *AlbumCreate) sqlSave(ctx context.Context) (*Album, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := ac.createSpec()
-	if err := sqlgraph.CreateNode(ctx, ac.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -416,90 +416,90 @@ func (ac *AlbumCreate) sqlSave(ctx context.Context) (*Album, error) {
 		id := _spec.ID.Value.(int64)
 		_node.ID = uint(id)
 	}
-	ac.mutation.id = &_node.ID
-	ac.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (ac *AlbumCreate) createSpec() (*Album, *sqlgraph.CreateSpec) {
+func (_c *AlbumCreate) createSpec() (*Album, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Album{config: ac.config}
+		_node = &Album{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(album.Table, sqlgraph.NewFieldSpec(album.FieldID, field.TypeUint))
 	)
-	_spec.OnConflict = ac.conflict
-	if id, ok := ac.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := ac.mutation.DeletedAt(); ok {
+	if value, ok := _c.mutation.DeletedAt(); ok {
 		_spec.SetField(album.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
 	}
-	if value, ok := ac.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(album.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := ac.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(album.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if value, ok := ac.mutation.ImageURL(); ok {
+	if value, ok := _c.mutation.ImageURL(); ok {
 		_spec.SetField(album.FieldImageURL, field.TypeString, value)
 		_node.ImageURL = value
 	}
-	if value, ok := ac.mutation.BigImageURL(); ok {
+	if value, ok := _c.mutation.BigImageURL(); ok {
 		_spec.SetField(album.FieldBigImageURL, field.TypeString, value)
 		_node.BigImageURL = value
 	}
-	if value, ok := ac.mutation.DownloadURL(); ok {
+	if value, ok := _c.mutation.DownloadURL(); ok {
 		_spec.SetField(album.FieldDownloadURL, field.TypeString, value)
 		_node.DownloadURL = value
 	}
-	if value, ok := ac.mutation.ThumbParam(); ok {
+	if value, ok := _c.mutation.ThumbParam(); ok {
 		_spec.SetField(album.FieldThumbParam, field.TypeString, value)
 		_node.ThumbParam = value
 	}
-	if value, ok := ac.mutation.BigParam(); ok {
+	if value, ok := _c.mutation.BigParam(); ok {
 		_spec.SetField(album.FieldBigParam, field.TypeString, value)
 		_node.BigParam = value
 	}
-	if value, ok := ac.mutation.Tags(); ok {
+	if value, ok := _c.mutation.Tags(); ok {
 		_spec.SetField(album.FieldTags, field.TypeString, value)
 		_node.Tags = value
 	}
-	if value, ok := ac.mutation.ViewCount(); ok {
+	if value, ok := _c.mutation.ViewCount(); ok {
 		_spec.SetField(album.FieldViewCount, field.TypeInt, value)
 		_node.ViewCount = value
 	}
-	if value, ok := ac.mutation.DownloadCount(); ok {
+	if value, ok := _c.mutation.DownloadCount(); ok {
 		_spec.SetField(album.FieldDownloadCount, field.TypeInt, value)
 		_node.DownloadCount = value
 	}
-	if value, ok := ac.mutation.Width(); ok {
+	if value, ok := _c.mutation.Width(); ok {
 		_spec.SetField(album.FieldWidth, field.TypeInt, value)
 		_node.Width = value
 	}
-	if value, ok := ac.mutation.Height(); ok {
+	if value, ok := _c.mutation.Height(); ok {
 		_spec.SetField(album.FieldHeight, field.TypeInt, value)
 		_node.Height = value
 	}
-	if value, ok := ac.mutation.FileSize(); ok {
+	if value, ok := _c.mutation.FileSize(); ok {
 		_spec.SetField(album.FieldFileSize, field.TypeInt64, value)
 		_node.FileSize = value
 	}
-	if value, ok := ac.mutation.Format(); ok {
+	if value, ok := _c.mutation.Format(); ok {
 		_spec.SetField(album.FieldFormat, field.TypeString, value)
 		_node.Format = value
 	}
-	if value, ok := ac.mutation.AspectRatio(); ok {
+	if value, ok := _c.mutation.AspectRatio(); ok {
 		_spec.SetField(album.FieldAspectRatio, field.TypeString, value)
 		_node.AspectRatio = value
 	}
-	if value, ok := ac.mutation.FileHash(); ok {
+	if value, ok := _c.mutation.FileHash(); ok {
 		_spec.SetField(album.FieldFileHash, field.TypeString, value)
 		_node.FileHash = value
 	}
-	if value, ok := ac.mutation.DisplayOrder(); ok {
+	if value, ok := _c.mutation.DisplayOrder(); ok {
 		_spec.SetField(album.FieldDisplayOrder, field.TypeInt, value)
 		_node.DisplayOrder = value
 	}
@@ -522,10 +522,10 @@ func (ac *AlbumCreate) createSpec() (*Album, *sqlgraph.CreateSpec) {
 //			SetDeletedAt(v+v).
 //		}).
 //		Exec(ctx)
-func (ac *AlbumCreate) OnConflict(opts ...sql.ConflictOption) *AlbumUpsertOne {
-	ac.conflict = opts
+func (_c *AlbumCreate) OnConflict(opts ...sql.ConflictOption) *AlbumUpsertOne {
+	_c.conflict = opts
 	return &AlbumUpsertOne{
-		create: ac,
+		create: _c,
 	}
 }
 
@@ -535,10 +535,10 @@ func (ac *AlbumCreate) OnConflict(opts ...sql.ConflictOption) *AlbumUpsertOne {
 //	client.Album.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (ac *AlbumCreate) OnConflictColumns(columns ...string) *AlbumUpsertOne {
-	ac.conflict = append(ac.conflict, sql.ConflictColumns(columns...))
+func (_c *AlbumCreate) OnConflictColumns(columns ...string) *AlbumUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &AlbumUpsertOne{
-		create: ac,
+		create: _c,
 	}
 }
 
@@ -1311,16 +1311,16 @@ type AlbumCreateBulk struct {
 }
 
 // Save creates the Album entities in the database.
-func (acb *AlbumCreateBulk) Save(ctx context.Context) ([]*Album, error) {
-	if acb.err != nil {
-		return nil, acb.err
+func (_c *AlbumCreateBulk) Save(ctx context.Context) ([]*Album, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(acb.builders))
-	nodes := make([]*Album, len(acb.builders))
-	mutators := make([]Mutator, len(acb.builders))
-	for i := range acb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*Album, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := acb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*AlbumMutation)
@@ -1334,12 +1334,12 @@ func (acb *AlbumCreateBulk) Save(ctx context.Context) ([]*Album, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, acb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = acb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, acb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -1363,7 +1363,7 @@ func (acb *AlbumCreateBulk) Save(ctx context.Context) ([]*Album, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, acb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -1371,8 +1371,8 @@ func (acb *AlbumCreateBulk) Save(ctx context.Context) ([]*Album, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (acb *AlbumCreateBulk) SaveX(ctx context.Context) []*Album {
-	v, err := acb.Save(ctx)
+func (_c *AlbumCreateBulk) SaveX(ctx context.Context) []*Album {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -1380,14 +1380,14 @@ func (acb *AlbumCreateBulk) SaveX(ctx context.Context) []*Album {
 }
 
 // Exec executes the query.
-func (acb *AlbumCreateBulk) Exec(ctx context.Context) error {
-	_, err := acb.Save(ctx)
+func (_c *AlbumCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (acb *AlbumCreateBulk) ExecX(ctx context.Context) {
-	if err := acb.Exec(ctx); err != nil {
+func (_c *AlbumCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -1407,10 +1407,10 @@ func (acb *AlbumCreateBulk) ExecX(ctx context.Context) {
 //			SetDeletedAt(v+v).
 //		}).
 //		Exec(ctx)
-func (acb *AlbumCreateBulk) OnConflict(opts ...sql.ConflictOption) *AlbumUpsertBulk {
-	acb.conflict = opts
+func (_c *AlbumCreateBulk) OnConflict(opts ...sql.ConflictOption) *AlbumUpsertBulk {
+	_c.conflict = opts
 	return &AlbumUpsertBulk{
-		create: acb,
+		create: _c,
 	}
 }
 
@@ -1420,10 +1420,10 @@ func (acb *AlbumCreateBulk) OnConflict(opts ...sql.ConflictOption) *AlbumUpsertB
 //	client.Album.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (acb *AlbumCreateBulk) OnConflictColumns(columns ...string) *AlbumUpsertBulk {
-	acb.conflict = append(acb.conflict, sql.ConflictColumns(columns...))
+func (_c *AlbumCreateBulk) OnConflictColumns(columns ...string) *AlbumUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &AlbumUpsertBulk{
-		create: acb,
+		create: _c,
 	}
 }
 

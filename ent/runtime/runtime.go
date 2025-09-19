@@ -26,6 +26,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/urlstat"
 	"github.com/anzhiyu-c/anheyu-app/ent/user"
 	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
+	"github.com/anzhiyu-c/anheyu-app/ent/userinstalledtheme"
 	"github.com/anzhiyu-c/anheyu-app/ent/visitorlog"
 	"github.com/anzhiyu-c/anheyu-app/ent/visitorstat"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
@@ -852,6 +853,51 @@ func init() {
 	usergroupDescSettings := usergroupFields[8].Descriptor()
 	// usergroup.DefaultSettings holds the default value on creation for the settings field.
 	usergroup.DefaultSettings = usergroupDescSettings.Default.(*model.GroupSettings)
+	userinstalledthemeMixin := schema.UserInstalledTheme{}.Mixin()
+	userinstalledthemeMixinHooks0 := userinstalledthemeMixin[0].Hooks()
+	userinstalledtheme.Hooks[0] = userinstalledthemeMixinHooks0[0]
+	userinstalledthemeFields := schema.UserInstalledTheme{}.Fields()
+	_ = userinstalledthemeFields
+	// userinstalledthemeDescCreatedAt is the schema descriptor for created_at field.
+	userinstalledthemeDescCreatedAt := userinstalledthemeFields[1].Descriptor()
+	// userinstalledtheme.DefaultCreatedAt holds the default value on creation for the created_at field.
+	userinstalledtheme.DefaultCreatedAt = userinstalledthemeDescCreatedAt.Default.(func() time.Time)
+	// userinstalledthemeDescUpdatedAt is the schema descriptor for updated_at field.
+	userinstalledthemeDescUpdatedAt := userinstalledthemeFields[2].Descriptor()
+	// userinstalledtheme.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	userinstalledtheme.DefaultUpdatedAt = userinstalledthemeDescUpdatedAt.Default.(func() time.Time)
+	// userinstalledtheme.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	userinstalledtheme.UpdateDefaultUpdatedAt = userinstalledthemeDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// userinstalledthemeDescThemeName is the schema descriptor for theme_name field.
+	userinstalledthemeDescThemeName := userinstalledthemeFields[4].Descriptor()
+	// userinstalledtheme.ThemeNameValidator is a validator for the "theme_name" field. It is called by the builders before save.
+	userinstalledtheme.ThemeNameValidator = func() func(string) error {
+		validators := userinstalledthemeDescThemeName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(theme_name string) error {
+			for _, fn := range fns {
+				if err := fn(theme_name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// userinstalledthemeDescIsCurrent is the schema descriptor for is_current field.
+	userinstalledthemeDescIsCurrent := userinstalledthemeFields[6].Descriptor()
+	// userinstalledtheme.DefaultIsCurrent holds the default value on creation for the is_current field.
+	userinstalledtheme.DefaultIsCurrent = userinstalledthemeDescIsCurrent.Default.(bool)
+	// userinstalledthemeDescInstallTime is the schema descriptor for install_time field.
+	userinstalledthemeDescInstallTime := userinstalledthemeFields[7].Descriptor()
+	// userinstalledtheme.DefaultInstallTime holds the default value on creation for the install_time field.
+	userinstalledtheme.DefaultInstallTime = userinstalledthemeDescInstallTime.Default.(func() time.Time)
+	// userinstalledthemeDescInstalledVersion is the schema descriptor for installed_version field.
+	userinstalledthemeDescInstalledVersion := userinstalledthemeFields[9].Descriptor()
+	// userinstalledtheme.InstalledVersionValidator is a validator for the "installed_version" field. It is called by the builders before save.
+	userinstalledtheme.InstalledVersionValidator = userinstalledthemeDescInstalledVersion.Validators[0].(func(string) error)
 	visitorlogFields := schema.VisitorLog{}.Fields()
 	_ = visitorlogFields
 	// visitorlogDescCreatedAt is the schema descriptor for created_at field.
@@ -945,6 +991,6 @@ func init() {
 }
 
 const (
-	Version = "v0.14.4"                                         // Version of ent codegen.
-	Sum     = "h1:/DhDraSLXIkBhyiVoJeSshr4ZYi7femzhj6/TckzZuI=" // Sum of ent codegen.
+	Version = "v0.14.5"                                         // Version of ent codegen.
+	Sum     = "h1:Rj2WOYJtCkWyFo6a+5wB3EfBRP0rnx1fMk6gGA0UUe4=" // Sum of ent codegen.
 )

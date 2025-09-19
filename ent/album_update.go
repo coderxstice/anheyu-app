@@ -24,365 +24,365 @@ type AlbumUpdate struct {
 }
 
 // Where appends a list predicates to the AlbumUpdate builder.
-func (au *AlbumUpdate) Where(ps ...predicate.Album) *AlbumUpdate {
-	au.mutation.Where(ps...)
-	return au
+func (_u *AlbumUpdate) Where(ps ...predicate.Album) *AlbumUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (au *AlbumUpdate) SetDeletedAt(t time.Time) *AlbumUpdate {
-	au.mutation.SetDeletedAt(t)
-	return au
+func (_u *AlbumUpdate) SetDeletedAt(v time.Time) *AlbumUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (au *AlbumUpdate) SetNillableDeletedAt(t *time.Time) *AlbumUpdate {
-	if t != nil {
-		au.SetDeletedAt(*t)
+func (_u *AlbumUpdate) SetNillableDeletedAt(v *time.Time) *AlbumUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearDeletedAt clears the value of the "deleted_at" field.
-func (au *AlbumUpdate) ClearDeletedAt() *AlbumUpdate {
-	au.mutation.ClearDeletedAt()
-	return au
+func (_u *AlbumUpdate) ClearDeletedAt() *AlbumUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (au *AlbumUpdate) SetUpdatedAt(t time.Time) *AlbumUpdate {
-	au.mutation.SetUpdatedAt(t)
-	return au
+func (_u *AlbumUpdate) SetUpdatedAt(v time.Time) *AlbumUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetImageURL sets the "image_url" field.
-func (au *AlbumUpdate) SetImageURL(s string) *AlbumUpdate {
-	au.mutation.SetImageURL(s)
-	return au
+func (_u *AlbumUpdate) SetImageURL(v string) *AlbumUpdate {
+	_u.mutation.SetImageURL(v)
+	return _u
 }
 
 // SetNillableImageURL sets the "image_url" field if the given value is not nil.
-func (au *AlbumUpdate) SetNillableImageURL(s *string) *AlbumUpdate {
-	if s != nil {
-		au.SetImageURL(*s)
+func (_u *AlbumUpdate) SetNillableImageURL(v *string) *AlbumUpdate {
+	if v != nil {
+		_u.SetImageURL(*v)
 	}
-	return au
+	return _u
 }
 
 // SetBigImageURL sets the "big_image_url" field.
-func (au *AlbumUpdate) SetBigImageURL(s string) *AlbumUpdate {
-	au.mutation.SetBigImageURL(s)
-	return au
+func (_u *AlbumUpdate) SetBigImageURL(v string) *AlbumUpdate {
+	_u.mutation.SetBigImageURL(v)
+	return _u
 }
 
 // SetNillableBigImageURL sets the "big_image_url" field if the given value is not nil.
-func (au *AlbumUpdate) SetNillableBigImageURL(s *string) *AlbumUpdate {
-	if s != nil {
-		au.SetBigImageURL(*s)
+func (_u *AlbumUpdate) SetNillableBigImageURL(v *string) *AlbumUpdate {
+	if v != nil {
+		_u.SetBigImageURL(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearBigImageURL clears the value of the "big_image_url" field.
-func (au *AlbumUpdate) ClearBigImageURL() *AlbumUpdate {
-	au.mutation.ClearBigImageURL()
-	return au
+func (_u *AlbumUpdate) ClearBigImageURL() *AlbumUpdate {
+	_u.mutation.ClearBigImageURL()
+	return _u
 }
 
 // SetDownloadURL sets the "download_url" field.
-func (au *AlbumUpdate) SetDownloadURL(s string) *AlbumUpdate {
-	au.mutation.SetDownloadURL(s)
-	return au
+func (_u *AlbumUpdate) SetDownloadURL(v string) *AlbumUpdate {
+	_u.mutation.SetDownloadURL(v)
+	return _u
 }
 
 // SetNillableDownloadURL sets the "download_url" field if the given value is not nil.
-func (au *AlbumUpdate) SetNillableDownloadURL(s *string) *AlbumUpdate {
-	if s != nil {
-		au.SetDownloadURL(*s)
+func (_u *AlbumUpdate) SetNillableDownloadURL(v *string) *AlbumUpdate {
+	if v != nil {
+		_u.SetDownloadURL(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearDownloadURL clears the value of the "download_url" field.
-func (au *AlbumUpdate) ClearDownloadURL() *AlbumUpdate {
-	au.mutation.ClearDownloadURL()
-	return au
+func (_u *AlbumUpdate) ClearDownloadURL() *AlbumUpdate {
+	_u.mutation.ClearDownloadURL()
+	return _u
 }
 
 // SetThumbParam sets the "thumb_param" field.
-func (au *AlbumUpdate) SetThumbParam(s string) *AlbumUpdate {
-	au.mutation.SetThumbParam(s)
-	return au
+func (_u *AlbumUpdate) SetThumbParam(v string) *AlbumUpdate {
+	_u.mutation.SetThumbParam(v)
+	return _u
 }
 
 // SetNillableThumbParam sets the "thumb_param" field if the given value is not nil.
-func (au *AlbumUpdate) SetNillableThumbParam(s *string) *AlbumUpdate {
-	if s != nil {
-		au.SetThumbParam(*s)
+func (_u *AlbumUpdate) SetNillableThumbParam(v *string) *AlbumUpdate {
+	if v != nil {
+		_u.SetThumbParam(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearThumbParam clears the value of the "thumb_param" field.
-func (au *AlbumUpdate) ClearThumbParam() *AlbumUpdate {
-	au.mutation.ClearThumbParam()
-	return au
+func (_u *AlbumUpdate) ClearThumbParam() *AlbumUpdate {
+	_u.mutation.ClearThumbParam()
+	return _u
 }
 
 // SetBigParam sets the "big_param" field.
-func (au *AlbumUpdate) SetBigParam(s string) *AlbumUpdate {
-	au.mutation.SetBigParam(s)
-	return au
+func (_u *AlbumUpdate) SetBigParam(v string) *AlbumUpdate {
+	_u.mutation.SetBigParam(v)
+	return _u
 }
 
 // SetNillableBigParam sets the "big_param" field if the given value is not nil.
-func (au *AlbumUpdate) SetNillableBigParam(s *string) *AlbumUpdate {
-	if s != nil {
-		au.SetBigParam(*s)
+func (_u *AlbumUpdate) SetNillableBigParam(v *string) *AlbumUpdate {
+	if v != nil {
+		_u.SetBigParam(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearBigParam clears the value of the "big_param" field.
-func (au *AlbumUpdate) ClearBigParam() *AlbumUpdate {
-	au.mutation.ClearBigParam()
-	return au
+func (_u *AlbumUpdate) ClearBigParam() *AlbumUpdate {
+	_u.mutation.ClearBigParam()
+	return _u
 }
 
 // SetTags sets the "tags" field.
-func (au *AlbumUpdate) SetTags(s string) *AlbumUpdate {
-	au.mutation.SetTags(s)
-	return au
+func (_u *AlbumUpdate) SetTags(v string) *AlbumUpdate {
+	_u.mutation.SetTags(v)
+	return _u
 }
 
 // SetNillableTags sets the "tags" field if the given value is not nil.
-func (au *AlbumUpdate) SetNillableTags(s *string) *AlbumUpdate {
-	if s != nil {
-		au.SetTags(*s)
+func (_u *AlbumUpdate) SetNillableTags(v *string) *AlbumUpdate {
+	if v != nil {
+		_u.SetTags(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearTags clears the value of the "tags" field.
-func (au *AlbumUpdate) ClearTags() *AlbumUpdate {
-	au.mutation.ClearTags()
-	return au
+func (_u *AlbumUpdate) ClearTags() *AlbumUpdate {
+	_u.mutation.ClearTags()
+	return _u
 }
 
 // SetViewCount sets the "view_count" field.
-func (au *AlbumUpdate) SetViewCount(i int) *AlbumUpdate {
-	au.mutation.ResetViewCount()
-	au.mutation.SetViewCount(i)
-	return au
+func (_u *AlbumUpdate) SetViewCount(v int) *AlbumUpdate {
+	_u.mutation.ResetViewCount()
+	_u.mutation.SetViewCount(v)
+	return _u
 }
 
 // SetNillableViewCount sets the "view_count" field if the given value is not nil.
-func (au *AlbumUpdate) SetNillableViewCount(i *int) *AlbumUpdate {
-	if i != nil {
-		au.SetViewCount(*i)
+func (_u *AlbumUpdate) SetNillableViewCount(v *int) *AlbumUpdate {
+	if v != nil {
+		_u.SetViewCount(*v)
 	}
-	return au
+	return _u
 }
 
-// AddViewCount adds i to the "view_count" field.
-func (au *AlbumUpdate) AddViewCount(i int) *AlbumUpdate {
-	au.mutation.AddViewCount(i)
-	return au
+// AddViewCount adds value to the "view_count" field.
+func (_u *AlbumUpdate) AddViewCount(v int) *AlbumUpdate {
+	_u.mutation.AddViewCount(v)
+	return _u
 }
 
 // SetDownloadCount sets the "download_count" field.
-func (au *AlbumUpdate) SetDownloadCount(i int) *AlbumUpdate {
-	au.mutation.ResetDownloadCount()
-	au.mutation.SetDownloadCount(i)
-	return au
+func (_u *AlbumUpdate) SetDownloadCount(v int) *AlbumUpdate {
+	_u.mutation.ResetDownloadCount()
+	_u.mutation.SetDownloadCount(v)
+	return _u
 }
 
 // SetNillableDownloadCount sets the "download_count" field if the given value is not nil.
-func (au *AlbumUpdate) SetNillableDownloadCount(i *int) *AlbumUpdate {
-	if i != nil {
-		au.SetDownloadCount(*i)
+func (_u *AlbumUpdate) SetNillableDownloadCount(v *int) *AlbumUpdate {
+	if v != nil {
+		_u.SetDownloadCount(*v)
 	}
-	return au
+	return _u
 }
 
-// AddDownloadCount adds i to the "download_count" field.
-func (au *AlbumUpdate) AddDownloadCount(i int) *AlbumUpdate {
-	au.mutation.AddDownloadCount(i)
-	return au
+// AddDownloadCount adds value to the "download_count" field.
+func (_u *AlbumUpdate) AddDownloadCount(v int) *AlbumUpdate {
+	_u.mutation.AddDownloadCount(v)
+	return _u
 }
 
 // SetWidth sets the "width" field.
-func (au *AlbumUpdate) SetWidth(i int) *AlbumUpdate {
-	au.mutation.ResetWidth()
-	au.mutation.SetWidth(i)
-	return au
+func (_u *AlbumUpdate) SetWidth(v int) *AlbumUpdate {
+	_u.mutation.ResetWidth()
+	_u.mutation.SetWidth(v)
+	return _u
 }
 
 // SetNillableWidth sets the "width" field if the given value is not nil.
-func (au *AlbumUpdate) SetNillableWidth(i *int) *AlbumUpdate {
-	if i != nil {
-		au.SetWidth(*i)
+func (_u *AlbumUpdate) SetNillableWidth(v *int) *AlbumUpdate {
+	if v != nil {
+		_u.SetWidth(*v)
 	}
-	return au
+	return _u
 }
 
-// AddWidth adds i to the "width" field.
-func (au *AlbumUpdate) AddWidth(i int) *AlbumUpdate {
-	au.mutation.AddWidth(i)
-	return au
+// AddWidth adds value to the "width" field.
+func (_u *AlbumUpdate) AddWidth(v int) *AlbumUpdate {
+	_u.mutation.AddWidth(v)
+	return _u
 }
 
 // ClearWidth clears the value of the "width" field.
-func (au *AlbumUpdate) ClearWidth() *AlbumUpdate {
-	au.mutation.ClearWidth()
-	return au
+func (_u *AlbumUpdate) ClearWidth() *AlbumUpdate {
+	_u.mutation.ClearWidth()
+	return _u
 }
 
 // SetHeight sets the "height" field.
-func (au *AlbumUpdate) SetHeight(i int) *AlbumUpdate {
-	au.mutation.ResetHeight()
-	au.mutation.SetHeight(i)
-	return au
+func (_u *AlbumUpdate) SetHeight(v int) *AlbumUpdate {
+	_u.mutation.ResetHeight()
+	_u.mutation.SetHeight(v)
+	return _u
 }
 
 // SetNillableHeight sets the "height" field if the given value is not nil.
-func (au *AlbumUpdate) SetNillableHeight(i *int) *AlbumUpdate {
-	if i != nil {
-		au.SetHeight(*i)
+func (_u *AlbumUpdate) SetNillableHeight(v *int) *AlbumUpdate {
+	if v != nil {
+		_u.SetHeight(*v)
 	}
-	return au
+	return _u
 }
 
-// AddHeight adds i to the "height" field.
-func (au *AlbumUpdate) AddHeight(i int) *AlbumUpdate {
-	au.mutation.AddHeight(i)
-	return au
+// AddHeight adds value to the "height" field.
+func (_u *AlbumUpdate) AddHeight(v int) *AlbumUpdate {
+	_u.mutation.AddHeight(v)
+	return _u
 }
 
 // ClearHeight clears the value of the "height" field.
-func (au *AlbumUpdate) ClearHeight() *AlbumUpdate {
-	au.mutation.ClearHeight()
-	return au
+func (_u *AlbumUpdate) ClearHeight() *AlbumUpdate {
+	_u.mutation.ClearHeight()
+	return _u
 }
 
 // SetFileSize sets the "file_size" field.
-func (au *AlbumUpdate) SetFileSize(i int64) *AlbumUpdate {
-	au.mutation.ResetFileSize()
-	au.mutation.SetFileSize(i)
-	return au
+func (_u *AlbumUpdate) SetFileSize(v int64) *AlbumUpdate {
+	_u.mutation.ResetFileSize()
+	_u.mutation.SetFileSize(v)
+	return _u
 }
 
 // SetNillableFileSize sets the "file_size" field if the given value is not nil.
-func (au *AlbumUpdate) SetNillableFileSize(i *int64) *AlbumUpdate {
-	if i != nil {
-		au.SetFileSize(*i)
+func (_u *AlbumUpdate) SetNillableFileSize(v *int64) *AlbumUpdate {
+	if v != nil {
+		_u.SetFileSize(*v)
 	}
-	return au
+	return _u
 }
 
-// AddFileSize adds i to the "file_size" field.
-func (au *AlbumUpdate) AddFileSize(i int64) *AlbumUpdate {
-	au.mutation.AddFileSize(i)
-	return au
+// AddFileSize adds value to the "file_size" field.
+func (_u *AlbumUpdate) AddFileSize(v int64) *AlbumUpdate {
+	_u.mutation.AddFileSize(v)
+	return _u
 }
 
 // ClearFileSize clears the value of the "file_size" field.
-func (au *AlbumUpdate) ClearFileSize() *AlbumUpdate {
-	au.mutation.ClearFileSize()
-	return au
+func (_u *AlbumUpdate) ClearFileSize() *AlbumUpdate {
+	_u.mutation.ClearFileSize()
+	return _u
 }
 
 // SetFormat sets the "format" field.
-func (au *AlbumUpdate) SetFormat(s string) *AlbumUpdate {
-	au.mutation.SetFormat(s)
-	return au
+func (_u *AlbumUpdate) SetFormat(v string) *AlbumUpdate {
+	_u.mutation.SetFormat(v)
+	return _u
 }
 
 // SetNillableFormat sets the "format" field if the given value is not nil.
-func (au *AlbumUpdate) SetNillableFormat(s *string) *AlbumUpdate {
-	if s != nil {
-		au.SetFormat(*s)
+func (_u *AlbumUpdate) SetNillableFormat(v *string) *AlbumUpdate {
+	if v != nil {
+		_u.SetFormat(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearFormat clears the value of the "format" field.
-func (au *AlbumUpdate) ClearFormat() *AlbumUpdate {
-	au.mutation.ClearFormat()
-	return au
+func (_u *AlbumUpdate) ClearFormat() *AlbumUpdate {
+	_u.mutation.ClearFormat()
+	return _u
 }
 
 // SetAspectRatio sets the "aspect_ratio" field.
-func (au *AlbumUpdate) SetAspectRatio(s string) *AlbumUpdate {
-	au.mutation.SetAspectRatio(s)
-	return au
+func (_u *AlbumUpdate) SetAspectRatio(v string) *AlbumUpdate {
+	_u.mutation.SetAspectRatio(v)
+	return _u
 }
 
 // SetNillableAspectRatio sets the "aspect_ratio" field if the given value is not nil.
-func (au *AlbumUpdate) SetNillableAspectRatio(s *string) *AlbumUpdate {
-	if s != nil {
-		au.SetAspectRatio(*s)
+func (_u *AlbumUpdate) SetNillableAspectRatio(v *string) *AlbumUpdate {
+	if v != nil {
+		_u.SetAspectRatio(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearAspectRatio clears the value of the "aspect_ratio" field.
-func (au *AlbumUpdate) ClearAspectRatio() *AlbumUpdate {
-	au.mutation.ClearAspectRatio()
-	return au
+func (_u *AlbumUpdate) ClearAspectRatio() *AlbumUpdate {
+	_u.mutation.ClearAspectRatio()
+	return _u
 }
 
 // SetFileHash sets the "file_hash" field.
-func (au *AlbumUpdate) SetFileHash(s string) *AlbumUpdate {
-	au.mutation.SetFileHash(s)
-	return au
+func (_u *AlbumUpdate) SetFileHash(v string) *AlbumUpdate {
+	_u.mutation.SetFileHash(v)
+	return _u
 }
 
 // SetNillableFileHash sets the "file_hash" field if the given value is not nil.
-func (au *AlbumUpdate) SetNillableFileHash(s *string) *AlbumUpdate {
-	if s != nil {
-		au.SetFileHash(*s)
+func (_u *AlbumUpdate) SetNillableFileHash(v *string) *AlbumUpdate {
+	if v != nil {
+		_u.SetFileHash(*v)
 	}
-	return au
+	return _u
 }
 
 // SetDisplayOrder sets the "display_order" field.
-func (au *AlbumUpdate) SetDisplayOrder(i int) *AlbumUpdate {
-	au.mutation.ResetDisplayOrder()
-	au.mutation.SetDisplayOrder(i)
-	return au
+func (_u *AlbumUpdate) SetDisplayOrder(v int) *AlbumUpdate {
+	_u.mutation.ResetDisplayOrder()
+	_u.mutation.SetDisplayOrder(v)
+	return _u
 }
 
 // SetNillableDisplayOrder sets the "display_order" field if the given value is not nil.
-func (au *AlbumUpdate) SetNillableDisplayOrder(i *int) *AlbumUpdate {
-	if i != nil {
-		au.SetDisplayOrder(*i)
+func (_u *AlbumUpdate) SetNillableDisplayOrder(v *int) *AlbumUpdate {
+	if v != nil {
+		_u.SetDisplayOrder(*v)
 	}
-	return au
+	return _u
 }
 
-// AddDisplayOrder adds i to the "display_order" field.
-func (au *AlbumUpdate) AddDisplayOrder(i int) *AlbumUpdate {
-	au.mutation.AddDisplayOrder(i)
-	return au
+// AddDisplayOrder adds value to the "display_order" field.
+func (_u *AlbumUpdate) AddDisplayOrder(v int) *AlbumUpdate {
+	_u.mutation.AddDisplayOrder(v)
+	return _u
 }
 
 // Mutation returns the AlbumMutation object of the builder.
-func (au *AlbumUpdate) Mutation() *AlbumMutation {
-	return au.mutation
+func (_u *AlbumUpdate) Mutation() *AlbumMutation {
+	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (au *AlbumUpdate) Save(ctx context.Context) (int, error) {
-	if err := au.defaults(); err != nil {
+func (_u *AlbumUpdate) Save(ctx context.Context) (int, error) {
+	if err := _u.defaults(); err != nil {
 		return 0, err
 	}
-	return withHooks(ctx, au.sqlSave, au.mutation, au.hooks)
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (au *AlbumUpdate) SaveX(ctx context.Context) int {
-	affected, err := au.Save(ctx)
+func (_u *AlbumUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -390,73 +390,73 @@ func (au *AlbumUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (au *AlbumUpdate) Exec(ctx context.Context) error {
-	_, err := au.Save(ctx)
+func (_u *AlbumUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (au *AlbumUpdate) ExecX(ctx context.Context) {
-	if err := au.Exec(ctx); err != nil {
+func (_u *AlbumUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (au *AlbumUpdate) defaults() error {
-	if _, ok := au.mutation.UpdatedAt(); !ok {
+func (_u *AlbumUpdate) defaults() error {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		if album.UpdateDefaultUpdatedAt == nil {
 			return fmt.Errorf("ent: uninitialized album.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
 		}
 		v := album.UpdateDefaultUpdatedAt()
-		au.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (au *AlbumUpdate) check() error {
-	if v, ok := au.mutation.ImageURL(); ok {
+func (_u *AlbumUpdate) check() error {
+	if v, ok := _u.mutation.ImageURL(); ok {
 		if err := album.ImageURLValidator(v); err != nil {
 			return &ValidationError{Name: "image_url", err: fmt.Errorf(`ent: validator failed for field "Album.image_url": %w`, err)}
 		}
 	}
-	if v, ok := au.mutation.BigImageURL(); ok {
+	if v, ok := _u.mutation.BigImageURL(); ok {
 		if err := album.BigImageURLValidator(v); err != nil {
 			return &ValidationError{Name: "big_image_url", err: fmt.Errorf(`ent: validator failed for field "Album.big_image_url": %w`, err)}
 		}
 	}
-	if v, ok := au.mutation.DownloadURL(); ok {
+	if v, ok := _u.mutation.DownloadURL(); ok {
 		if err := album.DownloadURLValidator(v); err != nil {
 			return &ValidationError{Name: "download_url", err: fmt.Errorf(`ent: validator failed for field "Album.download_url": %w`, err)}
 		}
 	}
-	if v, ok := au.mutation.ThumbParam(); ok {
+	if v, ok := _u.mutation.ThumbParam(); ok {
 		if err := album.ThumbParamValidator(v); err != nil {
 			return &ValidationError{Name: "thumb_param", err: fmt.Errorf(`ent: validator failed for field "Album.thumb_param": %w`, err)}
 		}
 	}
-	if v, ok := au.mutation.BigParam(); ok {
+	if v, ok := _u.mutation.BigParam(); ok {
 		if err := album.BigParamValidator(v); err != nil {
 			return &ValidationError{Name: "big_param", err: fmt.Errorf(`ent: validator failed for field "Album.big_param": %w`, err)}
 		}
 	}
-	if v, ok := au.mutation.Tags(); ok {
+	if v, ok := _u.mutation.Tags(); ok {
 		if err := album.TagsValidator(v); err != nil {
 			return &ValidationError{Name: "tags", err: fmt.Errorf(`ent: validator failed for field "Album.tags": %w`, err)}
 		}
 	}
-	if v, ok := au.mutation.Format(); ok {
+	if v, ok := _u.mutation.Format(); ok {
 		if err := album.FormatValidator(v); err != nil {
 			return &ValidationError{Name: "format", err: fmt.Errorf(`ent: validator failed for field "Album.format": %w`, err)}
 		}
 	}
-	if v, ok := au.mutation.AspectRatio(); ok {
+	if v, ok := _u.mutation.AspectRatio(); ok {
 		if err := album.AspectRatioValidator(v); err != nil {
 			return &ValidationError{Name: "aspect_ratio", err: fmt.Errorf(`ent: validator failed for field "Album.aspect_ratio": %w`, err)}
 		}
 	}
-	if v, ok := au.mutation.FileHash(); ok {
+	if v, ok := _u.mutation.FileHash(); ok {
 		if err := album.FileHashValidator(v); err != nil {
 			return &ValidationError{Name: "file_hash", err: fmt.Errorf(`ent: validator failed for field "Album.file_hash": %w`, err)}
 		}
@@ -465,127 +465,127 @@ func (au *AlbumUpdate) check() error {
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (au *AlbumUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *AlbumUpdate {
-	au.modifiers = append(au.modifiers, modifiers...)
-	return au
+func (_u *AlbumUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *AlbumUpdate {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (au *AlbumUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := au.check(); err != nil {
-		return n, err
+func (_u *AlbumUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(album.Table, album.Columns, sqlgraph.NewFieldSpec(album.FieldID, field.TypeUint))
-	if ps := au.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := au.mutation.DeletedAt(); ok {
+	if value, ok := _u.mutation.DeletedAt(); ok {
 		_spec.SetField(album.FieldDeletedAt, field.TypeTime, value)
 	}
-	if au.mutation.DeletedAtCleared() {
+	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(album.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := au.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(album.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := au.mutation.ImageURL(); ok {
+	if value, ok := _u.mutation.ImageURL(); ok {
 		_spec.SetField(album.FieldImageURL, field.TypeString, value)
 	}
-	if value, ok := au.mutation.BigImageURL(); ok {
+	if value, ok := _u.mutation.BigImageURL(); ok {
 		_spec.SetField(album.FieldBigImageURL, field.TypeString, value)
 	}
-	if au.mutation.BigImageURLCleared() {
+	if _u.mutation.BigImageURLCleared() {
 		_spec.ClearField(album.FieldBigImageURL, field.TypeString)
 	}
-	if value, ok := au.mutation.DownloadURL(); ok {
+	if value, ok := _u.mutation.DownloadURL(); ok {
 		_spec.SetField(album.FieldDownloadURL, field.TypeString, value)
 	}
-	if au.mutation.DownloadURLCleared() {
+	if _u.mutation.DownloadURLCleared() {
 		_spec.ClearField(album.FieldDownloadURL, field.TypeString)
 	}
-	if value, ok := au.mutation.ThumbParam(); ok {
+	if value, ok := _u.mutation.ThumbParam(); ok {
 		_spec.SetField(album.FieldThumbParam, field.TypeString, value)
 	}
-	if au.mutation.ThumbParamCleared() {
+	if _u.mutation.ThumbParamCleared() {
 		_spec.ClearField(album.FieldThumbParam, field.TypeString)
 	}
-	if value, ok := au.mutation.BigParam(); ok {
+	if value, ok := _u.mutation.BigParam(); ok {
 		_spec.SetField(album.FieldBigParam, field.TypeString, value)
 	}
-	if au.mutation.BigParamCleared() {
+	if _u.mutation.BigParamCleared() {
 		_spec.ClearField(album.FieldBigParam, field.TypeString)
 	}
-	if value, ok := au.mutation.Tags(); ok {
+	if value, ok := _u.mutation.Tags(); ok {
 		_spec.SetField(album.FieldTags, field.TypeString, value)
 	}
-	if au.mutation.TagsCleared() {
+	if _u.mutation.TagsCleared() {
 		_spec.ClearField(album.FieldTags, field.TypeString)
 	}
-	if value, ok := au.mutation.ViewCount(); ok {
+	if value, ok := _u.mutation.ViewCount(); ok {
 		_spec.SetField(album.FieldViewCount, field.TypeInt, value)
 	}
-	if value, ok := au.mutation.AddedViewCount(); ok {
+	if value, ok := _u.mutation.AddedViewCount(); ok {
 		_spec.AddField(album.FieldViewCount, field.TypeInt, value)
 	}
-	if value, ok := au.mutation.DownloadCount(); ok {
+	if value, ok := _u.mutation.DownloadCount(); ok {
 		_spec.SetField(album.FieldDownloadCount, field.TypeInt, value)
 	}
-	if value, ok := au.mutation.AddedDownloadCount(); ok {
+	if value, ok := _u.mutation.AddedDownloadCount(); ok {
 		_spec.AddField(album.FieldDownloadCount, field.TypeInt, value)
 	}
-	if value, ok := au.mutation.Width(); ok {
+	if value, ok := _u.mutation.Width(); ok {
 		_spec.SetField(album.FieldWidth, field.TypeInt, value)
 	}
-	if value, ok := au.mutation.AddedWidth(); ok {
+	if value, ok := _u.mutation.AddedWidth(); ok {
 		_spec.AddField(album.FieldWidth, field.TypeInt, value)
 	}
-	if au.mutation.WidthCleared() {
+	if _u.mutation.WidthCleared() {
 		_spec.ClearField(album.FieldWidth, field.TypeInt)
 	}
-	if value, ok := au.mutation.Height(); ok {
+	if value, ok := _u.mutation.Height(); ok {
 		_spec.SetField(album.FieldHeight, field.TypeInt, value)
 	}
-	if value, ok := au.mutation.AddedHeight(); ok {
+	if value, ok := _u.mutation.AddedHeight(); ok {
 		_spec.AddField(album.FieldHeight, field.TypeInt, value)
 	}
-	if au.mutation.HeightCleared() {
+	if _u.mutation.HeightCleared() {
 		_spec.ClearField(album.FieldHeight, field.TypeInt)
 	}
-	if value, ok := au.mutation.FileSize(); ok {
+	if value, ok := _u.mutation.FileSize(); ok {
 		_spec.SetField(album.FieldFileSize, field.TypeInt64, value)
 	}
-	if value, ok := au.mutation.AddedFileSize(); ok {
+	if value, ok := _u.mutation.AddedFileSize(); ok {
 		_spec.AddField(album.FieldFileSize, field.TypeInt64, value)
 	}
-	if au.mutation.FileSizeCleared() {
+	if _u.mutation.FileSizeCleared() {
 		_spec.ClearField(album.FieldFileSize, field.TypeInt64)
 	}
-	if value, ok := au.mutation.Format(); ok {
+	if value, ok := _u.mutation.Format(); ok {
 		_spec.SetField(album.FieldFormat, field.TypeString, value)
 	}
-	if au.mutation.FormatCleared() {
+	if _u.mutation.FormatCleared() {
 		_spec.ClearField(album.FieldFormat, field.TypeString)
 	}
-	if value, ok := au.mutation.AspectRatio(); ok {
+	if value, ok := _u.mutation.AspectRatio(); ok {
 		_spec.SetField(album.FieldAspectRatio, field.TypeString, value)
 	}
-	if au.mutation.AspectRatioCleared() {
+	if _u.mutation.AspectRatioCleared() {
 		_spec.ClearField(album.FieldAspectRatio, field.TypeString)
 	}
-	if value, ok := au.mutation.FileHash(); ok {
+	if value, ok := _u.mutation.FileHash(); ok {
 		_spec.SetField(album.FieldFileHash, field.TypeString, value)
 	}
-	if value, ok := au.mutation.DisplayOrder(); ok {
+	if value, ok := _u.mutation.DisplayOrder(); ok {
 		_spec.SetField(album.FieldDisplayOrder, field.TypeInt, value)
 	}
-	if value, ok := au.mutation.AddedDisplayOrder(); ok {
+	if value, ok := _u.mutation.AddedDisplayOrder(); ok {
 		_spec.AddField(album.FieldDisplayOrder, field.TypeInt, value)
 	}
-	_spec.AddModifiers(au.modifiers...)
-	if n, err = sqlgraph.UpdateNodes(ctx, au.driver, _spec); err != nil {
+	_spec.AddModifiers(_u.modifiers...)
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{album.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -593,8 +593,8 @@ func (au *AlbumUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	au.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // AlbumUpdateOne is the builder for updating a single Album entity.
@@ -607,372 +607,372 @@ type AlbumUpdateOne struct {
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (auo *AlbumUpdateOne) SetDeletedAt(t time.Time) *AlbumUpdateOne {
-	auo.mutation.SetDeletedAt(t)
-	return auo
+func (_u *AlbumUpdateOne) SetDeletedAt(v time.Time) *AlbumUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (auo *AlbumUpdateOne) SetNillableDeletedAt(t *time.Time) *AlbumUpdateOne {
-	if t != nil {
-		auo.SetDeletedAt(*t)
+func (_u *AlbumUpdateOne) SetNillableDeletedAt(v *time.Time) *AlbumUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearDeletedAt clears the value of the "deleted_at" field.
-func (auo *AlbumUpdateOne) ClearDeletedAt() *AlbumUpdateOne {
-	auo.mutation.ClearDeletedAt()
-	return auo
+func (_u *AlbumUpdateOne) ClearDeletedAt() *AlbumUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (auo *AlbumUpdateOne) SetUpdatedAt(t time.Time) *AlbumUpdateOne {
-	auo.mutation.SetUpdatedAt(t)
-	return auo
+func (_u *AlbumUpdateOne) SetUpdatedAt(v time.Time) *AlbumUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetImageURL sets the "image_url" field.
-func (auo *AlbumUpdateOne) SetImageURL(s string) *AlbumUpdateOne {
-	auo.mutation.SetImageURL(s)
-	return auo
+func (_u *AlbumUpdateOne) SetImageURL(v string) *AlbumUpdateOne {
+	_u.mutation.SetImageURL(v)
+	return _u
 }
 
 // SetNillableImageURL sets the "image_url" field if the given value is not nil.
-func (auo *AlbumUpdateOne) SetNillableImageURL(s *string) *AlbumUpdateOne {
-	if s != nil {
-		auo.SetImageURL(*s)
+func (_u *AlbumUpdateOne) SetNillableImageURL(v *string) *AlbumUpdateOne {
+	if v != nil {
+		_u.SetImageURL(*v)
 	}
-	return auo
+	return _u
 }
 
 // SetBigImageURL sets the "big_image_url" field.
-func (auo *AlbumUpdateOne) SetBigImageURL(s string) *AlbumUpdateOne {
-	auo.mutation.SetBigImageURL(s)
-	return auo
+func (_u *AlbumUpdateOne) SetBigImageURL(v string) *AlbumUpdateOne {
+	_u.mutation.SetBigImageURL(v)
+	return _u
 }
 
 // SetNillableBigImageURL sets the "big_image_url" field if the given value is not nil.
-func (auo *AlbumUpdateOne) SetNillableBigImageURL(s *string) *AlbumUpdateOne {
-	if s != nil {
-		auo.SetBigImageURL(*s)
+func (_u *AlbumUpdateOne) SetNillableBigImageURL(v *string) *AlbumUpdateOne {
+	if v != nil {
+		_u.SetBigImageURL(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearBigImageURL clears the value of the "big_image_url" field.
-func (auo *AlbumUpdateOne) ClearBigImageURL() *AlbumUpdateOne {
-	auo.mutation.ClearBigImageURL()
-	return auo
+func (_u *AlbumUpdateOne) ClearBigImageURL() *AlbumUpdateOne {
+	_u.mutation.ClearBigImageURL()
+	return _u
 }
 
 // SetDownloadURL sets the "download_url" field.
-func (auo *AlbumUpdateOne) SetDownloadURL(s string) *AlbumUpdateOne {
-	auo.mutation.SetDownloadURL(s)
-	return auo
+func (_u *AlbumUpdateOne) SetDownloadURL(v string) *AlbumUpdateOne {
+	_u.mutation.SetDownloadURL(v)
+	return _u
 }
 
 // SetNillableDownloadURL sets the "download_url" field if the given value is not nil.
-func (auo *AlbumUpdateOne) SetNillableDownloadURL(s *string) *AlbumUpdateOne {
-	if s != nil {
-		auo.SetDownloadURL(*s)
+func (_u *AlbumUpdateOne) SetNillableDownloadURL(v *string) *AlbumUpdateOne {
+	if v != nil {
+		_u.SetDownloadURL(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearDownloadURL clears the value of the "download_url" field.
-func (auo *AlbumUpdateOne) ClearDownloadURL() *AlbumUpdateOne {
-	auo.mutation.ClearDownloadURL()
-	return auo
+func (_u *AlbumUpdateOne) ClearDownloadURL() *AlbumUpdateOne {
+	_u.mutation.ClearDownloadURL()
+	return _u
 }
 
 // SetThumbParam sets the "thumb_param" field.
-func (auo *AlbumUpdateOne) SetThumbParam(s string) *AlbumUpdateOne {
-	auo.mutation.SetThumbParam(s)
-	return auo
+func (_u *AlbumUpdateOne) SetThumbParam(v string) *AlbumUpdateOne {
+	_u.mutation.SetThumbParam(v)
+	return _u
 }
 
 // SetNillableThumbParam sets the "thumb_param" field if the given value is not nil.
-func (auo *AlbumUpdateOne) SetNillableThumbParam(s *string) *AlbumUpdateOne {
-	if s != nil {
-		auo.SetThumbParam(*s)
+func (_u *AlbumUpdateOne) SetNillableThumbParam(v *string) *AlbumUpdateOne {
+	if v != nil {
+		_u.SetThumbParam(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearThumbParam clears the value of the "thumb_param" field.
-func (auo *AlbumUpdateOne) ClearThumbParam() *AlbumUpdateOne {
-	auo.mutation.ClearThumbParam()
-	return auo
+func (_u *AlbumUpdateOne) ClearThumbParam() *AlbumUpdateOne {
+	_u.mutation.ClearThumbParam()
+	return _u
 }
 
 // SetBigParam sets the "big_param" field.
-func (auo *AlbumUpdateOne) SetBigParam(s string) *AlbumUpdateOne {
-	auo.mutation.SetBigParam(s)
-	return auo
+func (_u *AlbumUpdateOne) SetBigParam(v string) *AlbumUpdateOne {
+	_u.mutation.SetBigParam(v)
+	return _u
 }
 
 // SetNillableBigParam sets the "big_param" field if the given value is not nil.
-func (auo *AlbumUpdateOne) SetNillableBigParam(s *string) *AlbumUpdateOne {
-	if s != nil {
-		auo.SetBigParam(*s)
+func (_u *AlbumUpdateOne) SetNillableBigParam(v *string) *AlbumUpdateOne {
+	if v != nil {
+		_u.SetBigParam(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearBigParam clears the value of the "big_param" field.
-func (auo *AlbumUpdateOne) ClearBigParam() *AlbumUpdateOne {
-	auo.mutation.ClearBigParam()
-	return auo
+func (_u *AlbumUpdateOne) ClearBigParam() *AlbumUpdateOne {
+	_u.mutation.ClearBigParam()
+	return _u
 }
 
 // SetTags sets the "tags" field.
-func (auo *AlbumUpdateOne) SetTags(s string) *AlbumUpdateOne {
-	auo.mutation.SetTags(s)
-	return auo
+func (_u *AlbumUpdateOne) SetTags(v string) *AlbumUpdateOne {
+	_u.mutation.SetTags(v)
+	return _u
 }
 
 // SetNillableTags sets the "tags" field if the given value is not nil.
-func (auo *AlbumUpdateOne) SetNillableTags(s *string) *AlbumUpdateOne {
-	if s != nil {
-		auo.SetTags(*s)
+func (_u *AlbumUpdateOne) SetNillableTags(v *string) *AlbumUpdateOne {
+	if v != nil {
+		_u.SetTags(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearTags clears the value of the "tags" field.
-func (auo *AlbumUpdateOne) ClearTags() *AlbumUpdateOne {
-	auo.mutation.ClearTags()
-	return auo
+func (_u *AlbumUpdateOne) ClearTags() *AlbumUpdateOne {
+	_u.mutation.ClearTags()
+	return _u
 }
 
 // SetViewCount sets the "view_count" field.
-func (auo *AlbumUpdateOne) SetViewCount(i int) *AlbumUpdateOne {
-	auo.mutation.ResetViewCount()
-	auo.mutation.SetViewCount(i)
-	return auo
+func (_u *AlbumUpdateOne) SetViewCount(v int) *AlbumUpdateOne {
+	_u.mutation.ResetViewCount()
+	_u.mutation.SetViewCount(v)
+	return _u
 }
 
 // SetNillableViewCount sets the "view_count" field if the given value is not nil.
-func (auo *AlbumUpdateOne) SetNillableViewCount(i *int) *AlbumUpdateOne {
-	if i != nil {
-		auo.SetViewCount(*i)
+func (_u *AlbumUpdateOne) SetNillableViewCount(v *int) *AlbumUpdateOne {
+	if v != nil {
+		_u.SetViewCount(*v)
 	}
-	return auo
+	return _u
 }
 
-// AddViewCount adds i to the "view_count" field.
-func (auo *AlbumUpdateOne) AddViewCount(i int) *AlbumUpdateOne {
-	auo.mutation.AddViewCount(i)
-	return auo
+// AddViewCount adds value to the "view_count" field.
+func (_u *AlbumUpdateOne) AddViewCount(v int) *AlbumUpdateOne {
+	_u.mutation.AddViewCount(v)
+	return _u
 }
 
 // SetDownloadCount sets the "download_count" field.
-func (auo *AlbumUpdateOne) SetDownloadCount(i int) *AlbumUpdateOne {
-	auo.mutation.ResetDownloadCount()
-	auo.mutation.SetDownloadCount(i)
-	return auo
+func (_u *AlbumUpdateOne) SetDownloadCount(v int) *AlbumUpdateOne {
+	_u.mutation.ResetDownloadCount()
+	_u.mutation.SetDownloadCount(v)
+	return _u
 }
 
 // SetNillableDownloadCount sets the "download_count" field if the given value is not nil.
-func (auo *AlbumUpdateOne) SetNillableDownloadCount(i *int) *AlbumUpdateOne {
-	if i != nil {
-		auo.SetDownloadCount(*i)
+func (_u *AlbumUpdateOne) SetNillableDownloadCount(v *int) *AlbumUpdateOne {
+	if v != nil {
+		_u.SetDownloadCount(*v)
 	}
-	return auo
+	return _u
 }
 
-// AddDownloadCount adds i to the "download_count" field.
-func (auo *AlbumUpdateOne) AddDownloadCount(i int) *AlbumUpdateOne {
-	auo.mutation.AddDownloadCount(i)
-	return auo
+// AddDownloadCount adds value to the "download_count" field.
+func (_u *AlbumUpdateOne) AddDownloadCount(v int) *AlbumUpdateOne {
+	_u.mutation.AddDownloadCount(v)
+	return _u
 }
 
 // SetWidth sets the "width" field.
-func (auo *AlbumUpdateOne) SetWidth(i int) *AlbumUpdateOne {
-	auo.mutation.ResetWidth()
-	auo.mutation.SetWidth(i)
-	return auo
+func (_u *AlbumUpdateOne) SetWidth(v int) *AlbumUpdateOne {
+	_u.mutation.ResetWidth()
+	_u.mutation.SetWidth(v)
+	return _u
 }
 
 // SetNillableWidth sets the "width" field if the given value is not nil.
-func (auo *AlbumUpdateOne) SetNillableWidth(i *int) *AlbumUpdateOne {
-	if i != nil {
-		auo.SetWidth(*i)
+func (_u *AlbumUpdateOne) SetNillableWidth(v *int) *AlbumUpdateOne {
+	if v != nil {
+		_u.SetWidth(*v)
 	}
-	return auo
+	return _u
 }
 
-// AddWidth adds i to the "width" field.
-func (auo *AlbumUpdateOne) AddWidth(i int) *AlbumUpdateOne {
-	auo.mutation.AddWidth(i)
-	return auo
+// AddWidth adds value to the "width" field.
+func (_u *AlbumUpdateOne) AddWidth(v int) *AlbumUpdateOne {
+	_u.mutation.AddWidth(v)
+	return _u
 }
 
 // ClearWidth clears the value of the "width" field.
-func (auo *AlbumUpdateOne) ClearWidth() *AlbumUpdateOne {
-	auo.mutation.ClearWidth()
-	return auo
+func (_u *AlbumUpdateOne) ClearWidth() *AlbumUpdateOne {
+	_u.mutation.ClearWidth()
+	return _u
 }
 
 // SetHeight sets the "height" field.
-func (auo *AlbumUpdateOne) SetHeight(i int) *AlbumUpdateOne {
-	auo.mutation.ResetHeight()
-	auo.mutation.SetHeight(i)
-	return auo
+func (_u *AlbumUpdateOne) SetHeight(v int) *AlbumUpdateOne {
+	_u.mutation.ResetHeight()
+	_u.mutation.SetHeight(v)
+	return _u
 }
 
 // SetNillableHeight sets the "height" field if the given value is not nil.
-func (auo *AlbumUpdateOne) SetNillableHeight(i *int) *AlbumUpdateOne {
-	if i != nil {
-		auo.SetHeight(*i)
+func (_u *AlbumUpdateOne) SetNillableHeight(v *int) *AlbumUpdateOne {
+	if v != nil {
+		_u.SetHeight(*v)
 	}
-	return auo
+	return _u
 }
 
-// AddHeight adds i to the "height" field.
-func (auo *AlbumUpdateOne) AddHeight(i int) *AlbumUpdateOne {
-	auo.mutation.AddHeight(i)
-	return auo
+// AddHeight adds value to the "height" field.
+func (_u *AlbumUpdateOne) AddHeight(v int) *AlbumUpdateOne {
+	_u.mutation.AddHeight(v)
+	return _u
 }
 
 // ClearHeight clears the value of the "height" field.
-func (auo *AlbumUpdateOne) ClearHeight() *AlbumUpdateOne {
-	auo.mutation.ClearHeight()
-	return auo
+func (_u *AlbumUpdateOne) ClearHeight() *AlbumUpdateOne {
+	_u.mutation.ClearHeight()
+	return _u
 }
 
 // SetFileSize sets the "file_size" field.
-func (auo *AlbumUpdateOne) SetFileSize(i int64) *AlbumUpdateOne {
-	auo.mutation.ResetFileSize()
-	auo.mutation.SetFileSize(i)
-	return auo
+func (_u *AlbumUpdateOne) SetFileSize(v int64) *AlbumUpdateOne {
+	_u.mutation.ResetFileSize()
+	_u.mutation.SetFileSize(v)
+	return _u
 }
 
 // SetNillableFileSize sets the "file_size" field if the given value is not nil.
-func (auo *AlbumUpdateOne) SetNillableFileSize(i *int64) *AlbumUpdateOne {
-	if i != nil {
-		auo.SetFileSize(*i)
+func (_u *AlbumUpdateOne) SetNillableFileSize(v *int64) *AlbumUpdateOne {
+	if v != nil {
+		_u.SetFileSize(*v)
 	}
-	return auo
+	return _u
 }
 
-// AddFileSize adds i to the "file_size" field.
-func (auo *AlbumUpdateOne) AddFileSize(i int64) *AlbumUpdateOne {
-	auo.mutation.AddFileSize(i)
-	return auo
+// AddFileSize adds value to the "file_size" field.
+func (_u *AlbumUpdateOne) AddFileSize(v int64) *AlbumUpdateOne {
+	_u.mutation.AddFileSize(v)
+	return _u
 }
 
 // ClearFileSize clears the value of the "file_size" field.
-func (auo *AlbumUpdateOne) ClearFileSize() *AlbumUpdateOne {
-	auo.mutation.ClearFileSize()
-	return auo
+func (_u *AlbumUpdateOne) ClearFileSize() *AlbumUpdateOne {
+	_u.mutation.ClearFileSize()
+	return _u
 }
 
 // SetFormat sets the "format" field.
-func (auo *AlbumUpdateOne) SetFormat(s string) *AlbumUpdateOne {
-	auo.mutation.SetFormat(s)
-	return auo
+func (_u *AlbumUpdateOne) SetFormat(v string) *AlbumUpdateOne {
+	_u.mutation.SetFormat(v)
+	return _u
 }
 
 // SetNillableFormat sets the "format" field if the given value is not nil.
-func (auo *AlbumUpdateOne) SetNillableFormat(s *string) *AlbumUpdateOne {
-	if s != nil {
-		auo.SetFormat(*s)
+func (_u *AlbumUpdateOne) SetNillableFormat(v *string) *AlbumUpdateOne {
+	if v != nil {
+		_u.SetFormat(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearFormat clears the value of the "format" field.
-func (auo *AlbumUpdateOne) ClearFormat() *AlbumUpdateOne {
-	auo.mutation.ClearFormat()
-	return auo
+func (_u *AlbumUpdateOne) ClearFormat() *AlbumUpdateOne {
+	_u.mutation.ClearFormat()
+	return _u
 }
 
 // SetAspectRatio sets the "aspect_ratio" field.
-func (auo *AlbumUpdateOne) SetAspectRatio(s string) *AlbumUpdateOne {
-	auo.mutation.SetAspectRatio(s)
-	return auo
+func (_u *AlbumUpdateOne) SetAspectRatio(v string) *AlbumUpdateOne {
+	_u.mutation.SetAspectRatio(v)
+	return _u
 }
 
 // SetNillableAspectRatio sets the "aspect_ratio" field if the given value is not nil.
-func (auo *AlbumUpdateOne) SetNillableAspectRatio(s *string) *AlbumUpdateOne {
-	if s != nil {
-		auo.SetAspectRatio(*s)
+func (_u *AlbumUpdateOne) SetNillableAspectRatio(v *string) *AlbumUpdateOne {
+	if v != nil {
+		_u.SetAspectRatio(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearAspectRatio clears the value of the "aspect_ratio" field.
-func (auo *AlbumUpdateOne) ClearAspectRatio() *AlbumUpdateOne {
-	auo.mutation.ClearAspectRatio()
-	return auo
+func (_u *AlbumUpdateOne) ClearAspectRatio() *AlbumUpdateOne {
+	_u.mutation.ClearAspectRatio()
+	return _u
 }
 
 // SetFileHash sets the "file_hash" field.
-func (auo *AlbumUpdateOne) SetFileHash(s string) *AlbumUpdateOne {
-	auo.mutation.SetFileHash(s)
-	return auo
+func (_u *AlbumUpdateOne) SetFileHash(v string) *AlbumUpdateOne {
+	_u.mutation.SetFileHash(v)
+	return _u
 }
 
 // SetNillableFileHash sets the "file_hash" field if the given value is not nil.
-func (auo *AlbumUpdateOne) SetNillableFileHash(s *string) *AlbumUpdateOne {
-	if s != nil {
-		auo.SetFileHash(*s)
+func (_u *AlbumUpdateOne) SetNillableFileHash(v *string) *AlbumUpdateOne {
+	if v != nil {
+		_u.SetFileHash(*v)
 	}
-	return auo
+	return _u
 }
 
 // SetDisplayOrder sets the "display_order" field.
-func (auo *AlbumUpdateOne) SetDisplayOrder(i int) *AlbumUpdateOne {
-	auo.mutation.ResetDisplayOrder()
-	auo.mutation.SetDisplayOrder(i)
-	return auo
+func (_u *AlbumUpdateOne) SetDisplayOrder(v int) *AlbumUpdateOne {
+	_u.mutation.ResetDisplayOrder()
+	_u.mutation.SetDisplayOrder(v)
+	return _u
 }
 
 // SetNillableDisplayOrder sets the "display_order" field if the given value is not nil.
-func (auo *AlbumUpdateOne) SetNillableDisplayOrder(i *int) *AlbumUpdateOne {
-	if i != nil {
-		auo.SetDisplayOrder(*i)
+func (_u *AlbumUpdateOne) SetNillableDisplayOrder(v *int) *AlbumUpdateOne {
+	if v != nil {
+		_u.SetDisplayOrder(*v)
 	}
-	return auo
+	return _u
 }
 
-// AddDisplayOrder adds i to the "display_order" field.
-func (auo *AlbumUpdateOne) AddDisplayOrder(i int) *AlbumUpdateOne {
-	auo.mutation.AddDisplayOrder(i)
-	return auo
+// AddDisplayOrder adds value to the "display_order" field.
+func (_u *AlbumUpdateOne) AddDisplayOrder(v int) *AlbumUpdateOne {
+	_u.mutation.AddDisplayOrder(v)
+	return _u
 }
 
 // Mutation returns the AlbumMutation object of the builder.
-func (auo *AlbumUpdateOne) Mutation() *AlbumMutation {
-	return auo.mutation
+func (_u *AlbumUpdateOne) Mutation() *AlbumMutation {
+	return _u.mutation
 }
 
 // Where appends a list predicates to the AlbumUpdate builder.
-func (auo *AlbumUpdateOne) Where(ps ...predicate.Album) *AlbumUpdateOne {
-	auo.mutation.Where(ps...)
-	return auo
+func (_u *AlbumUpdateOne) Where(ps ...predicate.Album) *AlbumUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (auo *AlbumUpdateOne) Select(field string, fields ...string) *AlbumUpdateOne {
-	auo.fields = append([]string{field}, fields...)
-	return auo
+func (_u *AlbumUpdateOne) Select(field string, fields ...string) *AlbumUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated Album entity.
-func (auo *AlbumUpdateOne) Save(ctx context.Context) (*Album, error) {
-	if err := auo.defaults(); err != nil {
+func (_u *AlbumUpdateOne) Save(ctx context.Context) (*Album, error) {
+	if err := _u.defaults(); err != nil {
 		return nil, err
 	}
-	return withHooks(ctx, auo.sqlSave, auo.mutation, auo.hooks)
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (auo *AlbumUpdateOne) SaveX(ctx context.Context) *Album {
-	node, err := auo.Save(ctx)
+func (_u *AlbumUpdateOne) SaveX(ctx context.Context) *Album {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -980,73 +980,73 @@ func (auo *AlbumUpdateOne) SaveX(ctx context.Context) *Album {
 }
 
 // Exec executes the query on the entity.
-func (auo *AlbumUpdateOne) Exec(ctx context.Context) error {
-	_, err := auo.Save(ctx)
+func (_u *AlbumUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (auo *AlbumUpdateOne) ExecX(ctx context.Context) {
-	if err := auo.Exec(ctx); err != nil {
+func (_u *AlbumUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (auo *AlbumUpdateOne) defaults() error {
-	if _, ok := auo.mutation.UpdatedAt(); !ok {
+func (_u *AlbumUpdateOne) defaults() error {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		if album.UpdateDefaultUpdatedAt == nil {
 			return fmt.Errorf("ent: uninitialized album.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
 		}
 		v := album.UpdateDefaultUpdatedAt()
-		auo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (auo *AlbumUpdateOne) check() error {
-	if v, ok := auo.mutation.ImageURL(); ok {
+func (_u *AlbumUpdateOne) check() error {
+	if v, ok := _u.mutation.ImageURL(); ok {
 		if err := album.ImageURLValidator(v); err != nil {
 			return &ValidationError{Name: "image_url", err: fmt.Errorf(`ent: validator failed for field "Album.image_url": %w`, err)}
 		}
 	}
-	if v, ok := auo.mutation.BigImageURL(); ok {
+	if v, ok := _u.mutation.BigImageURL(); ok {
 		if err := album.BigImageURLValidator(v); err != nil {
 			return &ValidationError{Name: "big_image_url", err: fmt.Errorf(`ent: validator failed for field "Album.big_image_url": %w`, err)}
 		}
 	}
-	if v, ok := auo.mutation.DownloadURL(); ok {
+	if v, ok := _u.mutation.DownloadURL(); ok {
 		if err := album.DownloadURLValidator(v); err != nil {
 			return &ValidationError{Name: "download_url", err: fmt.Errorf(`ent: validator failed for field "Album.download_url": %w`, err)}
 		}
 	}
-	if v, ok := auo.mutation.ThumbParam(); ok {
+	if v, ok := _u.mutation.ThumbParam(); ok {
 		if err := album.ThumbParamValidator(v); err != nil {
 			return &ValidationError{Name: "thumb_param", err: fmt.Errorf(`ent: validator failed for field "Album.thumb_param": %w`, err)}
 		}
 	}
-	if v, ok := auo.mutation.BigParam(); ok {
+	if v, ok := _u.mutation.BigParam(); ok {
 		if err := album.BigParamValidator(v); err != nil {
 			return &ValidationError{Name: "big_param", err: fmt.Errorf(`ent: validator failed for field "Album.big_param": %w`, err)}
 		}
 	}
-	if v, ok := auo.mutation.Tags(); ok {
+	if v, ok := _u.mutation.Tags(); ok {
 		if err := album.TagsValidator(v); err != nil {
 			return &ValidationError{Name: "tags", err: fmt.Errorf(`ent: validator failed for field "Album.tags": %w`, err)}
 		}
 	}
-	if v, ok := auo.mutation.Format(); ok {
+	if v, ok := _u.mutation.Format(); ok {
 		if err := album.FormatValidator(v); err != nil {
 			return &ValidationError{Name: "format", err: fmt.Errorf(`ent: validator failed for field "Album.format": %w`, err)}
 		}
 	}
-	if v, ok := auo.mutation.AspectRatio(); ok {
+	if v, ok := _u.mutation.AspectRatio(); ok {
 		if err := album.AspectRatioValidator(v); err != nil {
 			return &ValidationError{Name: "aspect_ratio", err: fmt.Errorf(`ent: validator failed for field "Album.aspect_ratio": %w`, err)}
 		}
 	}
-	if v, ok := auo.mutation.FileHash(); ok {
+	if v, ok := _u.mutation.FileHash(); ok {
 		if err := album.FileHashValidator(v); err != nil {
 			return &ValidationError{Name: "file_hash", err: fmt.Errorf(`ent: validator failed for field "Album.file_hash": %w`, err)}
 		}
@@ -1055,22 +1055,22 @@ func (auo *AlbumUpdateOne) check() error {
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (auo *AlbumUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *AlbumUpdateOne {
-	auo.modifiers = append(auo.modifiers, modifiers...)
-	return auo
+func (_u *AlbumUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *AlbumUpdateOne {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (auo *AlbumUpdateOne) sqlSave(ctx context.Context) (_node *Album, err error) {
-	if err := auo.check(); err != nil {
+func (_u *AlbumUpdateOne) sqlSave(ctx context.Context) (_node *Album, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(album.Table, album.Columns, sqlgraph.NewFieldSpec(album.FieldID, field.TypeUint))
-	id, ok := auo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Album.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := auo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, album.FieldID)
 		for _, f := range fields {
@@ -1082,120 +1082,120 @@ func (auo *AlbumUpdateOne) sqlSave(ctx context.Context) (_node *Album, err error
 			}
 		}
 	}
-	if ps := auo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := auo.mutation.DeletedAt(); ok {
+	if value, ok := _u.mutation.DeletedAt(); ok {
 		_spec.SetField(album.FieldDeletedAt, field.TypeTime, value)
 	}
-	if auo.mutation.DeletedAtCleared() {
+	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(album.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := auo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(album.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := auo.mutation.ImageURL(); ok {
+	if value, ok := _u.mutation.ImageURL(); ok {
 		_spec.SetField(album.FieldImageURL, field.TypeString, value)
 	}
-	if value, ok := auo.mutation.BigImageURL(); ok {
+	if value, ok := _u.mutation.BigImageURL(); ok {
 		_spec.SetField(album.FieldBigImageURL, field.TypeString, value)
 	}
-	if auo.mutation.BigImageURLCleared() {
+	if _u.mutation.BigImageURLCleared() {
 		_spec.ClearField(album.FieldBigImageURL, field.TypeString)
 	}
-	if value, ok := auo.mutation.DownloadURL(); ok {
+	if value, ok := _u.mutation.DownloadURL(); ok {
 		_spec.SetField(album.FieldDownloadURL, field.TypeString, value)
 	}
-	if auo.mutation.DownloadURLCleared() {
+	if _u.mutation.DownloadURLCleared() {
 		_spec.ClearField(album.FieldDownloadURL, field.TypeString)
 	}
-	if value, ok := auo.mutation.ThumbParam(); ok {
+	if value, ok := _u.mutation.ThumbParam(); ok {
 		_spec.SetField(album.FieldThumbParam, field.TypeString, value)
 	}
-	if auo.mutation.ThumbParamCleared() {
+	if _u.mutation.ThumbParamCleared() {
 		_spec.ClearField(album.FieldThumbParam, field.TypeString)
 	}
-	if value, ok := auo.mutation.BigParam(); ok {
+	if value, ok := _u.mutation.BigParam(); ok {
 		_spec.SetField(album.FieldBigParam, field.TypeString, value)
 	}
-	if auo.mutation.BigParamCleared() {
+	if _u.mutation.BigParamCleared() {
 		_spec.ClearField(album.FieldBigParam, field.TypeString)
 	}
-	if value, ok := auo.mutation.Tags(); ok {
+	if value, ok := _u.mutation.Tags(); ok {
 		_spec.SetField(album.FieldTags, field.TypeString, value)
 	}
-	if auo.mutation.TagsCleared() {
+	if _u.mutation.TagsCleared() {
 		_spec.ClearField(album.FieldTags, field.TypeString)
 	}
-	if value, ok := auo.mutation.ViewCount(); ok {
+	if value, ok := _u.mutation.ViewCount(); ok {
 		_spec.SetField(album.FieldViewCount, field.TypeInt, value)
 	}
-	if value, ok := auo.mutation.AddedViewCount(); ok {
+	if value, ok := _u.mutation.AddedViewCount(); ok {
 		_spec.AddField(album.FieldViewCount, field.TypeInt, value)
 	}
-	if value, ok := auo.mutation.DownloadCount(); ok {
+	if value, ok := _u.mutation.DownloadCount(); ok {
 		_spec.SetField(album.FieldDownloadCount, field.TypeInt, value)
 	}
-	if value, ok := auo.mutation.AddedDownloadCount(); ok {
+	if value, ok := _u.mutation.AddedDownloadCount(); ok {
 		_spec.AddField(album.FieldDownloadCount, field.TypeInt, value)
 	}
-	if value, ok := auo.mutation.Width(); ok {
+	if value, ok := _u.mutation.Width(); ok {
 		_spec.SetField(album.FieldWidth, field.TypeInt, value)
 	}
-	if value, ok := auo.mutation.AddedWidth(); ok {
+	if value, ok := _u.mutation.AddedWidth(); ok {
 		_spec.AddField(album.FieldWidth, field.TypeInt, value)
 	}
-	if auo.mutation.WidthCleared() {
+	if _u.mutation.WidthCleared() {
 		_spec.ClearField(album.FieldWidth, field.TypeInt)
 	}
-	if value, ok := auo.mutation.Height(); ok {
+	if value, ok := _u.mutation.Height(); ok {
 		_spec.SetField(album.FieldHeight, field.TypeInt, value)
 	}
-	if value, ok := auo.mutation.AddedHeight(); ok {
+	if value, ok := _u.mutation.AddedHeight(); ok {
 		_spec.AddField(album.FieldHeight, field.TypeInt, value)
 	}
-	if auo.mutation.HeightCleared() {
+	if _u.mutation.HeightCleared() {
 		_spec.ClearField(album.FieldHeight, field.TypeInt)
 	}
-	if value, ok := auo.mutation.FileSize(); ok {
+	if value, ok := _u.mutation.FileSize(); ok {
 		_spec.SetField(album.FieldFileSize, field.TypeInt64, value)
 	}
-	if value, ok := auo.mutation.AddedFileSize(); ok {
+	if value, ok := _u.mutation.AddedFileSize(); ok {
 		_spec.AddField(album.FieldFileSize, field.TypeInt64, value)
 	}
-	if auo.mutation.FileSizeCleared() {
+	if _u.mutation.FileSizeCleared() {
 		_spec.ClearField(album.FieldFileSize, field.TypeInt64)
 	}
-	if value, ok := auo.mutation.Format(); ok {
+	if value, ok := _u.mutation.Format(); ok {
 		_spec.SetField(album.FieldFormat, field.TypeString, value)
 	}
-	if auo.mutation.FormatCleared() {
+	if _u.mutation.FormatCleared() {
 		_spec.ClearField(album.FieldFormat, field.TypeString)
 	}
-	if value, ok := auo.mutation.AspectRatio(); ok {
+	if value, ok := _u.mutation.AspectRatio(); ok {
 		_spec.SetField(album.FieldAspectRatio, field.TypeString, value)
 	}
-	if auo.mutation.AspectRatioCleared() {
+	if _u.mutation.AspectRatioCleared() {
 		_spec.ClearField(album.FieldAspectRatio, field.TypeString)
 	}
-	if value, ok := auo.mutation.FileHash(); ok {
+	if value, ok := _u.mutation.FileHash(); ok {
 		_spec.SetField(album.FieldFileHash, field.TypeString, value)
 	}
-	if value, ok := auo.mutation.DisplayOrder(); ok {
+	if value, ok := _u.mutation.DisplayOrder(); ok {
 		_spec.SetField(album.FieldDisplayOrder, field.TypeInt, value)
 	}
-	if value, ok := auo.mutation.AddedDisplayOrder(); ok {
+	if value, ok := _u.mutation.AddedDisplayOrder(); ok {
 		_spec.AddField(album.FieldDisplayOrder, field.TypeInt, value)
 	}
-	_spec.AddModifiers(auo.modifiers...)
-	_node = &Album{config: auo.config}
+	_spec.AddModifiers(_u.modifiers...)
+	_node = &Album{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, auo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{album.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -1203,6 +1203,6 @@ func (auo *AlbumUpdateOne) sqlSave(ctx context.Context) (_node *Album, err error
 		}
 		return nil, err
 	}
-	auo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

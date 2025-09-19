@@ -25,179 +25,179 @@ type LinkUpdate struct {
 }
 
 // Where appends a list predicates to the LinkUpdate builder.
-func (lu *LinkUpdate) Where(ps ...predicate.Link) *LinkUpdate {
-	lu.mutation.Where(ps...)
-	return lu
+func (_u *LinkUpdate) Where(ps ...predicate.Link) *LinkUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetName sets the "name" field.
-func (lu *LinkUpdate) SetName(s string) *LinkUpdate {
-	lu.mutation.SetName(s)
-	return lu
+func (_u *LinkUpdate) SetName(v string) *LinkUpdate {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (lu *LinkUpdate) SetNillableName(s *string) *LinkUpdate {
-	if s != nil {
-		lu.SetName(*s)
+func (_u *LinkUpdate) SetNillableName(v *string) *LinkUpdate {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return lu
+	return _u
 }
 
 // SetURL sets the "url" field.
-func (lu *LinkUpdate) SetURL(s string) *LinkUpdate {
-	lu.mutation.SetURL(s)
-	return lu
+func (_u *LinkUpdate) SetURL(v string) *LinkUpdate {
+	_u.mutation.SetURL(v)
+	return _u
 }
 
 // SetNillableURL sets the "url" field if the given value is not nil.
-func (lu *LinkUpdate) SetNillableURL(s *string) *LinkUpdate {
-	if s != nil {
-		lu.SetURL(*s)
+func (_u *LinkUpdate) SetNillableURL(v *string) *LinkUpdate {
+	if v != nil {
+		_u.SetURL(*v)
 	}
-	return lu
+	return _u
 }
 
 // SetLogo sets the "logo" field.
-func (lu *LinkUpdate) SetLogo(s string) *LinkUpdate {
-	lu.mutation.SetLogo(s)
-	return lu
+func (_u *LinkUpdate) SetLogo(v string) *LinkUpdate {
+	_u.mutation.SetLogo(v)
+	return _u
 }
 
 // SetNillableLogo sets the "logo" field if the given value is not nil.
-func (lu *LinkUpdate) SetNillableLogo(s *string) *LinkUpdate {
-	if s != nil {
-		lu.SetLogo(*s)
+func (_u *LinkUpdate) SetNillableLogo(v *string) *LinkUpdate {
+	if v != nil {
+		_u.SetLogo(*v)
 	}
-	return lu
+	return _u
 }
 
 // ClearLogo clears the value of the "logo" field.
-func (lu *LinkUpdate) ClearLogo() *LinkUpdate {
-	lu.mutation.ClearLogo()
-	return lu
+func (_u *LinkUpdate) ClearLogo() *LinkUpdate {
+	_u.mutation.ClearLogo()
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (lu *LinkUpdate) SetDescription(s string) *LinkUpdate {
-	lu.mutation.SetDescription(s)
-	return lu
+func (_u *LinkUpdate) SetDescription(v string) *LinkUpdate {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (lu *LinkUpdate) SetNillableDescription(s *string) *LinkUpdate {
-	if s != nil {
-		lu.SetDescription(*s)
+func (_u *LinkUpdate) SetNillableDescription(v *string) *LinkUpdate {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return lu
+	return _u
 }
 
 // ClearDescription clears the value of the "description" field.
-func (lu *LinkUpdate) ClearDescription() *LinkUpdate {
-	lu.mutation.ClearDescription()
-	return lu
+func (_u *LinkUpdate) ClearDescription() *LinkUpdate {
+	_u.mutation.ClearDescription()
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (lu *LinkUpdate) SetStatus(l link.Status) *LinkUpdate {
-	lu.mutation.SetStatus(l)
-	return lu
+func (_u *LinkUpdate) SetStatus(v link.Status) *LinkUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (lu *LinkUpdate) SetNillableStatus(l *link.Status) *LinkUpdate {
-	if l != nil {
-		lu.SetStatus(*l)
+func (_u *LinkUpdate) SetNillableStatus(v *link.Status) *LinkUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return lu
+	return _u
 }
 
 // SetSiteshot sets the "siteshot" field.
-func (lu *LinkUpdate) SetSiteshot(s string) *LinkUpdate {
-	lu.mutation.SetSiteshot(s)
-	return lu
+func (_u *LinkUpdate) SetSiteshot(v string) *LinkUpdate {
+	_u.mutation.SetSiteshot(v)
+	return _u
 }
 
 // SetNillableSiteshot sets the "siteshot" field if the given value is not nil.
-func (lu *LinkUpdate) SetNillableSiteshot(s *string) *LinkUpdate {
-	if s != nil {
-		lu.SetSiteshot(*s)
+func (_u *LinkUpdate) SetNillableSiteshot(v *string) *LinkUpdate {
+	if v != nil {
+		_u.SetSiteshot(*v)
 	}
-	return lu
+	return _u
 }
 
 // ClearSiteshot clears the value of the "siteshot" field.
-func (lu *LinkUpdate) ClearSiteshot() *LinkUpdate {
-	lu.mutation.ClearSiteshot()
-	return lu
+func (_u *LinkUpdate) ClearSiteshot() *LinkUpdate {
+	_u.mutation.ClearSiteshot()
+	return _u
 }
 
 // SetCategoryID sets the "category" edge to the LinkCategory entity by ID.
-func (lu *LinkUpdate) SetCategoryID(id int) *LinkUpdate {
-	lu.mutation.SetCategoryID(id)
-	return lu
+func (_u *LinkUpdate) SetCategoryID(id int) *LinkUpdate {
+	_u.mutation.SetCategoryID(id)
+	return _u
 }
 
 // SetCategory sets the "category" edge to the LinkCategory entity.
-func (lu *LinkUpdate) SetCategory(l *LinkCategory) *LinkUpdate {
-	return lu.SetCategoryID(l.ID)
+func (_u *LinkUpdate) SetCategory(v *LinkCategory) *LinkUpdate {
+	return _u.SetCategoryID(v.ID)
 }
 
 // AddTagIDs adds the "tags" edge to the LinkTag entity by IDs.
-func (lu *LinkUpdate) AddTagIDs(ids ...int) *LinkUpdate {
-	lu.mutation.AddTagIDs(ids...)
-	return lu
+func (_u *LinkUpdate) AddTagIDs(ids ...int) *LinkUpdate {
+	_u.mutation.AddTagIDs(ids...)
+	return _u
 }
 
 // AddTags adds the "tags" edges to the LinkTag entity.
-func (lu *LinkUpdate) AddTags(l ...*LinkTag) *LinkUpdate {
-	ids := make([]int, len(l))
-	for i := range l {
-		ids[i] = l[i].ID
+func (_u *LinkUpdate) AddTags(v ...*LinkTag) *LinkUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return lu.AddTagIDs(ids...)
+	return _u.AddTagIDs(ids...)
 }
 
 // Mutation returns the LinkMutation object of the builder.
-func (lu *LinkUpdate) Mutation() *LinkMutation {
-	return lu.mutation
+func (_u *LinkUpdate) Mutation() *LinkMutation {
+	return _u.mutation
 }
 
 // ClearCategory clears the "category" edge to the LinkCategory entity.
-func (lu *LinkUpdate) ClearCategory() *LinkUpdate {
-	lu.mutation.ClearCategory()
-	return lu
+func (_u *LinkUpdate) ClearCategory() *LinkUpdate {
+	_u.mutation.ClearCategory()
+	return _u
 }
 
 // ClearTags clears all "tags" edges to the LinkTag entity.
-func (lu *LinkUpdate) ClearTags() *LinkUpdate {
-	lu.mutation.ClearTags()
-	return lu
+func (_u *LinkUpdate) ClearTags() *LinkUpdate {
+	_u.mutation.ClearTags()
+	return _u
 }
 
 // RemoveTagIDs removes the "tags" edge to LinkTag entities by IDs.
-func (lu *LinkUpdate) RemoveTagIDs(ids ...int) *LinkUpdate {
-	lu.mutation.RemoveTagIDs(ids...)
-	return lu
+func (_u *LinkUpdate) RemoveTagIDs(ids ...int) *LinkUpdate {
+	_u.mutation.RemoveTagIDs(ids...)
+	return _u
 }
 
 // RemoveTags removes "tags" edges to LinkTag entities.
-func (lu *LinkUpdate) RemoveTags(l ...*LinkTag) *LinkUpdate {
-	ids := make([]int, len(l))
-	for i := range l {
-		ids[i] = l[i].ID
+func (_u *LinkUpdate) RemoveTags(v ...*LinkTag) *LinkUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return lu.RemoveTagIDs(ids...)
+	return _u.RemoveTagIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (lu *LinkUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, lu.sqlSave, lu.mutation, lu.hooks)
+func (_u *LinkUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (lu *LinkUpdate) SaveX(ctx context.Context) int {
-	affected, err := lu.Save(ctx)
+func (_u *LinkUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -205,87 +205,87 @@ func (lu *LinkUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (lu *LinkUpdate) Exec(ctx context.Context) error {
-	_, err := lu.Save(ctx)
+func (_u *LinkUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (lu *LinkUpdate) ExecX(ctx context.Context) {
-	if err := lu.Exec(ctx); err != nil {
+func (_u *LinkUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (lu *LinkUpdate) check() error {
-	if v, ok := lu.mutation.Name(); ok {
+func (_u *LinkUpdate) check() error {
+	if v, ok := _u.mutation.Name(); ok {
 		if err := link.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Link.name": %w`, err)}
 		}
 	}
-	if v, ok := lu.mutation.URL(); ok {
+	if v, ok := _u.mutation.URL(); ok {
 		if err := link.URLValidator(v); err != nil {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Link.url": %w`, err)}
 		}
 	}
-	if v, ok := lu.mutation.Status(); ok {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := link.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Link.status": %w`, err)}
 		}
 	}
-	if lu.mutation.CategoryCleared() && len(lu.mutation.CategoryIDs()) > 0 {
+	if _u.mutation.CategoryCleared() && len(_u.mutation.CategoryIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Link.category"`)
 	}
 	return nil
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (lu *LinkUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *LinkUpdate {
-	lu.modifiers = append(lu.modifiers, modifiers...)
-	return lu
+func (_u *LinkUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *LinkUpdate {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (lu *LinkUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := lu.check(); err != nil {
-		return n, err
+func (_u *LinkUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(link.Table, link.Columns, sqlgraph.NewFieldSpec(link.FieldID, field.TypeInt))
-	if ps := lu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := lu.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(link.FieldName, field.TypeString, value)
 	}
-	if value, ok := lu.mutation.URL(); ok {
+	if value, ok := _u.mutation.URL(); ok {
 		_spec.SetField(link.FieldURL, field.TypeString, value)
 	}
-	if value, ok := lu.mutation.Logo(); ok {
+	if value, ok := _u.mutation.Logo(); ok {
 		_spec.SetField(link.FieldLogo, field.TypeString, value)
 	}
-	if lu.mutation.LogoCleared() {
+	if _u.mutation.LogoCleared() {
 		_spec.ClearField(link.FieldLogo, field.TypeString)
 	}
-	if value, ok := lu.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(link.FieldDescription, field.TypeString, value)
 	}
-	if lu.mutation.DescriptionCleared() {
+	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(link.FieldDescription, field.TypeString)
 	}
-	if value, ok := lu.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(link.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := lu.mutation.Siteshot(); ok {
+	if value, ok := _u.mutation.Siteshot(); ok {
 		_spec.SetField(link.FieldSiteshot, field.TypeString, value)
 	}
-	if lu.mutation.SiteshotCleared() {
+	if _u.mutation.SiteshotCleared() {
 		_spec.ClearField(link.FieldSiteshot, field.TypeString)
 	}
-	if lu.mutation.CategoryCleared() {
+	if _u.mutation.CategoryCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -298,7 +298,7 @@ func (lu *LinkUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := lu.mutation.CategoryIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.CategoryIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -314,7 +314,7 @@ func (lu *LinkUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if lu.mutation.TagsCleared() {
+	if _u.mutation.TagsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -327,7 +327,7 @@ func (lu *LinkUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := lu.mutation.RemovedTagsIDs(); len(nodes) > 0 && !lu.mutation.TagsCleared() {
+	if nodes := _u.mutation.RemovedTagsIDs(); len(nodes) > 0 && !_u.mutation.TagsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -343,7 +343,7 @@ func (lu *LinkUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := lu.mutation.TagsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.TagsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -359,8 +359,8 @@ func (lu *LinkUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_spec.AddModifiers(lu.modifiers...)
-	if n, err = sqlgraph.UpdateNodes(ctx, lu.driver, _spec); err != nil {
+	_spec.AddModifiers(_u.modifiers...)
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{link.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -368,8 +368,8 @@ func (lu *LinkUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	lu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // LinkUpdateOne is the builder for updating a single Link entity.
@@ -382,186 +382,186 @@ type LinkUpdateOne struct {
 }
 
 // SetName sets the "name" field.
-func (luo *LinkUpdateOne) SetName(s string) *LinkUpdateOne {
-	luo.mutation.SetName(s)
-	return luo
+func (_u *LinkUpdateOne) SetName(v string) *LinkUpdateOne {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (luo *LinkUpdateOne) SetNillableName(s *string) *LinkUpdateOne {
-	if s != nil {
-		luo.SetName(*s)
+func (_u *LinkUpdateOne) SetNillableName(v *string) *LinkUpdateOne {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return luo
+	return _u
 }
 
 // SetURL sets the "url" field.
-func (luo *LinkUpdateOne) SetURL(s string) *LinkUpdateOne {
-	luo.mutation.SetURL(s)
-	return luo
+func (_u *LinkUpdateOne) SetURL(v string) *LinkUpdateOne {
+	_u.mutation.SetURL(v)
+	return _u
 }
 
 // SetNillableURL sets the "url" field if the given value is not nil.
-func (luo *LinkUpdateOne) SetNillableURL(s *string) *LinkUpdateOne {
-	if s != nil {
-		luo.SetURL(*s)
+func (_u *LinkUpdateOne) SetNillableURL(v *string) *LinkUpdateOne {
+	if v != nil {
+		_u.SetURL(*v)
 	}
-	return luo
+	return _u
 }
 
 // SetLogo sets the "logo" field.
-func (luo *LinkUpdateOne) SetLogo(s string) *LinkUpdateOne {
-	luo.mutation.SetLogo(s)
-	return luo
+func (_u *LinkUpdateOne) SetLogo(v string) *LinkUpdateOne {
+	_u.mutation.SetLogo(v)
+	return _u
 }
 
 // SetNillableLogo sets the "logo" field if the given value is not nil.
-func (luo *LinkUpdateOne) SetNillableLogo(s *string) *LinkUpdateOne {
-	if s != nil {
-		luo.SetLogo(*s)
+func (_u *LinkUpdateOne) SetNillableLogo(v *string) *LinkUpdateOne {
+	if v != nil {
+		_u.SetLogo(*v)
 	}
-	return luo
+	return _u
 }
 
 // ClearLogo clears the value of the "logo" field.
-func (luo *LinkUpdateOne) ClearLogo() *LinkUpdateOne {
-	luo.mutation.ClearLogo()
-	return luo
+func (_u *LinkUpdateOne) ClearLogo() *LinkUpdateOne {
+	_u.mutation.ClearLogo()
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (luo *LinkUpdateOne) SetDescription(s string) *LinkUpdateOne {
-	luo.mutation.SetDescription(s)
-	return luo
+func (_u *LinkUpdateOne) SetDescription(v string) *LinkUpdateOne {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (luo *LinkUpdateOne) SetNillableDescription(s *string) *LinkUpdateOne {
-	if s != nil {
-		luo.SetDescription(*s)
+func (_u *LinkUpdateOne) SetNillableDescription(v *string) *LinkUpdateOne {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return luo
+	return _u
 }
 
 // ClearDescription clears the value of the "description" field.
-func (luo *LinkUpdateOne) ClearDescription() *LinkUpdateOne {
-	luo.mutation.ClearDescription()
-	return luo
+func (_u *LinkUpdateOne) ClearDescription() *LinkUpdateOne {
+	_u.mutation.ClearDescription()
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (luo *LinkUpdateOne) SetStatus(l link.Status) *LinkUpdateOne {
-	luo.mutation.SetStatus(l)
-	return luo
+func (_u *LinkUpdateOne) SetStatus(v link.Status) *LinkUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (luo *LinkUpdateOne) SetNillableStatus(l *link.Status) *LinkUpdateOne {
-	if l != nil {
-		luo.SetStatus(*l)
+func (_u *LinkUpdateOne) SetNillableStatus(v *link.Status) *LinkUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return luo
+	return _u
 }
 
 // SetSiteshot sets the "siteshot" field.
-func (luo *LinkUpdateOne) SetSiteshot(s string) *LinkUpdateOne {
-	luo.mutation.SetSiteshot(s)
-	return luo
+func (_u *LinkUpdateOne) SetSiteshot(v string) *LinkUpdateOne {
+	_u.mutation.SetSiteshot(v)
+	return _u
 }
 
 // SetNillableSiteshot sets the "siteshot" field if the given value is not nil.
-func (luo *LinkUpdateOne) SetNillableSiteshot(s *string) *LinkUpdateOne {
-	if s != nil {
-		luo.SetSiteshot(*s)
+func (_u *LinkUpdateOne) SetNillableSiteshot(v *string) *LinkUpdateOne {
+	if v != nil {
+		_u.SetSiteshot(*v)
 	}
-	return luo
+	return _u
 }
 
 // ClearSiteshot clears the value of the "siteshot" field.
-func (luo *LinkUpdateOne) ClearSiteshot() *LinkUpdateOne {
-	luo.mutation.ClearSiteshot()
-	return luo
+func (_u *LinkUpdateOne) ClearSiteshot() *LinkUpdateOne {
+	_u.mutation.ClearSiteshot()
+	return _u
 }
 
 // SetCategoryID sets the "category" edge to the LinkCategory entity by ID.
-func (luo *LinkUpdateOne) SetCategoryID(id int) *LinkUpdateOne {
-	luo.mutation.SetCategoryID(id)
-	return luo
+func (_u *LinkUpdateOne) SetCategoryID(id int) *LinkUpdateOne {
+	_u.mutation.SetCategoryID(id)
+	return _u
 }
 
 // SetCategory sets the "category" edge to the LinkCategory entity.
-func (luo *LinkUpdateOne) SetCategory(l *LinkCategory) *LinkUpdateOne {
-	return luo.SetCategoryID(l.ID)
+func (_u *LinkUpdateOne) SetCategory(v *LinkCategory) *LinkUpdateOne {
+	return _u.SetCategoryID(v.ID)
 }
 
 // AddTagIDs adds the "tags" edge to the LinkTag entity by IDs.
-func (luo *LinkUpdateOne) AddTagIDs(ids ...int) *LinkUpdateOne {
-	luo.mutation.AddTagIDs(ids...)
-	return luo
+func (_u *LinkUpdateOne) AddTagIDs(ids ...int) *LinkUpdateOne {
+	_u.mutation.AddTagIDs(ids...)
+	return _u
 }
 
 // AddTags adds the "tags" edges to the LinkTag entity.
-func (luo *LinkUpdateOne) AddTags(l ...*LinkTag) *LinkUpdateOne {
-	ids := make([]int, len(l))
-	for i := range l {
-		ids[i] = l[i].ID
+func (_u *LinkUpdateOne) AddTags(v ...*LinkTag) *LinkUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return luo.AddTagIDs(ids...)
+	return _u.AddTagIDs(ids...)
 }
 
 // Mutation returns the LinkMutation object of the builder.
-func (luo *LinkUpdateOne) Mutation() *LinkMutation {
-	return luo.mutation
+func (_u *LinkUpdateOne) Mutation() *LinkMutation {
+	return _u.mutation
 }
 
 // ClearCategory clears the "category" edge to the LinkCategory entity.
-func (luo *LinkUpdateOne) ClearCategory() *LinkUpdateOne {
-	luo.mutation.ClearCategory()
-	return luo
+func (_u *LinkUpdateOne) ClearCategory() *LinkUpdateOne {
+	_u.mutation.ClearCategory()
+	return _u
 }
 
 // ClearTags clears all "tags" edges to the LinkTag entity.
-func (luo *LinkUpdateOne) ClearTags() *LinkUpdateOne {
-	luo.mutation.ClearTags()
-	return luo
+func (_u *LinkUpdateOne) ClearTags() *LinkUpdateOne {
+	_u.mutation.ClearTags()
+	return _u
 }
 
 // RemoveTagIDs removes the "tags" edge to LinkTag entities by IDs.
-func (luo *LinkUpdateOne) RemoveTagIDs(ids ...int) *LinkUpdateOne {
-	luo.mutation.RemoveTagIDs(ids...)
-	return luo
+func (_u *LinkUpdateOne) RemoveTagIDs(ids ...int) *LinkUpdateOne {
+	_u.mutation.RemoveTagIDs(ids...)
+	return _u
 }
 
 // RemoveTags removes "tags" edges to LinkTag entities.
-func (luo *LinkUpdateOne) RemoveTags(l ...*LinkTag) *LinkUpdateOne {
-	ids := make([]int, len(l))
-	for i := range l {
-		ids[i] = l[i].ID
+func (_u *LinkUpdateOne) RemoveTags(v ...*LinkTag) *LinkUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return luo.RemoveTagIDs(ids...)
+	return _u.RemoveTagIDs(ids...)
 }
 
 // Where appends a list predicates to the LinkUpdate builder.
-func (luo *LinkUpdateOne) Where(ps ...predicate.Link) *LinkUpdateOne {
-	luo.mutation.Where(ps...)
-	return luo
+func (_u *LinkUpdateOne) Where(ps ...predicate.Link) *LinkUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (luo *LinkUpdateOne) Select(field string, fields ...string) *LinkUpdateOne {
-	luo.fields = append([]string{field}, fields...)
-	return luo
+func (_u *LinkUpdateOne) Select(field string, fields ...string) *LinkUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated Link entity.
-func (luo *LinkUpdateOne) Save(ctx context.Context) (*Link, error) {
-	return withHooks(ctx, luo.sqlSave, luo.mutation, luo.hooks)
+func (_u *LinkUpdateOne) Save(ctx context.Context) (*Link, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (luo *LinkUpdateOne) SaveX(ctx context.Context) *Link {
-	node, err := luo.Save(ctx)
+func (_u *LinkUpdateOne) SaveX(ctx context.Context) *Link {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -569,58 +569,58 @@ func (luo *LinkUpdateOne) SaveX(ctx context.Context) *Link {
 }
 
 // Exec executes the query on the entity.
-func (luo *LinkUpdateOne) Exec(ctx context.Context) error {
-	_, err := luo.Save(ctx)
+func (_u *LinkUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (luo *LinkUpdateOne) ExecX(ctx context.Context) {
-	if err := luo.Exec(ctx); err != nil {
+func (_u *LinkUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (luo *LinkUpdateOne) check() error {
-	if v, ok := luo.mutation.Name(); ok {
+func (_u *LinkUpdateOne) check() error {
+	if v, ok := _u.mutation.Name(); ok {
 		if err := link.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Link.name": %w`, err)}
 		}
 	}
-	if v, ok := luo.mutation.URL(); ok {
+	if v, ok := _u.mutation.URL(); ok {
 		if err := link.URLValidator(v); err != nil {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Link.url": %w`, err)}
 		}
 	}
-	if v, ok := luo.mutation.Status(); ok {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := link.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Link.status": %w`, err)}
 		}
 	}
-	if luo.mutation.CategoryCleared() && len(luo.mutation.CategoryIDs()) > 0 {
+	if _u.mutation.CategoryCleared() && len(_u.mutation.CategoryIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Link.category"`)
 	}
 	return nil
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (luo *LinkUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *LinkUpdateOne {
-	luo.modifiers = append(luo.modifiers, modifiers...)
-	return luo
+func (_u *LinkUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *LinkUpdateOne {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (luo *LinkUpdateOne) sqlSave(ctx context.Context) (_node *Link, err error) {
-	if err := luo.check(); err != nil {
+func (_u *LinkUpdateOne) sqlSave(ctx context.Context) (_node *Link, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(link.Table, link.Columns, sqlgraph.NewFieldSpec(link.FieldID, field.TypeInt))
-	id, ok := luo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Link.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := luo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, link.FieldID)
 		for _, f := range fields {
@@ -632,41 +632,41 @@ func (luo *LinkUpdateOne) sqlSave(ctx context.Context) (_node *Link, err error) 
 			}
 		}
 	}
-	if ps := luo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := luo.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(link.FieldName, field.TypeString, value)
 	}
-	if value, ok := luo.mutation.URL(); ok {
+	if value, ok := _u.mutation.URL(); ok {
 		_spec.SetField(link.FieldURL, field.TypeString, value)
 	}
-	if value, ok := luo.mutation.Logo(); ok {
+	if value, ok := _u.mutation.Logo(); ok {
 		_spec.SetField(link.FieldLogo, field.TypeString, value)
 	}
-	if luo.mutation.LogoCleared() {
+	if _u.mutation.LogoCleared() {
 		_spec.ClearField(link.FieldLogo, field.TypeString)
 	}
-	if value, ok := luo.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(link.FieldDescription, field.TypeString, value)
 	}
-	if luo.mutation.DescriptionCleared() {
+	if _u.mutation.DescriptionCleared() {
 		_spec.ClearField(link.FieldDescription, field.TypeString)
 	}
-	if value, ok := luo.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(link.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := luo.mutation.Siteshot(); ok {
+	if value, ok := _u.mutation.Siteshot(); ok {
 		_spec.SetField(link.FieldSiteshot, field.TypeString, value)
 	}
-	if luo.mutation.SiteshotCleared() {
+	if _u.mutation.SiteshotCleared() {
 		_spec.ClearField(link.FieldSiteshot, field.TypeString)
 	}
-	if luo.mutation.CategoryCleared() {
+	if _u.mutation.CategoryCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -679,7 +679,7 @@ func (luo *LinkUpdateOne) sqlSave(ctx context.Context) (_node *Link, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := luo.mutation.CategoryIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.CategoryIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -695,7 +695,7 @@ func (luo *LinkUpdateOne) sqlSave(ctx context.Context) (_node *Link, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if luo.mutation.TagsCleared() {
+	if _u.mutation.TagsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -708,7 +708,7 @@ func (luo *LinkUpdateOne) sqlSave(ctx context.Context) (_node *Link, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := luo.mutation.RemovedTagsIDs(); len(nodes) > 0 && !luo.mutation.TagsCleared() {
+	if nodes := _u.mutation.RemovedTagsIDs(); len(nodes) > 0 && !_u.mutation.TagsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -724,7 +724,7 @@ func (luo *LinkUpdateOne) sqlSave(ctx context.Context) (_node *Link, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := luo.mutation.TagsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.TagsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -740,11 +740,11 @@ func (luo *LinkUpdateOne) sqlSave(ctx context.Context) (_node *Link, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_spec.AddModifiers(luo.modifiers...)
-	_node = &Link{config: luo.config}
+	_spec.AddModifiers(_u.modifiers...)
+	_node = &Link{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, luo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{link.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -752,6 +752,6 @@ func (luo *LinkUpdateOne) sqlSave(ctx context.Context) (_node *Link, err error) 
 		}
 		return nil, err
 	}
-	luo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

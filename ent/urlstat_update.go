@@ -24,169 +24,169 @@ type URLStatUpdate struct {
 }
 
 // Where appends a list predicates to the URLStatUpdate builder.
-func (usu *URLStatUpdate) Where(ps ...predicate.URLStat) *URLStatUpdate {
-	usu.mutation.Where(ps...)
-	return usu
+func (_u *URLStatUpdate) Where(ps ...predicate.URLStat) *URLStatUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (usu *URLStatUpdate) SetUpdatedAt(t time.Time) *URLStatUpdate {
-	usu.mutation.SetUpdatedAt(t)
-	return usu
+func (_u *URLStatUpdate) SetUpdatedAt(v time.Time) *URLStatUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetURLPath sets the "url_path" field.
-func (usu *URLStatUpdate) SetURLPath(s string) *URLStatUpdate {
-	usu.mutation.SetURLPath(s)
-	return usu
+func (_u *URLStatUpdate) SetURLPath(v string) *URLStatUpdate {
+	_u.mutation.SetURLPath(v)
+	return _u
 }
 
 // SetNillableURLPath sets the "url_path" field if the given value is not nil.
-func (usu *URLStatUpdate) SetNillableURLPath(s *string) *URLStatUpdate {
-	if s != nil {
-		usu.SetURLPath(*s)
+func (_u *URLStatUpdate) SetNillableURLPath(v *string) *URLStatUpdate {
+	if v != nil {
+		_u.SetURLPath(*v)
 	}
-	return usu
+	return _u
 }
 
 // SetPageTitle sets the "page_title" field.
-func (usu *URLStatUpdate) SetPageTitle(s string) *URLStatUpdate {
-	usu.mutation.SetPageTitle(s)
-	return usu
+func (_u *URLStatUpdate) SetPageTitle(v string) *URLStatUpdate {
+	_u.mutation.SetPageTitle(v)
+	return _u
 }
 
 // SetNillablePageTitle sets the "page_title" field if the given value is not nil.
-func (usu *URLStatUpdate) SetNillablePageTitle(s *string) *URLStatUpdate {
-	if s != nil {
-		usu.SetPageTitle(*s)
+func (_u *URLStatUpdate) SetNillablePageTitle(v *string) *URLStatUpdate {
+	if v != nil {
+		_u.SetPageTitle(*v)
 	}
-	return usu
+	return _u
 }
 
 // ClearPageTitle clears the value of the "page_title" field.
-func (usu *URLStatUpdate) ClearPageTitle() *URLStatUpdate {
-	usu.mutation.ClearPageTitle()
-	return usu
+func (_u *URLStatUpdate) ClearPageTitle() *URLStatUpdate {
+	_u.mutation.ClearPageTitle()
+	return _u
 }
 
 // SetTotalViews sets the "total_views" field.
-func (usu *URLStatUpdate) SetTotalViews(i int64) *URLStatUpdate {
-	usu.mutation.ResetTotalViews()
-	usu.mutation.SetTotalViews(i)
-	return usu
+func (_u *URLStatUpdate) SetTotalViews(v int64) *URLStatUpdate {
+	_u.mutation.ResetTotalViews()
+	_u.mutation.SetTotalViews(v)
+	return _u
 }
 
 // SetNillableTotalViews sets the "total_views" field if the given value is not nil.
-func (usu *URLStatUpdate) SetNillableTotalViews(i *int64) *URLStatUpdate {
-	if i != nil {
-		usu.SetTotalViews(*i)
+func (_u *URLStatUpdate) SetNillableTotalViews(v *int64) *URLStatUpdate {
+	if v != nil {
+		_u.SetTotalViews(*v)
 	}
-	return usu
+	return _u
 }
 
-// AddTotalViews adds i to the "total_views" field.
-func (usu *URLStatUpdate) AddTotalViews(i int64) *URLStatUpdate {
-	usu.mutation.AddTotalViews(i)
-	return usu
+// AddTotalViews adds value to the "total_views" field.
+func (_u *URLStatUpdate) AddTotalViews(v int64) *URLStatUpdate {
+	_u.mutation.AddTotalViews(v)
+	return _u
 }
 
 // SetUniqueViews sets the "unique_views" field.
-func (usu *URLStatUpdate) SetUniqueViews(i int64) *URLStatUpdate {
-	usu.mutation.ResetUniqueViews()
-	usu.mutation.SetUniqueViews(i)
-	return usu
+func (_u *URLStatUpdate) SetUniqueViews(v int64) *URLStatUpdate {
+	_u.mutation.ResetUniqueViews()
+	_u.mutation.SetUniqueViews(v)
+	return _u
 }
 
 // SetNillableUniqueViews sets the "unique_views" field if the given value is not nil.
-func (usu *URLStatUpdate) SetNillableUniqueViews(i *int64) *URLStatUpdate {
-	if i != nil {
-		usu.SetUniqueViews(*i)
+func (_u *URLStatUpdate) SetNillableUniqueViews(v *int64) *URLStatUpdate {
+	if v != nil {
+		_u.SetUniqueViews(*v)
 	}
-	return usu
+	return _u
 }
 
-// AddUniqueViews adds i to the "unique_views" field.
-func (usu *URLStatUpdate) AddUniqueViews(i int64) *URLStatUpdate {
-	usu.mutation.AddUniqueViews(i)
-	return usu
+// AddUniqueViews adds value to the "unique_views" field.
+func (_u *URLStatUpdate) AddUniqueViews(v int64) *URLStatUpdate {
+	_u.mutation.AddUniqueViews(v)
+	return _u
 }
 
 // SetBounceCount sets the "bounce_count" field.
-func (usu *URLStatUpdate) SetBounceCount(i int64) *URLStatUpdate {
-	usu.mutation.ResetBounceCount()
-	usu.mutation.SetBounceCount(i)
-	return usu
+func (_u *URLStatUpdate) SetBounceCount(v int64) *URLStatUpdate {
+	_u.mutation.ResetBounceCount()
+	_u.mutation.SetBounceCount(v)
+	return _u
 }
 
 // SetNillableBounceCount sets the "bounce_count" field if the given value is not nil.
-func (usu *URLStatUpdate) SetNillableBounceCount(i *int64) *URLStatUpdate {
-	if i != nil {
-		usu.SetBounceCount(*i)
+func (_u *URLStatUpdate) SetNillableBounceCount(v *int64) *URLStatUpdate {
+	if v != nil {
+		_u.SetBounceCount(*v)
 	}
-	return usu
+	return _u
 }
 
-// AddBounceCount adds i to the "bounce_count" field.
-func (usu *URLStatUpdate) AddBounceCount(i int64) *URLStatUpdate {
-	usu.mutation.AddBounceCount(i)
-	return usu
+// AddBounceCount adds value to the "bounce_count" field.
+func (_u *URLStatUpdate) AddBounceCount(v int64) *URLStatUpdate {
+	_u.mutation.AddBounceCount(v)
+	return _u
 }
 
 // SetAvgDuration sets the "avg_duration" field.
-func (usu *URLStatUpdate) SetAvgDuration(f float64) *URLStatUpdate {
-	usu.mutation.ResetAvgDuration()
-	usu.mutation.SetAvgDuration(f)
-	return usu
+func (_u *URLStatUpdate) SetAvgDuration(v float64) *URLStatUpdate {
+	_u.mutation.ResetAvgDuration()
+	_u.mutation.SetAvgDuration(v)
+	return _u
 }
 
 // SetNillableAvgDuration sets the "avg_duration" field if the given value is not nil.
-func (usu *URLStatUpdate) SetNillableAvgDuration(f *float64) *URLStatUpdate {
-	if f != nil {
-		usu.SetAvgDuration(*f)
+func (_u *URLStatUpdate) SetNillableAvgDuration(v *float64) *URLStatUpdate {
+	if v != nil {
+		_u.SetAvgDuration(*v)
 	}
-	return usu
+	return _u
 }
 
-// AddAvgDuration adds f to the "avg_duration" field.
-func (usu *URLStatUpdate) AddAvgDuration(f float64) *URLStatUpdate {
-	usu.mutation.AddAvgDuration(f)
-	return usu
+// AddAvgDuration adds value to the "avg_duration" field.
+func (_u *URLStatUpdate) AddAvgDuration(v float64) *URLStatUpdate {
+	_u.mutation.AddAvgDuration(v)
+	return _u
 }
 
 // SetLastVisitedAt sets the "last_visited_at" field.
-func (usu *URLStatUpdate) SetLastVisitedAt(t time.Time) *URLStatUpdate {
-	usu.mutation.SetLastVisitedAt(t)
-	return usu
+func (_u *URLStatUpdate) SetLastVisitedAt(v time.Time) *URLStatUpdate {
+	_u.mutation.SetLastVisitedAt(v)
+	return _u
 }
 
 // SetNillableLastVisitedAt sets the "last_visited_at" field if the given value is not nil.
-func (usu *URLStatUpdate) SetNillableLastVisitedAt(t *time.Time) *URLStatUpdate {
-	if t != nil {
-		usu.SetLastVisitedAt(*t)
+func (_u *URLStatUpdate) SetNillableLastVisitedAt(v *time.Time) *URLStatUpdate {
+	if v != nil {
+		_u.SetLastVisitedAt(*v)
 	}
-	return usu
+	return _u
 }
 
 // ClearLastVisitedAt clears the value of the "last_visited_at" field.
-func (usu *URLStatUpdate) ClearLastVisitedAt() *URLStatUpdate {
-	usu.mutation.ClearLastVisitedAt()
-	return usu
+func (_u *URLStatUpdate) ClearLastVisitedAt() *URLStatUpdate {
+	_u.mutation.ClearLastVisitedAt()
+	return _u
 }
 
 // Mutation returns the URLStatMutation object of the builder.
-func (usu *URLStatUpdate) Mutation() *URLStatMutation {
-	return usu.mutation
+func (_u *URLStatUpdate) Mutation() *URLStatMutation {
+	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (usu *URLStatUpdate) Save(ctx context.Context) (int, error) {
-	usu.defaults()
-	return withHooks(ctx, usu.sqlSave, usu.mutation, usu.hooks)
+func (_u *URLStatUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (usu *URLStatUpdate) SaveX(ctx context.Context) int {
-	affected, err := usu.Save(ctx)
+func (_u *URLStatUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -194,34 +194,34 @@ func (usu *URLStatUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (usu *URLStatUpdate) Exec(ctx context.Context) error {
-	_, err := usu.Save(ctx)
+func (_u *URLStatUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (usu *URLStatUpdate) ExecX(ctx context.Context) {
-	if err := usu.Exec(ctx); err != nil {
+func (_u *URLStatUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (usu *URLStatUpdate) defaults() {
-	if _, ok := usu.mutation.UpdatedAt(); !ok {
+func (_u *URLStatUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := urlstat.UpdateDefaultUpdatedAt()
-		usu.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (usu *URLStatUpdate) check() error {
-	if v, ok := usu.mutation.URLPath(); ok {
+func (_u *URLStatUpdate) check() error {
+	if v, ok := _u.mutation.URLPath(); ok {
 		if err := urlstat.URLPathValidator(v); err != nil {
 			return &ValidationError{Name: "url_path", err: fmt.Errorf(`ent: validator failed for field "URLStat.url_path": %w`, err)}
 		}
 	}
-	if v, ok := usu.mutation.PageTitle(); ok {
+	if v, ok := _u.mutation.PageTitle(); ok {
 		if err := urlstat.PageTitleValidator(v); err != nil {
 			return &ValidationError{Name: "page_title", err: fmt.Errorf(`ent: validator failed for field "URLStat.page_title": %w`, err)}
 		}
@@ -230,67 +230,67 @@ func (usu *URLStatUpdate) check() error {
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (usu *URLStatUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *URLStatUpdate {
-	usu.modifiers = append(usu.modifiers, modifiers...)
-	return usu
+func (_u *URLStatUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *URLStatUpdate {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (usu *URLStatUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := usu.check(); err != nil {
-		return n, err
+func (_u *URLStatUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(urlstat.Table, urlstat.Columns, sqlgraph.NewFieldSpec(urlstat.FieldID, field.TypeUint))
-	if ps := usu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := usu.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(urlstat.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := usu.mutation.URLPath(); ok {
+	if value, ok := _u.mutation.URLPath(); ok {
 		_spec.SetField(urlstat.FieldURLPath, field.TypeString, value)
 	}
-	if value, ok := usu.mutation.PageTitle(); ok {
+	if value, ok := _u.mutation.PageTitle(); ok {
 		_spec.SetField(urlstat.FieldPageTitle, field.TypeString, value)
 	}
-	if usu.mutation.PageTitleCleared() {
+	if _u.mutation.PageTitleCleared() {
 		_spec.ClearField(urlstat.FieldPageTitle, field.TypeString)
 	}
-	if value, ok := usu.mutation.TotalViews(); ok {
+	if value, ok := _u.mutation.TotalViews(); ok {
 		_spec.SetField(urlstat.FieldTotalViews, field.TypeInt64, value)
 	}
-	if value, ok := usu.mutation.AddedTotalViews(); ok {
+	if value, ok := _u.mutation.AddedTotalViews(); ok {
 		_spec.AddField(urlstat.FieldTotalViews, field.TypeInt64, value)
 	}
-	if value, ok := usu.mutation.UniqueViews(); ok {
+	if value, ok := _u.mutation.UniqueViews(); ok {
 		_spec.SetField(urlstat.FieldUniqueViews, field.TypeInt64, value)
 	}
-	if value, ok := usu.mutation.AddedUniqueViews(); ok {
+	if value, ok := _u.mutation.AddedUniqueViews(); ok {
 		_spec.AddField(urlstat.FieldUniqueViews, field.TypeInt64, value)
 	}
-	if value, ok := usu.mutation.BounceCount(); ok {
+	if value, ok := _u.mutation.BounceCount(); ok {
 		_spec.SetField(urlstat.FieldBounceCount, field.TypeInt64, value)
 	}
-	if value, ok := usu.mutation.AddedBounceCount(); ok {
+	if value, ok := _u.mutation.AddedBounceCount(); ok {
 		_spec.AddField(urlstat.FieldBounceCount, field.TypeInt64, value)
 	}
-	if value, ok := usu.mutation.AvgDuration(); ok {
+	if value, ok := _u.mutation.AvgDuration(); ok {
 		_spec.SetField(urlstat.FieldAvgDuration, field.TypeFloat64, value)
 	}
-	if value, ok := usu.mutation.AddedAvgDuration(); ok {
+	if value, ok := _u.mutation.AddedAvgDuration(); ok {
 		_spec.AddField(urlstat.FieldAvgDuration, field.TypeFloat64, value)
 	}
-	if value, ok := usu.mutation.LastVisitedAt(); ok {
+	if value, ok := _u.mutation.LastVisitedAt(); ok {
 		_spec.SetField(urlstat.FieldLastVisitedAt, field.TypeTime, value)
 	}
-	if usu.mutation.LastVisitedAtCleared() {
+	if _u.mutation.LastVisitedAtCleared() {
 		_spec.ClearField(urlstat.FieldLastVisitedAt, field.TypeTime)
 	}
-	_spec.AddModifiers(usu.modifiers...)
-	if n, err = sqlgraph.UpdateNodes(ctx, usu.driver, _spec); err != nil {
+	_spec.AddModifiers(_u.modifiers...)
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{urlstat.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -298,8 +298,8 @@ func (usu *URLStatUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	usu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // URLStatUpdateOne is the builder for updating a single URLStat entity.
@@ -312,176 +312,176 @@ type URLStatUpdateOne struct {
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (usuo *URLStatUpdateOne) SetUpdatedAt(t time.Time) *URLStatUpdateOne {
-	usuo.mutation.SetUpdatedAt(t)
-	return usuo
+func (_u *URLStatUpdateOne) SetUpdatedAt(v time.Time) *URLStatUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetURLPath sets the "url_path" field.
-func (usuo *URLStatUpdateOne) SetURLPath(s string) *URLStatUpdateOne {
-	usuo.mutation.SetURLPath(s)
-	return usuo
+func (_u *URLStatUpdateOne) SetURLPath(v string) *URLStatUpdateOne {
+	_u.mutation.SetURLPath(v)
+	return _u
 }
 
 // SetNillableURLPath sets the "url_path" field if the given value is not nil.
-func (usuo *URLStatUpdateOne) SetNillableURLPath(s *string) *URLStatUpdateOne {
-	if s != nil {
-		usuo.SetURLPath(*s)
+func (_u *URLStatUpdateOne) SetNillableURLPath(v *string) *URLStatUpdateOne {
+	if v != nil {
+		_u.SetURLPath(*v)
 	}
-	return usuo
+	return _u
 }
 
 // SetPageTitle sets the "page_title" field.
-func (usuo *URLStatUpdateOne) SetPageTitle(s string) *URLStatUpdateOne {
-	usuo.mutation.SetPageTitle(s)
-	return usuo
+func (_u *URLStatUpdateOne) SetPageTitle(v string) *URLStatUpdateOne {
+	_u.mutation.SetPageTitle(v)
+	return _u
 }
 
 // SetNillablePageTitle sets the "page_title" field if the given value is not nil.
-func (usuo *URLStatUpdateOne) SetNillablePageTitle(s *string) *URLStatUpdateOne {
-	if s != nil {
-		usuo.SetPageTitle(*s)
+func (_u *URLStatUpdateOne) SetNillablePageTitle(v *string) *URLStatUpdateOne {
+	if v != nil {
+		_u.SetPageTitle(*v)
 	}
-	return usuo
+	return _u
 }
 
 // ClearPageTitle clears the value of the "page_title" field.
-func (usuo *URLStatUpdateOne) ClearPageTitle() *URLStatUpdateOne {
-	usuo.mutation.ClearPageTitle()
-	return usuo
+func (_u *URLStatUpdateOne) ClearPageTitle() *URLStatUpdateOne {
+	_u.mutation.ClearPageTitle()
+	return _u
 }
 
 // SetTotalViews sets the "total_views" field.
-func (usuo *URLStatUpdateOne) SetTotalViews(i int64) *URLStatUpdateOne {
-	usuo.mutation.ResetTotalViews()
-	usuo.mutation.SetTotalViews(i)
-	return usuo
+func (_u *URLStatUpdateOne) SetTotalViews(v int64) *URLStatUpdateOne {
+	_u.mutation.ResetTotalViews()
+	_u.mutation.SetTotalViews(v)
+	return _u
 }
 
 // SetNillableTotalViews sets the "total_views" field if the given value is not nil.
-func (usuo *URLStatUpdateOne) SetNillableTotalViews(i *int64) *URLStatUpdateOne {
-	if i != nil {
-		usuo.SetTotalViews(*i)
+func (_u *URLStatUpdateOne) SetNillableTotalViews(v *int64) *URLStatUpdateOne {
+	if v != nil {
+		_u.SetTotalViews(*v)
 	}
-	return usuo
+	return _u
 }
 
-// AddTotalViews adds i to the "total_views" field.
-func (usuo *URLStatUpdateOne) AddTotalViews(i int64) *URLStatUpdateOne {
-	usuo.mutation.AddTotalViews(i)
-	return usuo
+// AddTotalViews adds value to the "total_views" field.
+func (_u *URLStatUpdateOne) AddTotalViews(v int64) *URLStatUpdateOne {
+	_u.mutation.AddTotalViews(v)
+	return _u
 }
 
 // SetUniqueViews sets the "unique_views" field.
-func (usuo *URLStatUpdateOne) SetUniqueViews(i int64) *URLStatUpdateOne {
-	usuo.mutation.ResetUniqueViews()
-	usuo.mutation.SetUniqueViews(i)
-	return usuo
+func (_u *URLStatUpdateOne) SetUniqueViews(v int64) *URLStatUpdateOne {
+	_u.mutation.ResetUniqueViews()
+	_u.mutation.SetUniqueViews(v)
+	return _u
 }
 
 // SetNillableUniqueViews sets the "unique_views" field if the given value is not nil.
-func (usuo *URLStatUpdateOne) SetNillableUniqueViews(i *int64) *URLStatUpdateOne {
-	if i != nil {
-		usuo.SetUniqueViews(*i)
+func (_u *URLStatUpdateOne) SetNillableUniqueViews(v *int64) *URLStatUpdateOne {
+	if v != nil {
+		_u.SetUniqueViews(*v)
 	}
-	return usuo
+	return _u
 }
 
-// AddUniqueViews adds i to the "unique_views" field.
-func (usuo *URLStatUpdateOne) AddUniqueViews(i int64) *URLStatUpdateOne {
-	usuo.mutation.AddUniqueViews(i)
-	return usuo
+// AddUniqueViews adds value to the "unique_views" field.
+func (_u *URLStatUpdateOne) AddUniqueViews(v int64) *URLStatUpdateOne {
+	_u.mutation.AddUniqueViews(v)
+	return _u
 }
 
 // SetBounceCount sets the "bounce_count" field.
-func (usuo *URLStatUpdateOne) SetBounceCount(i int64) *URLStatUpdateOne {
-	usuo.mutation.ResetBounceCount()
-	usuo.mutation.SetBounceCount(i)
-	return usuo
+func (_u *URLStatUpdateOne) SetBounceCount(v int64) *URLStatUpdateOne {
+	_u.mutation.ResetBounceCount()
+	_u.mutation.SetBounceCount(v)
+	return _u
 }
 
 // SetNillableBounceCount sets the "bounce_count" field if the given value is not nil.
-func (usuo *URLStatUpdateOne) SetNillableBounceCount(i *int64) *URLStatUpdateOne {
-	if i != nil {
-		usuo.SetBounceCount(*i)
+func (_u *URLStatUpdateOne) SetNillableBounceCount(v *int64) *URLStatUpdateOne {
+	if v != nil {
+		_u.SetBounceCount(*v)
 	}
-	return usuo
+	return _u
 }
 
-// AddBounceCount adds i to the "bounce_count" field.
-func (usuo *URLStatUpdateOne) AddBounceCount(i int64) *URLStatUpdateOne {
-	usuo.mutation.AddBounceCount(i)
-	return usuo
+// AddBounceCount adds value to the "bounce_count" field.
+func (_u *URLStatUpdateOne) AddBounceCount(v int64) *URLStatUpdateOne {
+	_u.mutation.AddBounceCount(v)
+	return _u
 }
 
 // SetAvgDuration sets the "avg_duration" field.
-func (usuo *URLStatUpdateOne) SetAvgDuration(f float64) *URLStatUpdateOne {
-	usuo.mutation.ResetAvgDuration()
-	usuo.mutation.SetAvgDuration(f)
-	return usuo
+func (_u *URLStatUpdateOne) SetAvgDuration(v float64) *URLStatUpdateOne {
+	_u.mutation.ResetAvgDuration()
+	_u.mutation.SetAvgDuration(v)
+	return _u
 }
 
 // SetNillableAvgDuration sets the "avg_duration" field if the given value is not nil.
-func (usuo *URLStatUpdateOne) SetNillableAvgDuration(f *float64) *URLStatUpdateOne {
-	if f != nil {
-		usuo.SetAvgDuration(*f)
+func (_u *URLStatUpdateOne) SetNillableAvgDuration(v *float64) *URLStatUpdateOne {
+	if v != nil {
+		_u.SetAvgDuration(*v)
 	}
-	return usuo
+	return _u
 }
 
-// AddAvgDuration adds f to the "avg_duration" field.
-func (usuo *URLStatUpdateOne) AddAvgDuration(f float64) *URLStatUpdateOne {
-	usuo.mutation.AddAvgDuration(f)
-	return usuo
+// AddAvgDuration adds value to the "avg_duration" field.
+func (_u *URLStatUpdateOne) AddAvgDuration(v float64) *URLStatUpdateOne {
+	_u.mutation.AddAvgDuration(v)
+	return _u
 }
 
 // SetLastVisitedAt sets the "last_visited_at" field.
-func (usuo *URLStatUpdateOne) SetLastVisitedAt(t time.Time) *URLStatUpdateOne {
-	usuo.mutation.SetLastVisitedAt(t)
-	return usuo
+func (_u *URLStatUpdateOne) SetLastVisitedAt(v time.Time) *URLStatUpdateOne {
+	_u.mutation.SetLastVisitedAt(v)
+	return _u
 }
 
 // SetNillableLastVisitedAt sets the "last_visited_at" field if the given value is not nil.
-func (usuo *URLStatUpdateOne) SetNillableLastVisitedAt(t *time.Time) *URLStatUpdateOne {
-	if t != nil {
-		usuo.SetLastVisitedAt(*t)
+func (_u *URLStatUpdateOne) SetNillableLastVisitedAt(v *time.Time) *URLStatUpdateOne {
+	if v != nil {
+		_u.SetLastVisitedAt(*v)
 	}
-	return usuo
+	return _u
 }
 
 // ClearLastVisitedAt clears the value of the "last_visited_at" field.
-func (usuo *URLStatUpdateOne) ClearLastVisitedAt() *URLStatUpdateOne {
-	usuo.mutation.ClearLastVisitedAt()
-	return usuo
+func (_u *URLStatUpdateOne) ClearLastVisitedAt() *URLStatUpdateOne {
+	_u.mutation.ClearLastVisitedAt()
+	return _u
 }
 
 // Mutation returns the URLStatMutation object of the builder.
-func (usuo *URLStatUpdateOne) Mutation() *URLStatMutation {
-	return usuo.mutation
+func (_u *URLStatUpdateOne) Mutation() *URLStatMutation {
+	return _u.mutation
 }
 
 // Where appends a list predicates to the URLStatUpdate builder.
-func (usuo *URLStatUpdateOne) Where(ps ...predicate.URLStat) *URLStatUpdateOne {
-	usuo.mutation.Where(ps...)
-	return usuo
+func (_u *URLStatUpdateOne) Where(ps ...predicate.URLStat) *URLStatUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (usuo *URLStatUpdateOne) Select(field string, fields ...string) *URLStatUpdateOne {
-	usuo.fields = append([]string{field}, fields...)
-	return usuo
+func (_u *URLStatUpdateOne) Select(field string, fields ...string) *URLStatUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated URLStat entity.
-func (usuo *URLStatUpdateOne) Save(ctx context.Context) (*URLStat, error) {
-	usuo.defaults()
-	return withHooks(ctx, usuo.sqlSave, usuo.mutation, usuo.hooks)
+func (_u *URLStatUpdateOne) Save(ctx context.Context) (*URLStat, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (usuo *URLStatUpdateOne) SaveX(ctx context.Context) *URLStat {
-	node, err := usuo.Save(ctx)
+func (_u *URLStatUpdateOne) SaveX(ctx context.Context) *URLStat {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -489,34 +489,34 @@ func (usuo *URLStatUpdateOne) SaveX(ctx context.Context) *URLStat {
 }
 
 // Exec executes the query on the entity.
-func (usuo *URLStatUpdateOne) Exec(ctx context.Context) error {
-	_, err := usuo.Save(ctx)
+func (_u *URLStatUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (usuo *URLStatUpdateOne) ExecX(ctx context.Context) {
-	if err := usuo.Exec(ctx); err != nil {
+func (_u *URLStatUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (usuo *URLStatUpdateOne) defaults() {
-	if _, ok := usuo.mutation.UpdatedAt(); !ok {
+func (_u *URLStatUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := urlstat.UpdateDefaultUpdatedAt()
-		usuo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (usuo *URLStatUpdateOne) check() error {
-	if v, ok := usuo.mutation.URLPath(); ok {
+func (_u *URLStatUpdateOne) check() error {
+	if v, ok := _u.mutation.URLPath(); ok {
 		if err := urlstat.URLPathValidator(v); err != nil {
 			return &ValidationError{Name: "url_path", err: fmt.Errorf(`ent: validator failed for field "URLStat.url_path": %w`, err)}
 		}
 	}
-	if v, ok := usuo.mutation.PageTitle(); ok {
+	if v, ok := _u.mutation.PageTitle(); ok {
 		if err := urlstat.PageTitleValidator(v); err != nil {
 			return &ValidationError{Name: "page_title", err: fmt.Errorf(`ent: validator failed for field "URLStat.page_title": %w`, err)}
 		}
@@ -525,22 +525,22 @@ func (usuo *URLStatUpdateOne) check() error {
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (usuo *URLStatUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *URLStatUpdateOne {
-	usuo.modifiers = append(usuo.modifiers, modifiers...)
-	return usuo
+func (_u *URLStatUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *URLStatUpdateOne {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (usuo *URLStatUpdateOne) sqlSave(ctx context.Context) (_node *URLStat, err error) {
-	if err := usuo.check(); err != nil {
+func (_u *URLStatUpdateOne) sqlSave(ctx context.Context) (_node *URLStat, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(urlstat.Table, urlstat.Columns, sqlgraph.NewFieldSpec(urlstat.FieldID, field.TypeUint))
-	id, ok := usuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "URLStat.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := usuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, urlstat.FieldID)
 		for _, f := range fields {
@@ -552,60 +552,60 @@ func (usuo *URLStatUpdateOne) sqlSave(ctx context.Context) (_node *URLStat, err 
 			}
 		}
 	}
-	if ps := usuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := usuo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(urlstat.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := usuo.mutation.URLPath(); ok {
+	if value, ok := _u.mutation.URLPath(); ok {
 		_spec.SetField(urlstat.FieldURLPath, field.TypeString, value)
 	}
-	if value, ok := usuo.mutation.PageTitle(); ok {
+	if value, ok := _u.mutation.PageTitle(); ok {
 		_spec.SetField(urlstat.FieldPageTitle, field.TypeString, value)
 	}
-	if usuo.mutation.PageTitleCleared() {
+	if _u.mutation.PageTitleCleared() {
 		_spec.ClearField(urlstat.FieldPageTitle, field.TypeString)
 	}
-	if value, ok := usuo.mutation.TotalViews(); ok {
+	if value, ok := _u.mutation.TotalViews(); ok {
 		_spec.SetField(urlstat.FieldTotalViews, field.TypeInt64, value)
 	}
-	if value, ok := usuo.mutation.AddedTotalViews(); ok {
+	if value, ok := _u.mutation.AddedTotalViews(); ok {
 		_spec.AddField(urlstat.FieldTotalViews, field.TypeInt64, value)
 	}
-	if value, ok := usuo.mutation.UniqueViews(); ok {
+	if value, ok := _u.mutation.UniqueViews(); ok {
 		_spec.SetField(urlstat.FieldUniqueViews, field.TypeInt64, value)
 	}
-	if value, ok := usuo.mutation.AddedUniqueViews(); ok {
+	if value, ok := _u.mutation.AddedUniqueViews(); ok {
 		_spec.AddField(urlstat.FieldUniqueViews, field.TypeInt64, value)
 	}
-	if value, ok := usuo.mutation.BounceCount(); ok {
+	if value, ok := _u.mutation.BounceCount(); ok {
 		_spec.SetField(urlstat.FieldBounceCount, field.TypeInt64, value)
 	}
-	if value, ok := usuo.mutation.AddedBounceCount(); ok {
+	if value, ok := _u.mutation.AddedBounceCount(); ok {
 		_spec.AddField(urlstat.FieldBounceCount, field.TypeInt64, value)
 	}
-	if value, ok := usuo.mutation.AvgDuration(); ok {
+	if value, ok := _u.mutation.AvgDuration(); ok {
 		_spec.SetField(urlstat.FieldAvgDuration, field.TypeFloat64, value)
 	}
-	if value, ok := usuo.mutation.AddedAvgDuration(); ok {
+	if value, ok := _u.mutation.AddedAvgDuration(); ok {
 		_spec.AddField(urlstat.FieldAvgDuration, field.TypeFloat64, value)
 	}
-	if value, ok := usuo.mutation.LastVisitedAt(); ok {
+	if value, ok := _u.mutation.LastVisitedAt(); ok {
 		_spec.SetField(urlstat.FieldLastVisitedAt, field.TypeTime, value)
 	}
-	if usuo.mutation.LastVisitedAtCleared() {
+	if _u.mutation.LastVisitedAtCleared() {
 		_spec.ClearField(urlstat.FieldLastVisitedAt, field.TypeTime)
 	}
-	_spec.AddModifiers(usuo.modifiers...)
-	_node = &URLStat{config: usuo.config}
+	_spec.AddModifiers(_u.modifiers...)
+	_node = &URLStat{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, usuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{urlstat.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -613,6 +613,6 @@ func (usuo *URLStatUpdateOne) sqlSave(ctx context.Context) (_node *URLStat, err 
 		}
 		return nil, err
 	}
-	usuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

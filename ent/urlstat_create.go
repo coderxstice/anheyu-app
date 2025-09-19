@@ -23,143 +23,143 @@ type URLStatCreate struct {
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (usc *URLStatCreate) SetCreatedAt(t time.Time) *URLStatCreate {
-	usc.mutation.SetCreatedAt(t)
-	return usc
+func (_c *URLStatCreate) SetCreatedAt(v time.Time) *URLStatCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (usc *URLStatCreate) SetNillableCreatedAt(t *time.Time) *URLStatCreate {
-	if t != nil {
-		usc.SetCreatedAt(*t)
+func (_c *URLStatCreate) SetNillableCreatedAt(v *time.Time) *URLStatCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return usc
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (usc *URLStatCreate) SetUpdatedAt(t time.Time) *URLStatCreate {
-	usc.mutation.SetUpdatedAt(t)
-	return usc
+func (_c *URLStatCreate) SetUpdatedAt(v time.Time) *URLStatCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (usc *URLStatCreate) SetNillableUpdatedAt(t *time.Time) *URLStatCreate {
-	if t != nil {
-		usc.SetUpdatedAt(*t)
+func (_c *URLStatCreate) SetNillableUpdatedAt(v *time.Time) *URLStatCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return usc
+	return _c
 }
 
 // SetURLPath sets the "url_path" field.
-func (usc *URLStatCreate) SetURLPath(s string) *URLStatCreate {
-	usc.mutation.SetURLPath(s)
-	return usc
+func (_c *URLStatCreate) SetURLPath(v string) *URLStatCreate {
+	_c.mutation.SetURLPath(v)
+	return _c
 }
 
 // SetPageTitle sets the "page_title" field.
-func (usc *URLStatCreate) SetPageTitle(s string) *URLStatCreate {
-	usc.mutation.SetPageTitle(s)
-	return usc
+func (_c *URLStatCreate) SetPageTitle(v string) *URLStatCreate {
+	_c.mutation.SetPageTitle(v)
+	return _c
 }
 
 // SetNillablePageTitle sets the "page_title" field if the given value is not nil.
-func (usc *URLStatCreate) SetNillablePageTitle(s *string) *URLStatCreate {
-	if s != nil {
-		usc.SetPageTitle(*s)
+func (_c *URLStatCreate) SetNillablePageTitle(v *string) *URLStatCreate {
+	if v != nil {
+		_c.SetPageTitle(*v)
 	}
-	return usc
+	return _c
 }
 
 // SetTotalViews sets the "total_views" field.
-func (usc *URLStatCreate) SetTotalViews(i int64) *URLStatCreate {
-	usc.mutation.SetTotalViews(i)
-	return usc
+func (_c *URLStatCreate) SetTotalViews(v int64) *URLStatCreate {
+	_c.mutation.SetTotalViews(v)
+	return _c
 }
 
 // SetNillableTotalViews sets the "total_views" field if the given value is not nil.
-func (usc *URLStatCreate) SetNillableTotalViews(i *int64) *URLStatCreate {
-	if i != nil {
-		usc.SetTotalViews(*i)
+func (_c *URLStatCreate) SetNillableTotalViews(v *int64) *URLStatCreate {
+	if v != nil {
+		_c.SetTotalViews(*v)
 	}
-	return usc
+	return _c
 }
 
 // SetUniqueViews sets the "unique_views" field.
-func (usc *URLStatCreate) SetUniqueViews(i int64) *URLStatCreate {
-	usc.mutation.SetUniqueViews(i)
-	return usc
+func (_c *URLStatCreate) SetUniqueViews(v int64) *URLStatCreate {
+	_c.mutation.SetUniqueViews(v)
+	return _c
 }
 
 // SetNillableUniqueViews sets the "unique_views" field if the given value is not nil.
-func (usc *URLStatCreate) SetNillableUniqueViews(i *int64) *URLStatCreate {
-	if i != nil {
-		usc.SetUniqueViews(*i)
+func (_c *URLStatCreate) SetNillableUniqueViews(v *int64) *URLStatCreate {
+	if v != nil {
+		_c.SetUniqueViews(*v)
 	}
-	return usc
+	return _c
 }
 
 // SetBounceCount sets the "bounce_count" field.
-func (usc *URLStatCreate) SetBounceCount(i int64) *URLStatCreate {
-	usc.mutation.SetBounceCount(i)
-	return usc
+func (_c *URLStatCreate) SetBounceCount(v int64) *URLStatCreate {
+	_c.mutation.SetBounceCount(v)
+	return _c
 }
 
 // SetNillableBounceCount sets the "bounce_count" field if the given value is not nil.
-func (usc *URLStatCreate) SetNillableBounceCount(i *int64) *URLStatCreate {
-	if i != nil {
-		usc.SetBounceCount(*i)
+func (_c *URLStatCreate) SetNillableBounceCount(v *int64) *URLStatCreate {
+	if v != nil {
+		_c.SetBounceCount(*v)
 	}
-	return usc
+	return _c
 }
 
 // SetAvgDuration sets the "avg_duration" field.
-func (usc *URLStatCreate) SetAvgDuration(f float64) *URLStatCreate {
-	usc.mutation.SetAvgDuration(f)
-	return usc
+func (_c *URLStatCreate) SetAvgDuration(v float64) *URLStatCreate {
+	_c.mutation.SetAvgDuration(v)
+	return _c
 }
 
 // SetNillableAvgDuration sets the "avg_duration" field if the given value is not nil.
-func (usc *URLStatCreate) SetNillableAvgDuration(f *float64) *URLStatCreate {
-	if f != nil {
-		usc.SetAvgDuration(*f)
+func (_c *URLStatCreate) SetNillableAvgDuration(v *float64) *URLStatCreate {
+	if v != nil {
+		_c.SetAvgDuration(*v)
 	}
-	return usc
+	return _c
 }
 
 // SetLastVisitedAt sets the "last_visited_at" field.
-func (usc *URLStatCreate) SetLastVisitedAt(t time.Time) *URLStatCreate {
-	usc.mutation.SetLastVisitedAt(t)
-	return usc
+func (_c *URLStatCreate) SetLastVisitedAt(v time.Time) *URLStatCreate {
+	_c.mutation.SetLastVisitedAt(v)
+	return _c
 }
 
 // SetNillableLastVisitedAt sets the "last_visited_at" field if the given value is not nil.
-func (usc *URLStatCreate) SetNillableLastVisitedAt(t *time.Time) *URLStatCreate {
-	if t != nil {
-		usc.SetLastVisitedAt(*t)
+func (_c *URLStatCreate) SetNillableLastVisitedAt(v *time.Time) *URLStatCreate {
+	if v != nil {
+		_c.SetLastVisitedAt(*v)
 	}
-	return usc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (usc *URLStatCreate) SetID(u uint) *URLStatCreate {
-	usc.mutation.SetID(u)
-	return usc
+func (_c *URLStatCreate) SetID(v uint) *URLStatCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // Mutation returns the URLStatMutation object of the builder.
-func (usc *URLStatCreate) Mutation() *URLStatMutation {
-	return usc.mutation
+func (_c *URLStatCreate) Mutation() *URLStatMutation {
+	return _c.mutation
 }
 
 // Save creates the URLStat in the database.
-func (usc *URLStatCreate) Save(ctx context.Context) (*URLStat, error) {
-	usc.defaults()
-	return withHooks(ctx, usc.sqlSave, usc.mutation, usc.hooks)
+func (_c *URLStatCreate) Save(ctx context.Context) (*URLStat, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (usc *URLStatCreate) SaveX(ctx context.Context) *URLStat {
-	v, err := usc.Save(ctx)
+func (_c *URLStatCreate) SaveX(ctx context.Context) *URLStat {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -167,88 +167,88 @@ func (usc *URLStatCreate) SaveX(ctx context.Context) *URLStat {
 }
 
 // Exec executes the query.
-func (usc *URLStatCreate) Exec(ctx context.Context) error {
-	_, err := usc.Save(ctx)
+func (_c *URLStatCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (usc *URLStatCreate) ExecX(ctx context.Context) {
-	if err := usc.Exec(ctx); err != nil {
+func (_c *URLStatCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (usc *URLStatCreate) defaults() {
-	if _, ok := usc.mutation.CreatedAt(); !ok {
+func (_c *URLStatCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := urlstat.DefaultCreatedAt()
-		usc.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := usc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := urlstat.DefaultUpdatedAt()
-		usc.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := usc.mutation.TotalViews(); !ok {
+	if _, ok := _c.mutation.TotalViews(); !ok {
 		v := urlstat.DefaultTotalViews
-		usc.mutation.SetTotalViews(v)
+		_c.mutation.SetTotalViews(v)
 	}
-	if _, ok := usc.mutation.UniqueViews(); !ok {
+	if _, ok := _c.mutation.UniqueViews(); !ok {
 		v := urlstat.DefaultUniqueViews
-		usc.mutation.SetUniqueViews(v)
+		_c.mutation.SetUniqueViews(v)
 	}
-	if _, ok := usc.mutation.BounceCount(); !ok {
+	if _, ok := _c.mutation.BounceCount(); !ok {
 		v := urlstat.DefaultBounceCount
-		usc.mutation.SetBounceCount(v)
+		_c.mutation.SetBounceCount(v)
 	}
-	if _, ok := usc.mutation.AvgDuration(); !ok {
+	if _, ok := _c.mutation.AvgDuration(); !ok {
 		v := urlstat.DefaultAvgDuration
-		usc.mutation.SetAvgDuration(v)
+		_c.mutation.SetAvgDuration(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (usc *URLStatCreate) check() error {
-	if _, ok := usc.mutation.CreatedAt(); !ok {
+func (_c *URLStatCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "URLStat.created_at"`)}
 	}
-	if _, ok := usc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "URLStat.updated_at"`)}
 	}
-	if _, ok := usc.mutation.URLPath(); !ok {
+	if _, ok := _c.mutation.URLPath(); !ok {
 		return &ValidationError{Name: "url_path", err: errors.New(`ent: missing required field "URLStat.url_path"`)}
 	}
-	if v, ok := usc.mutation.URLPath(); ok {
+	if v, ok := _c.mutation.URLPath(); ok {
 		if err := urlstat.URLPathValidator(v); err != nil {
 			return &ValidationError{Name: "url_path", err: fmt.Errorf(`ent: validator failed for field "URLStat.url_path": %w`, err)}
 		}
 	}
-	if v, ok := usc.mutation.PageTitle(); ok {
+	if v, ok := _c.mutation.PageTitle(); ok {
 		if err := urlstat.PageTitleValidator(v); err != nil {
 			return &ValidationError{Name: "page_title", err: fmt.Errorf(`ent: validator failed for field "URLStat.page_title": %w`, err)}
 		}
 	}
-	if _, ok := usc.mutation.TotalViews(); !ok {
+	if _, ok := _c.mutation.TotalViews(); !ok {
 		return &ValidationError{Name: "total_views", err: errors.New(`ent: missing required field "URLStat.total_views"`)}
 	}
-	if _, ok := usc.mutation.UniqueViews(); !ok {
+	if _, ok := _c.mutation.UniqueViews(); !ok {
 		return &ValidationError{Name: "unique_views", err: errors.New(`ent: missing required field "URLStat.unique_views"`)}
 	}
-	if _, ok := usc.mutation.BounceCount(); !ok {
+	if _, ok := _c.mutation.BounceCount(); !ok {
 		return &ValidationError{Name: "bounce_count", err: errors.New(`ent: missing required field "URLStat.bounce_count"`)}
 	}
-	if _, ok := usc.mutation.AvgDuration(); !ok {
+	if _, ok := _c.mutation.AvgDuration(); !ok {
 		return &ValidationError{Name: "avg_duration", err: errors.New(`ent: missing required field "URLStat.avg_duration"`)}
 	}
 	return nil
 }
 
-func (usc *URLStatCreate) sqlSave(ctx context.Context) (*URLStat, error) {
-	if err := usc.check(); err != nil {
+func (_c *URLStatCreate) sqlSave(ctx context.Context) (*URLStat, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := usc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, usc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -258,54 +258,54 @@ func (usc *URLStatCreate) sqlSave(ctx context.Context) (*URLStat, error) {
 		id := _spec.ID.Value.(int64)
 		_node.ID = uint(id)
 	}
-	usc.mutation.id = &_node.ID
-	usc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (usc *URLStatCreate) createSpec() (*URLStat, *sqlgraph.CreateSpec) {
+func (_c *URLStatCreate) createSpec() (*URLStat, *sqlgraph.CreateSpec) {
 	var (
-		_node = &URLStat{config: usc.config}
+		_node = &URLStat{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(urlstat.Table, sqlgraph.NewFieldSpec(urlstat.FieldID, field.TypeUint))
 	)
-	_spec.OnConflict = usc.conflict
-	if id, ok := usc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := usc.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(urlstat.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := usc.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(urlstat.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if value, ok := usc.mutation.URLPath(); ok {
+	if value, ok := _c.mutation.URLPath(); ok {
 		_spec.SetField(urlstat.FieldURLPath, field.TypeString, value)
 		_node.URLPath = value
 	}
-	if value, ok := usc.mutation.PageTitle(); ok {
+	if value, ok := _c.mutation.PageTitle(); ok {
 		_spec.SetField(urlstat.FieldPageTitle, field.TypeString, value)
 		_node.PageTitle = &value
 	}
-	if value, ok := usc.mutation.TotalViews(); ok {
+	if value, ok := _c.mutation.TotalViews(); ok {
 		_spec.SetField(urlstat.FieldTotalViews, field.TypeInt64, value)
 		_node.TotalViews = value
 	}
-	if value, ok := usc.mutation.UniqueViews(); ok {
+	if value, ok := _c.mutation.UniqueViews(); ok {
 		_spec.SetField(urlstat.FieldUniqueViews, field.TypeInt64, value)
 		_node.UniqueViews = value
 	}
-	if value, ok := usc.mutation.BounceCount(); ok {
+	if value, ok := _c.mutation.BounceCount(); ok {
 		_spec.SetField(urlstat.FieldBounceCount, field.TypeInt64, value)
 		_node.BounceCount = value
 	}
-	if value, ok := usc.mutation.AvgDuration(); ok {
+	if value, ok := _c.mutation.AvgDuration(); ok {
 		_spec.SetField(urlstat.FieldAvgDuration, field.TypeFloat64, value)
 		_node.AvgDuration = value
 	}
-	if value, ok := usc.mutation.LastVisitedAt(); ok {
+	if value, ok := _c.mutation.LastVisitedAt(); ok {
 		_spec.SetField(urlstat.FieldLastVisitedAt, field.TypeTime, value)
 		_node.LastVisitedAt = &value
 	}
@@ -328,10 +328,10 @@ func (usc *URLStatCreate) createSpec() (*URLStat, *sqlgraph.CreateSpec) {
 //			SetCreatedAt(v+v).
 //		}).
 //		Exec(ctx)
-func (usc *URLStatCreate) OnConflict(opts ...sql.ConflictOption) *URLStatUpsertOne {
-	usc.conflict = opts
+func (_c *URLStatCreate) OnConflict(opts ...sql.ConflictOption) *URLStatUpsertOne {
+	_c.conflict = opts
 	return &URLStatUpsertOne{
-		create: usc,
+		create: _c,
 	}
 }
 
@@ -341,10 +341,10 @@ func (usc *URLStatCreate) OnConflict(opts ...sql.ConflictOption) *URLStatUpsertO
 //	client.URLStat.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (usc *URLStatCreate) OnConflictColumns(columns ...string) *URLStatUpsertOne {
-	usc.conflict = append(usc.conflict, sql.ConflictColumns(columns...))
+func (_c *URLStatCreate) OnConflictColumns(columns ...string) *URLStatUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &URLStatUpsertOne{
-		create: usc,
+		create: _c,
 	}
 }
 
@@ -740,16 +740,16 @@ type URLStatCreateBulk struct {
 }
 
 // Save creates the URLStat entities in the database.
-func (uscb *URLStatCreateBulk) Save(ctx context.Context) ([]*URLStat, error) {
-	if uscb.err != nil {
-		return nil, uscb.err
+func (_c *URLStatCreateBulk) Save(ctx context.Context) ([]*URLStat, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(uscb.builders))
-	nodes := make([]*URLStat, len(uscb.builders))
-	mutators := make([]Mutator, len(uscb.builders))
-	for i := range uscb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*URLStat, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := uscb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*URLStatMutation)
@@ -763,12 +763,12 @@ func (uscb *URLStatCreateBulk) Save(ctx context.Context) ([]*URLStat, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, uscb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = uscb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, uscb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -792,7 +792,7 @@ func (uscb *URLStatCreateBulk) Save(ctx context.Context) ([]*URLStat, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, uscb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -800,8 +800,8 @@ func (uscb *URLStatCreateBulk) Save(ctx context.Context) ([]*URLStat, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (uscb *URLStatCreateBulk) SaveX(ctx context.Context) []*URLStat {
-	v, err := uscb.Save(ctx)
+func (_c *URLStatCreateBulk) SaveX(ctx context.Context) []*URLStat {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -809,14 +809,14 @@ func (uscb *URLStatCreateBulk) SaveX(ctx context.Context) []*URLStat {
 }
 
 // Exec executes the query.
-func (uscb *URLStatCreateBulk) Exec(ctx context.Context) error {
-	_, err := uscb.Save(ctx)
+func (_c *URLStatCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (uscb *URLStatCreateBulk) ExecX(ctx context.Context) {
-	if err := uscb.Exec(ctx); err != nil {
+func (_c *URLStatCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -836,10 +836,10 @@ func (uscb *URLStatCreateBulk) ExecX(ctx context.Context) {
 //			SetCreatedAt(v+v).
 //		}).
 //		Exec(ctx)
-func (uscb *URLStatCreateBulk) OnConflict(opts ...sql.ConflictOption) *URLStatUpsertBulk {
-	uscb.conflict = opts
+func (_c *URLStatCreateBulk) OnConflict(opts ...sql.ConflictOption) *URLStatUpsertBulk {
+	_c.conflict = opts
 	return &URLStatUpsertBulk{
-		create: uscb,
+		create: _c,
 	}
 }
 
@@ -849,10 +849,10 @@ func (uscb *URLStatCreateBulk) OnConflict(opts ...sql.ConflictOption) *URLStatUp
 //	client.URLStat.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (uscb *URLStatCreateBulk) OnConflictColumns(columns ...string) *URLStatUpsertBulk {
-	uscb.conflict = append(uscb.conflict, sql.ConflictColumns(columns...))
+func (_c *URLStatCreateBulk) OnConflictColumns(columns ...string) *URLStatUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &URLStatUpsertBulk{
-		create: uscb,
+		create: _c,
 	}
 }
 

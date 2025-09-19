@@ -41,6 +41,7 @@ import (
 	setting_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/setting"
 	statistics_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/statistics"
 	storage_policy_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/storage_policy"
+	theme_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/theme"
 	thumbnail_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/thumbnail"
 	user_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/user"
 	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
@@ -61,6 +62,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/search"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/statistics"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/theme"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/thumbnail"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/user"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/utility"
@@ -284,6 +286,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	log.Printf("[DEBUG] 正在初始化 CommentService，将注入 PushooService...")
 	commentSvc := comment_service.NewService(commentRepo, userRepo, txManager, geoSvc, settingSvc, cacheSvc, taskBroker, fileSvc, parserSvc, pushooSvc)
 	log.Printf("[DEBUG] CommentService 初始化完成，PushooService 已注入")
+	themeSvc := theme.NewThemeService(entClient, userRepo)
 	_ = listener.NewFilePostProcessingListener(eventBus, taskBroker, extractionSvc)
 
 	// --- Phase 6: 初始化表现层 (Handlers) ---
@@ -305,6 +308,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	pageHandler := page_handler.NewHandler(pageSvc)
 	searchHandler := search_handler.NewHandler(searchSvc)
 	statisticsHandler := statistics_handler.NewStatisticsHandler(statService)
+	themeHandler := theme_handler.NewHandler(themeSvc)
 	proxyHandler := proxy_handler.NewHandler()
 
 	// --- Phase 7: 初始化路由 ---
@@ -325,6 +329,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		linkHandler,
 		pageHandler,
 		statisticsHandler,
+		themeHandler,
 		mw,
 		searchHandler,
 		proxyHandler,

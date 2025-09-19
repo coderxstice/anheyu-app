@@ -16,6 +16,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 	"github.com/anzhiyu-c/anheyu-app/ent/user"
 	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
+	"github.com/anzhiyu-c/anheyu-app/ent/userinstalledtheme"
 )
 
 // UserUpdate is the builder for updating User entities.
@@ -27,271 +28,307 @@ type UserUpdate struct {
 }
 
 // Where appends a list predicates to the UserUpdate builder.
-func (uu *UserUpdate) Where(ps ...predicate.User) *UserUpdate {
-	uu.mutation.Where(ps...)
-	return uu
+func (_u *UserUpdate) Where(ps ...predicate.User) *UserUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (uu *UserUpdate) SetDeletedAt(t time.Time) *UserUpdate {
-	uu.mutation.SetDeletedAt(t)
-	return uu
+func (_u *UserUpdate) SetDeletedAt(v time.Time) *UserUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableDeletedAt(t *time.Time) *UserUpdate {
-	if t != nil {
-		uu.SetDeletedAt(*t)
+func (_u *UserUpdate) SetNillableDeletedAt(v *time.Time) *UserUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
 	}
-	return uu
+	return _u
 }
 
 // ClearDeletedAt clears the value of the "deleted_at" field.
-func (uu *UserUpdate) ClearDeletedAt() *UserUpdate {
-	uu.mutation.ClearDeletedAt()
-	return uu
+func (_u *UserUpdate) ClearDeletedAt() *UserUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (uu *UserUpdate) SetUpdatedAt(t time.Time) *UserUpdate {
-	uu.mutation.SetUpdatedAt(t)
-	return uu
+func (_u *UserUpdate) SetUpdatedAt(v time.Time) *UserUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetUsername sets the "username" field.
-func (uu *UserUpdate) SetUsername(s string) *UserUpdate {
-	uu.mutation.SetUsername(s)
-	return uu
+func (_u *UserUpdate) SetUsername(v string) *UserUpdate {
+	_u.mutation.SetUsername(v)
+	return _u
 }
 
 // SetNillableUsername sets the "username" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableUsername(s *string) *UserUpdate {
-	if s != nil {
-		uu.SetUsername(*s)
+func (_u *UserUpdate) SetNillableUsername(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetUsername(*v)
 	}
-	return uu
+	return _u
 }
 
 // SetPasswordHash sets the "password_hash" field.
-func (uu *UserUpdate) SetPasswordHash(s string) *UserUpdate {
-	uu.mutation.SetPasswordHash(s)
-	return uu
+func (_u *UserUpdate) SetPasswordHash(v string) *UserUpdate {
+	_u.mutation.SetPasswordHash(v)
+	return _u
 }
 
 // SetNillablePasswordHash sets the "password_hash" field if the given value is not nil.
-func (uu *UserUpdate) SetNillablePasswordHash(s *string) *UserUpdate {
-	if s != nil {
-		uu.SetPasswordHash(*s)
+func (_u *UserUpdate) SetNillablePasswordHash(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetPasswordHash(*v)
 	}
-	return uu
+	return _u
 }
 
 // SetNickname sets the "nickname" field.
-func (uu *UserUpdate) SetNickname(s string) *UserUpdate {
-	uu.mutation.SetNickname(s)
-	return uu
+func (_u *UserUpdate) SetNickname(v string) *UserUpdate {
+	_u.mutation.SetNickname(v)
+	return _u
 }
 
 // SetNillableNickname sets the "nickname" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableNickname(s *string) *UserUpdate {
-	if s != nil {
-		uu.SetNickname(*s)
+func (_u *UserUpdate) SetNillableNickname(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetNickname(*v)
 	}
-	return uu
+	return _u
 }
 
 // ClearNickname clears the value of the "nickname" field.
-func (uu *UserUpdate) ClearNickname() *UserUpdate {
-	uu.mutation.ClearNickname()
-	return uu
+func (_u *UserUpdate) ClearNickname() *UserUpdate {
+	_u.mutation.ClearNickname()
+	return _u
 }
 
 // SetAvatar sets the "avatar" field.
-func (uu *UserUpdate) SetAvatar(s string) *UserUpdate {
-	uu.mutation.SetAvatar(s)
-	return uu
+func (_u *UserUpdate) SetAvatar(v string) *UserUpdate {
+	_u.mutation.SetAvatar(v)
+	return _u
 }
 
 // SetNillableAvatar sets the "avatar" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableAvatar(s *string) *UserUpdate {
-	if s != nil {
-		uu.SetAvatar(*s)
+func (_u *UserUpdate) SetNillableAvatar(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetAvatar(*v)
 	}
-	return uu
+	return _u
 }
 
 // ClearAvatar clears the value of the "avatar" field.
-func (uu *UserUpdate) ClearAvatar() *UserUpdate {
-	uu.mutation.ClearAvatar()
-	return uu
+func (_u *UserUpdate) ClearAvatar() *UserUpdate {
+	_u.mutation.ClearAvatar()
+	return _u
 }
 
 // SetEmail sets the "email" field.
-func (uu *UserUpdate) SetEmail(s string) *UserUpdate {
-	uu.mutation.SetEmail(s)
-	return uu
+func (_u *UserUpdate) SetEmail(v string) *UserUpdate {
+	_u.mutation.SetEmail(v)
+	return _u
 }
 
 // SetNillableEmail sets the "email" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableEmail(s *string) *UserUpdate {
-	if s != nil {
-		uu.SetEmail(*s)
+func (_u *UserUpdate) SetNillableEmail(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetEmail(*v)
 	}
-	return uu
+	return _u
 }
 
 // ClearEmail clears the value of the "email" field.
-func (uu *UserUpdate) ClearEmail() *UserUpdate {
-	uu.mutation.ClearEmail()
-	return uu
+func (_u *UserUpdate) ClearEmail() *UserUpdate {
+	_u.mutation.ClearEmail()
+	return _u
 }
 
 // SetLastLoginAt sets the "last_login_at" field.
-func (uu *UserUpdate) SetLastLoginAt(t time.Time) *UserUpdate {
-	uu.mutation.SetLastLoginAt(t)
-	return uu
+func (_u *UserUpdate) SetLastLoginAt(v time.Time) *UserUpdate {
+	_u.mutation.SetLastLoginAt(v)
+	return _u
 }
 
 // SetNillableLastLoginAt sets the "last_login_at" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableLastLoginAt(t *time.Time) *UserUpdate {
-	if t != nil {
-		uu.SetLastLoginAt(*t)
+func (_u *UserUpdate) SetNillableLastLoginAt(v *time.Time) *UserUpdate {
+	if v != nil {
+		_u.SetLastLoginAt(*v)
 	}
-	return uu
+	return _u
 }
 
 // ClearLastLoginAt clears the value of the "last_login_at" field.
-func (uu *UserUpdate) ClearLastLoginAt() *UserUpdate {
-	uu.mutation.ClearLastLoginAt()
-	return uu
+func (_u *UserUpdate) ClearLastLoginAt() *UserUpdate {
+	_u.mutation.ClearLastLoginAt()
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (uu *UserUpdate) SetStatus(i int) *UserUpdate {
-	uu.mutation.ResetStatus()
-	uu.mutation.SetStatus(i)
-	return uu
+func (_u *UserUpdate) SetStatus(v int) *UserUpdate {
+	_u.mutation.ResetStatus()
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableStatus(i *int) *UserUpdate {
-	if i != nil {
-		uu.SetStatus(*i)
+func (_u *UserUpdate) SetNillableStatus(v *int) *UserUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return uu
+	return _u
 }
 
-// AddStatus adds i to the "status" field.
-func (uu *UserUpdate) AddStatus(i int) *UserUpdate {
-	uu.mutation.AddStatus(i)
-	return uu
+// AddStatus adds value to the "status" field.
+func (_u *UserUpdate) AddStatus(v int) *UserUpdate {
+	_u.mutation.AddStatus(v)
+	return _u
 }
 
 // SetUserGroupID sets the "user_group" edge to the UserGroup entity by ID.
-func (uu *UserUpdate) SetUserGroupID(id uint) *UserUpdate {
-	uu.mutation.SetUserGroupID(id)
-	return uu
+func (_u *UserUpdate) SetUserGroupID(id uint) *UserUpdate {
+	_u.mutation.SetUserGroupID(id)
+	return _u
 }
 
 // SetUserGroup sets the "user_group" edge to the UserGroup entity.
-func (uu *UserUpdate) SetUserGroup(u *UserGroup) *UserUpdate {
-	return uu.SetUserGroupID(u.ID)
+func (_u *UserUpdate) SetUserGroup(v *UserGroup) *UserUpdate {
+	return _u.SetUserGroupID(v.ID)
 }
 
 // AddFileIDs adds the "files" edge to the File entity by IDs.
-func (uu *UserUpdate) AddFileIDs(ids ...uint) *UserUpdate {
-	uu.mutation.AddFileIDs(ids...)
-	return uu
+func (_u *UserUpdate) AddFileIDs(ids ...uint) *UserUpdate {
+	_u.mutation.AddFileIDs(ids...)
+	return _u
 }
 
 // AddFiles adds the "files" edges to the File entity.
-func (uu *UserUpdate) AddFiles(f ...*File) *UserUpdate {
-	ids := make([]uint, len(f))
-	for i := range f {
-		ids[i] = f[i].ID
+func (_u *UserUpdate) AddFiles(v ...*File) *UserUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return uu.AddFileIDs(ids...)
+	return _u.AddFileIDs(ids...)
 }
 
 // AddCommentIDs adds the "comments" edge to the Comment entity by IDs.
-func (uu *UserUpdate) AddCommentIDs(ids ...uint) *UserUpdate {
-	uu.mutation.AddCommentIDs(ids...)
-	return uu
+func (_u *UserUpdate) AddCommentIDs(ids ...uint) *UserUpdate {
+	_u.mutation.AddCommentIDs(ids...)
+	return _u
 }
 
 // AddComments adds the "comments" edges to the Comment entity.
-func (uu *UserUpdate) AddComments(c ...*Comment) *UserUpdate {
-	ids := make([]uint, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
+func (_u *UserUpdate) AddComments(v ...*Comment) *UserUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return uu.AddCommentIDs(ids...)
+	return _u.AddCommentIDs(ids...)
+}
+
+// AddInstalledThemeIDs adds the "installed_themes" edge to the UserInstalledTheme entity by IDs.
+func (_u *UserUpdate) AddInstalledThemeIDs(ids ...uint) *UserUpdate {
+	_u.mutation.AddInstalledThemeIDs(ids...)
+	return _u
+}
+
+// AddInstalledThemes adds the "installed_themes" edges to the UserInstalledTheme entity.
+func (_u *UserUpdate) AddInstalledThemes(v ...*UserInstalledTheme) *UserUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddInstalledThemeIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
-func (uu *UserUpdate) Mutation() *UserMutation {
-	return uu.mutation
+func (_u *UserUpdate) Mutation() *UserMutation {
+	return _u.mutation
 }
 
 // ClearUserGroup clears the "user_group" edge to the UserGroup entity.
-func (uu *UserUpdate) ClearUserGroup() *UserUpdate {
-	uu.mutation.ClearUserGroup()
-	return uu
+func (_u *UserUpdate) ClearUserGroup() *UserUpdate {
+	_u.mutation.ClearUserGroup()
+	return _u
 }
 
 // ClearFiles clears all "files" edges to the File entity.
-func (uu *UserUpdate) ClearFiles() *UserUpdate {
-	uu.mutation.ClearFiles()
-	return uu
+func (_u *UserUpdate) ClearFiles() *UserUpdate {
+	_u.mutation.ClearFiles()
+	return _u
 }
 
 // RemoveFileIDs removes the "files" edge to File entities by IDs.
-func (uu *UserUpdate) RemoveFileIDs(ids ...uint) *UserUpdate {
-	uu.mutation.RemoveFileIDs(ids...)
-	return uu
+func (_u *UserUpdate) RemoveFileIDs(ids ...uint) *UserUpdate {
+	_u.mutation.RemoveFileIDs(ids...)
+	return _u
 }
 
 // RemoveFiles removes "files" edges to File entities.
-func (uu *UserUpdate) RemoveFiles(f ...*File) *UserUpdate {
-	ids := make([]uint, len(f))
-	for i := range f {
-		ids[i] = f[i].ID
+func (_u *UserUpdate) RemoveFiles(v ...*File) *UserUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return uu.RemoveFileIDs(ids...)
+	return _u.RemoveFileIDs(ids...)
 }
 
 // ClearComments clears all "comments" edges to the Comment entity.
-func (uu *UserUpdate) ClearComments() *UserUpdate {
-	uu.mutation.ClearComments()
-	return uu
+func (_u *UserUpdate) ClearComments() *UserUpdate {
+	_u.mutation.ClearComments()
+	return _u
 }
 
 // RemoveCommentIDs removes the "comments" edge to Comment entities by IDs.
-func (uu *UserUpdate) RemoveCommentIDs(ids ...uint) *UserUpdate {
-	uu.mutation.RemoveCommentIDs(ids...)
-	return uu
+func (_u *UserUpdate) RemoveCommentIDs(ids ...uint) *UserUpdate {
+	_u.mutation.RemoveCommentIDs(ids...)
+	return _u
 }
 
 // RemoveComments removes "comments" edges to Comment entities.
-func (uu *UserUpdate) RemoveComments(c ...*Comment) *UserUpdate {
-	ids := make([]uint, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
+func (_u *UserUpdate) RemoveComments(v ...*Comment) *UserUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return uu.RemoveCommentIDs(ids...)
+	return _u.RemoveCommentIDs(ids...)
+}
+
+// ClearInstalledThemes clears all "installed_themes" edges to the UserInstalledTheme entity.
+func (_u *UserUpdate) ClearInstalledThemes() *UserUpdate {
+	_u.mutation.ClearInstalledThemes()
+	return _u
+}
+
+// RemoveInstalledThemeIDs removes the "installed_themes" edge to UserInstalledTheme entities by IDs.
+func (_u *UserUpdate) RemoveInstalledThemeIDs(ids ...uint) *UserUpdate {
+	_u.mutation.RemoveInstalledThemeIDs(ids...)
+	return _u
+}
+
+// RemoveInstalledThemes removes "installed_themes" edges to UserInstalledTheme entities.
+func (_u *UserUpdate) RemoveInstalledThemes(v ...*UserInstalledTheme) *UserUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveInstalledThemeIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (uu *UserUpdate) Save(ctx context.Context) (int, error) {
-	if err := uu.defaults(); err != nil {
+func (_u *UserUpdate) Save(ctx context.Context) (int, error) {
+	if err := _u.defaults(); err != nil {
 		return 0, err
 	}
-	return withHooks(ctx, uu.sqlSave, uu.mutation, uu.hooks)
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (uu *UserUpdate) SaveX(ctx context.Context) int {
-	affected, err := uu.Save(ctx)
+func (_u *UserUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -299,127 +336,127 @@ func (uu *UserUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (uu *UserUpdate) Exec(ctx context.Context) error {
-	_, err := uu.Save(ctx)
+func (_u *UserUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (uu *UserUpdate) ExecX(ctx context.Context) {
-	if err := uu.Exec(ctx); err != nil {
+func (_u *UserUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (uu *UserUpdate) defaults() error {
-	if _, ok := uu.mutation.UpdatedAt(); !ok {
+func (_u *UserUpdate) defaults() error {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		if user.UpdateDefaultUpdatedAt == nil {
 			return fmt.Errorf("ent: uninitialized user.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
 		}
 		v := user.UpdateDefaultUpdatedAt()
-		uu.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (uu *UserUpdate) check() error {
-	if v, ok := uu.mutation.Username(); ok {
+func (_u *UserUpdate) check() error {
+	if v, ok := _u.mutation.Username(); ok {
 		if err := user.UsernameValidator(v); err != nil {
 			return &ValidationError{Name: "username", err: fmt.Errorf(`ent: validator failed for field "User.username": %w`, err)}
 		}
 	}
-	if v, ok := uu.mutation.PasswordHash(); ok {
+	if v, ok := _u.mutation.PasswordHash(); ok {
 		if err := user.PasswordHashValidator(v); err != nil {
 			return &ValidationError{Name: "password_hash", err: fmt.Errorf(`ent: validator failed for field "User.password_hash": %w`, err)}
 		}
 	}
-	if v, ok := uu.mutation.Nickname(); ok {
+	if v, ok := _u.mutation.Nickname(); ok {
 		if err := user.NicknameValidator(v); err != nil {
 			return &ValidationError{Name: "nickname", err: fmt.Errorf(`ent: validator failed for field "User.nickname": %w`, err)}
 		}
 	}
-	if v, ok := uu.mutation.Avatar(); ok {
+	if v, ok := _u.mutation.Avatar(); ok {
 		if err := user.AvatarValidator(v); err != nil {
 			return &ValidationError{Name: "avatar", err: fmt.Errorf(`ent: validator failed for field "User.avatar": %w`, err)}
 		}
 	}
-	if v, ok := uu.mutation.Email(); ok {
+	if v, ok := _u.mutation.Email(); ok {
 		if err := user.EmailValidator(v); err != nil {
 			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "User.email": %w`, err)}
 		}
 	}
-	if uu.mutation.UserGroupCleared() && len(uu.mutation.UserGroupIDs()) > 0 {
+	if _u.mutation.UserGroupCleared() && len(_u.mutation.UserGroupIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "User.user_group"`)
 	}
 	return nil
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (uu *UserUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *UserUpdate {
-	uu.modifiers = append(uu.modifiers, modifiers...)
-	return uu
+func (_u *UserUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *UserUpdate {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := uu.check(); err != nil {
-		return n, err
+func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeUint))
-	if ps := uu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := uu.mutation.DeletedAt(); ok {
+	if value, ok := _u.mutation.DeletedAt(); ok {
 		_spec.SetField(user.FieldDeletedAt, field.TypeTime, value)
 	}
-	if uu.mutation.DeletedAtCleared() {
+	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(user.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := uu.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := uu.mutation.Username(); ok {
+	if value, ok := _u.mutation.Username(); ok {
 		_spec.SetField(user.FieldUsername, field.TypeString, value)
 	}
-	if value, ok := uu.mutation.PasswordHash(); ok {
+	if value, ok := _u.mutation.PasswordHash(); ok {
 		_spec.SetField(user.FieldPasswordHash, field.TypeString, value)
 	}
-	if value, ok := uu.mutation.Nickname(); ok {
+	if value, ok := _u.mutation.Nickname(); ok {
 		_spec.SetField(user.FieldNickname, field.TypeString, value)
 	}
-	if uu.mutation.NicknameCleared() {
+	if _u.mutation.NicknameCleared() {
 		_spec.ClearField(user.FieldNickname, field.TypeString)
 	}
-	if value, ok := uu.mutation.Avatar(); ok {
+	if value, ok := _u.mutation.Avatar(); ok {
 		_spec.SetField(user.FieldAvatar, field.TypeString, value)
 	}
-	if uu.mutation.AvatarCleared() {
+	if _u.mutation.AvatarCleared() {
 		_spec.ClearField(user.FieldAvatar, field.TypeString)
 	}
-	if value, ok := uu.mutation.Email(); ok {
+	if value, ok := _u.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)
 	}
-	if uu.mutation.EmailCleared() {
+	if _u.mutation.EmailCleared() {
 		_spec.ClearField(user.FieldEmail, field.TypeString)
 	}
-	if value, ok := uu.mutation.LastLoginAt(); ok {
+	if value, ok := _u.mutation.LastLoginAt(); ok {
 		_spec.SetField(user.FieldLastLoginAt, field.TypeTime, value)
 	}
-	if uu.mutation.LastLoginAtCleared() {
+	if _u.mutation.LastLoginAtCleared() {
 		_spec.ClearField(user.FieldLastLoginAt, field.TypeTime)
 	}
-	if value, ok := uu.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(user.FieldStatus, field.TypeInt, value)
 	}
-	if value, ok := uu.mutation.AddedStatus(); ok {
+	if value, ok := _u.mutation.AddedStatus(); ok {
 		_spec.AddField(user.FieldStatus, field.TypeInt, value)
 	}
-	if uu.mutation.UserGroupCleared() {
+	if _u.mutation.UserGroupCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -432,7 +469,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uu.mutation.UserGroupIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.UserGroupIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -448,7 +485,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if uu.mutation.FilesCleared() {
+	if _u.mutation.FilesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -461,7 +498,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uu.mutation.RemovedFilesIDs(); len(nodes) > 0 && !uu.mutation.FilesCleared() {
+	if nodes := _u.mutation.RemovedFilesIDs(); len(nodes) > 0 && !_u.mutation.FilesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -477,7 +514,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uu.mutation.FilesIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.FilesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -493,7 +530,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if uu.mutation.CommentsCleared() {
+	if _u.mutation.CommentsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -506,7 +543,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uu.mutation.RemovedCommentsIDs(); len(nodes) > 0 && !uu.mutation.CommentsCleared() {
+	if nodes := _u.mutation.RemovedCommentsIDs(); len(nodes) > 0 && !_u.mutation.CommentsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -522,7 +559,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uu.mutation.CommentsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.CommentsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -538,8 +575,53 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_spec.AddModifiers(uu.modifiers...)
-	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
+	if _u.mutation.InstalledThemesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.InstalledThemesTable,
+			Columns: []string{user.InstalledThemesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userinstalledtheme.FieldID, field.TypeUint),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedInstalledThemesIDs(); len(nodes) > 0 && !_u.mutation.InstalledThemesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.InstalledThemesTable,
+			Columns: []string{user.InstalledThemesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userinstalledtheme.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.InstalledThemesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.InstalledThemesTable,
+			Columns: []string{user.InstalledThemesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userinstalledtheme.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	_spec.AddModifiers(_u.modifiers...)
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{user.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -547,8 +629,8 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	uu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // UserUpdateOne is the builder for updating a single User entity.
@@ -561,278 +643,314 @@ type UserUpdateOne struct {
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (uuo *UserUpdateOne) SetDeletedAt(t time.Time) *UserUpdateOne {
-	uuo.mutation.SetDeletedAt(t)
-	return uuo
+func (_u *UserUpdateOne) SetDeletedAt(v time.Time) *UserUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableDeletedAt(t *time.Time) *UserUpdateOne {
-	if t != nil {
-		uuo.SetDeletedAt(*t)
+func (_u *UserUpdateOne) SetNillableDeletedAt(v *time.Time) *UserUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
 	}
-	return uuo
+	return _u
 }
 
 // ClearDeletedAt clears the value of the "deleted_at" field.
-func (uuo *UserUpdateOne) ClearDeletedAt() *UserUpdateOne {
-	uuo.mutation.ClearDeletedAt()
-	return uuo
+func (_u *UserUpdateOne) ClearDeletedAt() *UserUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (uuo *UserUpdateOne) SetUpdatedAt(t time.Time) *UserUpdateOne {
-	uuo.mutation.SetUpdatedAt(t)
-	return uuo
+func (_u *UserUpdateOne) SetUpdatedAt(v time.Time) *UserUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetUsername sets the "username" field.
-func (uuo *UserUpdateOne) SetUsername(s string) *UserUpdateOne {
-	uuo.mutation.SetUsername(s)
-	return uuo
+func (_u *UserUpdateOne) SetUsername(v string) *UserUpdateOne {
+	_u.mutation.SetUsername(v)
+	return _u
 }
 
 // SetNillableUsername sets the "username" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableUsername(s *string) *UserUpdateOne {
-	if s != nil {
-		uuo.SetUsername(*s)
+func (_u *UserUpdateOne) SetNillableUsername(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetUsername(*v)
 	}
-	return uuo
+	return _u
 }
 
 // SetPasswordHash sets the "password_hash" field.
-func (uuo *UserUpdateOne) SetPasswordHash(s string) *UserUpdateOne {
-	uuo.mutation.SetPasswordHash(s)
-	return uuo
+func (_u *UserUpdateOne) SetPasswordHash(v string) *UserUpdateOne {
+	_u.mutation.SetPasswordHash(v)
+	return _u
 }
 
 // SetNillablePasswordHash sets the "password_hash" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillablePasswordHash(s *string) *UserUpdateOne {
-	if s != nil {
-		uuo.SetPasswordHash(*s)
+func (_u *UserUpdateOne) SetNillablePasswordHash(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetPasswordHash(*v)
 	}
-	return uuo
+	return _u
 }
 
 // SetNickname sets the "nickname" field.
-func (uuo *UserUpdateOne) SetNickname(s string) *UserUpdateOne {
-	uuo.mutation.SetNickname(s)
-	return uuo
+func (_u *UserUpdateOne) SetNickname(v string) *UserUpdateOne {
+	_u.mutation.SetNickname(v)
+	return _u
 }
 
 // SetNillableNickname sets the "nickname" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableNickname(s *string) *UserUpdateOne {
-	if s != nil {
-		uuo.SetNickname(*s)
+func (_u *UserUpdateOne) SetNillableNickname(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetNickname(*v)
 	}
-	return uuo
+	return _u
 }
 
 // ClearNickname clears the value of the "nickname" field.
-func (uuo *UserUpdateOne) ClearNickname() *UserUpdateOne {
-	uuo.mutation.ClearNickname()
-	return uuo
+func (_u *UserUpdateOne) ClearNickname() *UserUpdateOne {
+	_u.mutation.ClearNickname()
+	return _u
 }
 
 // SetAvatar sets the "avatar" field.
-func (uuo *UserUpdateOne) SetAvatar(s string) *UserUpdateOne {
-	uuo.mutation.SetAvatar(s)
-	return uuo
+func (_u *UserUpdateOne) SetAvatar(v string) *UserUpdateOne {
+	_u.mutation.SetAvatar(v)
+	return _u
 }
 
 // SetNillableAvatar sets the "avatar" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableAvatar(s *string) *UserUpdateOne {
-	if s != nil {
-		uuo.SetAvatar(*s)
+func (_u *UserUpdateOne) SetNillableAvatar(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetAvatar(*v)
 	}
-	return uuo
+	return _u
 }
 
 // ClearAvatar clears the value of the "avatar" field.
-func (uuo *UserUpdateOne) ClearAvatar() *UserUpdateOne {
-	uuo.mutation.ClearAvatar()
-	return uuo
+func (_u *UserUpdateOne) ClearAvatar() *UserUpdateOne {
+	_u.mutation.ClearAvatar()
+	return _u
 }
 
 // SetEmail sets the "email" field.
-func (uuo *UserUpdateOne) SetEmail(s string) *UserUpdateOne {
-	uuo.mutation.SetEmail(s)
-	return uuo
+func (_u *UserUpdateOne) SetEmail(v string) *UserUpdateOne {
+	_u.mutation.SetEmail(v)
+	return _u
 }
 
 // SetNillableEmail sets the "email" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableEmail(s *string) *UserUpdateOne {
-	if s != nil {
-		uuo.SetEmail(*s)
+func (_u *UserUpdateOne) SetNillableEmail(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetEmail(*v)
 	}
-	return uuo
+	return _u
 }
 
 // ClearEmail clears the value of the "email" field.
-func (uuo *UserUpdateOne) ClearEmail() *UserUpdateOne {
-	uuo.mutation.ClearEmail()
-	return uuo
+func (_u *UserUpdateOne) ClearEmail() *UserUpdateOne {
+	_u.mutation.ClearEmail()
+	return _u
 }
 
 // SetLastLoginAt sets the "last_login_at" field.
-func (uuo *UserUpdateOne) SetLastLoginAt(t time.Time) *UserUpdateOne {
-	uuo.mutation.SetLastLoginAt(t)
-	return uuo
+func (_u *UserUpdateOne) SetLastLoginAt(v time.Time) *UserUpdateOne {
+	_u.mutation.SetLastLoginAt(v)
+	return _u
 }
 
 // SetNillableLastLoginAt sets the "last_login_at" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableLastLoginAt(t *time.Time) *UserUpdateOne {
-	if t != nil {
-		uuo.SetLastLoginAt(*t)
+func (_u *UserUpdateOne) SetNillableLastLoginAt(v *time.Time) *UserUpdateOne {
+	if v != nil {
+		_u.SetLastLoginAt(*v)
 	}
-	return uuo
+	return _u
 }
 
 // ClearLastLoginAt clears the value of the "last_login_at" field.
-func (uuo *UserUpdateOne) ClearLastLoginAt() *UserUpdateOne {
-	uuo.mutation.ClearLastLoginAt()
-	return uuo
+func (_u *UserUpdateOne) ClearLastLoginAt() *UserUpdateOne {
+	_u.mutation.ClearLastLoginAt()
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (uuo *UserUpdateOne) SetStatus(i int) *UserUpdateOne {
-	uuo.mutation.ResetStatus()
-	uuo.mutation.SetStatus(i)
-	return uuo
+func (_u *UserUpdateOne) SetStatus(v int) *UserUpdateOne {
+	_u.mutation.ResetStatus()
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableStatus(i *int) *UserUpdateOne {
-	if i != nil {
-		uuo.SetStatus(*i)
+func (_u *UserUpdateOne) SetNillableStatus(v *int) *UserUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return uuo
+	return _u
 }
 
-// AddStatus adds i to the "status" field.
-func (uuo *UserUpdateOne) AddStatus(i int) *UserUpdateOne {
-	uuo.mutation.AddStatus(i)
-	return uuo
+// AddStatus adds value to the "status" field.
+func (_u *UserUpdateOne) AddStatus(v int) *UserUpdateOne {
+	_u.mutation.AddStatus(v)
+	return _u
 }
 
 // SetUserGroupID sets the "user_group" edge to the UserGroup entity by ID.
-func (uuo *UserUpdateOne) SetUserGroupID(id uint) *UserUpdateOne {
-	uuo.mutation.SetUserGroupID(id)
-	return uuo
+func (_u *UserUpdateOne) SetUserGroupID(id uint) *UserUpdateOne {
+	_u.mutation.SetUserGroupID(id)
+	return _u
 }
 
 // SetUserGroup sets the "user_group" edge to the UserGroup entity.
-func (uuo *UserUpdateOne) SetUserGroup(u *UserGroup) *UserUpdateOne {
-	return uuo.SetUserGroupID(u.ID)
+func (_u *UserUpdateOne) SetUserGroup(v *UserGroup) *UserUpdateOne {
+	return _u.SetUserGroupID(v.ID)
 }
 
 // AddFileIDs adds the "files" edge to the File entity by IDs.
-func (uuo *UserUpdateOne) AddFileIDs(ids ...uint) *UserUpdateOne {
-	uuo.mutation.AddFileIDs(ids...)
-	return uuo
+func (_u *UserUpdateOne) AddFileIDs(ids ...uint) *UserUpdateOne {
+	_u.mutation.AddFileIDs(ids...)
+	return _u
 }
 
 // AddFiles adds the "files" edges to the File entity.
-func (uuo *UserUpdateOne) AddFiles(f ...*File) *UserUpdateOne {
-	ids := make([]uint, len(f))
-	for i := range f {
-		ids[i] = f[i].ID
+func (_u *UserUpdateOne) AddFiles(v ...*File) *UserUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return uuo.AddFileIDs(ids...)
+	return _u.AddFileIDs(ids...)
 }
 
 // AddCommentIDs adds the "comments" edge to the Comment entity by IDs.
-func (uuo *UserUpdateOne) AddCommentIDs(ids ...uint) *UserUpdateOne {
-	uuo.mutation.AddCommentIDs(ids...)
-	return uuo
+func (_u *UserUpdateOne) AddCommentIDs(ids ...uint) *UserUpdateOne {
+	_u.mutation.AddCommentIDs(ids...)
+	return _u
 }
 
 // AddComments adds the "comments" edges to the Comment entity.
-func (uuo *UserUpdateOne) AddComments(c ...*Comment) *UserUpdateOne {
-	ids := make([]uint, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
+func (_u *UserUpdateOne) AddComments(v ...*Comment) *UserUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return uuo.AddCommentIDs(ids...)
+	return _u.AddCommentIDs(ids...)
+}
+
+// AddInstalledThemeIDs adds the "installed_themes" edge to the UserInstalledTheme entity by IDs.
+func (_u *UserUpdateOne) AddInstalledThemeIDs(ids ...uint) *UserUpdateOne {
+	_u.mutation.AddInstalledThemeIDs(ids...)
+	return _u
+}
+
+// AddInstalledThemes adds the "installed_themes" edges to the UserInstalledTheme entity.
+func (_u *UserUpdateOne) AddInstalledThemes(v ...*UserInstalledTheme) *UserUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddInstalledThemeIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
-func (uuo *UserUpdateOne) Mutation() *UserMutation {
-	return uuo.mutation
+func (_u *UserUpdateOne) Mutation() *UserMutation {
+	return _u.mutation
 }
 
 // ClearUserGroup clears the "user_group" edge to the UserGroup entity.
-func (uuo *UserUpdateOne) ClearUserGroup() *UserUpdateOne {
-	uuo.mutation.ClearUserGroup()
-	return uuo
+func (_u *UserUpdateOne) ClearUserGroup() *UserUpdateOne {
+	_u.mutation.ClearUserGroup()
+	return _u
 }
 
 // ClearFiles clears all "files" edges to the File entity.
-func (uuo *UserUpdateOne) ClearFiles() *UserUpdateOne {
-	uuo.mutation.ClearFiles()
-	return uuo
+func (_u *UserUpdateOne) ClearFiles() *UserUpdateOne {
+	_u.mutation.ClearFiles()
+	return _u
 }
 
 // RemoveFileIDs removes the "files" edge to File entities by IDs.
-func (uuo *UserUpdateOne) RemoveFileIDs(ids ...uint) *UserUpdateOne {
-	uuo.mutation.RemoveFileIDs(ids...)
-	return uuo
+func (_u *UserUpdateOne) RemoveFileIDs(ids ...uint) *UserUpdateOne {
+	_u.mutation.RemoveFileIDs(ids...)
+	return _u
 }
 
 // RemoveFiles removes "files" edges to File entities.
-func (uuo *UserUpdateOne) RemoveFiles(f ...*File) *UserUpdateOne {
-	ids := make([]uint, len(f))
-	for i := range f {
-		ids[i] = f[i].ID
+func (_u *UserUpdateOne) RemoveFiles(v ...*File) *UserUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return uuo.RemoveFileIDs(ids...)
+	return _u.RemoveFileIDs(ids...)
 }
 
 // ClearComments clears all "comments" edges to the Comment entity.
-func (uuo *UserUpdateOne) ClearComments() *UserUpdateOne {
-	uuo.mutation.ClearComments()
-	return uuo
+func (_u *UserUpdateOne) ClearComments() *UserUpdateOne {
+	_u.mutation.ClearComments()
+	return _u
 }
 
 // RemoveCommentIDs removes the "comments" edge to Comment entities by IDs.
-func (uuo *UserUpdateOne) RemoveCommentIDs(ids ...uint) *UserUpdateOne {
-	uuo.mutation.RemoveCommentIDs(ids...)
-	return uuo
+func (_u *UserUpdateOne) RemoveCommentIDs(ids ...uint) *UserUpdateOne {
+	_u.mutation.RemoveCommentIDs(ids...)
+	return _u
 }
 
 // RemoveComments removes "comments" edges to Comment entities.
-func (uuo *UserUpdateOne) RemoveComments(c ...*Comment) *UserUpdateOne {
-	ids := make([]uint, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
+func (_u *UserUpdateOne) RemoveComments(v ...*Comment) *UserUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return uuo.RemoveCommentIDs(ids...)
+	return _u.RemoveCommentIDs(ids...)
+}
+
+// ClearInstalledThemes clears all "installed_themes" edges to the UserInstalledTheme entity.
+func (_u *UserUpdateOne) ClearInstalledThemes() *UserUpdateOne {
+	_u.mutation.ClearInstalledThemes()
+	return _u
+}
+
+// RemoveInstalledThemeIDs removes the "installed_themes" edge to UserInstalledTheme entities by IDs.
+func (_u *UserUpdateOne) RemoveInstalledThemeIDs(ids ...uint) *UserUpdateOne {
+	_u.mutation.RemoveInstalledThemeIDs(ids...)
+	return _u
+}
+
+// RemoveInstalledThemes removes "installed_themes" edges to UserInstalledTheme entities.
+func (_u *UserUpdateOne) RemoveInstalledThemes(v ...*UserInstalledTheme) *UserUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveInstalledThemeIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
-func (uuo *UserUpdateOne) Where(ps ...predicate.User) *UserUpdateOne {
-	uuo.mutation.Where(ps...)
-	return uuo
+func (_u *UserUpdateOne) Where(ps ...predicate.User) *UserUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (uuo *UserUpdateOne) Select(field string, fields ...string) *UserUpdateOne {
-	uuo.fields = append([]string{field}, fields...)
-	return uuo
+func (_u *UserUpdateOne) Select(field string, fields ...string) *UserUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated User entity.
-func (uuo *UserUpdateOne) Save(ctx context.Context) (*User, error) {
-	if err := uuo.defaults(); err != nil {
+func (_u *UserUpdateOne) Save(ctx context.Context) (*User, error) {
+	if err := _u.defaults(); err != nil {
 		return nil, err
 	}
-	return withHooks(ctx, uuo.sqlSave, uuo.mutation, uuo.hooks)
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (uuo *UserUpdateOne) SaveX(ctx context.Context) *User {
-	node, err := uuo.Save(ctx)
+func (_u *UserUpdateOne) SaveX(ctx context.Context) *User {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -840,80 +958,80 @@ func (uuo *UserUpdateOne) SaveX(ctx context.Context) *User {
 }
 
 // Exec executes the query on the entity.
-func (uuo *UserUpdateOne) Exec(ctx context.Context) error {
-	_, err := uuo.Save(ctx)
+func (_u *UserUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (uuo *UserUpdateOne) ExecX(ctx context.Context) {
-	if err := uuo.Exec(ctx); err != nil {
+func (_u *UserUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (uuo *UserUpdateOne) defaults() error {
-	if _, ok := uuo.mutation.UpdatedAt(); !ok {
+func (_u *UserUpdateOne) defaults() error {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		if user.UpdateDefaultUpdatedAt == nil {
 			return fmt.Errorf("ent: uninitialized user.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
 		}
 		v := user.UpdateDefaultUpdatedAt()
-		uuo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (uuo *UserUpdateOne) check() error {
-	if v, ok := uuo.mutation.Username(); ok {
+func (_u *UserUpdateOne) check() error {
+	if v, ok := _u.mutation.Username(); ok {
 		if err := user.UsernameValidator(v); err != nil {
 			return &ValidationError{Name: "username", err: fmt.Errorf(`ent: validator failed for field "User.username": %w`, err)}
 		}
 	}
-	if v, ok := uuo.mutation.PasswordHash(); ok {
+	if v, ok := _u.mutation.PasswordHash(); ok {
 		if err := user.PasswordHashValidator(v); err != nil {
 			return &ValidationError{Name: "password_hash", err: fmt.Errorf(`ent: validator failed for field "User.password_hash": %w`, err)}
 		}
 	}
-	if v, ok := uuo.mutation.Nickname(); ok {
+	if v, ok := _u.mutation.Nickname(); ok {
 		if err := user.NicknameValidator(v); err != nil {
 			return &ValidationError{Name: "nickname", err: fmt.Errorf(`ent: validator failed for field "User.nickname": %w`, err)}
 		}
 	}
-	if v, ok := uuo.mutation.Avatar(); ok {
+	if v, ok := _u.mutation.Avatar(); ok {
 		if err := user.AvatarValidator(v); err != nil {
 			return &ValidationError{Name: "avatar", err: fmt.Errorf(`ent: validator failed for field "User.avatar": %w`, err)}
 		}
 	}
-	if v, ok := uuo.mutation.Email(); ok {
+	if v, ok := _u.mutation.Email(); ok {
 		if err := user.EmailValidator(v); err != nil {
 			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "User.email": %w`, err)}
 		}
 	}
-	if uuo.mutation.UserGroupCleared() && len(uuo.mutation.UserGroupIDs()) > 0 {
+	if _u.mutation.UserGroupCleared() && len(_u.mutation.UserGroupIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "User.user_group"`)
 	}
 	return nil
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (uuo *UserUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *UserUpdateOne {
-	uuo.modifiers = append(uuo.modifiers, modifiers...)
-	return uuo
+func (_u *UserUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *UserUpdateOne {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
-	if err := uuo.check(); err != nil {
+func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeUint))
-	id, ok := uuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "User.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := uuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, user.FieldID)
 		for _, f := range fields {
@@ -925,59 +1043,59 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			}
 		}
 	}
-	if ps := uuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := uuo.mutation.DeletedAt(); ok {
+	if value, ok := _u.mutation.DeletedAt(); ok {
 		_spec.SetField(user.FieldDeletedAt, field.TypeTime, value)
 	}
-	if uuo.mutation.DeletedAtCleared() {
+	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(user.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := uuo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := uuo.mutation.Username(); ok {
+	if value, ok := _u.mutation.Username(); ok {
 		_spec.SetField(user.FieldUsername, field.TypeString, value)
 	}
-	if value, ok := uuo.mutation.PasswordHash(); ok {
+	if value, ok := _u.mutation.PasswordHash(); ok {
 		_spec.SetField(user.FieldPasswordHash, field.TypeString, value)
 	}
-	if value, ok := uuo.mutation.Nickname(); ok {
+	if value, ok := _u.mutation.Nickname(); ok {
 		_spec.SetField(user.FieldNickname, field.TypeString, value)
 	}
-	if uuo.mutation.NicknameCleared() {
+	if _u.mutation.NicknameCleared() {
 		_spec.ClearField(user.FieldNickname, field.TypeString)
 	}
-	if value, ok := uuo.mutation.Avatar(); ok {
+	if value, ok := _u.mutation.Avatar(); ok {
 		_spec.SetField(user.FieldAvatar, field.TypeString, value)
 	}
-	if uuo.mutation.AvatarCleared() {
+	if _u.mutation.AvatarCleared() {
 		_spec.ClearField(user.FieldAvatar, field.TypeString)
 	}
-	if value, ok := uuo.mutation.Email(); ok {
+	if value, ok := _u.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)
 	}
-	if uuo.mutation.EmailCleared() {
+	if _u.mutation.EmailCleared() {
 		_spec.ClearField(user.FieldEmail, field.TypeString)
 	}
-	if value, ok := uuo.mutation.LastLoginAt(); ok {
+	if value, ok := _u.mutation.LastLoginAt(); ok {
 		_spec.SetField(user.FieldLastLoginAt, field.TypeTime, value)
 	}
-	if uuo.mutation.LastLoginAtCleared() {
+	if _u.mutation.LastLoginAtCleared() {
 		_spec.ClearField(user.FieldLastLoginAt, field.TypeTime)
 	}
-	if value, ok := uuo.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(user.FieldStatus, field.TypeInt, value)
 	}
-	if value, ok := uuo.mutation.AddedStatus(); ok {
+	if value, ok := _u.mutation.AddedStatus(); ok {
 		_spec.AddField(user.FieldStatus, field.TypeInt, value)
 	}
-	if uuo.mutation.UserGroupCleared() {
+	if _u.mutation.UserGroupCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -990,7 +1108,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uuo.mutation.UserGroupIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.UserGroupIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -1006,7 +1124,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if uuo.mutation.FilesCleared() {
+	if _u.mutation.FilesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1019,7 +1137,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uuo.mutation.RemovedFilesIDs(); len(nodes) > 0 && !uuo.mutation.FilesCleared() {
+	if nodes := _u.mutation.RemovedFilesIDs(); len(nodes) > 0 && !_u.mutation.FilesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1035,7 +1153,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uuo.mutation.FilesIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.FilesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1051,7 +1169,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if uuo.mutation.CommentsCleared() {
+	if _u.mutation.CommentsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1064,7 +1182,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uuo.mutation.RemovedCommentsIDs(); len(nodes) > 0 && !uuo.mutation.CommentsCleared() {
+	if nodes := _u.mutation.RemovedCommentsIDs(); len(nodes) > 0 && !_u.mutation.CommentsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1080,7 +1198,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uuo.mutation.CommentsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.CommentsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1096,11 +1214,56 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_spec.AddModifiers(uuo.modifiers...)
-	_node = &User{config: uuo.config}
+	if _u.mutation.InstalledThemesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.InstalledThemesTable,
+			Columns: []string{user.InstalledThemesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userinstalledtheme.FieldID, field.TypeUint),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedInstalledThemesIDs(); len(nodes) > 0 && !_u.mutation.InstalledThemesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.InstalledThemesTable,
+			Columns: []string{user.InstalledThemesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userinstalledtheme.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.InstalledThemesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.InstalledThemesTable,
+			Columns: []string{user.InstalledThemesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userinstalledtheme.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	_spec.AddModifiers(_u.modifiers...)
+	_node = &User{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, uuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{user.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -1108,6 +1271,6 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		return nil, err
 	}
-	uuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

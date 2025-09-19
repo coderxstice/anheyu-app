@@ -543,6 +543,56 @@ var (
 		Columns:    UserGroupsColumns,
 		PrimaryKey: []*schema.Column{UserGroupsColumns[0]},
 	}
+	// UserInstalledThemesColumns holds the columns for the "user_installed_themes" table.
+	UserInstalledThemesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint, Increment: true},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "theme_name", Type: field.TypeString, Size: 100},
+		{Name: "theme_market_id", Type: field.TypeInt, Nullable: true},
+		{Name: "is_current", Type: field.TypeBool, Default: false},
+		{Name: "install_time", Type: field.TypeTime},
+		{Name: "user_theme_config", Type: field.TypeJSON, Nullable: true},
+		{Name: "installed_version", Type: field.TypeString, Nullable: true, Size: 50},
+		{Name: "user_id", Type: field.TypeUint},
+	}
+	// UserInstalledThemesTable holds the schema information for the "user_installed_themes" table.
+	UserInstalledThemesTable = &schema.Table{
+		Name:       "user_installed_themes",
+		Columns:    UserInstalledThemesColumns,
+		PrimaryKey: []*schema.Column{UserInstalledThemesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_installed_themes_users_installed_themes",
+				Columns:    []*schema.Column{UserInstalledThemesColumns[10]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "userinstalledtheme_user_id_is_current",
+				Unique:  false,
+				Columns: []*schema.Column{UserInstalledThemesColumns[10], UserInstalledThemesColumns[6]},
+			},
+			{
+				Name:    "userinstalledtheme_theme_name",
+				Unique:  false,
+				Columns: []*schema.Column{UserInstalledThemesColumns[4]},
+			},
+			{
+				Name:    "userinstalledtheme_user_id_theme_name",
+				Unique:  true,
+				Columns: []*schema.Column{UserInstalledThemesColumns[10], UserInstalledThemesColumns[4]},
+			},
+			{
+				Name:    "userinstalledtheme_theme_market_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserInstalledThemesColumns[5]},
+			},
+		},
+	}
 	// VisitorLogsColumns holds the columns for the "visitor_logs" table.
 	VisitorLogsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint, Increment: true},
@@ -721,6 +771,7 @@ var (
 		URLStatsTable,
 		UsersTable,
 		UserGroupsTable,
+		UserInstalledThemesTable,
 		VisitorLogsTable,
 		VisitorStatsTable,
 		ArticlePostTagsTable,
@@ -742,6 +793,7 @@ func init() {
 	LinksTable.ForeignKeys[0].RefTable = LinkCategoriesTable
 	MetadataTable.ForeignKeys[0].RefTable = FilesTable
 	UsersTable.ForeignKeys[0].RefTable = UserGroupsTable
+	UserInstalledThemesTable.ForeignKeys[0].RefTable = UsersTable
 	ArticlePostTagsTable.ForeignKeys[0].RefTable = ArticlesTable
 	ArticlePostTagsTable.ForeignKeys[1].RefTable = PostTagsTable
 	ArticlePostCategoriesTable.ForeignKeys[0].RefTable = ArticlesTable

@@ -64,7 +64,7 @@ func (*LinkCategory) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the LinkCategory fields.
-func (lc *LinkCategory) assignValues(columns []string, values []any) error {
+func (_m *LinkCategory) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -75,27 +75,27 @@ func (lc *LinkCategory) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			lc.ID = int(value.Int64)
+			_m.ID = int(value.Int64)
 		case linkcategory.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				lc.Name = value.String
+				_m.Name = value.String
 			}
 		case linkcategory.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				lc.Description = value.String
+				_m.Description = value.String
 			}
 		case linkcategory.FieldStyle:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field style", values[i])
 			} else if value.Valid {
-				lc.Style = linkcategory.Style(value.String)
+				_m.Style = linkcategory.Style(value.String)
 			}
 		default:
-			lc.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -103,46 +103,46 @@ func (lc *LinkCategory) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the LinkCategory.
 // This includes values selected through modifiers, order, etc.
-func (lc *LinkCategory) Value(name string) (ent.Value, error) {
-	return lc.selectValues.Get(name)
+func (_m *LinkCategory) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryLinks queries the "links" edge of the LinkCategory entity.
-func (lc *LinkCategory) QueryLinks() *LinkQuery {
-	return NewLinkCategoryClient(lc.config).QueryLinks(lc)
+func (_m *LinkCategory) QueryLinks() *LinkQuery {
+	return NewLinkCategoryClient(_m.config).QueryLinks(_m)
 }
 
 // Update returns a builder for updating this LinkCategory.
 // Note that you need to call LinkCategory.Unwrap() before calling this method if this LinkCategory
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (lc *LinkCategory) Update() *LinkCategoryUpdateOne {
-	return NewLinkCategoryClient(lc.config).UpdateOne(lc)
+func (_m *LinkCategory) Update() *LinkCategoryUpdateOne {
+	return NewLinkCategoryClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the LinkCategory entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (lc *LinkCategory) Unwrap() *LinkCategory {
-	_tx, ok := lc.config.driver.(*txDriver)
+func (_m *LinkCategory) Unwrap() *LinkCategory {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: LinkCategory is not a transactional entity")
 	}
-	lc.config.driver = _tx.drv
-	return lc
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (lc *LinkCategory) String() string {
+func (_m *LinkCategory) String() string {
 	var builder strings.Builder
 	builder.WriteString("LinkCategory(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", lc.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("name=")
-	builder.WriteString(lc.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("description=")
-	builder.WriteString(lc.Description)
+	builder.WriteString(_m.Description)
 	builder.WriteString(", ")
 	builder.WriteString("style=")
-	builder.WriteString(fmt.Sprintf("%v", lc.Style))
+	builder.WriteString(fmt.Sprintf("%v", _m.Style))
 	builder.WriteByte(')')
 	return builder.String()
 }

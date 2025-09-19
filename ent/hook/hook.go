@@ -249,6 +249,18 @@ func (f UserGroupFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, e
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserGroupMutation", m)
 }
 
+// The UserInstalledThemeFunc type is an adapter to allow the use of ordinary
+// function as UserInstalledTheme mutator.
+type UserInstalledThemeFunc func(context.Context, *ent.UserInstalledThemeMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UserInstalledThemeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.UserInstalledThemeMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserInstalledThemeMutation", m)
+}
+
 // The VisitorLogFunc type is an adapter to allow the use of ordinary
 // function as VisitorLog mutator.
 type VisitorLogFunc func(context.Context, *ent.VisitorLogMutation) (ent.Value, error)

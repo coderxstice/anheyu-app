@@ -749,6 +749,29 @@ func HasCommentsWith(preds ...predicate.Comment) predicate.User {
 	})
 }
 
+// HasInstalledThemes applies the HasEdge predicate on the "installed_themes" edge.
+func HasInstalledThemes() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, InstalledThemesTable, InstalledThemesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasInstalledThemesWith applies the HasEdge predicate on the "installed_themes" edge with a given conditions (other predicates).
+func HasInstalledThemesWith(preds ...predicate.UserInstalledTheme) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newInstalledThemesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.User) predicate.User {
 	return predicate.User(sql.AndPredicates(predicates...))

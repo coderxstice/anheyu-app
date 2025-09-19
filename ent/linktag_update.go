@@ -24,88 +24,88 @@ type LinkTagUpdate struct {
 }
 
 // Where appends a list predicates to the LinkTagUpdate builder.
-func (ltu *LinkTagUpdate) Where(ps ...predicate.LinkTag) *LinkTagUpdate {
-	ltu.mutation.Where(ps...)
-	return ltu
+func (_u *LinkTagUpdate) Where(ps ...predicate.LinkTag) *LinkTagUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetName sets the "name" field.
-func (ltu *LinkTagUpdate) SetName(s string) *LinkTagUpdate {
-	ltu.mutation.SetName(s)
-	return ltu
+func (_u *LinkTagUpdate) SetName(v string) *LinkTagUpdate {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (ltu *LinkTagUpdate) SetNillableName(s *string) *LinkTagUpdate {
-	if s != nil {
-		ltu.SetName(*s)
+func (_u *LinkTagUpdate) SetNillableName(v *string) *LinkTagUpdate {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return ltu
+	return _u
 }
 
 // SetColor sets the "color" field.
-func (ltu *LinkTagUpdate) SetColor(s string) *LinkTagUpdate {
-	ltu.mutation.SetColor(s)
-	return ltu
+func (_u *LinkTagUpdate) SetColor(v string) *LinkTagUpdate {
+	_u.mutation.SetColor(v)
+	return _u
 }
 
 // SetNillableColor sets the "color" field if the given value is not nil.
-func (ltu *LinkTagUpdate) SetNillableColor(s *string) *LinkTagUpdate {
-	if s != nil {
-		ltu.SetColor(*s)
+func (_u *LinkTagUpdate) SetNillableColor(v *string) *LinkTagUpdate {
+	if v != nil {
+		_u.SetColor(*v)
 	}
-	return ltu
+	return _u
 }
 
 // AddLinkIDs adds the "links" edge to the Link entity by IDs.
-func (ltu *LinkTagUpdate) AddLinkIDs(ids ...int) *LinkTagUpdate {
-	ltu.mutation.AddLinkIDs(ids...)
-	return ltu
+func (_u *LinkTagUpdate) AddLinkIDs(ids ...int) *LinkTagUpdate {
+	_u.mutation.AddLinkIDs(ids...)
+	return _u
 }
 
 // AddLinks adds the "links" edges to the Link entity.
-func (ltu *LinkTagUpdate) AddLinks(l ...*Link) *LinkTagUpdate {
-	ids := make([]int, len(l))
-	for i := range l {
-		ids[i] = l[i].ID
+func (_u *LinkTagUpdate) AddLinks(v ...*Link) *LinkTagUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ltu.AddLinkIDs(ids...)
+	return _u.AddLinkIDs(ids...)
 }
 
 // Mutation returns the LinkTagMutation object of the builder.
-func (ltu *LinkTagUpdate) Mutation() *LinkTagMutation {
-	return ltu.mutation
+func (_u *LinkTagUpdate) Mutation() *LinkTagMutation {
+	return _u.mutation
 }
 
 // ClearLinks clears all "links" edges to the Link entity.
-func (ltu *LinkTagUpdate) ClearLinks() *LinkTagUpdate {
-	ltu.mutation.ClearLinks()
-	return ltu
+func (_u *LinkTagUpdate) ClearLinks() *LinkTagUpdate {
+	_u.mutation.ClearLinks()
+	return _u
 }
 
 // RemoveLinkIDs removes the "links" edge to Link entities by IDs.
-func (ltu *LinkTagUpdate) RemoveLinkIDs(ids ...int) *LinkTagUpdate {
-	ltu.mutation.RemoveLinkIDs(ids...)
-	return ltu
+func (_u *LinkTagUpdate) RemoveLinkIDs(ids ...int) *LinkTagUpdate {
+	_u.mutation.RemoveLinkIDs(ids...)
+	return _u
 }
 
 // RemoveLinks removes "links" edges to Link entities.
-func (ltu *LinkTagUpdate) RemoveLinks(l ...*Link) *LinkTagUpdate {
-	ids := make([]int, len(l))
-	for i := range l {
-		ids[i] = l[i].ID
+func (_u *LinkTagUpdate) RemoveLinks(v ...*Link) *LinkTagUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ltu.RemoveLinkIDs(ids...)
+	return _u.RemoveLinkIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (ltu *LinkTagUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, ltu.sqlSave, ltu.mutation, ltu.hooks)
+func (_u *LinkTagUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (ltu *LinkTagUpdate) SaveX(ctx context.Context) int {
-	affected, err := ltu.Save(ctx)
+func (_u *LinkTagUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -113,21 +113,21 @@ func (ltu *LinkTagUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (ltu *LinkTagUpdate) Exec(ctx context.Context) error {
-	_, err := ltu.Save(ctx)
+func (_u *LinkTagUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ltu *LinkTagUpdate) ExecX(ctx context.Context) {
-	if err := ltu.Exec(ctx); err != nil {
+func (_u *LinkTagUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ltu *LinkTagUpdate) check() error {
-	if v, ok := ltu.mutation.Name(); ok {
+func (_u *LinkTagUpdate) check() error {
+	if v, ok := _u.mutation.Name(); ok {
 		if err := linktag.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "LinkTag.name": %w`, err)}
 		}
@@ -136,30 +136,30 @@ func (ltu *LinkTagUpdate) check() error {
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (ltu *LinkTagUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *LinkTagUpdate {
-	ltu.modifiers = append(ltu.modifiers, modifiers...)
-	return ltu
+func (_u *LinkTagUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *LinkTagUpdate {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (ltu *LinkTagUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := ltu.check(); err != nil {
-		return n, err
+func (_u *LinkTagUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(linktag.Table, linktag.Columns, sqlgraph.NewFieldSpec(linktag.FieldID, field.TypeInt))
-	if ps := ltu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := ltu.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(linktag.FieldName, field.TypeString, value)
 	}
-	if value, ok := ltu.mutation.Color(); ok {
+	if value, ok := _u.mutation.Color(); ok {
 		_spec.SetField(linktag.FieldColor, field.TypeString, value)
 	}
-	if ltu.mutation.LinksCleared() {
+	if _u.mutation.LinksCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -172,7 +172,7 @@ func (ltu *LinkTagUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ltu.mutation.RemovedLinksIDs(); len(nodes) > 0 && !ltu.mutation.LinksCleared() {
+	if nodes := _u.mutation.RemovedLinksIDs(); len(nodes) > 0 && !_u.mutation.LinksCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -188,7 +188,7 @@ func (ltu *LinkTagUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ltu.mutation.LinksIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.LinksIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -204,8 +204,8 @@ func (ltu *LinkTagUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_spec.AddModifiers(ltu.modifiers...)
-	if n, err = sqlgraph.UpdateNodes(ctx, ltu.driver, _spec); err != nil {
+	_spec.AddModifiers(_u.modifiers...)
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{linktag.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -213,8 +213,8 @@ func (ltu *LinkTagUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	ltu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // LinkTagUpdateOne is the builder for updating a single LinkTag entity.
@@ -227,95 +227,95 @@ type LinkTagUpdateOne struct {
 }
 
 // SetName sets the "name" field.
-func (ltuo *LinkTagUpdateOne) SetName(s string) *LinkTagUpdateOne {
-	ltuo.mutation.SetName(s)
-	return ltuo
+func (_u *LinkTagUpdateOne) SetName(v string) *LinkTagUpdateOne {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (ltuo *LinkTagUpdateOne) SetNillableName(s *string) *LinkTagUpdateOne {
-	if s != nil {
-		ltuo.SetName(*s)
+func (_u *LinkTagUpdateOne) SetNillableName(v *string) *LinkTagUpdateOne {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return ltuo
+	return _u
 }
 
 // SetColor sets the "color" field.
-func (ltuo *LinkTagUpdateOne) SetColor(s string) *LinkTagUpdateOne {
-	ltuo.mutation.SetColor(s)
-	return ltuo
+func (_u *LinkTagUpdateOne) SetColor(v string) *LinkTagUpdateOne {
+	_u.mutation.SetColor(v)
+	return _u
 }
 
 // SetNillableColor sets the "color" field if the given value is not nil.
-func (ltuo *LinkTagUpdateOne) SetNillableColor(s *string) *LinkTagUpdateOne {
-	if s != nil {
-		ltuo.SetColor(*s)
+func (_u *LinkTagUpdateOne) SetNillableColor(v *string) *LinkTagUpdateOne {
+	if v != nil {
+		_u.SetColor(*v)
 	}
-	return ltuo
+	return _u
 }
 
 // AddLinkIDs adds the "links" edge to the Link entity by IDs.
-func (ltuo *LinkTagUpdateOne) AddLinkIDs(ids ...int) *LinkTagUpdateOne {
-	ltuo.mutation.AddLinkIDs(ids...)
-	return ltuo
+func (_u *LinkTagUpdateOne) AddLinkIDs(ids ...int) *LinkTagUpdateOne {
+	_u.mutation.AddLinkIDs(ids...)
+	return _u
 }
 
 // AddLinks adds the "links" edges to the Link entity.
-func (ltuo *LinkTagUpdateOne) AddLinks(l ...*Link) *LinkTagUpdateOne {
-	ids := make([]int, len(l))
-	for i := range l {
-		ids[i] = l[i].ID
+func (_u *LinkTagUpdateOne) AddLinks(v ...*Link) *LinkTagUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ltuo.AddLinkIDs(ids...)
+	return _u.AddLinkIDs(ids...)
 }
 
 // Mutation returns the LinkTagMutation object of the builder.
-func (ltuo *LinkTagUpdateOne) Mutation() *LinkTagMutation {
-	return ltuo.mutation
+func (_u *LinkTagUpdateOne) Mutation() *LinkTagMutation {
+	return _u.mutation
 }
 
 // ClearLinks clears all "links" edges to the Link entity.
-func (ltuo *LinkTagUpdateOne) ClearLinks() *LinkTagUpdateOne {
-	ltuo.mutation.ClearLinks()
-	return ltuo
+func (_u *LinkTagUpdateOne) ClearLinks() *LinkTagUpdateOne {
+	_u.mutation.ClearLinks()
+	return _u
 }
 
 // RemoveLinkIDs removes the "links" edge to Link entities by IDs.
-func (ltuo *LinkTagUpdateOne) RemoveLinkIDs(ids ...int) *LinkTagUpdateOne {
-	ltuo.mutation.RemoveLinkIDs(ids...)
-	return ltuo
+func (_u *LinkTagUpdateOne) RemoveLinkIDs(ids ...int) *LinkTagUpdateOne {
+	_u.mutation.RemoveLinkIDs(ids...)
+	return _u
 }
 
 // RemoveLinks removes "links" edges to Link entities.
-func (ltuo *LinkTagUpdateOne) RemoveLinks(l ...*Link) *LinkTagUpdateOne {
-	ids := make([]int, len(l))
-	for i := range l {
-		ids[i] = l[i].ID
+func (_u *LinkTagUpdateOne) RemoveLinks(v ...*Link) *LinkTagUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ltuo.RemoveLinkIDs(ids...)
+	return _u.RemoveLinkIDs(ids...)
 }
 
 // Where appends a list predicates to the LinkTagUpdate builder.
-func (ltuo *LinkTagUpdateOne) Where(ps ...predicate.LinkTag) *LinkTagUpdateOne {
-	ltuo.mutation.Where(ps...)
-	return ltuo
+func (_u *LinkTagUpdateOne) Where(ps ...predicate.LinkTag) *LinkTagUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (ltuo *LinkTagUpdateOne) Select(field string, fields ...string) *LinkTagUpdateOne {
-	ltuo.fields = append([]string{field}, fields...)
-	return ltuo
+func (_u *LinkTagUpdateOne) Select(field string, fields ...string) *LinkTagUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated LinkTag entity.
-func (ltuo *LinkTagUpdateOne) Save(ctx context.Context) (*LinkTag, error) {
-	return withHooks(ctx, ltuo.sqlSave, ltuo.mutation, ltuo.hooks)
+func (_u *LinkTagUpdateOne) Save(ctx context.Context) (*LinkTag, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (ltuo *LinkTagUpdateOne) SaveX(ctx context.Context) *LinkTag {
-	node, err := ltuo.Save(ctx)
+func (_u *LinkTagUpdateOne) SaveX(ctx context.Context) *LinkTag {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -323,21 +323,21 @@ func (ltuo *LinkTagUpdateOne) SaveX(ctx context.Context) *LinkTag {
 }
 
 // Exec executes the query on the entity.
-func (ltuo *LinkTagUpdateOne) Exec(ctx context.Context) error {
-	_, err := ltuo.Save(ctx)
+func (_u *LinkTagUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ltuo *LinkTagUpdateOne) ExecX(ctx context.Context) {
-	if err := ltuo.Exec(ctx); err != nil {
+func (_u *LinkTagUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ltuo *LinkTagUpdateOne) check() error {
-	if v, ok := ltuo.mutation.Name(); ok {
+func (_u *LinkTagUpdateOne) check() error {
+	if v, ok := _u.mutation.Name(); ok {
 		if err := linktag.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "LinkTag.name": %w`, err)}
 		}
@@ -346,22 +346,22 @@ func (ltuo *LinkTagUpdateOne) check() error {
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (ltuo *LinkTagUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *LinkTagUpdateOne {
-	ltuo.modifiers = append(ltuo.modifiers, modifiers...)
-	return ltuo
+func (_u *LinkTagUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *LinkTagUpdateOne {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (ltuo *LinkTagUpdateOne) sqlSave(ctx context.Context) (_node *LinkTag, err error) {
-	if err := ltuo.check(); err != nil {
+func (_u *LinkTagUpdateOne) sqlSave(ctx context.Context) (_node *LinkTag, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(linktag.Table, linktag.Columns, sqlgraph.NewFieldSpec(linktag.FieldID, field.TypeInt))
-	id, ok := ltuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "LinkTag.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := ltuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, linktag.FieldID)
 		for _, f := range fields {
@@ -373,20 +373,20 @@ func (ltuo *LinkTagUpdateOne) sqlSave(ctx context.Context) (_node *LinkTag, err 
 			}
 		}
 	}
-	if ps := ltuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := ltuo.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(linktag.FieldName, field.TypeString, value)
 	}
-	if value, ok := ltuo.mutation.Color(); ok {
+	if value, ok := _u.mutation.Color(); ok {
 		_spec.SetField(linktag.FieldColor, field.TypeString, value)
 	}
-	if ltuo.mutation.LinksCleared() {
+	if _u.mutation.LinksCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -399,7 +399,7 @@ func (ltuo *LinkTagUpdateOne) sqlSave(ctx context.Context) (_node *LinkTag, err 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ltuo.mutation.RemovedLinksIDs(); len(nodes) > 0 && !ltuo.mutation.LinksCleared() {
+	if nodes := _u.mutation.RemovedLinksIDs(); len(nodes) > 0 && !_u.mutation.LinksCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -415,7 +415,7 @@ func (ltuo *LinkTagUpdateOne) sqlSave(ctx context.Context) (_node *LinkTag, err 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := ltuo.mutation.LinksIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.LinksIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -431,11 +431,11 @@ func (ltuo *LinkTagUpdateOne) sqlSave(ctx context.Context) (_node *LinkTag, err 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_spec.AddModifiers(ltuo.modifiers...)
-	_node = &LinkTag{config: ltuo.config}
+	_spec.AddModifiers(_u.modifiers...)
+	_node = &LinkTag{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, ltuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{linktag.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -443,6 +443,6 @@ func (ltuo *LinkTagUpdateOne) sqlSave(ctx context.Context) (_node *LinkTag, err 
 		}
 		return nil, err
 	}
-	ltuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

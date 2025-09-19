@@ -20,56 +20,56 @@ type VisitorStatDelete struct {
 }
 
 // Where appends a list predicates to the VisitorStatDelete builder.
-func (vsd *VisitorStatDelete) Where(ps ...predicate.VisitorStat) *VisitorStatDelete {
-	vsd.mutation.Where(ps...)
-	return vsd
+func (_d *VisitorStatDelete) Where(ps ...predicate.VisitorStat) *VisitorStatDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (vsd *VisitorStatDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, vsd.sqlExec, vsd.mutation, vsd.hooks)
+func (_d *VisitorStatDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (vsd *VisitorStatDelete) ExecX(ctx context.Context) int {
-	n, err := vsd.Exec(ctx)
+func (_d *VisitorStatDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (vsd *VisitorStatDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *VisitorStatDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(visitorstat.Table, sqlgraph.NewFieldSpec(visitorstat.FieldID, field.TypeUint))
-	if ps := vsd.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, vsd.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	vsd.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // VisitorStatDeleteOne is the builder for deleting a single VisitorStat entity.
 type VisitorStatDeleteOne struct {
-	vsd *VisitorStatDelete
+	_d *VisitorStatDelete
 }
 
 // Where appends a list predicates to the VisitorStatDelete builder.
-func (vsdo *VisitorStatDeleteOne) Where(ps ...predicate.VisitorStat) *VisitorStatDeleteOne {
-	vsdo.vsd.mutation.Where(ps...)
-	return vsdo
+func (_d *VisitorStatDeleteOne) Where(ps ...predicate.VisitorStat) *VisitorStatDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (vsdo *VisitorStatDeleteOne) Exec(ctx context.Context) error {
-	n, err := vsdo.vsd.Exec(ctx)
+func (_d *VisitorStatDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (vsdo *VisitorStatDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (vsdo *VisitorStatDeleteOne) ExecX(ctx context.Context) {
-	if err := vsdo.Exec(ctx); err != nil {
+func (_d *VisitorStatDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

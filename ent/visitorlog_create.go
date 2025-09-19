@@ -23,211 +23,211 @@ type VisitorLogCreate struct {
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (vlc *VisitorLogCreate) SetCreatedAt(t time.Time) *VisitorLogCreate {
-	vlc.mutation.SetCreatedAt(t)
-	return vlc
+func (_c *VisitorLogCreate) SetCreatedAt(v time.Time) *VisitorLogCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (vlc *VisitorLogCreate) SetNillableCreatedAt(t *time.Time) *VisitorLogCreate {
-	if t != nil {
-		vlc.SetCreatedAt(*t)
+func (_c *VisitorLogCreate) SetNillableCreatedAt(v *time.Time) *VisitorLogCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return vlc
+	return _c
 }
 
 // SetVisitorID sets the "visitor_id" field.
-func (vlc *VisitorLogCreate) SetVisitorID(s string) *VisitorLogCreate {
-	vlc.mutation.SetVisitorID(s)
-	return vlc
+func (_c *VisitorLogCreate) SetVisitorID(v string) *VisitorLogCreate {
+	_c.mutation.SetVisitorID(v)
+	return _c
 }
 
 // SetSessionID sets the "session_id" field.
-func (vlc *VisitorLogCreate) SetSessionID(s string) *VisitorLogCreate {
-	vlc.mutation.SetSessionID(s)
-	return vlc
+func (_c *VisitorLogCreate) SetSessionID(v string) *VisitorLogCreate {
+	_c.mutation.SetSessionID(v)
+	return _c
 }
 
 // SetNillableSessionID sets the "session_id" field if the given value is not nil.
-func (vlc *VisitorLogCreate) SetNillableSessionID(s *string) *VisitorLogCreate {
-	if s != nil {
-		vlc.SetSessionID(*s)
+func (_c *VisitorLogCreate) SetNillableSessionID(v *string) *VisitorLogCreate {
+	if v != nil {
+		_c.SetSessionID(*v)
 	}
-	return vlc
+	return _c
 }
 
 // SetIPAddress sets the "ip_address" field.
-func (vlc *VisitorLogCreate) SetIPAddress(s string) *VisitorLogCreate {
-	vlc.mutation.SetIPAddress(s)
-	return vlc
+func (_c *VisitorLogCreate) SetIPAddress(v string) *VisitorLogCreate {
+	_c.mutation.SetIPAddress(v)
+	return _c
 }
 
 // SetUserAgent sets the "user_agent" field.
-func (vlc *VisitorLogCreate) SetUserAgent(s string) *VisitorLogCreate {
-	vlc.mutation.SetUserAgent(s)
-	return vlc
+func (_c *VisitorLogCreate) SetUserAgent(v string) *VisitorLogCreate {
+	_c.mutation.SetUserAgent(v)
+	return _c
 }
 
 // SetNillableUserAgent sets the "user_agent" field if the given value is not nil.
-func (vlc *VisitorLogCreate) SetNillableUserAgent(s *string) *VisitorLogCreate {
-	if s != nil {
-		vlc.SetUserAgent(*s)
+func (_c *VisitorLogCreate) SetNillableUserAgent(v *string) *VisitorLogCreate {
+	if v != nil {
+		_c.SetUserAgent(*v)
 	}
-	return vlc
+	return _c
 }
 
 // SetReferer sets the "referer" field.
-func (vlc *VisitorLogCreate) SetReferer(s string) *VisitorLogCreate {
-	vlc.mutation.SetReferer(s)
-	return vlc
+func (_c *VisitorLogCreate) SetReferer(v string) *VisitorLogCreate {
+	_c.mutation.SetReferer(v)
+	return _c
 }
 
 // SetNillableReferer sets the "referer" field if the given value is not nil.
-func (vlc *VisitorLogCreate) SetNillableReferer(s *string) *VisitorLogCreate {
-	if s != nil {
-		vlc.SetReferer(*s)
+func (_c *VisitorLogCreate) SetNillableReferer(v *string) *VisitorLogCreate {
+	if v != nil {
+		_c.SetReferer(*v)
 	}
-	return vlc
+	return _c
 }
 
 // SetURLPath sets the "url_path" field.
-func (vlc *VisitorLogCreate) SetURLPath(s string) *VisitorLogCreate {
-	vlc.mutation.SetURLPath(s)
-	return vlc
+func (_c *VisitorLogCreate) SetURLPath(v string) *VisitorLogCreate {
+	_c.mutation.SetURLPath(v)
+	return _c
 }
 
 // SetCountry sets the "country" field.
-func (vlc *VisitorLogCreate) SetCountry(s string) *VisitorLogCreate {
-	vlc.mutation.SetCountry(s)
-	return vlc
+func (_c *VisitorLogCreate) SetCountry(v string) *VisitorLogCreate {
+	_c.mutation.SetCountry(v)
+	return _c
 }
 
 // SetNillableCountry sets the "country" field if the given value is not nil.
-func (vlc *VisitorLogCreate) SetNillableCountry(s *string) *VisitorLogCreate {
-	if s != nil {
-		vlc.SetCountry(*s)
+func (_c *VisitorLogCreate) SetNillableCountry(v *string) *VisitorLogCreate {
+	if v != nil {
+		_c.SetCountry(*v)
 	}
-	return vlc
+	return _c
 }
 
 // SetRegion sets the "region" field.
-func (vlc *VisitorLogCreate) SetRegion(s string) *VisitorLogCreate {
-	vlc.mutation.SetRegion(s)
-	return vlc
+func (_c *VisitorLogCreate) SetRegion(v string) *VisitorLogCreate {
+	_c.mutation.SetRegion(v)
+	return _c
 }
 
 // SetNillableRegion sets the "region" field if the given value is not nil.
-func (vlc *VisitorLogCreate) SetNillableRegion(s *string) *VisitorLogCreate {
-	if s != nil {
-		vlc.SetRegion(*s)
+func (_c *VisitorLogCreate) SetNillableRegion(v *string) *VisitorLogCreate {
+	if v != nil {
+		_c.SetRegion(*v)
 	}
-	return vlc
+	return _c
 }
 
 // SetCity sets the "city" field.
-func (vlc *VisitorLogCreate) SetCity(s string) *VisitorLogCreate {
-	vlc.mutation.SetCity(s)
-	return vlc
+func (_c *VisitorLogCreate) SetCity(v string) *VisitorLogCreate {
+	_c.mutation.SetCity(v)
+	return _c
 }
 
 // SetNillableCity sets the "city" field if the given value is not nil.
-func (vlc *VisitorLogCreate) SetNillableCity(s *string) *VisitorLogCreate {
-	if s != nil {
-		vlc.SetCity(*s)
+func (_c *VisitorLogCreate) SetNillableCity(v *string) *VisitorLogCreate {
+	if v != nil {
+		_c.SetCity(*v)
 	}
-	return vlc
+	return _c
 }
 
 // SetBrowser sets the "browser" field.
-func (vlc *VisitorLogCreate) SetBrowser(s string) *VisitorLogCreate {
-	vlc.mutation.SetBrowser(s)
-	return vlc
+func (_c *VisitorLogCreate) SetBrowser(v string) *VisitorLogCreate {
+	_c.mutation.SetBrowser(v)
+	return _c
 }
 
 // SetNillableBrowser sets the "browser" field if the given value is not nil.
-func (vlc *VisitorLogCreate) SetNillableBrowser(s *string) *VisitorLogCreate {
-	if s != nil {
-		vlc.SetBrowser(*s)
+func (_c *VisitorLogCreate) SetNillableBrowser(v *string) *VisitorLogCreate {
+	if v != nil {
+		_c.SetBrowser(*v)
 	}
-	return vlc
+	return _c
 }
 
 // SetOs sets the "os" field.
-func (vlc *VisitorLogCreate) SetOs(s string) *VisitorLogCreate {
-	vlc.mutation.SetOs(s)
-	return vlc
+func (_c *VisitorLogCreate) SetOs(v string) *VisitorLogCreate {
+	_c.mutation.SetOs(v)
+	return _c
 }
 
 // SetNillableOs sets the "os" field if the given value is not nil.
-func (vlc *VisitorLogCreate) SetNillableOs(s *string) *VisitorLogCreate {
-	if s != nil {
-		vlc.SetOs(*s)
+func (_c *VisitorLogCreate) SetNillableOs(v *string) *VisitorLogCreate {
+	if v != nil {
+		_c.SetOs(*v)
 	}
-	return vlc
+	return _c
 }
 
 // SetDevice sets the "device" field.
-func (vlc *VisitorLogCreate) SetDevice(s string) *VisitorLogCreate {
-	vlc.mutation.SetDevice(s)
-	return vlc
+func (_c *VisitorLogCreate) SetDevice(v string) *VisitorLogCreate {
+	_c.mutation.SetDevice(v)
+	return _c
 }
 
 // SetNillableDevice sets the "device" field if the given value is not nil.
-func (vlc *VisitorLogCreate) SetNillableDevice(s *string) *VisitorLogCreate {
-	if s != nil {
-		vlc.SetDevice(*s)
+func (_c *VisitorLogCreate) SetNillableDevice(v *string) *VisitorLogCreate {
+	if v != nil {
+		_c.SetDevice(*v)
 	}
-	return vlc
+	return _c
 }
 
 // SetDuration sets the "duration" field.
-func (vlc *VisitorLogCreate) SetDuration(i int) *VisitorLogCreate {
-	vlc.mutation.SetDuration(i)
-	return vlc
+func (_c *VisitorLogCreate) SetDuration(v int) *VisitorLogCreate {
+	_c.mutation.SetDuration(v)
+	return _c
 }
 
 // SetNillableDuration sets the "duration" field if the given value is not nil.
-func (vlc *VisitorLogCreate) SetNillableDuration(i *int) *VisitorLogCreate {
-	if i != nil {
-		vlc.SetDuration(*i)
+func (_c *VisitorLogCreate) SetNillableDuration(v *int) *VisitorLogCreate {
+	if v != nil {
+		_c.SetDuration(*v)
 	}
-	return vlc
+	return _c
 }
 
 // SetIsBounce sets the "is_bounce" field.
-func (vlc *VisitorLogCreate) SetIsBounce(b bool) *VisitorLogCreate {
-	vlc.mutation.SetIsBounce(b)
-	return vlc
+func (_c *VisitorLogCreate) SetIsBounce(v bool) *VisitorLogCreate {
+	_c.mutation.SetIsBounce(v)
+	return _c
 }
 
 // SetNillableIsBounce sets the "is_bounce" field if the given value is not nil.
-func (vlc *VisitorLogCreate) SetNillableIsBounce(b *bool) *VisitorLogCreate {
-	if b != nil {
-		vlc.SetIsBounce(*b)
+func (_c *VisitorLogCreate) SetNillableIsBounce(v *bool) *VisitorLogCreate {
+	if v != nil {
+		_c.SetIsBounce(*v)
 	}
-	return vlc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (vlc *VisitorLogCreate) SetID(u uint) *VisitorLogCreate {
-	vlc.mutation.SetID(u)
-	return vlc
+func (_c *VisitorLogCreate) SetID(v uint) *VisitorLogCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // Mutation returns the VisitorLogMutation object of the builder.
-func (vlc *VisitorLogCreate) Mutation() *VisitorLogMutation {
-	return vlc.mutation
+func (_c *VisitorLogCreate) Mutation() *VisitorLogMutation {
+	return _c.mutation
 }
 
 // Save creates the VisitorLog in the database.
-func (vlc *VisitorLogCreate) Save(ctx context.Context) (*VisitorLog, error) {
-	vlc.defaults()
-	return withHooks(ctx, vlc.sqlSave, vlc.mutation, vlc.hooks)
+func (_c *VisitorLogCreate) Save(ctx context.Context) (*VisitorLog, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (vlc *VisitorLogCreate) SaveX(ctx context.Context) *VisitorLog {
-	v, err := vlc.Save(ctx)
+func (_c *VisitorLogCreate) SaveX(ctx context.Context) *VisitorLog {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -235,123 +235,123 @@ func (vlc *VisitorLogCreate) SaveX(ctx context.Context) *VisitorLog {
 }
 
 // Exec executes the query.
-func (vlc *VisitorLogCreate) Exec(ctx context.Context) error {
-	_, err := vlc.Save(ctx)
+func (_c *VisitorLogCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (vlc *VisitorLogCreate) ExecX(ctx context.Context) {
-	if err := vlc.Exec(ctx); err != nil {
+func (_c *VisitorLogCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (vlc *VisitorLogCreate) defaults() {
-	if _, ok := vlc.mutation.CreatedAt(); !ok {
+func (_c *VisitorLogCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := visitorlog.DefaultCreatedAt()
-		vlc.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := vlc.mutation.Duration(); !ok {
+	if _, ok := _c.mutation.Duration(); !ok {
 		v := visitorlog.DefaultDuration
-		vlc.mutation.SetDuration(v)
+		_c.mutation.SetDuration(v)
 	}
-	if _, ok := vlc.mutation.IsBounce(); !ok {
+	if _, ok := _c.mutation.IsBounce(); !ok {
 		v := visitorlog.DefaultIsBounce
-		vlc.mutation.SetIsBounce(v)
+		_c.mutation.SetIsBounce(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (vlc *VisitorLogCreate) check() error {
-	if _, ok := vlc.mutation.CreatedAt(); !ok {
+func (_c *VisitorLogCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "VisitorLog.created_at"`)}
 	}
-	if _, ok := vlc.mutation.VisitorID(); !ok {
+	if _, ok := _c.mutation.VisitorID(); !ok {
 		return &ValidationError{Name: "visitor_id", err: errors.New(`ent: missing required field "VisitorLog.visitor_id"`)}
 	}
-	if v, ok := vlc.mutation.VisitorID(); ok {
+	if v, ok := _c.mutation.VisitorID(); ok {
 		if err := visitorlog.VisitorIDValidator(v); err != nil {
 			return &ValidationError{Name: "visitor_id", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.visitor_id": %w`, err)}
 		}
 	}
-	if v, ok := vlc.mutation.SessionID(); ok {
+	if v, ok := _c.mutation.SessionID(); ok {
 		if err := visitorlog.SessionIDValidator(v); err != nil {
 			return &ValidationError{Name: "session_id", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.session_id": %w`, err)}
 		}
 	}
-	if _, ok := vlc.mutation.IPAddress(); !ok {
+	if _, ok := _c.mutation.IPAddress(); !ok {
 		return &ValidationError{Name: "ip_address", err: errors.New(`ent: missing required field "VisitorLog.ip_address"`)}
 	}
-	if v, ok := vlc.mutation.IPAddress(); ok {
+	if v, ok := _c.mutation.IPAddress(); ok {
 		if err := visitorlog.IPAddressValidator(v); err != nil {
 			return &ValidationError{Name: "ip_address", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.ip_address": %w`, err)}
 		}
 	}
-	if v, ok := vlc.mutation.UserAgent(); ok {
+	if v, ok := _c.mutation.UserAgent(); ok {
 		if err := visitorlog.UserAgentValidator(v); err != nil {
 			return &ValidationError{Name: "user_agent", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.user_agent": %w`, err)}
 		}
 	}
-	if v, ok := vlc.mutation.Referer(); ok {
+	if v, ok := _c.mutation.Referer(); ok {
 		if err := visitorlog.RefererValidator(v); err != nil {
 			return &ValidationError{Name: "referer", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.referer": %w`, err)}
 		}
 	}
-	if _, ok := vlc.mutation.URLPath(); !ok {
+	if _, ok := _c.mutation.URLPath(); !ok {
 		return &ValidationError{Name: "url_path", err: errors.New(`ent: missing required field "VisitorLog.url_path"`)}
 	}
-	if v, ok := vlc.mutation.URLPath(); ok {
+	if v, ok := _c.mutation.URLPath(); ok {
 		if err := visitorlog.URLPathValidator(v); err != nil {
 			return &ValidationError{Name: "url_path", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.url_path": %w`, err)}
 		}
 	}
-	if v, ok := vlc.mutation.Country(); ok {
+	if v, ok := _c.mutation.Country(); ok {
 		if err := visitorlog.CountryValidator(v); err != nil {
 			return &ValidationError{Name: "country", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.country": %w`, err)}
 		}
 	}
-	if v, ok := vlc.mutation.Region(); ok {
+	if v, ok := _c.mutation.Region(); ok {
 		if err := visitorlog.RegionValidator(v); err != nil {
 			return &ValidationError{Name: "region", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.region": %w`, err)}
 		}
 	}
-	if v, ok := vlc.mutation.City(); ok {
+	if v, ok := _c.mutation.City(); ok {
 		if err := visitorlog.CityValidator(v); err != nil {
 			return &ValidationError{Name: "city", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.city": %w`, err)}
 		}
 	}
-	if v, ok := vlc.mutation.Browser(); ok {
+	if v, ok := _c.mutation.Browser(); ok {
 		if err := visitorlog.BrowserValidator(v); err != nil {
 			return &ValidationError{Name: "browser", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.browser": %w`, err)}
 		}
 	}
-	if v, ok := vlc.mutation.Os(); ok {
+	if v, ok := _c.mutation.Os(); ok {
 		if err := visitorlog.OsValidator(v); err != nil {
 			return &ValidationError{Name: "os", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.os": %w`, err)}
 		}
 	}
-	if v, ok := vlc.mutation.Device(); ok {
+	if v, ok := _c.mutation.Device(); ok {
 		if err := visitorlog.DeviceValidator(v); err != nil {
 			return &ValidationError{Name: "device", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.device": %w`, err)}
 		}
 	}
-	if _, ok := vlc.mutation.Duration(); !ok {
+	if _, ok := _c.mutation.Duration(); !ok {
 		return &ValidationError{Name: "duration", err: errors.New(`ent: missing required field "VisitorLog.duration"`)}
 	}
-	if _, ok := vlc.mutation.IsBounce(); !ok {
+	if _, ok := _c.mutation.IsBounce(); !ok {
 		return &ValidationError{Name: "is_bounce", err: errors.New(`ent: missing required field "VisitorLog.is_bounce"`)}
 	}
 	return nil
 }
 
-func (vlc *VisitorLogCreate) sqlSave(ctx context.Context) (*VisitorLog, error) {
-	if err := vlc.check(); err != nil {
+func (_c *VisitorLogCreate) sqlSave(ctx context.Context) (*VisitorLog, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := vlc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, vlc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -361,78 +361,78 @@ func (vlc *VisitorLogCreate) sqlSave(ctx context.Context) (*VisitorLog, error) {
 		id := _spec.ID.Value.(int64)
 		_node.ID = uint(id)
 	}
-	vlc.mutation.id = &_node.ID
-	vlc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (vlc *VisitorLogCreate) createSpec() (*VisitorLog, *sqlgraph.CreateSpec) {
+func (_c *VisitorLogCreate) createSpec() (*VisitorLog, *sqlgraph.CreateSpec) {
 	var (
-		_node = &VisitorLog{config: vlc.config}
+		_node = &VisitorLog{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(visitorlog.Table, sqlgraph.NewFieldSpec(visitorlog.FieldID, field.TypeUint))
 	)
-	_spec.OnConflict = vlc.conflict
-	if id, ok := vlc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := vlc.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(visitorlog.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := vlc.mutation.VisitorID(); ok {
+	if value, ok := _c.mutation.VisitorID(); ok {
 		_spec.SetField(visitorlog.FieldVisitorID, field.TypeString, value)
 		_node.VisitorID = value
 	}
-	if value, ok := vlc.mutation.SessionID(); ok {
+	if value, ok := _c.mutation.SessionID(); ok {
 		_spec.SetField(visitorlog.FieldSessionID, field.TypeString, value)
 		_node.SessionID = &value
 	}
-	if value, ok := vlc.mutation.IPAddress(); ok {
+	if value, ok := _c.mutation.IPAddress(); ok {
 		_spec.SetField(visitorlog.FieldIPAddress, field.TypeString, value)
 		_node.IPAddress = value
 	}
-	if value, ok := vlc.mutation.UserAgent(); ok {
+	if value, ok := _c.mutation.UserAgent(); ok {
 		_spec.SetField(visitorlog.FieldUserAgent, field.TypeString, value)
 		_node.UserAgent = &value
 	}
-	if value, ok := vlc.mutation.Referer(); ok {
+	if value, ok := _c.mutation.Referer(); ok {
 		_spec.SetField(visitorlog.FieldReferer, field.TypeString, value)
 		_node.Referer = &value
 	}
-	if value, ok := vlc.mutation.URLPath(); ok {
+	if value, ok := _c.mutation.URLPath(); ok {
 		_spec.SetField(visitorlog.FieldURLPath, field.TypeString, value)
 		_node.URLPath = value
 	}
-	if value, ok := vlc.mutation.Country(); ok {
+	if value, ok := _c.mutation.Country(); ok {
 		_spec.SetField(visitorlog.FieldCountry, field.TypeString, value)
 		_node.Country = &value
 	}
-	if value, ok := vlc.mutation.Region(); ok {
+	if value, ok := _c.mutation.Region(); ok {
 		_spec.SetField(visitorlog.FieldRegion, field.TypeString, value)
 		_node.Region = &value
 	}
-	if value, ok := vlc.mutation.City(); ok {
+	if value, ok := _c.mutation.City(); ok {
 		_spec.SetField(visitorlog.FieldCity, field.TypeString, value)
 		_node.City = &value
 	}
-	if value, ok := vlc.mutation.Browser(); ok {
+	if value, ok := _c.mutation.Browser(); ok {
 		_spec.SetField(visitorlog.FieldBrowser, field.TypeString, value)
 		_node.Browser = &value
 	}
-	if value, ok := vlc.mutation.Os(); ok {
+	if value, ok := _c.mutation.Os(); ok {
 		_spec.SetField(visitorlog.FieldOs, field.TypeString, value)
 		_node.Os = &value
 	}
-	if value, ok := vlc.mutation.Device(); ok {
+	if value, ok := _c.mutation.Device(); ok {
 		_spec.SetField(visitorlog.FieldDevice, field.TypeString, value)
 		_node.Device = &value
 	}
-	if value, ok := vlc.mutation.Duration(); ok {
+	if value, ok := _c.mutation.Duration(); ok {
 		_spec.SetField(visitorlog.FieldDuration, field.TypeInt, value)
 		_node.Duration = value
 	}
-	if value, ok := vlc.mutation.IsBounce(); ok {
+	if value, ok := _c.mutation.IsBounce(); ok {
 		_spec.SetField(visitorlog.FieldIsBounce, field.TypeBool, value)
 		_node.IsBounce = value
 	}
@@ -455,10 +455,10 @@ func (vlc *VisitorLogCreate) createSpec() (*VisitorLog, *sqlgraph.CreateSpec) {
 //			SetCreatedAt(v+v).
 //		}).
 //		Exec(ctx)
-func (vlc *VisitorLogCreate) OnConflict(opts ...sql.ConflictOption) *VisitorLogUpsertOne {
-	vlc.conflict = opts
+func (_c *VisitorLogCreate) OnConflict(opts ...sql.ConflictOption) *VisitorLogUpsertOne {
+	_c.conflict = opts
 	return &VisitorLogUpsertOne{
-		create: vlc,
+		create: _c,
 	}
 }
 
@@ -468,10 +468,10 @@ func (vlc *VisitorLogCreate) OnConflict(opts ...sql.ConflictOption) *VisitorLogU
 //	client.VisitorLog.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (vlc *VisitorLogCreate) OnConflictColumns(columns ...string) *VisitorLogUpsertOne {
-	vlc.conflict = append(vlc.conflict, sql.ConflictColumns(columns...))
+func (_c *VisitorLogCreate) OnConflictColumns(columns ...string) *VisitorLogUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &VisitorLogUpsertOne{
-		create: vlc,
+		create: _c,
 	}
 }
 
@@ -1075,16 +1075,16 @@ type VisitorLogCreateBulk struct {
 }
 
 // Save creates the VisitorLog entities in the database.
-func (vlcb *VisitorLogCreateBulk) Save(ctx context.Context) ([]*VisitorLog, error) {
-	if vlcb.err != nil {
-		return nil, vlcb.err
+func (_c *VisitorLogCreateBulk) Save(ctx context.Context) ([]*VisitorLog, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(vlcb.builders))
-	nodes := make([]*VisitorLog, len(vlcb.builders))
-	mutators := make([]Mutator, len(vlcb.builders))
-	for i := range vlcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*VisitorLog, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := vlcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*VisitorLogMutation)
@@ -1098,12 +1098,12 @@ func (vlcb *VisitorLogCreateBulk) Save(ctx context.Context) ([]*VisitorLog, erro
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, vlcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = vlcb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, vlcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -1127,7 +1127,7 @@ func (vlcb *VisitorLogCreateBulk) Save(ctx context.Context) ([]*VisitorLog, erro
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, vlcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -1135,8 +1135,8 @@ func (vlcb *VisitorLogCreateBulk) Save(ctx context.Context) ([]*VisitorLog, erro
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (vlcb *VisitorLogCreateBulk) SaveX(ctx context.Context) []*VisitorLog {
-	v, err := vlcb.Save(ctx)
+func (_c *VisitorLogCreateBulk) SaveX(ctx context.Context) []*VisitorLog {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -1144,14 +1144,14 @@ func (vlcb *VisitorLogCreateBulk) SaveX(ctx context.Context) []*VisitorLog {
 }
 
 // Exec executes the query.
-func (vlcb *VisitorLogCreateBulk) Exec(ctx context.Context) error {
-	_, err := vlcb.Save(ctx)
+func (_c *VisitorLogCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (vlcb *VisitorLogCreateBulk) ExecX(ctx context.Context) {
-	if err := vlcb.Exec(ctx); err != nil {
+func (_c *VisitorLogCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -1171,10 +1171,10 @@ func (vlcb *VisitorLogCreateBulk) ExecX(ctx context.Context) {
 //			SetCreatedAt(v+v).
 //		}).
 //		Exec(ctx)
-func (vlcb *VisitorLogCreateBulk) OnConflict(opts ...sql.ConflictOption) *VisitorLogUpsertBulk {
-	vlcb.conflict = opts
+func (_c *VisitorLogCreateBulk) OnConflict(opts ...sql.ConflictOption) *VisitorLogUpsertBulk {
+	_c.conflict = opts
 	return &VisitorLogUpsertBulk{
-		create: vlcb,
+		create: _c,
 	}
 }
 
@@ -1184,10 +1184,10 @@ func (vlcb *VisitorLogCreateBulk) OnConflict(opts ...sql.ConflictOption) *Visito
 //	client.VisitorLog.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (vlcb *VisitorLogCreateBulk) OnConflictColumns(columns ...string) *VisitorLogUpsertBulk {
-	vlcb.conflict = append(vlcb.conflict, sql.ConflictColumns(columns...))
+func (_c *VisitorLogCreateBulk) OnConflictColumns(columns ...string) *VisitorLogUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &VisitorLogUpsertBulk{
-		create: vlcb,
+		create: _c,
 	}
 }
 

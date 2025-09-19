@@ -90,7 +90,7 @@ func (*Entity) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Entity fields.
-func (e *Entity) assignValues(columns []string, values []any) error {
+func (_m *Entity) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -101,94 +101,94 @@ func (e *Entity) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			e.ID = uint(value.Int64)
+			_m.ID = uint(value.Int64)
 		case entity.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				e.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case entity.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				e.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		case entity.FieldType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field type", values[i])
 			} else if value.Valid {
-				e.Type = value.String
+				_m.Type = value.String
 			}
 		case entity.FieldSource:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field source", values[i])
 			} else if value.Valid {
-				e.Source = new(string)
-				*e.Source = value.String
+				_m.Source = new(string)
+				*_m.Source = value.String
 			}
 		case entity.FieldSize:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field size", values[i])
 			} else if value.Valid {
-				e.Size = value.Int64
+				_m.Size = value.Int64
 			}
 		case entity.FieldUploadSessionID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field upload_session_id", values[i])
 			} else if value.Valid {
-				e.UploadSessionID = new(string)
-				*e.UploadSessionID = value.String
+				_m.UploadSessionID = new(string)
+				*_m.UploadSessionID = value.String
 			}
 		case entity.FieldRecycleOptions:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field recycle_options", values[i])
 			} else if value.Valid {
-				e.RecycleOptions = new(string)
-				*e.RecycleOptions = value.String
+				_m.RecycleOptions = new(string)
+				*_m.RecycleOptions = value.String
 			}
 		case entity.FieldPolicyID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field policy_id", values[i])
 			} else if value.Valid {
-				e.PolicyID = uint(value.Int64)
+				_m.PolicyID = uint(value.Int64)
 			}
 		case entity.FieldCreatedBy:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field created_by", values[i])
 			} else if value.Valid {
-				e.CreatedBy = new(uint64)
-				*e.CreatedBy = uint64(value.Int64)
+				_m.CreatedBy = new(uint64)
+				*_m.CreatedBy = uint64(value.Int64)
 			}
 		case entity.FieldEtag:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field etag", values[i])
 			} else if value.Valid {
-				e.Etag = new(string)
-				*e.Etag = value.String
+				_m.Etag = new(string)
+				*_m.Etag = value.String
 			}
 		case entity.FieldMimeType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field mime_type", values[i])
 			} else if value.Valid {
-				e.MimeType = new(string)
-				*e.MimeType = value.String
+				_m.MimeType = new(string)
+				*_m.MimeType = value.String
 			}
 		case entity.FieldDimension:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field dimension", values[i])
 			} else if value.Valid {
-				e.Dimension = new(string)
-				*e.Dimension = value.String
+				_m.Dimension = new(string)
+				*_m.Dimension = value.String
 			}
 		case entity.FieldStorageMetadata:
 			if value, ok := values[i].(*model.JSONMap); !ok {
 				return fmt.Errorf("unexpected type %T for field storage_metadata", values[i])
 			} else if value != nil {
-				e.StorageMetadata = *value
+				_m.StorageMetadata = *value
 			}
 		default:
-			e.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -196,90 +196,90 @@ func (e *Entity) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the Entity.
 // This includes values selected through modifiers, order, etc.
-func (e *Entity) Value(name string) (ent.Value, error) {
-	return e.selectValues.Get(name)
+func (_m *Entity) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryFileVersions queries the "file_versions" edge of the Entity entity.
-func (e *Entity) QueryFileVersions() *FileEntityQuery {
-	return NewEntityClient(e.config).QueryFileVersions(e)
+func (_m *Entity) QueryFileVersions() *FileEntityQuery {
+	return NewEntityClient(_m.config).QueryFileVersions(_m)
 }
 
 // Update returns a builder for updating this Entity.
 // Note that you need to call Entity.Unwrap() before calling this method if this Entity
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (e *Entity) Update() *EntityUpdateOne {
-	return NewEntityClient(e.config).UpdateOne(e)
+func (_m *Entity) Update() *EntityUpdateOne {
+	return NewEntityClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Entity entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (e *Entity) Unwrap() *Entity {
-	_tx, ok := e.config.driver.(*txDriver)
+func (_m *Entity) Unwrap() *Entity {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: Entity is not a transactional entity")
 	}
-	e.config.driver = _tx.drv
-	return e
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (e *Entity) String() string {
+func (_m *Entity) String() string {
 	var builder strings.Builder
 	builder.WriteString("Entity(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", e.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("created_at=")
-	builder.WriteString(e.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(e.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("type=")
-	builder.WriteString(e.Type)
+	builder.WriteString(_m.Type)
 	builder.WriteString(", ")
-	if v := e.Source; v != nil {
+	if v := _m.Source; v != nil {
 		builder.WriteString("source=")
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	builder.WriteString("size=")
-	builder.WriteString(fmt.Sprintf("%v", e.Size))
+	builder.WriteString(fmt.Sprintf("%v", _m.Size))
 	builder.WriteString(", ")
-	if v := e.UploadSessionID; v != nil {
+	if v := _m.UploadSessionID; v != nil {
 		builder.WriteString("upload_session_id=")
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
-	if v := e.RecycleOptions; v != nil {
+	if v := _m.RecycleOptions; v != nil {
 		builder.WriteString("recycle_options=")
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	builder.WriteString("policy_id=")
-	builder.WriteString(fmt.Sprintf("%v", e.PolicyID))
+	builder.WriteString(fmt.Sprintf("%v", _m.PolicyID))
 	builder.WriteString(", ")
-	if v := e.CreatedBy; v != nil {
+	if v := _m.CreatedBy; v != nil {
 		builder.WriteString("created_by=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
-	if v := e.Etag; v != nil {
+	if v := _m.Etag; v != nil {
 		builder.WriteString("etag=")
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
-	if v := e.MimeType; v != nil {
+	if v := _m.MimeType; v != nil {
 		builder.WriteString("mime_type=")
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
-	if v := e.Dimension; v != nil {
+	if v := _m.Dimension; v != nil {
 		builder.WriteString("dimension=")
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	builder.WriteString("storage_metadata=")
-	builder.WriteString(fmt.Sprintf("%v", e.StorageMetadata))
+	builder.WriteString(fmt.Sprintf("%v", _m.StorageMetadata))
 	builder.WriteByte(')')
 	return builder.String()
 }

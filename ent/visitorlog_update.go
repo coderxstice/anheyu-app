@@ -23,281 +23,281 @@ type VisitorLogUpdate struct {
 }
 
 // Where appends a list predicates to the VisitorLogUpdate builder.
-func (vlu *VisitorLogUpdate) Where(ps ...predicate.VisitorLog) *VisitorLogUpdate {
-	vlu.mutation.Where(ps...)
-	return vlu
+func (_u *VisitorLogUpdate) Where(ps ...predicate.VisitorLog) *VisitorLogUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetVisitorID sets the "visitor_id" field.
-func (vlu *VisitorLogUpdate) SetVisitorID(s string) *VisitorLogUpdate {
-	vlu.mutation.SetVisitorID(s)
-	return vlu
+func (_u *VisitorLogUpdate) SetVisitorID(v string) *VisitorLogUpdate {
+	_u.mutation.SetVisitorID(v)
+	return _u
 }
 
 // SetNillableVisitorID sets the "visitor_id" field if the given value is not nil.
-func (vlu *VisitorLogUpdate) SetNillableVisitorID(s *string) *VisitorLogUpdate {
-	if s != nil {
-		vlu.SetVisitorID(*s)
+func (_u *VisitorLogUpdate) SetNillableVisitorID(v *string) *VisitorLogUpdate {
+	if v != nil {
+		_u.SetVisitorID(*v)
 	}
-	return vlu
+	return _u
 }
 
 // SetSessionID sets the "session_id" field.
-func (vlu *VisitorLogUpdate) SetSessionID(s string) *VisitorLogUpdate {
-	vlu.mutation.SetSessionID(s)
-	return vlu
+func (_u *VisitorLogUpdate) SetSessionID(v string) *VisitorLogUpdate {
+	_u.mutation.SetSessionID(v)
+	return _u
 }
 
 // SetNillableSessionID sets the "session_id" field if the given value is not nil.
-func (vlu *VisitorLogUpdate) SetNillableSessionID(s *string) *VisitorLogUpdate {
-	if s != nil {
-		vlu.SetSessionID(*s)
+func (_u *VisitorLogUpdate) SetNillableSessionID(v *string) *VisitorLogUpdate {
+	if v != nil {
+		_u.SetSessionID(*v)
 	}
-	return vlu
+	return _u
 }
 
 // ClearSessionID clears the value of the "session_id" field.
-func (vlu *VisitorLogUpdate) ClearSessionID() *VisitorLogUpdate {
-	vlu.mutation.ClearSessionID()
-	return vlu
+func (_u *VisitorLogUpdate) ClearSessionID() *VisitorLogUpdate {
+	_u.mutation.ClearSessionID()
+	return _u
 }
 
 // SetIPAddress sets the "ip_address" field.
-func (vlu *VisitorLogUpdate) SetIPAddress(s string) *VisitorLogUpdate {
-	vlu.mutation.SetIPAddress(s)
-	return vlu
+func (_u *VisitorLogUpdate) SetIPAddress(v string) *VisitorLogUpdate {
+	_u.mutation.SetIPAddress(v)
+	return _u
 }
 
 // SetNillableIPAddress sets the "ip_address" field if the given value is not nil.
-func (vlu *VisitorLogUpdate) SetNillableIPAddress(s *string) *VisitorLogUpdate {
-	if s != nil {
-		vlu.SetIPAddress(*s)
+func (_u *VisitorLogUpdate) SetNillableIPAddress(v *string) *VisitorLogUpdate {
+	if v != nil {
+		_u.SetIPAddress(*v)
 	}
-	return vlu
+	return _u
 }
 
 // SetUserAgent sets the "user_agent" field.
-func (vlu *VisitorLogUpdate) SetUserAgent(s string) *VisitorLogUpdate {
-	vlu.mutation.SetUserAgent(s)
-	return vlu
+func (_u *VisitorLogUpdate) SetUserAgent(v string) *VisitorLogUpdate {
+	_u.mutation.SetUserAgent(v)
+	return _u
 }
 
 // SetNillableUserAgent sets the "user_agent" field if the given value is not nil.
-func (vlu *VisitorLogUpdate) SetNillableUserAgent(s *string) *VisitorLogUpdate {
-	if s != nil {
-		vlu.SetUserAgent(*s)
+func (_u *VisitorLogUpdate) SetNillableUserAgent(v *string) *VisitorLogUpdate {
+	if v != nil {
+		_u.SetUserAgent(*v)
 	}
-	return vlu
+	return _u
 }
 
 // ClearUserAgent clears the value of the "user_agent" field.
-func (vlu *VisitorLogUpdate) ClearUserAgent() *VisitorLogUpdate {
-	vlu.mutation.ClearUserAgent()
-	return vlu
+func (_u *VisitorLogUpdate) ClearUserAgent() *VisitorLogUpdate {
+	_u.mutation.ClearUserAgent()
+	return _u
 }
 
 // SetReferer sets the "referer" field.
-func (vlu *VisitorLogUpdate) SetReferer(s string) *VisitorLogUpdate {
-	vlu.mutation.SetReferer(s)
-	return vlu
+func (_u *VisitorLogUpdate) SetReferer(v string) *VisitorLogUpdate {
+	_u.mutation.SetReferer(v)
+	return _u
 }
 
 // SetNillableReferer sets the "referer" field if the given value is not nil.
-func (vlu *VisitorLogUpdate) SetNillableReferer(s *string) *VisitorLogUpdate {
-	if s != nil {
-		vlu.SetReferer(*s)
+func (_u *VisitorLogUpdate) SetNillableReferer(v *string) *VisitorLogUpdate {
+	if v != nil {
+		_u.SetReferer(*v)
 	}
-	return vlu
+	return _u
 }
 
 // ClearReferer clears the value of the "referer" field.
-func (vlu *VisitorLogUpdate) ClearReferer() *VisitorLogUpdate {
-	vlu.mutation.ClearReferer()
-	return vlu
+func (_u *VisitorLogUpdate) ClearReferer() *VisitorLogUpdate {
+	_u.mutation.ClearReferer()
+	return _u
 }
 
 // SetURLPath sets the "url_path" field.
-func (vlu *VisitorLogUpdate) SetURLPath(s string) *VisitorLogUpdate {
-	vlu.mutation.SetURLPath(s)
-	return vlu
+func (_u *VisitorLogUpdate) SetURLPath(v string) *VisitorLogUpdate {
+	_u.mutation.SetURLPath(v)
+	return _u
 }
 
 // SetNillableURLPath sets the "url_path" field if the given value is not nil.
-func (vlu *VisitorLogUpdate) SetNillableURLPath(s *string) *VisitorLogUpdate {
-	if s != nil {
-		vlu.SetURLPath(*s)
+func (_u *VisitorLogUpdate) SetNillableURLPath(v *string) *VisitorLogUpdate {
+	if v != nil {
+		_u.SetURLPath(*v)
 	}
-	return vlu
+	return _u
 }
 
 // SetCountry sets the "country" field.
-func (vlu *VisitorLogUpdate) SetCountry(s string) *VisitorLogUpdate {
-	vlu.mutation.SetCountry(s)
-	return vlu
+func (_u *VisitorLogUpdate) SetCountry(v string) *VisitorLogUpdate {
+	_u.mutation.SetCountry(v)
+	return _u
 }
 
 // SetNillableCountry sets the "country" field if the given value is not nil.
-func (vlu *VisitorLogUpdate) SetNillableCountry(s *string) *VisitorLogUpdate {
-	if s != nil {
-		vlu.SetCountry(*s)
+func (_u *VisitorLogUpdate) SetNillableCountry(v *string) *VisitorLogUpdate {
+	if v != nil {
+		_u.SetCountry(*v)
 	}
-	return vlu
+	return _u
 }
 
 // ClearCountry clears the value of the "country" field.
-func (vlu *VisitorLogUpdate) ClearCountry() *VisitorLogUpdate {
-	vlu.mutation.ClearCountry()
-	return vlu
+func (_u *VisitorLogUpdate) ClearCountry() *VisitorLogUpdate {
+	_u.mutation.ClearCountry()
+	return _u
 }
 
 // SetRegion sets the "region" field.
-func (vlu *VisitorLogUpdate) SetRegion(s string) *VisitorLogUpdate {
-	vlu.mutation.SetRegion(s)
-	return vlu
+func (_u *VisitorLogUpdate) SetRegion(v string) *VisitorLogUpdate {
+	_u.mutation.SetRegion(v)
+	return _u
 }
 
 // SetNillableRegion sets the "region" field if the given value is not nil.
-func (vlu *VisitorLogUpdate) SetNillableRegion(s *string) *VisitorLogUpdate {
-	if s != nil {
-		vlu.SetRegion(*s)
+func (_u *VisitorLogUpdate) SetNillableRegion(v *string) *VisitorLogUpdate {
+	if v != nil {
+		_u.SetRegion(*v)
 	}
-	return vlu
+	return _u
 }
 
 // ClearRegion clears the value of the "region" field.
-func (vlu *VisitorLogUpdate) ClearRegion() *VisitorLogUpdate {
-	vlu.mutation.ClearRegion()
-	return vlu
+func (_u *VisitorLogUpdate) ClearRegion() *VisitorLogUpdate {
+	_u.mutation.ClearRegion()
+	return _u
 }
 
 // SetCity sets the "city" field.
-func (vlu *VisitorLogUpdate) SetCity(s string) *VisitorLogUpdate {
-	vlu.mutation.SetCity(s)
-	return vlu
+func (_u *VisitorLogUpdate) SetCity(v string) *VisitorLogUpdate {
+	_u.mutation.SetCity(v)
+	return _u
 }
 
 // SetNillableCity sets the "city" field if the given value is not nil.
-func (vlu *VisitorLogUpdate) SetNillableCity(s *string) *VisitorLogUpdate {
-	if s != nil {
-		vlu.SetCity(*s)
+func (_u *VisitorLogUpdate) SetNillableCity(v *string) *VisitorLogUpdate {
+	if v != nil {
+		_u.SetCity(*v)
 	}
-	return vlu
+	return _u
 }
 
 // ClearCity clears the value of the "city" field.
-func (vlu *VisitorLogUpdate) ClearCity() *VisitorLogUpdate {
-	vlu.mutation.ClearCity()
-	return vlu
+func (_u *VisitorLogUpdate) ClearCity() *VisitorLogUpdate {
+	_u.mutation.ClearCity()
+	return _u
 }
 
 // SetBrowser sets the "browser" field.
-func (vlu *VisitorLogUpdate) SetBrowser(s string) *VisitorLogUpdate {
-	vlu.mutation.SetBrowser(s)
-	return vlu
+func (_u *VisitorLogUpdate) SetBrowser(v string) *VisitorLogUpdate {
+	_u.mutation.SetBrowser(v)
+	return _u
 }
 
 // SetNillableBrowser sets the "browser" field if the given value is not nil.
-func (vlu *VisitorLogUpdate) SetNillableBrowser(s *string) *VisitorLogUpdate {
-	if s != nil {
-		vlu.SetBrowser(*s)
+func (_u *VisitorLogUpdate) SetNillableBrowser(v *string) *VisitorLogUpdate {
+	if v != nil {
+		_u.SetBrowser(*v)
 	}
-	return vlu
+	return _u
 }
 
 // ClearBrowser clears the value of the "browser" field.
-func (vlu *VisitorLogUpdate) ClearBrowser() *VisitorLogUpdate {
-	vlu.mutation.ClearBrowser()
-	return vlu
+func (_u *VisitorLogUpdate) ClearBrowser() *VisitorLogUpdate {
+	_u.mutation.ClearBrowser()
+	return _u
 }
 
 // SetOs sets the "os" field.
-func (vlu *VisitorLogUpdate) SetOs(s string) *VisitorLogUpdate {
-	vlu.mutation.SetOs(s)
-	return vlu
+func (_u *VisitorLogUpdate) SetOs(v string) *VisitorLogUpdate {
+	_u.mutation.SetOs(v)
+	return _u
 }
 
 // SetNillableOs sets the "os" field if the given value is not nil.
-func (vlu *VisitorLogUpdate) SetNillableOs(s *string) *VisitorLogUpdate {
-	if s != nil {
-		vlu.SetOs(*s)
+func (_u *VisitorLogUpdate) SetNillableOs(v *string) *VisitorLogUpdate {
+	if v != nil {
+		_u.SetOs(*v)
 	}
-	return vlu
+	return _u
 }
 
 // ClearOs clears the value of the "os" field.
-func (vlu *VisitorLogUpdate) ClearOs() *VisitorLogUpdate {
-	vlu.mutation.ClearOs()
-	return vlu
+func (_u *VisitorLogUpdate) ClearOs() *VisitorLogUpdate {
+	_u.mutation.ClearOs()
+	return _u
 }
 
 // SetDevice sets the "device" field.
-func (vlu *VisitorLogUpdate) SetDevice(s string) *VisitorLogUpdate {
-	vlu.mutation.SetDevice(s)
-	return vlu
+func (_u *VisitorLogUpdate) SetDevice(v string) *VisitorLogUpdate {
+	_u.mutation.SetDevice(v)
+	return _u
 }
 
 // SetNillableDevice sets the "device" field if the given value is not nil.
-func (vlu *VisitorLogUpdate) SetNillableDevice(s *string) *VisitorLogUpdate {
-	if s != nil {
-		vlu.SetDevice(*s)
+func (_u *VisitorLogUpdate) SetNillableDevice(v *string) *VisitorLogUpdate {
+	if v != nil {
+		_u.SetDevice(*v)
 	}
-	return vlu
+	return _u
 }
 
 // ClearDevice clears the value of the "device" field.
-func (vlu *VisitorLogUpdate) ClearDevice() *VisitorLogUpdate {
-	vlu.mutation.ClearDevice()
-	return vlu
+func (_u *VisitorLogUpdate) ClearDevice() *VisitorLogUpdate {
+	_u.mutation.ClearDevice()
+	return _u
 }
 
 // SetDuration sets the "duration" field.
-func (vlu *VisitorLogUpdate) SetDuration(i int) *VisitorLogUpdate {
-	vlu.mutation.ResetDuration()
-	vlu.mutation.SetDuration(i)
-	return vlu
+func (_u *VisitorLogUpdate) SetDuration(v int) *VisitorLogUpdate {
+	_u.mutation.ResetDuration()
+	_u.mutation.SetDuration(v)
+	return _u
 }
 
 // SetNillableDuration sets the "duration" field if the given value is not nil.
-func (vlu *VisitorLogUpdate) SetNillableDuration(i *int) *VisitorLogUpdate {
-	if i != nil {
-		vlu.SetDuration(*i)
+func (_u *VisitorLogUpdate) SetNillableDuration(v *int) *VisitorLogUpdate {
+	if v != nil {
+		_u.SetDuration(*v)
 	}
-	return vlu
+	return _u
 }
 
-// AddDuration adds i to the "duration" field.
-func (vlu *VisitorLogUpdate) AddDuration(i int) *VisitorLogUpdate {
-	vlu.mutation.AddDuration(i)
-	return vlu
+// AddDuration adds value to the "duration" field.
+func (_u *VisitorLogUpdate) AddDuration(v int) *VisitorLogUpdate {
+	_u.mutation.AddDuration(v)
+	return _u
 }
 
 // SetIsBounce sets the "is_bounce" field.
-func (vlu *VisitorLogUpdate) SetIsBounce(b bool) *VisitorLogUpdate {
-	vlu.mutation.SetIsBounce(b)
-	return vlu
+func (_u *VisitorLogUpdate) SetIsBounce(v bool) *VisitorLogUpdate {
+	_u.mutation.SetIsBounce(v)
+	return _u
 }
 
 // SetNillableIsBounce sets the "is_bounce" field if the given value is not nil.
-func (vlu *VisitorLogUpdate) SetNillableIsBounce(b *bool) *VisitorLogUpdate {
-	if b != nil {
-		vlu.SetIsBounce(*b)
+func (_u *VisitorLogUpdate) SetNillableIsBounce(v *bool) *VisitorLogUpdate {
+	if v != nil {
+		_u.SetIsBounce(*v)
 	}
-	return vlu
+	return _u
 }
 
 // Mutation returns the VisitorLogMutation object of the builder.
-func (vlu *VisitorLogUpdate) Mutation() *VisitorLogMutation {
-	return vlu.mutation
+func (_u *VisitorLogUpdate) Mutation() *VisitorLogMutation {
+	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (vlu *VisitorLogUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, vlu.sqlSave, vlu.mutation, vlu.hooks)
+func (_u *VisitorLogUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (vlu *VisitorLogUpdate) SaveX(ctx context.Context) int {
-	affected, err := vlu.Save(ctx)
+func (_u *VisitorLogUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -305,76 +305,76 @@ func (vlu *VisitorLogUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (vlu *VisitorLogUpdate) Exec(ctx context.Context) error {
-	_, err := vlu.Save(ctx)
+func (_u *VisitorLogUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (vlu *VisitorLogUpdate) ExecX(ctx context.Context) {
-	if err := vlu.Exec(ctx); err != nil {
+func (_u *VisitorLogUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (vlu *VisitorLogUpdate) check() error {
-	if v, ok := vlu.mutation.VisitorID(); ok {
+func (_u *VisitorLogUpdate) check() error {
+	if v, ok := _u.mutation.VisitorID(); ok {
 		if err := visitorlog.VisitorIDValidator(v); err != nil {
 			return &ValidationError{Name: "visitor_id", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.visitor_id": %w`, err)}
 		}
 	}
-	if v, ok := vlu.mutation.SessionID(); ok {
+	if v, ok := _u.mutation.SessionID(); ok {
 		if err := visitorlog.SessionIDValidator(v); err != nil {
 			return &ValidationError{Name: "session_id", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.session_id": %w`, err)}
 		}
 	}
-	if v, ok := vlu.mutation.IPAddress(); ok {
+	if v, ok := _u.mutation.IPAddress(); ok {
 		if err := visitorlog.IPAddressValidator(v); err != nil {
 			return &ValidationError{Name: "ip_address", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.ip_address": %w`, err)}
 		}
 	}
-	if v, ok := vlu.mutation.UserAgent(); ok {
+	if v, ok := _u.mutation.UserAgent(); ok {
 		if err := visitorlog.UserAgentValidator(v); err != nil {
 			return &ValidationError{Name: "user_agent", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.user_agent": %w`, err)}
 		}
 	}
-	if v, ok := vlu.mutation.Referer(); ok {
+	if v, ok := _u.mutation.Referer(); ok {
 		if err := visitorlog.RefererValidator(v); err != nil {
 			return &ValidationError{Name: "referer", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.referer": %w`, err)}
 		}
 	}
-	if v, ok := vlu.mutation.URLPath(); ok {
+	if v, ok := _u.mutation.URLPath(); ok {
 		if err := visitorlog.URLPathValidator(v); err != nil {
 			return &ValidationError{Name: "url_path", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.url_path": %w`, err)}
 		}
 	}
-	if v, ok := vlu.mutation.Country(); ok {
+	if v, ok := _u.mutation.Country(); ok {
 		if err := visitorlog.CountryValidator(v); err != nil {
 			return &ValidationError{Name: "country", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.country": %w`, err)}
 		}
 	}
-	if v, ok := vlu.mutation.Region(); ok {
+	if v, ok := _u.mutation.Region(); ok {
 		if err := visitorlog.RegionValidator(v); err != nil {
 			return &ValidationError{Name: "region", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.region": %w`, err)}
 		}
 	}
-	if v, ok := vlu.mutation.City(); ok {
+	if v, ok := _u.mutation.City(); ok {
 		if err := visitorlog.CityValidator(v); err != nil {
 			return &ValidationError{Name: "city", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.city": %w`, err)}
 		}
 	}
-	if v, ok := vlu.mutation.Browser(); ok {
+	if v, ok := _u.mutation.Browser(); ok {
 		if err := visitorlog.BrowserValidator(v); err != nil {
 			return &ValidationError{Name: "browser", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.browser": %w`, err)}
 		}
 	}
-	if v, ok := vlu.mutation.Os(); ok {
+	if v, ok := _u.mutation.Os(); ok {
 		if err := visitorlog.OsValidator(v); err != nil {
 			return &ValidationError{Name: "os", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.os": %w`, err)}
 		}
 	}
-	if v, ok := vlu.mutation.Device(); ok {
+	if v, ok := _u.mutation.Device(); ok {
 		if err := visitorlog.DeviceValidator(v); err != nil {
 			return &ValidationError{Name: "device", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.device": %w`, err)}
 		}
@@ -383,97 +383,97 @@ func (vlu *VisitorLogUpdate) check() error {
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (vlu *VisitorLogUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *VisitorLogUpdate {
-	vlu.modifiers = append(vlu.modifiers, modifiers...)
-	return vlu
+func (_u *VisitorLogUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *VisitorLogUpdate {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (vlu *VisitorLogUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := vlu.check(); err != nil {
-		return n, err
+func (_u *VisitorLogUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(visitorlog.Table, visitorlog.Columns, sqlgraph.NewFieldSpec(visitorlog.FieldID, field.TypeUint))
-	if ps := vlu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := vlu.mutation.VisitorID(); ok {
+	if value, ok := _u.mutation.VisitorID(); ok {
 		_spec.SetField(visitorlog.FieldVisitorID, field.TypeString, value)
 	}
-	if value, ok := vlu.mutation.SessionID(); ok {
+	if value, ok := _u.mutation.SessionID(); ok {
 		_spec.SetField(visitorlog.FieldSessionID, field.TypeString, value)
 	}
-	if vlu.mutation.SessionIDCleared() {
+	if _u.mutation.SessionIDCleared() {
 		_spec.ClearField(visitorlog.FieldSessionID, field.TypeString)
 	}
-	if value, ok := vlu.mutation.IPAddress(); ok {
+	if value, ok := _u.mutation.IPAddress(); ok {
 		_spec.SetField(visitorlog.FieldIPAddress, field.TypeString, value)
 	}
-	if value, ok := vlu.mutation.UserAgent(); ok {
+	if value, ok := _u.mutation.UserAgent(); ok {
 		_spec.SetField(visitorlog.FieldUserAgent, field.TypeString, value)
 	}
-	if vlu.mutation.UserAgentCleared() {
+	if _u.mutation.UserAgentCleared() {
 		_spec.ClearField(visitorlog.FieldUserAgent, field.TypeString)
 	}
-	if value, ok := vlu.mutation.Referer(); ok {
+	if value, ok := _u.mutation.Referer(); ok {
 		_spec.SetField(visitorlog.FieldReferer, field.TypeString, value)
 	}
-	if vlu.mutation.RefererCleared() {
+	if _u.mutation.RefererCleared() {
 		_spec.ClearField(visitorlog.FieldReferer, field.TypeString)
 	}
-	if value, ok := vlu.mutation.URLPath(); ok {
+	if value, ok := _u.mutation.URLPath(); ok {
 		_spec.SetField(visitorlog.FieldURLPath, field.TypeString, value)
 	}
-	if value, ok := vlu.mutation.Country(); ok {
+	if value, ok := _u.mutation.Country(); ok {
 		_spec.SetField(visitorlog.FieldCountry, field.TypeString, value)
 	}
-	if vlu.mutation.CountryCleared() {
+	if _u.mutation.CountryCleared() {
 		_spec.ClearField(visitorlog.FieldCountry, field.TypeString)
 	}
-	if value, ok := vlu.mutation.Region(); ok {
+	if value, ok := _u.mutation.Region(); ok {
 		_spec.SetField(visitorlog.FieldRegion, field.TypeString, value)
 	}
-	if vlu.mutation.RegionCleared() {
+	if _u.mutation.RegionCleared() {
 		_spec.ClearField(visitorlog.FieldRegion, field.TypeString)
 	}
-	if value, ok := vlu.mutation.City(); ok {
+	if value, ok := _u.mutation.City(); ok {
 		_spec.SetField(visitorlog.FieldCity, field.TypeString, value)
 	}
-	if vlu.mutation.CityCleared() {
+	if _u.mutation.CityCleared() {
 		_spec.ClearField(visitorlog.FieldCity, field.TypeString)
 	}
-	if value, ok := vlu.mutation.Browser(); ok {
+	if value, ok := _u.mutation.Browser(); ok {
 		_spec.SetField(visitorlog.FieldBrowser, field.TypeString, value)
 	}
-	if vlu.mutation.BrowserCleared() {
+	if _u.mutation.BrowserCleared() {
 		_spec.ClearField(visitorlog.FieldBrowser, field.TypeString)
 	}
-	if value, ok := vlu.mutation.Os(); ok {
+	if value, ok := _u.mutation.Os(); ok {
 		_spec.SetField(visitorlog.FieldOs, field.TypeString, value)
 	}
-	if vlu.mutation.OsCleared() {
+	if _u.mutation.OsCleared() {
 		_spec.ClearField(visitorlog.FieldOs, field.TypeString)
 	}
-	if value, ok := vlu.mutation.Device(); ok {
+	if value, ok := _u.mutation.Device(); ok {
 		_spec.SetField(visitorlog.FieldDevice, field.TypeString, value)
 	}
-	if vlu.mutation.DeviceCleared() {
+	if _u.mutation.DeviceCleared() {
 		_spec.ClearField(visitorlog.FieldDevice, field.TypeString)
 	}
-	if value, ok := vlu.mutation.Duration(); ok {
+	if value, ok := _u.mutation.Duration(); ok {
 		_spec.SetField(visitorlog.FieldDuration, field.TypeInt, value)
 	}
-	if value, ok := vlu.mutation.AddedDuration(); ok {
+	if value, ok := _u.mutation.AddedDuration(); ok {
 		_spec.AddField(visitorlog.FieldDuration, field.TypeInt, value)
 	}
-	if value, ok := vlu.mutation.IsBounce(); ok {
+	if value, ok := _u.mutation.IsBounce(); ok {
 		_spec.SetField(visitorlog.FieldIsBounce, field.TypeBool, value)
 	}
-	_spec.AddModifiers(vlu.modifiers...)
-	if n, err = sqlgraph.UpdateNodes(ctx, vlu.driver, _spec); err != nil {
+	_spec.AddModifiers(_u.modifiers...)
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{visitorlog.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -481,8 +481,8 @@ func (vlu *VisitorLogUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	vlu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // VisitorLogUpdateOne is the builder for updating a single VisitorLog entity.
@@ -495,288 +495,288 @@ type VisitorLogUpdateOne struct {
 }
 
 // SetVisitorID sets the "visitor_id" field.
-func (vluo *VisitorLogUpdateOne) SetVisitorID(s string) *VisitorLogUpdateOne {
-	vluo.mutation.SetVisitorID(s)
-	return vluo
+func (_u *VisitorLogUpdateOne) SetVisitorID(v string) *VisitorLogUpdateOne {
+	_u.mutation.SetVisitorID(v)
+	return _u
 }
 
 // SetNillableVisitorID sets the "visitor_id" field if the given value is not nil.
-func (vluo *VisitorLogUpdateOne) SetNillableVisitorID(s *string) *VisitorLogUpdateOne {
-	if s != nil {
-		vluo.SetVisitorID(*s)
+func (_u *VisitorLogUpdateOne) SetNillableVisitorID(v *string) *VisitorLogUpdateOne {
+	if v != nil {
+		_u.SetVisitorID(*v)
 	}
-	return vluo
+	return _u
 }
 
 // SetSessionID sets the "session_id" field.
-func (vluo *VisitorLogUpdateOne) SetSessionID(s string) *VisitorLogUpdateOne {
-	vluo.mutation.SetSessionID(s)
-	return vluo
+func (_u *VisitorLogUpdateOne) SetSessionID(v string) *VisitorLogUpdateOne {
+	_u.mutation.SetSessionID(v)
+	return _u
 }
 
 // SetNillableSessionID sets the "session_id" field if the given value is not nil.
-func (vluo *VisitorLogUpdateOne) SetNillableSessionID(s *string) *VisitorLogUpdateOne {
-	if s != nil {
-		vluo.SetSessionID(*s)
+func (_u *VisitorLogUpdateOne) SetNillableSessionID(v *string) *VisitorLogUpdateOne {
+	if v != nil {
+		_u.SetSessionID(*v)
 	}
-	return vluo
+	return _u
 }
 
 // ClearSessionID clears the value of the "session_id" field.
-func (vluo *VisitorLogUpdateOne) ClearSessionID() *VisitorLogUpdateOne {
-	vluo.mutation.ClearSessionID()
-	return vluo
+func (_u *VisitorLogUpdateOne) ClearSessionID() *VisitorLogUpdateOne {
+	_u.mutation.ClearSessionID()
+	return _u
 }
 
 // SetIPAddress sets the "ip_address" field.
-func (vluo *VisitorLogUpdateOne) SetIPAddress(s string) *VisitorLogUpdateOne {
-	vluo.mutation.SetIPAddress(s)
-	return vluo
+func (_u *VisitorLogUpdateOne) SetIPAddress(v string) *VisitorLogUpdateOne {
+	_u.mutation.SetIPAddress(v)
+	return _u
 }
 
 // SetNillableIPAddress sets the "ip_address" field if the given value is not nil.
-func (vluo *VisitorLogUpdateOne) SetNillableIPAddress(s *string) *VisitorLogUpdateOne {
-	if s != nil {
-		vluo.SetIPAddress(*s)
+func (_u *VisitorLogUpdateOne) SetNillableIPAddress(v *string) *VisitorLogUpdateOne {
+	if v != nil {
+		_u.SetIPAddress(*v)
 	}
-	return vluo
+	return _u
 }
 
 // SetUserAgent sets the "user_agent" field.
-func (vluo *VisitorLogUpdateOne) SetUserAgent(s string) *VisitorLogUpdateOne {
-	vluo.mutation.SetUserAgent(s)
-	return vluo
+func (_u *VisitorLogUpdateOne) SetUserAgent(v string) *VisitorLogUpdateOne {
+	_u.mutation.SetUserAgent(v)
+	return _u
 }
 
 // SetNillableUserAgent sets the "user_agent" field if the given value is not nil.
-func (vluo *VisitorLogUpdateOne) SetNillableUserAgent(s *string) *VisitorLogUpdateOne {
-	if s != nil {
-		vluo.SetUserAgent(*s)
+func (_u *VisitorLogUpdateOne) SetNillableUserAgent(v *string) *VisitorLogUpdateOne {
+	if v != nil {
+		_u.SetUserAgent(*v)
 	}
-	return vluo
+	return _u
 }
 
 // ClearUserAgent clears the value of the "user_agent" field.
-func (vluo *VisitorLogUpdateOne) ClearUserAgent() *VisitorLogUpdateOne {
-	vluo.mutation.ClearUserAgent()
-	return vluo
+func (_u *VisitorLogUpdateOne) ClearUserAgent() *VisitorLogUpdateOne {
+	_u.mutation.ClearUserAgent()
+	return _u
 }
 
 // SetReferer sets the "referer" field.
-func (vluo *VisitorLogUpdateOne) SetReferer(s string) *VisitorLogUpdateOne {
-	vluo.mutation.SetReferer(s)
-	return vluo
+func (_u *VisitorLogUpdateOne) SetReferer(v string) *VisitorLogUpdateOne {
+	_u.mutation.SetReferer(v)
+	return _u
 }
 
 // SetNillableReferer sets the "referer" field if the given value is not nil.
-func (vluo *VisitorLogUpdateOne) SetNillableReferer(s *string) *VisitorLogUpdateOne {
-	if s != nil {
-		vluo.SetReferer(*s)
+func (_u *VisitorLogUpdateOne) SetNillableReferer(v *string) *VisitorLogUpdateOne {
+	if v != nil {
+		_u.SetReferer(*v)
 	}
-	return vluo
+	return _u
 }
 
 // ClearReferer clears the value of the "referer" field.
-func (vluo *VisitorLogUpdateOne) ClearReferer() *VisitorLogUpdateOne {
-	vluo.mutation.ClearReferer()
-	return vluo
+func (_u *VisitorLogUpdateOne) ClearReferer() *VisitorLogUpdateOne {
+	_u.mutation.ClearReferer()
+	return _u
 }
 
 // SetURLPath sets the "url_path" field.
-func (vluo *VisitorLogUpdateOne) SetURLPath(s string) *VisitorLogUpdateOne {
-	vluo.mutation.SetURLPath(s)
-	return vluo
+func (_u *VisitorLogUpdateOne) SetURLPath(v string) *VisitorLogUpdateOne {
+	_u.mutation.SetURLPath(v)
+	return _u
 }
 
 // SetNillableURLPath sets the "url_path" field if the given value is not nil.
-func (vluo *VisitorLogUpdateOne) SetNillableURLPath(s *string) *VisitorLogUpdateOne {
-	if s != nil {
-		vluo.SetURLPath(*s)
+func (_u *VisitorLogUpdateOne) SetNillableURLPath(v *string) *VisitorLogUpdateOne {
+	if v != nil {
+		_u.SetURLPath(*v)
 	}
-	return vluo
+	return _u
 }
 
 // SetCountry sets the "country" field.
-func (vluo *VisitorLogUpdateOne) SetCountry(s string) *VisitorLogUpdateOne {
-	vluo.mutation.SetCountry(s)
-	return vluo
+func (_u *VisitorLogUpdateOne) SetCountry(v string) *VisitorLogUpdateOne {
+	_u.mutation.SetCountry(v)
+	return _u
 }
 
 // SetNillableCountry sets the "country" field if the given value is not nil.
-func (vluo *VisitorLogUpdateOne) SetNillableCountry(s *string) *VisitorLogUpdateOne {
-	if s != nil {
-		vluo.SetCountry(*s)
+func (_u *VisitorLogUpdateOne) SetNillableCountry(v *string) *VisitorLogUpdateOne {
+	if v != nil {
+		_u.SetCountry(*v)
 	}
-	return vluo
+	return _u
 }
 
 // ClearCountry clears the value of the "country" field.
-func (vluo *VisitorLogUpdateOne) ClearCountry() *VisitorLogUpdateOne {
-	vluo.mutation.ClearCountry()
-	return vluo
+func (_u *VisitorLogUpdateOne) ClearCountry() *VisitorLogUpdateOne {
+	_u.mutation.ClearCountry()
+	return _u
 }
 
 // SetRegion sets the "region" field.
-func (vluo *VisitorLogUpdateOne) SetRegion(s string) *VisitorLogUpdateOne {
-	vluo.mutation.SetRegion(s)
-	return vluo
+func (_u *VisitorLogUpdateOne) SetRegion(v string) *VisitorLogUpdateOne {
+	_u.mutation.SetRegion(v)
+	return _u
 }
 
 // SetNillableRegion sets the "region" field if the given value is not nil.
-func (vluo *VisitorLogUpdateOne) SetNillableRegion(s *string) *VisitorLogUpdateOne {
-	if s != nil {
-		vluo.SetRegion(*s)
+func (_u *VisitorLogUpdateOne) SetNillableRegion(v *string) *VisitorLogUpdateOne {
+	if v != nil {
+		_u.SetRegion(*v)
 	}
-	return vluo
+	return _u
 }
 
 // ClearRegion clears the value of the "region" field.
-func (vluo *VisitorLogUpdateOne) ClearRegion() *VisitorLogUpdateOne {
-	vluo.mutation.ClearRegion()
-	return vluo
+func (_u *VisitorLogUpdateOne) ClearRegion() *VisitorLogUpdateOne {
+	_u.mutation.ClearRegion()
+	return _u
 }
 
 // SetCity sets the "city" field.
-func (vluo *VisitorLogUpdateOne) SetCity(s string) *VisitorLogUpdateOne {
-	vluo.mutation.SetCity(s)
-	return vluo
+func (_u *VisitorLogUpdateOne) SetCity(v string) *VisitorLogUpdateOne {
+	_u.mutation.SetCity(v)
+	return _u
 }
 
 // SetNillableCity sets the "city" field if the given value is not nil.
-func (vluo *VisitorLogUpdateOne) SetNillableCity(s *string) *VisitorLogUpdateOne {
-	if s != nil {
-		vluo.SetCity(*s)
+func (_u *VisitorLogUpdateOne) SetNillableCity(v *string) *VisitorLogUpdateOne {
+	if v != nil {
+		_u.SetCity(*v)
 	}
-	return vluo
+	return _u
 }
 
 // ClearCity clears the value of the "city" field.
-func (vluo *VisitorLogUpdateOne) ClearCity() *VisitorLogUpdateOne {
-	vluo.mutation.ClearCity()
-	return vluo
+func (_u *VisitorLogUpdateOne) ClearCity() *VisitorLogUpdateOne {
+	_u.mutation.ClearCity()
+	return _u
 }
 
 // SetBrowser sets the "browser" field.
-func (vluo *VisitorLogUpdateOne) SetBrowser(s string) *VisitorLogUpdateOne {
-	vluo.mutation.SetBrowser(s)
-	return vluo
+func (_u *VisitorLogUpdateOne) SetBrowser(v string) *VisitorLogUpdateOne {
+	_u.mutation.SetBrowser(v)
+	return _u
 }
 
 // SetNillableBrowser sets the "browser" field if the given value is not nil.
-func (vluo *VisitorLogUpdateOne) SetNillableBrowser(s *string) *VisitorLogUpdateOne {
-	if s != nil {
-		vluo.SetBrowser(*s)
+func (_u *VisitorLogUpdateOne) SetNillableBrowser(v *string) *VisitorLogUpdateOne {
+	if v != nil {
+		_u.SetBrowser(*v)
 	}
-	return vluo
+	return _u
 }
 
 // ClearBrowser clears the value of the "browser" field.
-func (vluo *VisitorLogUpdateOne) ClearBrowser() *VisitorLogUpdateOne {
-	vluo.mutation.ClearBrowser()
-	return vluo
+func (_u *VisitorLogUpdateOne) ClearBrowser() *VisitorLogUpdateOne {
+	_u.mutation.ClearBrowser()
+	return _u
 }
 
 // SetOs sets the "os" field.
-func (vluo *VisitorLogUpdateOne) SetOs(s string) *VisitorLogUpdateOne {
-	vluo.mutation.SetOs(s)
-	return vluo
+func (_u *VisitorLogUpdateOne) SetOs(v string) *VisitorLogUpdateOne {
+	_u.mutation.SetOs(v)
+	return _u
 }
 
 // SetNillableOs sets the "os" field if the given value is not nil.
-func (vluo *VisitorLogUpdateOne) SetNillableOs(s *string) *VisitorLogUpdateOne {
-	if s != nil {
-		vluo.SetOs(*s)
+func (_u *VisitorLogUpdateOne) SetNillableOs(v *string) *VisitorLogUpdateOne {
+	if v != nil {
+		_u.SetOs(*v)
 	}
-	return vluo
+	return _u
 }
 
 // ClearOs clears the value of the "os" field.
-func (vluo *VisitorLogUpdateOne) ClearOs() *VisitorLogUpdateOne {
-	vluo.mutation.ClearOs()
-	return vluo
+func (_u *VisitorLogUpdateOne) ClearOs() *VisitorLogUpdateOne {
+	_u.mutation.ClearOs()
+	return _u
 }
 
 // SetDevice sets the "device" field.
-func (vluo *VisitorLogUpdateOne) SetDevice(s string) *VisitorLogUpdateOne {
-	vluo.mutation.SetDevice(s)
-	return vluo
+func (_u *VisitorLogUpdateOne) SetDevice(v string) *VisitorLogUpdateOne {
+	_u.mutation.SetDevice(v)
+	return _u
 }
 
 // SetNillableDevice sets the "device" field if the given value is not nil.
-func (vluo *VisitorLogUpdateOne) SetNillableDevice(s *string) *VisitorLogUpdateOne {
-	if s != nil {
-		vluo.SetDevice(*s)
+func (_u *VisitorLogUpdateOne) SetNillableDevice(v *string) *VisitorLogUpdateOne {
+	if v != nil {
+		_u.SetDevice(*v)
 	}
-	return vluo
+	return _u
 }
 
 // ClearDevice clears the value of the "device" field.
-func (vluo *VisitorLogUpdateOne) ClearDevice() *VisitorLogUpdateOne {
-	vluo.mutation.ClearDevice()
-	return vluo
+func (_u *VisitorLogUpdateOne) ClearDevice() *VisitorLogUpdateOne {
+	_u.mutation.ClearDevice()
+	return _u
 }
 
 // SetDuration sets the "duration" field.
-func (vluo *VisitorLogUpdateOne) SetDuration(i int) *VisitorLogUpdateOne {
-	vluo.mutation.ResetDuration()
-	vluo.mutation.SetDuration(i)
-	return vluo
+func (_u *VisitorLogUpdateOne) SetDuration(v int) *VisitorLogUpdateOne {
+	_u.mutation.ResetDuration()
+	_u.mutation.SetDuration(v)
+	return _u
 }
 
 // SetNillableDuration sets the "duration" field if the given value is not nil.
-func (vluo *VisitorLogUpdateOne) SetNillableDuration(i *int) *VisitorLogUpdateOne {
-	if i != nil {
-		vluo.SetDuration(*i)
+func (_u *VisitorLogUpdateOne) SetNillableDuration(v *int) *VisitorLogUpdateOne {
+	if v != nil {
+		_u.SetDuration(*v)
 	}
-	return vluo
+	return _u
 }
 
-// AddDuration adds i to the "duration" field.
-func (vluo *VisitorLogUpdateOne) AddDuration(i int) *VisitorLogUpdateOne {
-	vluo.mutation.AddDuration(i)
-	return vluo
+// AddDuration adds value to the "duration" field.
+func (_u *VisitorLogUpdateOne) AddDuration(v int) *VisitorLogUpdateOne {
+	_u.mutation.AddDuration(v)
+	return _u
 }
 
 // SetIsBounce sets the "is_bounce" field.
-func (vluo *VisitorLogUpdateOne) SetIsBounce(b bool) *VisitorLogUpdateOne {
-	vluo.mutation.SetIsBounce(b)
-	return vluo
+func (_u *VisitorLogUpdateOne) SetIsBounce(v bool) *VisitorLogUpdateOne {
+	_u.mutation.SetIsBounce(v)
+	return _u
 }
 
 // SetNillableIsBounce sets the "is_bounce" field if the given value is not nil.
-func (vluo *VisitorLogUpdateOne) SetNillableIsBounce(b *bool) *VisitorLogUpdateOne {
-	if b != nil {
-		vluo.SetIsBounce(*b)
+func (_u *VisitorLogUpdateOne) SetNillableIsBounce(v *bool) *VisitorLogUpdateOne {
+	if v != nil {
+		_u.SetIsBounce(*v)
 	}
-	return vluo
+	return _u
 }
 
 // Mutation returns the VisitorLogMutation object of the builder.
-func (vluo *VisitorLogUpdateOne) Mutation() *VisitorLogMutation {
-	return vluo.mutation
+func (_u *VisitorLogUpdateOne) Mutation() *VisitorLogMutation {
+	return _u.mutation
 }
 
 // Where appends a list predicates to the VisitorLogUpdate builder.
-func (vluo *VisitorLogUpdateOne) Where(ps ...predicate.VisitorLog) *VisitorLogUpdateOne {
-	vluo.mutation.Where(ps...)
-	return vluo
+func (_u *VisitorLogUpdateOne) Where(ps ...predicate.VisitorLog) *VisitorLogUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (vluo *VisitorLogUpdateOne) Select(field string, fields ...string) *VisitorLogUpdateOne {
-	vluo.fields = append([]string{field}, fields...)
-	return vluo
+func (_u *VisitorLogUpdateOne) Select(field string, fields ...string) *VisitorLogUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated VisitorLog entity.
-func (vluo *VisitorLogUpdateOne) Save(ctx context.Context) (*VisitorLog, error) {
-	return withHooks(ctx, vluo.sqlSave, vluo.mutation, vluo.hooks)
+func (_u *VisitorLogUpdateOne) Save(ctx context.Context) (*VisitorLog, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (vluo *VisitorLogUpdateOne) SaveX(ctx context.Context) *VisitorLog {
-	node, err := vluo.Save(ctx)
+func (_u *VisitorLogUpdateOne) SaveX(ctx context.Context) *VisitorLog {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -784,76 +784,76 @@ func (vluo *VisitorLogUpdateOne) SaveX(ctx context.Context) *VisitorLog {
 }
 
 // Exec executes the query on the entity.
-func (vluo *VisitorLogUpdateOne) Exec(ctx context.Context) error {
-	_, err := vluo.Save(ctx)
+func (_u *VisitorLogUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (vluo *VisitorLogUpdateOne) ExecX(ctx context.Context) {
-	if err := vluo.Exec(ctx); err != nil {
+func (_u *VisitorLogUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (vluo *VisitorLogUpdateOne) check() error {
-	if v, ok := vluo.mutation.VisitorID(); ok {
+func (_u *VisitorLogUpdateOne) check() error {
+	if v, ok := _u.mutation.VisitorID(); ok {
 		if err := visitorlog.VisitorIDValidator(v); err != nil {
 			return &ValidationError{Name: "visitor_id", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.visitor_id": %w`, err)}
 		}
 	}
-	if v, ok := vluo.mutation.SessionID(); ok {
+	if v, ok := _u.mutation.SessionID(); ok {
 		if err := visitorlog.SessionIDValidator(v); err != nil {
 			return &ValidationError{Name: "session_id", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.session_id": %w`, err)}
 		}
 	}
-	if v, ok := vluo.mutation.IPAddress(); ok {
+	if v, ok := _u.mutation.IPAddress(); ok {
 		if err := visitorlog.IPAddressValidator(v); err != nil {
 			return &ValidationError{Name: "ip_address", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.ip_address": %w`, err)}
 		}
 	}
-	if v, ok := vluo.mutation.UserAgent(); ok {
+	if v, ok := _u.mutation.UserAgent(); ok {
 		if err := visitorlog.UserAgentValidator(v); err != nil {
 			return &ValidationError{Name: "user_agent", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.user_agent": %w`, err)}
 		}
 	}
-	if v, ok := vluo.mutation.Referer(); ok {
+	if v, ok := _u.mutation.Referer(); ok {
 		if err := visitorlog.RefererValidator(v); err != nil {
 			return &ValidationError{Name: "referer", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.referer": %w`, err)}
 		}
 	}
-	if v, ok := vluo.mutation.URLPath(); ok {
+	if v, ok := _u.mutation.URLPath(); ok {
 		if err := visitorlog.URLPathValidator(v); err != nil {
 			return &ValidationError{Name: "url_path", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.url_path": %w`, err)}
 		}
 	}
-	if v, ok := vluo.mutation.Country(); ok {
+	if v, ok := _u.mutation.Country(); ok {
 		if err := visitorlog.CountryValidator(v); err != nil {
 			return &ValidationError{Name: "country", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.country": %w`, err)}
 		}
 	}
-	if v, ok := vluo.mutation.Region(); ok {
+	if v, ok := _u.mutation.Region(); ok {
 		if err := visitorlog.RegionValidator(v); err != nil {
 			return &ValidationError{Name: "region", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.region": %w`, err)}
 		}
 	}
-	if v, ok := vluo.mutation.City(); ok {
+	if v, ok := _u.mutation.City(); ok {
 		if err := visitorlog.CityValidator(v); err != nil {
 			return &ValidationError{Name: "city", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.city": %w`, err)}
 		}
 	}
-	if v, ok := vluo.mutation.Browser(); ok {
+	if v, ok := _u.mutation.Browser(); ok {
 		if err := visitorlog.BrowserValidator(v); err != nil {
 			return &ValidationError{Name: "browser", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.browser": %w`, err)}
 		}
 	}
-	if v, ok := vluo.mutation.Os(); ok {
+	if v, ok := _u.mutation.Os(); ok {
 		if err := visitorlog.OsValidator(v); err != nil {
 			return &ValidationError{Name: "os", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.os": %w`, err)}
 		}
 	}
-	if v, ok := vluo.mutation.Device(); ok {
+	if v, ok := _u.mutation.Device(); ok {
 		if err := visitorlog.DeviceValidator(v); err != nil {
 			return &ValidationError{Name: "device", err: fmt.Errorf(`ent: validator failed for field "VisitorLog.device": %w`, err)}
 		}
@@ -862,22 +862,22 @@ func (vluo *VisitorLogUpdateOne) check() error {
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (vluo *VisitorLogUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *VisitorLogUpdateOne {
-	vluo.modifiers = append(vluo.modifiers, modifiers...)
-	return vluo
+func (_u *VisitorLogUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *VisitorLogUpdateOne {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (vluo *VisitorLogUpdateOne) sqlSave(ctx context.Context) (_node *VisitorLog, err error) {
-	if err := vluo.check(); err != nil {
+func (_u *VisitorLogUpdateOne) sqlSave(ctx context.Context) (_node *VisitorLog, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(visitorlog.Table, visitorlog.Columns, sqlgraph.NewFieldSpec(visitorlog.FieldID, field.TypeUint))
-	id, ok := vluo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "VisitorLog.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := vluo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, visitorlog.FieldID)
 		for _, f := range fields {
@@ -889,90 +889,90 @@ func (vluo *VisitorLogUpdateOne) sqlSave(ctx context.Context) (_node *VisitorLog
 			}
 		}
 	}
-	if ps := vluo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := vluo.mutation.VisitorID(); ok {
+	if value, ok := _u.mutation.VisitorID(); ok {
 		_spec.SetField(visitorlog.FieldVisitorID, field.TypeString, value)
 	}
-	if value, ok := vluo.mutation.SessionID(); ok {
+	if value, ok := _u.mutation.SessionID(); ok {
 		_spec.SetField(visitorlog.FieldSessionID, field.TypeString, value)
 	}
-	if vluo.mutation.SessionIDCleared() {
+	if _u.mutation.SessionIDCleared() {
 		_spec.ClearField(visitorlog.FieldSessionID, field.TypeString)
 	}
-	if value, ok := vluo.mutation.IPAddress(); ok {
+	if value, ok := _u.mutation.IPAddress(); ok {
 		_spec.SetField(visitorlog.FieldIPAddress, field.TypeString, value)
 	}
-	if value, ok := vluo.mutation.UserAgent(); ok {
+	if value, ok := _u.mutation.UserAgent(); ok {
 		_spec.SetField(visitorlog.FieldUserAgent, field.TypeString, value)
 	}
-	if vluo.mutation.UserAgentCleared() {
+	if _u.mutation.UserAgentCleared() {
 		_spec.ClearField(visitorlog.FieldUserAgent, field.TypeString)
 	}
-	if value, ok := vluo.mutation.Referer(); ok {
+	if value, ok := _u.mutation.Referer(); ok {
 		_spec.SetField(visitorlog.FieldReferer, field.TypeString, value)
 	}
-	if vluo.mutation.RefererCleared() {
+	if _u.mutation.RefererCleared() {
 		_spec.ClearField(visitorlog.FieldReferer, field.TypeString)
 	}
-	if value, ok := vluo.mutation.URLPath(); ok {
+	if value, ok := _u.mutation.URLPath(); ok {
 		_spec.SetField(visitorlog.FieldURLPath, field.TypeString, value)
 	}
-	if value, ok := vluo.mutation.Country(); ok {
+	if value, ok := _u.mutation.Country(); ok {
 		_spec.SetField(visitorlog.FieldCountry, field.TypeString, value)
 	}
-	if vluo.mutation.CountryCleared() {
+	if _u.mutation.CountryCleared() {
 		_spec.ClearField(visitorlog.FieldCountry, field.TypeString)
 	}
-	if value, ok := vluo.mutation.Region(); ok {
+	if value, ok := _u.mutation.Region(); ok {
 		_spec.SetField(visitorlog.FieldRegion, field.TypeString, value)
 	}
-	if vluo.mutation.RegionCleared() {
+	if _u.mutation.RegionCleared() {
 		_spec.ClearField(visitorlog.FieldRegion, field.TypeString)
 	}
-	if value, ok := vluo.mutation.City(); ok {
+	if value, ok := _u.mutation.City(); ok {
 		_spec.SetField(visitorlog.FieldCity, field.TypeString, value)
 	}
-	if vluo.mutation.CityCleared() {
+	if _u.mutation.CityCleared() {
 		_spec.ClearField(visitorlog.FieldCity, field.TypeString)
 	}
-	if value, ok := vluo.mutation.Browser(); ok {
+	if value, ok := _u.mutation.Browser(); ok {
 		_spec.SetField(visitorlog.FieldBrowser, field.TypeString, value)
 	}
-	if vluo.mutation.BrowserCleared() {
+	if _u.mutation.BrowserCleared() {
 		_spec.ClearField(visitorlog.FieldBrowser, field.TypeString)
 	}
-	if value, ok := vluo.mutation.Os(); ok {
+	if value, ok := _u.mutation.Os(); ok {
 		_spec.SetField(visitorlog.FieldOs, field.TypeString, value)
 	}
-	if vluo.mutation.OsCleared() {
+	if _u.mutation.OsCleared() {
 		_spec.ClearField(visitorlog.FieldOs, field.TypeString)
 	}
-	if value, ok := vluo.mutation.Device(); ok {
+	if value, ok := _u.mutation.Device(); ok {
 		_spec.SetField(visitorlog.FieldDevice, field.TypeString, value)
 	}
-	if vluo.mutation.DeviceCleared() {
+	if _u.mutation.DeviceCleared() {
 		_spec.ClearField(visitorlog.FieldDevice, field.TypeString)
 	}
-	if value, ok := vluo.mutation.Duration(); ok {
+	if value, ok := _u.mutation.Duration(); ok {
 		_spec.SetField(visitorlog.FieldDuration, field.TypeInt, value)
 	}
-	if value, ok := vluo.mutation.AddedDuration(); ok {
+	if value, ok := _u.mutation.AddedDuration(); ok {
 		_spec.AddField(visitorlog.FieldDuration, field.TypeInt, value)
 	}
-	if value, ok := vluo.mutation.IsBounce(); ok {
+	if value, ok := _u.mutation.IsBounce(); ok {
 		_spec.SetField(visitorlog.FieldIsBounce, field.TypeBool, value)
 	}
-	_spec.AddModifiers(vluo.modifiers...)
-	_node = &VisitorLog{config: vluo.config}
+	_spec.AddModifiers(_u.modifiers...)
+	_node = &VisitorLog{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, vluo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{visitorlog.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -980,6 +980,6 @@ func (vluo *VisitorLogUpdateOne) sqlSave(ctx context.Context) (_node *VisitorLog
 		}
 		return nil, err
 	}
-	vluo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }
