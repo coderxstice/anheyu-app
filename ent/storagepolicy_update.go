@@ -25,307 +25,307 @@ type StoragePolicyUpdate struct {
 }
 
 // Where appends a list predicates to the StoragePolicyUpdate builder.
-func (spu *StoragePolicyUpdate) Where(ps ...predicate.StoragePolicy) *StoragePolicyUpdate {
-	spu.mutation.Where(ps...)
-	return spu
+func (_u *StoragePolicyUpdate) Where(ps ...predicate.StoragePolicy) *StoragePolicyUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (spu *StoragePolicyUpdate) SetDeletedAt(t time.Time) *StoragePolicyUpdate {
-	spu.mutation.SetDeletedAt(t)
-	return spu
+func (_u *StoragePolicyUpdate) SetDeletedAt(v time.Time) *StoragePolicyUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (spu *StoragePolicyUpdate) SetNillableDeletedAt(t *time.Time) *StoragePolicyUpdate {
-	if t != nil {
-		spu.SetDeletedAt(*t)
+func (_u *StoragePolicyUpdate) SetNillableDeletedAt(v *time.Time) *StoragePolicyUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
 	}
-	return spu
+	return _u
 }
 
 // ClearDeletedAt clears the value of the "deleted_at" field.
-func (spu *StoragePolicyUpdate) ClearDeletedAt() *StoragePolicyUpdate {
-	spu.mutation.ClearDeletedAt()
-	return spu
+func (_u *StoragePolicyUpdate) ClearDeletedAt() *StoragePolicyUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (spu *StoragePolicyUpdate) SetUpdatedAt(t time.Time) *StoragePolicyUpdate {
-	spu.mutation.SetUpdatedAt(t)
-	return spu
+func (_u *StoragePolicyUpdate) SetUpdatedAt(v time.Time) *StoragePolicyUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetName sets the "name" field.
-func (spu *StoragePolicyUpdate) SetName(s string) *StoragePolicyUpdate {
-	spu.mutation.SetName(s)
-	return spu
+func (_u *StoragePolicyUpdate) SetName(v string) *StoragePolicyUpdate {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (spu *StoragePolicyUpdate) SetNillableName(s *string) *StoragePolicyUpdate {
-	if s != nil {
-		spu.SetName(*s)
+func (_u *StoragePolicyUpdate) SetNillableName(v *string) *StoragePolicyUpdate {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return spu
+	return _u
 }
 
 // SetType sets the "type" field.
-func (spu *StoragePolicyUpdate) SetType(s string) *StoragePolicyUpdate {
-	spu.mutation.SetType(s)
-	return spu
+func (_u *StoragePolicyUpdate) SetType(v string) *StoragePolicyUpdate {
+	_u.mutation.SetType(v)
+	return _u
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (spu *StoragePolicyUpdate) SetNillableType(s *string) *StoragePolicyUpdate {
-	if s != nil {
-		spu.SetType(*s)
+func (_u *StoragePolicyUpdate) SetNillableType(v *string) *StoragePolicyUpdate {
+	if v != nil {
+		_u.SetType(*v)
 	}
-	return spu
+	return _u
 }
 
 // SetFlag sets the "flag" field.
-func (spu *StoragePolicyUpdate) SetFlag(s string) *StoragePolicyUpdate {
-	spu.mutation.SetFlag(s)
-	return spu
+func (_u *StoragePolicyUpdate) SetFlag(v string) *StoragePolicyUpdate {
+	_u.mutation.SetFlag(v)
+	return _u
 }
 
 // SetNillableFlag sets the "flag" field if the given value is not nil.
-func (spu *StoragePolicyUpdate) SetNillableFlag(s *string) *StoragePolicyUpdate {
-	if s != nil {
-		spu.SetFlag(*s)
+func (_u *StoragePolicyUpdate) SetNillableFlag(v *string) *StoragePolicyUpdate {
+	if v != nil {
+		_u.SetFlag(*v)
 	}
-	return spu
+	return _u
 }
 
 // ClearFlag clears the value of the "flag" field.
-func (spu *StoragePolicyUpdate) ClearFlag() *StoragePolicyUpdate {
-	spu.mutation.ClearFlag()
-	return spu
+func (_u *StoragePolicyUpdate) ClearFlag() *StoragePolicyUpdate {
+	_u.mutation.ClearFlag()
+	return _u
 }
 
 // SetServer sets the "server" field.
-func (spu *StoragePolicyUpdate) SetServer(s string) *StoragePolicyUpdate {
-	spu.mutation.SetServer(s)
-	return spu
+func (_u *StoragePolicyUpdate) SetServer(v string) *StoragePolicyUpdate {
+	_u.mutation.SetServer(v)
+	return _u
 }
 
 // SetNillableServer sets the "server" field if the given value is not nil.
-func (spu *StoragePolicyUpdate) SetNillableServer(s *string) *StoragePolicyUpdate {
-	if s != nil {
-		spu.SetServer(*s)
+func (_u *StoragePolicyUpdate) SetNillableServer(v *string) *StoragePolicyUpdate {
+	if v != nil {
+		_u.SetServer(*v)
 	}
-	return spu
+	return _u
 }
 
 // ClearServer clears the value of the "server" field.
-func (spu *StoragePolicyUpdate) ClearServer() *StoragePolicyUpdate {
-	spu.mutation.ClearServer()
-	return spu
+func (_u *StoragePolicyUpdate) ClearServer() *StoragePolicyUpdate {
+	_u.mutation.ClearServer()
+	return _u
 }
 
 // SetBucketName sets the "bucket_name" field.
-func (spu *StoragePolicyUpdate) SetBucketName(s string) *StoragePolicyUpdate {
-	spu.mutation.SetBucketName(s)
-	return spu
+func (_u *StoragePolicyUpdate) SetBucketName(v string) *StoragePolicyUpdate {
+	_u.mutation.SetBucketName(v)
+	return _u
 }
 
 // SetNillableBucketName sets the "bucket_name" field if the given value is not nil.
-func (spu *StoragePolicyUpdate) SetNillableBucketName(s *string) *StoragePolicyUpdate {
-	if s != nil {
-		spu.SetBucketName(*s)
+func (_u *StoragePolicyUpdate) SetNillableBucketName(v *string) *StoragePolicyUpdate {
+	if v != nil {
+		_u.SetBucketName(*v)
 	}
-	return spu
+	return _u
 }
 
 // ClearBucketName clears the value of the "bucket_name" field.
-func (spu *StoragePolicyUpdate) ClearBucketName() *StoragePolicyUpdate {
-	spu.mutation.ClearBucketName()
-	return spu
+func (_u *StoragePolicyUpdate) ClearBucketName() *StoragePolicyUpdate {
+	_u.mutation.ClearBucketName()
+	return _u
 }
 
 // SetIsPrivate sets the "is_private" field.
-func (spu *StoragePolicyUpdate) SetIsPrivate(b bool) *StoragePolicyUpdate {
-	spu.mutation.SetIsPrivate(b)
-	return spu
+func (_u *StoragePolicyUpdate) SetIsPrivate(v bool) *StoragePolicyUpdate {
+	_u.mutation.SetIsPrivate(v)
+	return _u
 }
 
 // SetNillableIsPrivate sets the "is_private" field if the given value is not nil.
-func (spu *StoragePolicyUpdate) SetNillableIsPrivate(b *bool) *StoragePolicyUpdate {
-	if b != nil {
-		spu.SetIsPrivate(*b)
+func (_u *StoragePolicyUpdate) SetNillableIsPrivate(v *bool) *StoragePolicyUpdate {
+	if v != nil {
+		_u.SetIsPrivate(*v)
 	}
-	return spu
+	return _u
 }
 
 // ClearIsPrivate clears the value of the "is_private" field.
-func (spu *StoragePolicyUpdate) ClearIsPrivate() *StoragePolicyUpdate {
-	spu.mutation.ClearIsPrivate()
-	return spu
+func (_u *StoragePolicyUpdate) ClearIsPrivate() *StoragePolicyUpdate {
+	_u.mutation.ClearIsPrivate()
+	return _u
 }
 
 // SetAccessKey sets the "access_key" field.
-func (spu *StoragePolicyUpdate) SetAccessKey(s string) *StoragePolicyUpdate {
-	spu.mutation.SetAccessKey(s)
-	return spu
+func (_u *StoragePolicyUpdate) SetAccessKey(v string) *StoragePolicyUpdate {
+	_u.mutation.SetAccessKey(v)
+	return _u
 }
 
 // SetNillableAccessKey sets the "access_key" field if the given value is not nil.
-func (spu *StoragePolicyUpdate) SetNillableAccessKey(s *string) *StoragePolicyUpdate {
-	if s != nil {
-		spu.SetAccessKey(*s)
+func (_u *StoragePolicyUpdate) SetNillableAccessKey(v *string) *StoragePolicyUpdate {
+	if v != nil {
+		_u.SetAccessKey(*v)
 	}
-	return spu
+	return _u
 }
 
 // ClearAccessKey clears the value of the "access_key" field.
-func (spu *StoragePolicyUpdate) ClearAccessKey() *StoragePolicyUpdate {
-	spu.mutation.ClearAccessKey()
-	return spu
+func (_u *StoragePolicyUpdate) ClearAccessKey() *StoragePolicyUpdate {
+	_u.mutation.ClearAccessKey()
+	return _u
 }
 
 // SetSecretKey sets the "secret_key" field.
-func (spu *StoragePolicyUpdate) SetSecretKey(s string) *StoragePolicyUpdate {
-	spu.mutation.SetSecretKey(s)
-	return spu
+func (_u *StoragePolicyUpdate) SetSecretKey(v string) *StoragePolicyUpdate {
+	_u.mutation.SetSecretKey(v)
+	return _u
 }
 
 // SetNillableSecretKey sets the "secret_key" field if the given value is not nil.
-func (spu *StoragePolicyUpdate) SetNillableSecretKey(s *string) *StoragePolicyUpdate {
-	if s != nil {
-		spu.SetSecretKey(*s)
+func (_u *StoragePolicyUpdate) SetNillableSecretKey(v *string) *StoragePolicyUpdate {
+	if v != nil {
+		_u.SetSecretKey(*v)
 	}
-	return spu
+	return _u
 }
 
 // ClearSecretKey clears the value of the "secret_key" field.
-func (spu *StoragePolicyUpdate) ClearSecretKey() *StoragePolicyUpdate {
-	spu.mutation.ClearSecretKey()
-	return spu
+func (_u *StoragePolicyUpdate) ClearSecretKey() *StoragePolicyUpdate {
+	_u.mutation.ClearSecretKey()
+	return _u
 }
 
 // SetMaxSize sets the "max_size" field.
-func (spu *StoragePolicyUpdate) SetMaxSize(i int64) *StoragePolicyUpdate {
-	spu.mutation.ResetMaxSize()
-	spu.mutation.SetMaxSize(i)
-	return spu
+func (_u *StoragePolicyUpdate) SetMaxSize(v int64) *StoragePolicyUpdate {
+	_u.mutation.ResetMaxSize()
+	_u.mutation.SetMaxSize(v)
+	return _u
 }
 
 // SetNillableMaxSize sets the "max_size" field if the given value is not nil.
-func (spu *StoragePolicyUpdate) SetNillableMaxSize(i *int64) *StoragePolicyUpdate {
-	if i != nil {
-		spu.SetMaxSize(*i)
+func (_u *StoragePolicyUpdate) SetNillableMaxSize(v *int64) *StoragePolicyUpdate {
+	if v != nil {
+		_u.SetMaxSize(*v)
 	}
-	return spu
+	return _u
 }
 
-// AddMaxSize adds i to the "max_size" field.
-func (spu *StoragePolicyUpdate) AddMaxSize(i int64) *StoragePolicyUpdate {
-	spu.mutation.AddMaxSize(i)
-	return spu
+// AddMaxSize adds value to the "max_size" field.
+func (_u *StoragePolicyUpdate) AddMaxSize(v int64) *StoragePolicyUpdate {
+	_u.mutation.AddMaxSize(v)
+	return _u
 }
 
 // ClearMaxSize clears the value of the "max_size" field.
-func (spu *StoragePolicyUpdate) ClearMaxSize() *StoragePolicyUpdate {
-	spu.mutation.ClearMaxSize()
-	return spu
+func (_u *StoragePolicyUpdate) ClearMaxSize() *StoragePolicyUpdate {
+	_u.mutation.ClearMaxSize()
+	return _u
 }
 
 // SetBasePath sets the "base_path" field.
-func (spu *StoragePolicyUpdate) SetBasePath(s string) *StoragePolicyUpdate {
-	spu.mutation.SetBasePath(s)
-	return spu
+func (_u *StoragePolicyUpdate) SetBasePath(v string) *StoragePolicyUpdate {
+	_u.mutation.SetBasePath(v)
+	return _u
 }
 
 // SetNillableBasePath sets the "base_path" field if the given value is not nil.
-func (spu *StoragePolicyUpdate) SetNillableBasePath(s *string) *StoragePolicyUpdate {
-	if s != nil {
-		spu.SetBasePath(*s)
+func (_u *StoragePolicyUpdate) SetNillableBasePath(v *string) *StoragePolicyUpdate {
+	if v != nil {
+		_u.SetBasePath(*v)
 	}
-	return spu
+	return _u
 }
 
 // ClearBasePath clears the value of the "base_path" field.
-func (spu *StoragePolicyUpdate) ClearBasePath() *StoragePolicyUpdate {
-	spu.mutation.ClearBasePath()
-	return spu
+func (_u *StoragePolicyUpdate) ClearBasePath() *StoragePolicyUpdate {
+	_u.mutation.ClearBasePath()
+	return _u
 }
 
 // SetVirtualPath sets the "virtual_path" field.
-func (spu *StoragePolicyUpdate) SetVirtualPath(s string) *StoragePolicyUpdate {
-	spu.mutation.SetVirtualPath(s)
-	return spu
+func (_u *StoragePolicyUpdate) SetVirtualPath(v string) *StoragePolicyUpdate {
+	_u.mutation.SetVirtualPath(v)
+	return _u
 }
 
 // SetNillableVirtualPath sets the "virtual_path" field if the given value is not nil.
-func (spu *StoragePolicyUpdate) SetNillableVirtualPath(s *string) *StoragePolicyUpdate {
-	if s != nil {
-		spu.SetVirtualPath(*s)
+func (_u *StoragePolicyUpdate) SetNillableVirtualPath(v *string) *StoragePolicyUpdate {
+	if v != nil {
+		_u.SetVirtualPath(*v)
 	}
-	return spu
+	return _u
 }
 
 // ClearVirtualPath clears the value of the "virtual_path" field.
-func (spu *StoragePolicyUpdate) ClearVirtualPath() *StoragePolicyUpdate {
-	spu.mutation.ClearVirtualPath()
-	return spu
+func (_u *StoragePolicyUpdate) ClearVirtualPath() *StoragePolicyUpdate {
+	_u.mutation.ClearVirtualPath()
+	return _u
 }
 
 // SetSettings sets the "settings" field.
-func (spu *StoragePolicyUpdate) SetSettings(mps model.StoragePolicySettings) *StoragePolicyUpdate {
-	spu.mutation.SetSettings(mps)
-	return spu
+func (_u *StoragePolicyUpdate) SetSettings(v model.StoragePolicySettings) *StoragePolicyUpdate {
+	_u.mutation.SetSettings(v)
+	return _u
 }
 
 // ClearSettings clears the value of the "settings" field.
-func (spu *StoragePolicyUpdate) ClearSettings() *StoragePolicyUpdate {
-	spu.mutation.ClearSettings()
-	return spu
+func (_u *StoragePolicyUpdate) ClearSettings() *StoragePolicyUpdate {
+	_u.mutation.ClearSettings()
+	return _u
 }
 
 // SetNodeID sets the "node_id" field.
-func (spu *StoragePolicyUpdate) SetNodeID(u uint) *StoragePolicyUpdate {
-	spu.mutation.ResetNodeID()
-	spu.mutation.SetNodeID(u)
-	return spu
+func (_u *StoragePolicyUpdate) SetNodeID(v uint) *StoragePolicyUpdate {
+	_u.mutation.ResetNodeID()
+	_u.mutation.SetNodeID(v)
+	return _u
 }
 
 // SetNillableNodeID sets the "node_id" field if the given value is not nil.
-func (spu *StoragePolicyUpdate) SetNillableNodeID(u *uint) *StoragePolicyUpdate {
-	if u != nil {
-		spu.SetNodeID(*u)
+func (_u *StoragePolicyUpdate) SetNillableNodeID(v *uint) *StoragePolicyUpdate {
+	if v != nil {
+		_u.SetNodeID(*v)
 	}
-	return spu
+	return _u
 }
 
-// AddNodeID adds u to the "node_id" field.
-func (spu *StoragePolicyUpdate) AddNodeID(u int) *StoragePolicyUpdate {
-	spu.mutation.AddNodeID(u)
-	return spu
+// AddNodeID adds value to the "node_id" field.
+func (_u *StoragePolicyUpdate) AddNodeID(v int) *StoragePolicyUpdate {
+	_u.mutation.AddNodeID(v)
+	return _u
 }
 
 // ClearNodeID clears the value of the "node_id" field.
-func (spu *StoragePolicyUpdate) ClearNodeID() *StoragePolicyUpdate {
-	spu.mutation.ClearNodeID()
-	return spu
+func (_u *StoragePolicyUpdate) ClearNodeID() *StoragePolicyUpdate {
+	_u.mutation.ClearNodeID()
+	return _u
 }
 
 // Mutation returns the StoragePolicyMutation object of the builder.
-func (spu *StoragePolicyUpdate) Mutation() *StoragePolicyMutation {
-	return spu.mutation
+func (_u *StoragePolicyUpdate) Mutation() *StoragePolicyMutation {
+	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (spu *StoragePolicyUpdate) Save(ctx context.Context) (int, error) {
-	if err := spu.defaults(); err != nil {
+func (_u *StoragePolicyUpdate) Save(ctx context.Context) (int, error) {
+	if err := _u.defaults(); err != nil {
 		return 0, err
 	}
-	return withHooks(ctx, spu.sqlSave, spu.mutation, spu.hooks)
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (spu *StoragePolicyUpdate) SaveX(ctx context.Context) int {
-	affected, err := spu.Save(ctx)
+func (_u *StoragePolicyUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -333,63 +333,63 @@ func (spu *StoragePolicyUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (spu *StoragePolicyUpdate) Exec(ctx context.Context) error {
-	_, err := spu.Save(ctx)
+func (_u *StoragePolicyUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (spu *StoragePolicyUpdate) ExecX(ctx context.Context) {
-	if err := spu.Exec(ctx); err != nil {
+func (_u *StoragePolicyUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (spu *StoragePolicyUpdate) defaults() error {
-	if _, ok := spu.mutation.UpdatedAt(); !ok {
+func (_u *StoragePolicyUpdate) defaults() error {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		if storagepolicy.UpdateDefaultUpdatedAt == nil {
 			return fmt.Errorf("ent: uninitialized storagepolicy.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
 		}
 		v := storagepolicy.UpdateDefaultUpdatedAt()
-		spu.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (spu *StoragePolicyUpdate) check() error {
-	if v, ok := spu.mutation.Name(); ok {
+func (_u *StoragePolicyUpdate) check() error {
+	if v, ok := _u.mutation.Name(); ok {
 		if err := storagepolicy.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "StoragePolicy.name": %w`, err)}
 		}
 	}
-	if v, ok := spu.mutation.GetType(); ok {
+	if v, ok := _u.mutation.GetType(); ok {
 		if err := storagepolicy.TypeValidator(v); err != nil {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "StoragePolicy.type": %w`, err)}
 		}
 	}
-	if v, ok := spu.mutation.Flag(); ok {
+	if v, ok := _u.mutation.Flag(); ok {
 		if err := storagepolicy.FlagValidator(v); err != nil {
 			return &ValidationError{Name: "flag", err: fmt.Errorf(`ent: validator failed for field "StoragePolicy.flag": %w`, err)}
 		}
 	}
-	if v, ok := spu.mutation.Server(); ok {
+	if v, ok := _u.mutation.Server(); ok {
 		if err := storagepolicy.ServerValidator(v); err != nil {
 			return &ValidationError{Name: "server", err: fmt.Errorf(`ent: validator failed for field "StoragePolicy.server": %w`, err)}
 		}
 	}
-	if v, ok := spu.mutation.BucketName(); ok {
+	if v, ok := _u.mutation.BucketName(); ok {
 		if err := storagepolicy.BucketNameValidator(v); err != nil {
 			return &ValidationError{Name: "bucket_name", err: fmt.Errorf(`ent: validator failed for field "StoragePolicy.bucket_name": %w`, err)}
 		}
 	}
-	if v, ok := spu.mutation.BasePath(); ok {
+	if v, ok := _u.mutation.BasePath(); ok {
 		if err := storagepolicy.BasePathValidator(v); err != nil {
 			return &ValidationError{Name: "base_path", err: fmt.Errorf(`ent: validator failed for field "StoragePolicy.base_path": %w`, err)}
 		}
 	}
-	if v, ok := spu.mutation.VirtualPath(); ok {
+	if v, ok := _u.mutation.VirtualPath(); ok {
 		if err := storagepolicy.VirtualPathValidator(v); err != nil {
 			return &ValidationError{Name: "virtual_path", err: fmt.Errorf(`ent: validator failed for field "StoragePolicy.virtual_path": %w`, err)}
 		}
@@ -398,112 +398,112 @@ func (spu *StoragePolicyUpdate) check() error {
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (spu *StoragePolicyUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *StoragePolicyUpdate {
-	spu.modifiers = append(spu.modifiers, modifiers...)
-	return spu
+func (_u *StoragePolicyUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *StoragePolicyUpdate {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (spu *StoragePolicyUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := spu.check(); err != nil {
-		return n, err
+func (_u *StoragePolicyUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(storagepolicy.Table, storagepolicy.Columns, sqlgraph.NewFieldSpec(storagepolicy.FieldID, field.TypeUint))
-	if ps := spu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := spu.mutation.DeletedAt(); ok {
+	if value, ok := _u.mutation.DeletedAt(); ok {
 		_spec.SetField(storagepolicy.FieldDeletedAt, field.TypeTime, value)
 	}
-	if spu.mutation.DeletedAtCleared() {
+	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(storagepolicy.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := spu.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(storagepolicy.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := spu.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(storagepolicy.FieldName, field.TypeString, value)
 	}
-	if value, ok := spu.mutation.GetType(); ok {
+	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(storagepolicy.FieldType, field.TypeString, value)
 	}
-	if value, ok := spu.mutation.Flag(); ok {
+	if value, ok := _u.mutation.Flag(); ok {
 		_spec.SetField(storagepolicy.FieldFlag, field.TypeString, value)
 	}
-	if spu.mutation.FlagCleared() {
+	if _u.mutation.FlagCleared() {
 		_spec.ClearField(storagepolicy.FieldFlag, field.TypeString)
 	}
-	if value, ok := spu.mutation.Server(); ok {
+	if value, ok := _u.mutation.Server(); ok {
 		_spec.SetField(storagepolicy.FieldServer, field.TypeString, value)
 	}
-	if spu.mutation.ServerCleared() {
+	if _u.mutation.ServerCleared() {
 		_spec.ClearField(storagepolicy.FieldServer, field.TypeString)
 	}
-	if value, ok := spu.mutation.BucketName(); ok {
+	if value, ok := _u.mutation.BucketName(); ok {
 		_spec.SetField(storagepolicy.FieldBucketName, field.TypeString, value)
 	}
-	if spu.mutation.BucketNameCleared() {
+	if _u.mutation.BucketNameCleared() {
 		_spec.ClearField(storagepolicy.FieldBucketName, field.TypeString)
 	}
-	if value, ok := spu.mutation.IsPrivate(); ok {
+	if value, ok := _u.mutation.IsPrivate(); ok {
 		_spec.SetField(storagepolicy.FieldIsPrivate, field.TypeBool, value)
 	}
-	if spu.mutation.IsPrivateCleared() {
+	if _u.mutation.IsPrivateCleared() {
 		_spec.ClearField(storagepolicy.FieldIsPrivate, field.TypeBool)
 	}
-	if value, ok := spu.mutation.AccessKey(); ok {
+	if value, ok := _u.mutation.AccessKey(); ok {
 		_spec.SetField(storagepolicy.FieldAccessKey, field.TypeString, value)
 	}
-	if spu.mutation.AccessKeyCleared() {
+	if _u.mutation.AccessKeyCleared() {
 		_spec.ClearField(storagepolicy.FieldAccessKey, field.TypeString)
 	}
-	if value, ok := spu.mutation.SecretKey(); ok {
+	if value, ok := _u.mutation.SecretKey(); ok {
 		_spec.SetField(storagepolicy.FieldSecretKey, field.TypeString, value)
 	}
-	if spu.mutation.SecretKeyCleared() {
+	if _u.mutation.SecretKeyCleared() {
 		_spec.ClearField(storagepolicy.FieldSecretKey, field.TypeString)
 	}
-	if value, ok := spu.mutation.MaxSize(); ok {
+	if value, ok := _u.mutation.MaxSize(); ok {
 		_spec.SetField(storagepolicy.FieldMaxSize, field.TypeInt64, value)
 	}
-	if value, ok := spu.mutation.AddedMaxSize(); ok {
+	if value, ok := _u.mutation.AddedMaxSize(); ok {
 		_spec.AddField(storagepolicy.FieldMaxSize, field.TypeInt64, value)
 	}
-	if spu.mutation.MaxSizeCleared() {
+	if _u.mutation.MaxSizeCleared() {
 		_spec.ClearField(storagepolicy.FieldMaxSize, field.TypeInt64)
 	}
-	if value, ok := spu.mutation.BasePath(); ok {
+	if value, ok := _u.mutation.BasePath(); ok {
 		_spec.SetField(storagepolicy.FieldBasePath, field.TypeString, value)
 	}
-	if spu.mutation.BasePathCleared() {
+	if _u.mutation.BasePathCleared() {
 		_spec.ClearField(storagepolicy.FieldBasePath, field.TypeString)
 	}
-	if value, ok := spu.mutation.VirtualPath(); ok {
+	if value, ok := _u.mutation.VirtualPath(); ok {
 		_spec.SetField(storagepolicy.FieldVirtualPath, field.TypeString, value)
 	}
-	if spu.mutation.VirtualPathCleared() {
+	if _u.mutation.VirtualPathCleared() {
 		_spec.ClearField(storagepolicy.FieldVirtualPath, field.TypeString)
 	}
-	if value, ok := spu.mutation.Settings(); ok {
+	if value, ok := _u.mutation.Settings(); ok {
 		_spec.SetField(storagepolicy.FieldSettings, field.TypeOther, value)
 	}
-	if spu.mutation.SettingsCleared() {
+	if _u.mutation.SettingsCleared() {
 		_spec.ClearField(storagepolicy.FieldSettings, field.TypeOther)
 	}
-	if value, ok := spu.mutation.NodeID(); ok {
+	if value, ok := _u.mutation.NodeID(); ok {
 		_spec.SetField(storagepolicy.FieldNodeID, field.TypeUint, value)
 	}
-	if value, ok := spu.mutation.AddedNodeID(); ok {
+	if value, ok := _u.mutation.AddedNodeID(); ok {
 		_spec.AddField(storagepolicy.FieldNodeID, field.TypeUint, value)
 	}
-	if spu.mutation.NodeIDCleared() {
+	if _u.mutation.NodeIDCleared() {
 		_spec.ClearField(storagepolicy.FieldNodeID, field.TypeUint)
 	}
-	_spec.AddModifiers(spu.modifiers...)
-	if n, err = sqlgraph.UpdateNodes(ctx, spu.driver, _spec); err != nil {
+	_spec.AddModifiers(_u.modifiers...)
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{storagepolicy.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -511,8 +511,8 @@ func (spu *StoragePolicyUpdate) sqlSave(ctx context.Context) (n int, err error) 
 		}
 		return 0, err
 	}
-	spu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // StoragePolicyUpdateOne is the builder for updating a single StoragePolicy entity.
@@ -525,314 +525,314 @@ type StoragePolicyUpdateOne struct {
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (spuo *StoragePolicyUpdateOne) SetDeletedAt(t time.Time) *StoragePolicyUpdateOne {
-	spuo.mutation.SetDeletedAt(t)
-	return spuo
+func (_u *StoragePolicyUpdateOne) SetDeletedAt(v time.Time) *StoragePolicyUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (spuo *StoragePolicyUpdateOne) SetNillableDeletedAt(t *time.Time) *StoragePolicyUpdateOne {
-	if t != nil {
-		spuo.SetDeletedAt(*t)
+func (_u *StoragePolicyUpdateOne) SetNillableDeletedAt(v *time.Time) *StoragePolicyUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
 	}
-	return spuo
+	return _u
 }
 
 // ClearDeletedAt clears the value of the "deleted_at" field.
-func (spuo *StoragePolicyUpdateOne) ClearDeletedAt() *StoragePolicyUpdateOne {
-	spuo.mutation.ClearDeletedAt()
-	return spuo
+func (_u *StoragePolicyUpdateOne) ClearDeletedAt() *StoragePolicyUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (spuo *StoragePolicyUpdateOne) SetUpdatedAt(t time.Time) *StoragePolicyUpdateOne {
-	spuo.mutation.SetUpdatedAt(t)
-	return spuo
+func (_u *StoragePolicyUpdateOne) SetUpdatedAt(v time.Time) *StoragePolicyUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetName sets the "name" field.
-func (spuo *StoragePolicyUpdateOne) SetName(s string) *StoragePolicyUpdateOne {
-	spuo.mutation.SetName(s)
-	return spuo
+func (_u *StoragePolicyUpdateOne) SetName(v string) *StoragePolicyUpdateOne {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (spuo *StoragePolicyUpdateOne) SetNillableName(s *string) *StoragePolicyUpdateOne {
-	if s != nil {
-		spuo.SetName(*s)
+func (_u *StoragePolicyUpdateOne) SetNillableName(v *string) *StoragePolicyUpdateOne {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return spuo
+	return _u
 }
 
 // SetType sets the "type" field.
-func (spuo *StoragePolicyUpdateOne) SetType(s string) *StoragePolicyUpdateOne {
-	spuo.mutation.SetType(s)
-	return spuo
+func (_u *StoragePolicyUpdateOne) SetType(v string) *StoragePolicyUpdateOne {
+	_u.mutation.SetType(v)
+	return _u
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (spuo *StoragePolicyUpdateOne) SetNillableType(s *string) *StoragePolicyUpdateOne {
-	if s != nil {
-		spuo.SetType(*s)
+func (_u *StoragePolicyUpdateOne) SetNillableType(v *string) *StoragePolicyUpdateOne {
+	if v != nil {
+		_u.SetType(*v)
 	}
-	return spuo
+	return _u
 }
 
 // SetFlag sets the "flag" field.
-func (spuo *StoragePolicyUpdateOne) SetFlag(s string) *StoragePolicyUpdateOne {
-	spuo.mutation.SetFlag(s)
-	return spuo
+func (_u *StoragePolicyUpdateOne) SetFlag(v string) *StoragePolicyUpdateOne {
+	_u.mutation.SetFlag(v)
+	return _u
 }
 
 // SetNillableFlag sets the "flag" field if the given value is not nil.
-func (spuo *StoragePolicyUpdateOne) SetNillableFlag(s *string) *StoragePolicyUpdateOne {
-	if s != nil {
-		spuo.SetFlag(*s)
+func (_u *StoragePolicyUpdateOne) SetNillableFlag(v *string) *StoragePolicyUpdateOne {
+	if v != nil {
+		_u.SetFlag(*v)
 	}
-	return spuo
+	return _u
 }
 
 // ClearFlag clears the value of the "flag" field.
-func (spuo *StoragePolicyUpdateOne) ClearFlag() *StoragePolicyUpdateOne {
-	spuo.mutation.ClearFlag()
-	return spuo
+func (_u *StoragePolicyUpdateOne) ClearFlag() *StoragePolicyUpdateOne {
+	_u.mutation.ClearFlag()
+	return _u
 }
 
 // SetServer sets the "server" field.
-func (spuo *StoragePolicyUpdateOne) SetServer(s string) *StoragePolicyUpdateOne {
-	spuo.mutation.SetServer(s)
-	return spuo
+func (_u *StoragePolicyUpdateOne) SetServer(v string) *StoragePolicyUpdateOne {
+	_u.mutation.SetServer(v)
+	return _u
 }
 
 // SetNillableServer sets the "server" field if the given value is not nil.
-func (spuo *StoragePolicyUpdateOne) SetNillableServer(s *string) *StoragePolicyUpdateOne {
-	if s != nil {
-		spuo.SetServer(*s)
+func (_u *StoragePolicyUpdateOne) SetNillableServer(v *string) *StoragePolicyUpdateOne {
+	if v != nil {
+		_u.SetServer(*v)
 	}
-	return spuo
+	return _u
 }
 
 // ClearServer clears the value of the "server" field.
-func (spuo *StoragePolicyUpdateOne) ClearServer() *StoragePolicyUpdateOne {
-	spuo.mutation.ClearServer()
-	return spuo
+func (_u *StoragePolicyUpdateOne) ClearServer() *StoragePolicyUpdateOne {
+	_u.mutation.ClearServer()
+	return _u
 }
 
 // SetBucketName sets the "bucket_name" field.
-func (spuo *StoragePolicyUpdateOne) SetBucketName(s string) *StoragePolicyUpdateOne {
-	spuo.mutation.SetBucketName(s)
-	return spuo
+func (_u *StoragePolicyUpdateOne) SetBucketName(v string) *StoragePolicyUpdateOne {
+	_u.mutation.SetBucketName(v)
+	return _u
 }
 
 // SetNillableBucketName sets the "bucket_name" field if the given value is not nil.
-func (spuo *StoragePolicyUpdateOne) SetNillableBucketName(s *string) *StoragePolicyUpdateOne {
-	if s != nil {
-		spuo.SetBucketName(*s)
+func (_u *StoragePolicyUpdateOne) SetNillableBucketName(v *string) *StoragePolicyUpdateOne {
+	if v != nil {
+		_u.SetBucketName(*v)
 	}
-	return spuo
+	return _u
 }
 
 // ClearBucketName clears the value of the "bucket_name" field.
-func (spuo *StoragePolicyUpdateOne) ClearBucketName() *StoragePolicyUpdateOne {
-	spuo.mutation.ClearBucketName()
-	return spuo
+func (_u *StoragePolicyUpdateOne) ClearBucketName() *StoragePolicyUpdateOne {
+	_u.mutation.ClearBucketName()
+	return _u
 }
 
 // SetIsPrivate sets the "is_private" field.
-func (spuo *StoragePolicyUpdateOne) SetIsPrivate(b bool) *StoragePolicyUpdateOne {
-	spuo.mutation.SetIsPrivate(b)
-	return spuo
+func (_u *StoragePolicyUpdateOne) SetIsPrivate(v bool) *StoragePolicyUpdateOne {
+	_u.mutation.SetIsPrivate(v)
+	return _u
 }
 
 // SetNillableIsPrivate sets the "is_private" field if the given value is not nil.
-func (spuo *StoragePolicyUpdateOne) SetNillableIsPrivate(b *bool) *StoragePolicyUpdateOne {
-	if b != nil {
-		spuo.SetIsPrivate(*b)
+func (_u *StoragePolicyUpdateOne) SetNillableIsPrivate(v *bool) *StoragePolicyUpdateOne {
+	if v != nil {
+		_u.SetIsPrivate(*v)
 	}
-	return spuo
+	return _u
 }
 
 // ClearIsPrivate clears the value of the "is_private" field.
-func (spuo *StoragePolicyUpdateOne) ClearIsPrivate() *StoragePolicyUpdateOne {
-	spuo.mutation.ClearIsPrivate()
-	return spuo
+func (_u *StoragePolicyUpdateOne) ClearIsPrivate() *StoragePolicyUpdateOne {
+	_u.mutation.ClearIsPrivate()
+	return _u
 }
 
 // SetAccessKey sets the "access_key" field.
-func (spuo *StoragePolicyUpdateOne) SetAccessKey(s string) *StoragePolicyUpdateOne {
-	spuo.mutation.SetAccessKey(s)
-	return spuo
+func (_u *StoragePolicyUpdateOne) SetAccessKey(v string) *StoragePolicyUpdateOne {
+	_u.mutation.SetAccessKey(v)
+	return _u
 }
 
 // SetNillableAccessKey sets the "access_key" field if the given value is not nil.
-func (spuo *StoragePolicyUpdateOne) SetNillableAccessKey(s *string) *StoragePolicyUpdateOne {
-	if s != nil {
-		spuo.SetAccessKey(*s)
+func (_u *StoragePolicyUpdateOne) SetNillableAccessKey(v *string) *StoragePolicyUpdateOne {
+	if v != nil {
+		_u.SetAccessKey(*v)
 	}
-	return spuo
+	return _u
 }
 
 // ClearAccessKey clears the value of the "access_key" field.
-func (spuo *StoragePolicyUpdateOne) ClearAccessKey() *StoragePolicyUpdateOne {
-	spuo.mutation.ClearAccessKey()
-	return spuo
+func (_u *StoragePolicyUpdateOne) ClearAccessKey() *StoragePolicyUpdateOne {
+	_u.mutation.ClearAccessKey()
+	return _u
 }
 
 // SetSecretKey sets the "secret_key" field.
-func (spuo *StoragePolicyUpdateOne) SetSecretKey(s string) *StoragePolicyUpdateOne {
-	spuo.mutation.SetSecretKey(s)
-	return spuo
+func (_u *StoragePolicyUpdateOne) SetSecretKey(v string) *StoragePolicyUpdateOne {
+	_u.mutation.SetSecretKey(v)
+	return _u
 }
 
 // SetNillableSecretKey sets the "secret_key" field if the given value is not nil.
-func (spuo *StoragePolicyUpdateOne) SetNillableSecretKey(s *string) *StoragePolicyUpdateOne {
-	if s != nil {
-		spuo.SetSecretKey(*s)
+func (_u *StoragePolicyUpdateOne) SetNillableSecretKey(v *string) *StoragePolicyUpdateOne {
+	if v != nil {
+		_u.SetSecretKey(*v)
 	}
-	return spuo
+	return _u
 }
 
 // ClearSecretKey clears the value of the "secret_key" field.
-func (spuo *StoragePolicyUpdateOne) ClearSecretKey() *StoragePolicyUpdateOne {
-	spuo.mutation.ClearSecretKey()
-	return spuo
+func (_u *StoragePolicyUpdateOne) ClearSecretKey() *StoragePolicyUpdateOne {
+	_u.mutation.ClearSecretKey()
+	return _u
 }
 
 // SetMaxSize sets the "max_size" field.
-func (spuo *StoragePolicyUpdateOne) SetMaxSize(i int64) *StoragePolicyUpdateOne {
-	spuo.mutation.ResetMaxSize()
-	spuo.mutation.SetMaxSize(i)
-	return spuo
+func (_u *StoragePolicyUpdateOne) SetMaxSize(v int64) *StoragePolicyUpdateOne {
+	_u.mutation.ResetMaxSize()
+	_u.mutation.SetMaxSize(v)
+	return _u
 }
 
 // SetNillableMaxSize sets the "max_size" field if the given value is not nil.
-func (spuo *StoragePolicyUpdateOne) SetNillableMaxSize(i *int64) *StoragePolicyUpdateOne {
-	if i != nil {
-		spuo.SetMaxSize(*i)
+func (_u *StoragePolicyUpdateOne) SetNillableMaxSize(v *int64) *StoragePolicyUpdateOne {
+	if v != nil {
+		_u.SetMaxSize(*v)
 	}
-	return spuo
+	return _u
 }
 
-// AddMaxSize adds i to the "max_size" field.
-func (spuo *StoragePolicyUpdateOne) AddMaxSize(i int64) *StoragePolicyUpdateOne {
-	spuo.mutation.AddMaxSize(i)
-	return spuo
+// AddMaxSize adds value to the "max_size" field.
+func (_u *StoragePolicyUpdateOne) AddMaxSize(v int64) *StoragePolicyUpdateOne {
+	_u.mutation.AddMaxSize(v)
+	return _u
 }
 
 // ClearMaxSize clears the value of the "max_size" field.
-func (spuo *StoragePolicyUpdateOne) ClearMaxSize() *StoragePolicyUpdateOne {
-	spuo.mutation.ClearMaxSize()
-	return spuo
+func (_u *StoragePolicyUpdateOne) ClearMaxSize() *StoragePolicyUpdateOne {
+	_u.mutation.ClearMaxSize()
+	return _u
 }
 
 // SetBasePath sets the "base_path" field.
-func (spuo *StoragePolicyUpdateOne) SetBasePath(s string) *StoragePolicyUpdateOne {
-	spuo.mutation.SetBasePath(s)
-	return spuo
+func (_u *StoragePolicyUpdateOne) SetBasePath(v string) *StoragePolicyUpdateOne {
+	_u.mutation.SetBasePath(v)
+	return _u
 }
 
 // SetNillableBasePath sets the "base_path" field if the given value is not nil.
-func (spuo *StoragePolicyUpdateOne) SetNillableBasePath(s *string) *StoragePolicyUpdateOne {
-	if s != nil {
-		spuo.SetBasePath(*s)
+func (_u *StoragePolicyUpdateOne) SetNillableBasePath(v *string) *StoragePolicyUpdateOne {
+	if v != nil {
+		_u.SetBasePath(*v)
 	}
-	return spuo
+	return _u
 }
 
 // ClearBasePath clears the value of the "base_path" field.
-func (spuo *StoragePolicyUpdateOne) ClearBasePath() *StoragePolicyUpdateOne {
-	spuo.mutation.ClearBasePath()
-	return spuo
+func (_u *StoragePolicyUpdateOne) ClearBasePath() *StoragePolicyUpdateOne {
+	_u.mutation.ClearBasePath()
+	return _u
 }
 
 // SetVirtualPath sets the "virtual_path" field.
-func (spuo *StoragePolicyUpdateOne) SetVirtualPath(s string) *StoragePolicyUpdateOne {
-	spuo.mutation.SetVirtualPath(s)
-	return spuo
+func (_u *StoragePolicyUpdateOne) SetVirtualPath(v string) *StoragePolicyUpdateOne {
+	_u.mutation.SetVirtualPath(v)
+	return _u
 }
 
 // SetNillableVirtualPath sets the "virtual_path" field if the given value is not nil.
-func (spuo *StoragePolicyUpdateOne) SetNillableVirtualPath(s *string) *StoragePolicyUpdateOne {
-	if s != nil {
-		spuo.SetVirtualPath(*s)
+func (_u *StoragePolicyUpdateOne) SetNillableVirtualPath(v *string) *StoragePolicyUpdateOne {
+	if v != nil {
+		_u.SetVirtualPath(*v)
 	}
-	return spuo
+	return _u
 }
 
 // ClearVirtualPath clears the value of the "virtual_path" field.
-func (spuo *StoragePolicyUpdateOne) ClearVirtualPath() *StoragePolicyUpdateOne {
-	spuo.mutation.ClearVirtualPath()
-	return spuo
+func (_u *StoragePolicyUpdateOne) ClearVirtualPath() *StoragePolicyUpdateOne {
+	_u.mutation.ClearVirtualPath()
+	return _u
 }
 
 // SetSettings sets the "settings" field.
-func (spuo *StoragePolicyUpdateOne) SetSettings(mps model.StoragePolicySettings) *StoragePolicyUpdateOne {
-	spuo.mutation.SetSettings(mps)
-	return spuo
+func (_u *StoragePolicyUpdateOne) SetSettings(v model.StoragePolicySettings) *StoragePolicyUpdateOne {
+	_u.mutation.SetSettings(v)
+	return _u
 }
 
 // ClearSettings clears the value of the "settings" field.
-func (spuo *StoragePolicyUpdateOne) ClearSettings() *StoragePolicyUpdateOne {
-	spuo.mutation.ClearSettings()
-	return spuo
+func (_u *StoragePolicyUpdateOne) ClearSettings() *StoragePolicyUpdateOne {
+	_u.mutation.ClearSettings()
+	return _u
 }
 
 // SetNodeID sets the "node_id" field.
-func (spuo *StoragePolicyUpdateOne) SetNodeID(u uint) *StoragePolicyUpdateOne {
-	spuo.mutation.ResetNodeID()
-	spuo.mutation.SetNodeID(u)
-	return spuo
+func (_u *StoragePolicyUpdateOne) SetNodeID(v uint) *StoragePolicyUpdateOne {
+	_u.mutation.ResetNodeID()
+	_u.mutation.SetNodeID(v)
+	return _u
 }
 
 // SetNillableNodeID sets the "node_id" field if the given value is not nil.
-func (spuo *StoragePolicyUpdateOne) SetNillableNodeID(u *uint) *StoragePolicyUpdateOne {
-	if u != nil {
-		spuo.SetNodeID(*u)
+func (_u *StoragePolicyUpdateOne) SetNillableNodeID(v *uint) *StoragePolicyUpdateOne {
+	if v != nil {
+		_u.SetNodeID(*v)
 	}
-	return spuo
+	return _u
 }
 
-// AddNodeID adds u to the "node_id" field.
-func (spuo *StoragePolicyUpdateOne) AddNodeID(u int) *StoragePolicyUpdateOne {
-	spuo.mutation.AddNodeID(u)
-	return spuo
+// AddNodeID adds value to the "node_id" field.
+func (_u *StoragePolicyUpdateOne) AddNodeID(v int) *StoragePolicyUpdateOne {
+	_u.mutation.AddNodeID(v)
+	return _u
 }
 
 // ClearNodeID clears the value of the "node_id" field.
-func (spuo *StoragePolicyUpdateOne) ClearNodeID() *StoragePolicyUpdateOne {
-	spuo.mutation.ClearNodeID()
-	return spuo
+func (_u *StoragePolicyUpdateOne) ClearNodeID() *StoragePolicyUpdateOne {
+	_u.mutation.ClearNodeID()
+	return _u
 }
 
 // Mutation returns the StoragePolicyMutation object of the builder.
-func (spuo *StoragePolicyUpdateOne) Mutation() *StoragePolicyMutation {
-	return spuo.mutation
+func (_u *StoragePolicyUpdateOne) Mutation() *StoragePolicyMutation {
+	return _u.mutation
 }
 
 // Where appends a list predicates to the StoragePolicyUpdate builder.
-func (spuo *StoragePolicyUpdateOne) Where(ps ...predicate.StoragePolicy) *StoragePolicyUpdateOne {
-	spuo.mutation.Where(ps...)
-	return spuo
+func (_u *StoragePolicyUpdateOne) Where(ps ...predicate.StoragePolicy) *StoragePolicyUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (spuo *StoragePolicyUpdateOne) Select(field string, fields ...string) *StoragePolicyUpdateOne {
-	spuo.fields = append([]string{field}, fields...)
-	return spuo
+func (_u *StoragePolicyUpdateOne) Select(field string, fields ...string) *StoragePolicyUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated StoragePolicy entity.
-func (spuo *StoragePolicyUpdateOne) Save(ctx context.Context) (*StoragePolicy, error) {
-	if err := spuo.defaults(); err != nil {
+func (_u *StoragePolicyUpdateOne) Save(ctx context.Context) (*StoragePolicy, error) {
+	if err := _u.defaults(); err != nil {
 		return nil, err
 	}
-	return withHooks(ctx, spuo.sqlSave, spuo.mutation, spuo.hooks)
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (spuo *StoragePolicyUpdateOne) SaveX(ctx context.Context) *StoragePolicy {
-	node, err := spuo.Save(ctx)
+func (_u *StoragePolicyUpdateOne) SaveX(ctx context.Context) *StoragePolicy {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -840,63 +840,63 @@ func (spuo *StoragePolicyUpdateOne) SaveX(ctx context.Context) *StoragePolicy {
 }
 
 // Exec executes the query on the entity.
-func (spuo *StoragePolicyUpdateOne) Exec(ctx context.Context) error {
-	_, err := spuo.Save(ctx)
+func (_u *StoragePolicyUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (spuo *StoragePolicyUpdateOne) ExecX(ctx context.Context) {
-	if err := spuo.Exec(ctx); err != nil {
+func (_u *StoragePolicyUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (spuo *StoragePolicyUpdateOne) defaults() error {
-	if _, ok := spuo.mutation.UpdatedAt(); !ok {
+func (_u *StoragePolicyUpdateOne) defaults() error {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		if storagepolicy.UpdateDefaultUpdatedAt == nil {
 			return fmt.Errorf("ent: uninitialized storagepolicy.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
 		}
 		v := storagepolicy.UpdateDefaultUpdatedAt()
-		spuo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (spuo *StoragePolicyUpdateOne) check() error {
-	if v, ok := spuo.mutation.Name(); ok {
+func (_u *StoragePolicyUpdateOne) check() error {
+	if v, ok := _u.mutation.Name(); ok {
 		if err := storagepolicy.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "StoragePolicy.name": %w`, err)}
 		}
 	}
-	if v, ok := spuo.mutation.GetType(); ok {
+	if v, ok := _u.mutation.GetType(); ok {
 		if err := storagepolicy.TypeValidator(v); err != nil {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "StoragePolicy.type": %w`, err)}
 		}
 	}
-	if v, ok := spuo.mutation.Flag(); ok {
+	if v, ok := _u.mutation.Flag(); ok {
 		if err := storagepolicy.FlagValidator(v); err != nil {
 			return &ValidationError{Name: "flag", err: fmt.Errorf(`ent: validator failed for field "StoragePolicy.flag": %w`, err)}
 		}
 	}
-	if v, ok := spuo.mutation.Server(); ok {
+	if v, ok := _u.mutation.Server(); ok {
 		if err := storagepolicy.ServerValidator(v); err != nil {
 			return &ValidationError{Name: "server", err: fmt.Errorf(`ent: validator failed for field "StoragePolicy.server": %w`, err)}
 		}
 	}
-	if v, ok := spuo.mutation.BucketName(); ok {
+	if v, ok := _u.mutation.BucketName(); ok {
 		if err := storagepolicy.BucketNameValidator(v); err != nil {
 			return &ValidationError{Name: "bucket_name", err: fmt.Errorf(`ent: validator failed for field "StoragePolicy.bucket_name": %w`, err)}
 		}
 	}
-	if v, ok := spuo.mutation.BasePath(); ok {
+	if v, ok := _u.mutation.BasePath(); ok {
 		if err := storagepolicy.BasePathValidator(v); err != nil {
 			return &ValidationError{Name: "base_path", err: fmt.Errorf(`ent: validator failed for field "StoragePolicy.base_path": %w`, err)}
 		}
 	}
-	if v, ok := spuo.mutation.VirtualPath(); ok {
+	if v, ok := _u.mutation.VirtualPath(); ok {
 		if err := storagepolicy.VirtualPathValidator(v); err != nil {
 			return &ValidationError{Name: "virtual_path", err: fmt.Errorf(`ent: validator failed for field "StoragePolicy.virtual_path": %w`, err)}
 		}
@@ -905,22 +905,22 @@ func (spuo *StoragePolicyUpdateOne) check() error {
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (spuo *StoragePolicyUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *StoragePolicyUpdateOne {
-	spuo.modifiers = append(spuo.modifiers, modifiers...)
-	return spuo
+func (_u *StoragePolicyUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *StoragePolicyUpdateOne {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (spuo *StoragePolicyUpdateOne) sqlSave(ctx context.Context) (_node *StoragePolicy, err error) {
-	if err := spuo.check(); err != nil {
+func (_u *StoragePolicyUpdateOne) sqlSave(ctx context.Context) (_node *StoragePolicy, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(storagepolicy.Table, storagepolicy.Columns, sqlgraph.NewFieldSpec(storagepolicy.FieldID, field.TypeUint))
-	id, ok := spuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "StoragePolicy.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := spuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, storagepolicy.FieldID)
 		for _, f := range fields {
@@ -932,105 +932,105 @@ func (spuo *StoragePolicyUpdateOne) sqlSave(ctx context.Context) (_node *Storage
 			}
 		}
 	}
-	if ps := spuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := spuo.mutation.DeletedAt(); ok {
+	if value, ok := _u.mutation.DeletedAt(); ok {
 		_spec.SetField(storagepolicy.FieldDeletedAt, field.TypeTime, value)
 	}
-	if spuo.mutation.DeletedAtCleared() {
+	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(storagepolicy.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := spuo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(storagepolicy.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := spuo.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(storagepolicy.FieldName, field.TypeString, value)
 	}
-	if value, ok := spuo.mutation.GetType(); ok {
+	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(storagepolicy.FieldType, field.TypeString, value)
 	}
-	if value, ok := spuo.mutation.Flag(); ok {
+	if value, ok := _u.mutation.Flag(); ok {
 		_spec.SetField(storagepolicy.FieldFlag, field.TypeString, value)
 	}
-	if spuo.mutation.FlagCleared() {
+	if _u.mutation.FlagCleared() {
 		_spec.ClearField(storagepolicy.FieldFlag, field.TypeString)
 	}
-	if value, ok := spuo.mutation.Server(); ok {
+	if value, ok := _u.mutation.Server(); ok {
 		_spec.SetField(storagepolicy.FieldServer, field.TypeString, value)
 	}
-	if spuo.mutation.ServerCleared() {
+	if _u.mutation.ServerCleared() {
 		_spec.ClearField(storagepolicy.FieldServer, field.TypeString)
 	}
-	if value, ok := spuo.mutation.BucketName(); ok {
+	if value, ok := _u.mutation.BucketName(); ok {
 		_spec.SetField(storagepolicy.FieldBucketName, field.TypeString, value)
 	}
-	if spuo.mutation.BucketNameCleared() {
+	if _u.mutation.BucketNameCleared() {
 		_spec.ClearField(storagepolicy.FieldBucketName, field.TypeString)
 	}
-	if value, ok := spuo.mutation.IsPrivate(); ok {
+	if value, ok := _u.mutation.IsPrivate(); ok {
 		_spec.SetField(storagepolicy.FieldIsPrivate, field.TypeBool, value)
 	}
-	if spuo.mutation.IsPrivateCleared() {
+	if _u.mutation.IsPrivateCleared() {
 		_spec.ClearField(storagepolicy.FieldIsPrivate, field.TypeBool)
 	}
-	if value, ok := spuo.mutation.AccessKey(); ok {
+	if value, ok := _u.mutation.AccessKey(); ok {
 		_spec.SetField(storagepolicy.FieldAccessKey, field.TypeString, value)
 	}
-	if spuo.mutation.AccessKeyCleared() {
+	if _u.mutation.AccessKeyCleared() {
 		_spec.ClearField(storagepolicy.FieldAccessKey, field.TypeString)
 	}
-	if value, ok := spuo.mutation.SecretKey(); ok {
+	if value, ok := _u.mutation.SecretKey(); ok {
 		_spec.SetField(storagepolicy.FieldSecretKey, field.TypeString, value)
 	}
-	if spuo.mutation.SecretKeyCleared() {
+	if _u.mutation.SecretKeyCleared() {
 		_spec.ClearField(storagepolicy.FieldSecretKey, field.TypeString)
 	}
-	if value, ok := spuo.mutation.MaxSize(); ok {
+	if value, ok := _u.mutation.MaxSize(); ok {
 		_spec.SetField(storagepolicy.FieldMaxSize, field.TypeInt64, value)
 	}
-	if value, ok := spuo.mutation.AddedMaxSize(); ok {
+	if value, ok := _u.mutation.AddedMaxSize(); ok {
 		_spec.AddField(storagepolicy.FieldMaxSize, field.TypeInt64, value)
 	}
-	if spuo.mutation.MaxSizeCleared() {
+	if _u.mutation.MaxSizeCleared() {
 		_spec.ClearField(storagepolicy.FieldMaxSize, field.TypeInt64)
 	}
-	if value, ok := spuo.mutation.BasePath(); ok {
+	if value, ok := _u.mutation.BasePath(); ok {
 		_spec.SetField(storagepolicy.FieldBasePath, field.TypeString, value)
 	}
-	if spuo.mutation.BasePathCleared() {
+	if _u.mutation.BasePathCleared() {
 		_spec.ClearField(storagepolicy.FieldBasePath, field.TypeString)
 	}
-	if value, ok := spuo.mutation.VirtualPath(); ok {
+	if value, ok := _u.mutation.VirtualPath(); ok {
 		_spec.SetField(storagepolicy.FieldVirtualPath, field.TypeString, value)
 	}
-	if spuo.mutation.VirtualPathCleared() {
+	if _u.mutation.VirtualPathCleared() {
 		_spec.ClearField(storagepolicy.FieldVirtualPath, field.TypeString)
 	}
-	if value, ok := spuo.mutation.Settings(); ok {
+	if value, ok := _u.mutation.Settings(); ok {
 		_spec.SetField(storagepolicy.FieldSettings, field.TypeOther, value)
 	}
-	if spuo.mutation.SettingsCleared() {
+	if _u.mutation.SettingsCleared() {
 		_spec.ClearField(storagepolicy.FieldSettings, field.TypeOther)
 	}
-	if value, ok := spuo.mutation.NodeID(); ok {
+	if value, ok := _u.mutation.NodeID(); ok {
 		_spec.SetField(storagepolicy.FieldNodeID, field.TypeUint, value)
 	}
-	if value, ok := spuo.mutation.AddedNodeID(); ok {
+	if value, ok := _u.mutation.AddedNodeID(); ok {
 		_spec.AddField(storagepolicy.FieldNodeID, field.TypeUint, value)
 	}
-	if spuo.mutation.NodeIDCleared() {
+	if _u.mutation.NodeIDCleared() {
 		_spec.ClearField(storagepolicy.FieldNodeID, field.TypeUint)
 	}
-	_spec.AddModifiers(spuo.modifiers...)
-	_node = &StoragePolicy{config: spuo.config}
+	_spec.AddModifiers(_u.modifiers...)
+	_node = &StoragePolicy{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, spuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{storagepolicy.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -1038,6 +1038,6 @@ func (spuo *StoragePolicyUpdateOne) sqlSave(ctx context.Context) (_node *Storage
 		}
 		return nil, err
 	}
-	spuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

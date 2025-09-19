@@ -20,56 +20,56 @@ type PostTagDelete struct {
 }
 
 // Where appends a list predicates to the PostTagDelete builder.
-func (ptd *PostTagDelete) Where(ps ...predicate.PostTag) *PostTagDelete {
-	ptd.mutation.Where(ps...)
-	return ptd
+func (_d *PostTagDelete) Where(ps ...predicate.PostTag) *PostTagDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (ptd *PostTagDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, ptd.sqlExec, ptd.mutation, ptd.hooks)
+func (_d *PostTagDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ptd *PostTagDelete) ExecX(ctx context.Context) int {
-	n, err := ptd.Exec(ctx)
+func (_d *PostTagDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (ptd *PostTagDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *PostTagDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(posttag.Table, sqlgraph.NewFieldSpec(posttag.FieldID, field.TypeUint))
-	if ps := ptd.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, ptd.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	ptd.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // PostTagDeleteOne is the builder for deleting a single PostTag entity.
 type PostTagDeleteOne struct {
-	ptd *PostTagDelete
+	_d *PostTagDelete
 }
 
 // Where appends a list predicates to the PostTagDelete builder.
-func (ptdo *PostTagDeleteOne) Where(ps ...predicate.PostTag) *PostTagDeleteOne {
-	ptdo.ptd.mutation.Where(ps...)
-	return ptdo
+func (_d *PostTagDeleteOne) Where(ps ...predicate.PostTag) *PostTagDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (ptdo *PostTagDeleteOne) Exec(ctx context.Context) error {
-	n, err := ptdo.ptd.Exec(ctx)
+func (_d *PostTagDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (ptdo *PostTagDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ptdo *PostTagDeleteOne) ExecX(ctx context.Context) {
-	if err := ptdo.Exec(ctx); err != nil {
+func (_d *PostTagDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

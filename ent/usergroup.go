@@ -84,7 +84,7 @@ func (*UserGroup) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the UserGroup fields.
-func (ug *UserGroup) assignValues(columns []string, values []any) error {
+func (_m *UserGroup) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -95,64 +95,64 @@ func (ug *UserGroup) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			ug.ID = uint(value.Int64)
+			_m.ID = uint(value.Int64)
 		case usergroup.FieldDeletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
-				ug.DeletedAt = new(time.Time)
-				*ug.DeletedAt = value.Time
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
 			}
 		case usergroup.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				ug.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case usergroup.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				ug.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		case usergroup.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				ug.Name = value.String
+				_m.Name = value.String
 			}
 		case usergroup.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				ug.Description = value.String
+				_m.Description = value.String
 			}
 		case usergroup.FieldPermissions:
 			if value, ok := values[i].(*model.Boolset); !ok {
 				return fmt.Errorf("unexpected type %T for field permissions", values[i])
 			} else if value != nil {
-				ug.Permissions = *value
+				_m.Permissions = *value
 			}
 		case usergroup.FieldMaxStorage:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field max_storage", values[i])
 			} else if value.Valid {
-				ug.MaxStorage = value.Int64
+				_m.MaxStorage = value.Int64
 			}
 		case usergroup.FieldSpeedLimit:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field speed_limit", values[i])
 			} else if value.Valid {
-				ug.SpeedLimit = value.Int64
+				_m.SpeedLimit = value.Int64
 			}
 		case usergroup.FieldSettings:
 			if value, ok := values[i].(*model.GroupSettings); !ok {
 				return fmt.Errorf("unexpected type %T for field settings", values[i])
 			} else if value != nil {
-				ug.Settings = value
+				_m.Settings = value
 			}
 		default:
-			ug.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -160,66 +160,66 @@ func (ug *UserGroup) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the UserGroup.
 // This includes values selected through modifiers, order, etc.
-func (ug *UserGroup) Value(name string) (ent.Value, error) {
-	return ug.selectValues.Get(name)
+func (_m *UserGroup) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryUsers queries the "users" edge of the UserGroup entity.
-func (ug *UserGroup) QueryUsers() *UserQuery {
-	return NewUserGroupClient(ug.config).QueryUsers(ug)
+func (_m *UserGroup) QueryUsers() *UserQuery {
+	return NewUserGroupClient(_m.config).QueryUsers(_m)
 }
 
 // Update returns a builder for updating this UserGroup.
 // Note that you need to call UserGroup.Unwrap() before calling this method if this UserGroup
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (ug *UserGroup) Update() *UserGroupUpdateOne {
-	return NewUserGroupClient(ug.config).UpdateOne(ug)
+func (_m *UserGroup) Update() *UserGroupUpdateOne {
+	return NewUserGroupClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the UserGroup entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (ug *UserGroup) Unwrap() *UserGroup {
-	_tx, ok := ug.config.driver.(*txDriver)
+func (_m *UserGroup) Unwrap() *UserGroup {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: UserGroup is not a transactional entity")
 	}
-	ug.config.driver = _tx.drv
-	return ug
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (ug *UserGroup) String() string {
+func (_m *UserGroup) String() string {
 	var builder strings.Builder
 	builder.WriteString("UserGroup(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", ug.ID))
-	if v := ug.DeletedAt; v != nil {
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	if v := _m.DeletedAt; v != nil {
 		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(ug.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(ug.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("name=")
-	builder.WriteString(ug.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("description=")
-	builder.WriteString(ug.Description)
+	builder.WriteString(_m.Description)
 	builder.WriteString(", ")
 	builder.WriteString("permissions=")
-	builder.WriteString(fmt.Sprintf("%v", ug.Permissions))
+	builder.WriteString(fmt.Sprintf("%v", _m.Permissions))
 	builder.WriteString(", ")
 	builder.WriteString("max_storage=")
-	builder.WriteString(fmt.Sprintf("%v", ug.MaxStorage))
+	builder.WriteString(fmt.Sprintf("%v", _m.MaxStorage))
 	builder.WriteString(", ")
 	builder.WriteString("speed_limit=")
-	builder.WriteString(fmt.Sprintf("%v", ug.SpeedLimit))
+	builder.WriteString(fmt.Sprintf("%v", _m.SpeedLimit))
 	builder.WriteString(", ")
 	builder.WriteString("settings=")
-	builder.WriteString(fmt.Sprintf("%v", ug.Settings))
+	builder.WriteString(fmt.Sprintf("%v", _m.Settings))
 	builder.WriteByte(')')
 	return builder.String()
 }

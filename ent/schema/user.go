@@ -84,5 +84,8 @@ func (User) Edges() []ent.Edge {
 
 		// 定义一个用户可以拥有多个评论的关系
 		edge.To("comments", Comment.Type),
+
+		// 定义一个用户可以安装多个主题的关系
+		edge.To("installed_themes", UserInstalledTheme.Type),
 	}
 }

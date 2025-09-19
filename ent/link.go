@@ -87,7 +87,7 @@ func (*Link) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Link fields.
-func (l *Link) assignValues(columns []string, values []any) error {
+func (_m *Link) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -98,52 +98,52 @@ func (l *Link) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			l.ID = int(value.Int64)
+			_m.ID = int(value.Int64)
 		case link.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				l.Name = value.String
+				_m.Name = value.String
 			}
 		case link.FieldURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field url", values[i])
 			} else if value.Valid {
-				l.URL = value.String
+				_m.URL = value.String
 			}
 		case link.FieldLogo:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field logo", values[i])
 			} else if value.Valid {
-				l.Logo = value.String
+				_m.Logo = value.String
 			}
 		case link.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				l.Description = value.String
+				_m.Description = value.String
 			}
 		case link.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				l.Status = link.Status(value.String)
+				_m.Status = link.Status(value.String)
 			}
 		case link.FieldSiteshot:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field siteshot", values[i])
 			} else if value.Valid {
-				l.Siteshot = value.String
+				_m.Siteshot = value.String
 			}
 		case link.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field link_category_links", value)
 			} else if value.Valid {
-				l.link_category_links = new(int)
-				*l.link_category_links = int(value.Int64)
+				_m.link_category_links = new(int)
+				*_m.link_category_links = int(value.Int64)
 			}
 		default:
-			l.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -151,60 +151,60 @@ func (l *Link) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the Link.
 // This includes values selected through modifiers, order, etc.
-func (l *Link) Value(name string) (ent.Value, error) {
-	return l.selectValues.Get(name)
+func (_m *Link) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryCategory queries the "category" edge of the Link entity.
-func (l *Link) QueryCategory() *LinkCategoryQuery {
-	return NewLinkClient(l.config).QueryCategory(l)
+func (_m *Link) QueryCategory() *LinkCategoryQuery {
+	return NewLinkClient(_m.config).QueryCategory(_m)
 }
 
 // QueryTags queries the "tags" edge of the Link entity.
-func (l *Link) QueryTags() *LinkTagQuery {
-	return NewLinkClient(l.config).QueryTags(l)
+func (_m *Link) QueryTags() *LinkTagQuery {
+	return NewLinkClient(_m.config).QueryTags(_m)
 }
 
 // Update returns a builder for updating this Link.
 // Note that you need to call Link.Unwrap() before calling this method if this Link
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (l *Link) Update() *LinkUpdateOne {
-	return NewLinkClient(l.config).UpdateOne(l)
+func (_m *Link) Update() *LinkUpdateOne {
+	return NewLinkClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Link entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (l *Link) Unwrap() *Link {
-	_tx, ok := l.config.driver.(*txDriver)
+func (_m *Link) Unwrap() *Link {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: Link is not a transactional entity")
 	}
-	l.config.driver = _tx.drv
-	return l
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (l *Link) String() string {
+func (_m *Link) String() string {
 	var builder strings.Builder
 	builder.WriteString("Link(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", l.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("name=")
-	builder.WriteString(l.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("url=")
-	builder.WriteString(l.URL)
+	builder.WriteString(_m.URL)
 	builder.WriteString(", ")
 	builder.WriteString("logo=")
-	builder.WriteString(l.Logo)
+	builder.WriteString(_m.Logo)
 	builder.WriteString(", ")
 	builder.WriteString("description=")
-	builder.WriteString(l.Description)
+	builder.WriteString(_m.Description)
 	builder.WriteString(", ")
 	builder.WriteString("status=")
-	builder.WriteString(fmt.Sprintf("%v", l.Status))
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
 	builder.WriteString(", ")
 	builder.WriteString("siteshot=")
-	builder.WriteString(l.Siteshot)
+	builder.WriteString(_m.Siteshot)
 	builder.WriteByte(')')
 	return builder.String()
 }

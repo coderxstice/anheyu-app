@@ -24,87 +24,87 @@ type SettingUpdate struct {
 }
 
 // Where appends a list predicates to the SettingUpdate builder.
-func (su *SettingUpdate) Where(ps ...predicate.Setting) *SettingUpdate {
-	su.mutation.Where(ps...)
-	return su
+func (_u *SettingUpdate) Where(ps ...predicate.Setting) *SettingUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (su *SettingUpdate) SetDeletedAt(t time.Time) *SettingUpdate {
-	su.mutation.SetDeletedAt(t)
-	return su
+func (_u *SettingUpdate) SetDeletedAt(v time.Time) *SettingUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (su *SettingUpdate) SetNillableDeletedAt(t *time.Time) *SettingUpdate {
-	if t != nil {
-		su.SetDeletedAt(*t)
+func (_u *SettingUpdate) SetNillableDeletedAt(v *time.Time) *SettingUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
 	}
-	return su
+	return _u
 }
 
 // ClearDeletedAt clears the value of the "deleted_at" field.
-func (su *SettingUpdate) ClearDeletedAt() *SettingUpdate {
-	su.mutation.ClearDeletedAt()
-	return su
+func (_u *SettingUpdate) ClearDeletedAt() *SettingUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetValue sets the "value" field.
-func (su *SettingUpdate) SetValue(s string) *SettingUpdate {
-	su.mutation.SetValue(s)
-	return su
+func (_u *SettingUpdate) SetValue(v string) *SettingUpdate {
+	_u.mutation.SetValue(v)
+	return _u
 }
 
 // SetNillableValue sets the "value" field if the given value is not nil.
-func (su *SettingUpdate) SetNillableValue(s *string) *SettingUpdate {
-	if s != nil {
-		su.SetValue(*s)
+func (_u *SettingUpdate) SetNillableValue(v *string) *SettingUpdate {
+	if v != nil {
+		_u.SetValue(*v)
 	}
-	return su
+	return _u
 }
 
 // SetComment sets the "comment" field.
-func (su *SettingUpdate) SetComment(s string) *SettingUpdate {
-	su.mutation.SetComment(s)
-	return su
+func (_u *SettingUpdate) SetComment(v string) *SettingUpdate {
+	_u.mutation.SetComment(v)
+	return _u
 }
 
 // SetNillableComment sets the "comment" field if the given value is not nil.
-func (su *SettingUpdate) SetNillableComment(s *string) *SettingUpdate {
-	if s != nil {
-		su.SetComment(*s)
+func (_u *SettingUpdate) SetNillableComment(v *string) *SettingUpdate {
+	if v != nil {
+		_u.SetComment(*v)
 	}
-	return su
+	return _u
 }
 
 // ClearComment clears the value of the "comment" field.
-func (su *SettingUpdate) ClearComment() *SettingUpdate {
-	su.mutation.ClearComment()
-	return su
+func (_u *SettingUpdate) ClearComment() *SettingUpdate {
+	_u.mutation.ClearComment()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (su *SettingUpdate) SetUpdatedAt(t time.Time) *SettingUpdate {
-	su.mutation.SetUpdatedAt(t)
-	return su
+func (_u *SettingUpdate) SetUpdatedAt(v time.Time) *SettingUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // Mutation returns the SettingMutation object of the builder.
-func (su *SettingUpdate) Mutation() *SettingMutation {
-	return su.mutation
+func (_u *SettingUpdate) Mutation() *SettingMutation {
+	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (su *SettingUpdate) Save(ctx context.Context) (int, error) {
-	if err := su.defaults(); err != nil {
+func (_u *SettingUpdate) Save(ctx context.Context) (int, error) {
+	if err := _u.defaults(); err != nil {
 		return 0, err
 	}
-	return withHooks(ctx, su.sqlSave, su.mutation, su.hooks)
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (su *SettingUpdate) SaveX(ctx context.Context) int {
-	affected, err := su.Save(ctx)
+func (_u *SettingUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -112,33 +112,33 @@ func (su *SettingUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (su *SettingUpdate) Exec(ctx context.Context) error {
-	_, err := su.Save(ctx)
+func (_u *SettingUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (su *SettingUpdate) ExecX(ctx context.Context) {
-	if err := su.Exec(ctx); err != nil {
+func (_u *SettingUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (su *SettingUpdate) defaults() error {
-	if _, ok := su.mutation.UpdatedAt(); !ok {
+func (_u *SettingUpdate) defaults() error {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		if setting.UpdateDefaultUpdatedAt == nil {
 			return fmt.Errorf("ent: uninitialized setting.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
 		}
 		v := setting.UpdateDefaultUpdatedAt()
-		su.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (su *SettingUpdate) check() error {
-	if v, ok := su.mutation.Comment(); ok {
+func (_u *SettingUpdate) check() error {
+	if v, ok := _u.mutation.Comment(); ok {
 		if err := setting.CommentValidator(v); err != nil {
 			return &ValidationError{Name: "comment", err: fmt.Errorf(`ent: validator failed for field "Setting.comment": %w`, err)}
 		}
@@ -147,43 +147,43 @@ func (su *SettingUpdate) check() error {
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (su *SettingUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *SettingUpdate {
-	su.modifiers = append(su.modifiers, modifiers...)
-	return su
+func (_u *SettingUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *SettingUpdate {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (su *SettingUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := su.check(); err != nil {
-		return n, err
+func (_u *SettingUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(setting.Table, setting.Columns, sqlgraph.NewFieldSpec(setting.FieldID, field.TypeInt))
-	if ps := su.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := su.mutation.DeletedAt(); ok {
+	if value, ok := _u.mutation.DeletedAt(); ok {
 		_spec.SetField(setting.FieldDeletedAt, field.TypeTime, value)
 	}
-	if su.mutation.DeletedAtCleared() {
+	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(setting.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := su.mutation.Value(); ok {
+	if value, ok := _u.mutation.Value(); ok {
 		_spec.SetField(setting.FieldValue, field.TypeString, value)
 	}
-	if value, ok := su.mutation.Comment(); ok {
+	if value, ok := _u.mutation.Comment(); ok {
 		_spec.SetField(setting.FieldComment, field.TypeString, value)
 	}
-	if su.mutation.CommentCleared() {
+	if _u.mutation.CommentCleared() {
 		_spec.ClearField(setting.FieldComment, field.TypeString)
 	}
-	if value, ok := su.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(setting.FieldUpdatedAt, field.TypeTime, value)
 	}
-	_spec.AddModifiers(su.modifiers...)
-	if n, err = sqlgraph.UpdateNodes(ctx, su.driver, _spec); err != nil {
+	_spec.AddModifiers(_u.modifiers...)
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{setting.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -191,8 +191,8 @@ func (su *SettingUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	su.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // SettingUpdateOne is the builder for updating a single Setting entity.
@@ -205,94 +205,94 @@ type SettingUpdateOne struct {
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (suo *SettingUpdateOne) SetDeletedAt(t time.Time) *SettingUpdateOne {
-	suo.mutation.SetDeletedAt(t)
-	return suo
+func (_u *SettingUpdateOne) SetDeletedAt(v time.Time) *SettingUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (suo *SettingUpdateOne) SetNillableDeletedAt(t *time.Time) *SettingUpdateOne {
-	if t != nil {
-		suo.SetDeletedAt(*t)
+func (_u *SettingUpdateOne) SetNillableDeletedAt(v *time.Time) *SettingUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
 	}
-	return suo
+	return _u
 }
 
 // ClearDeletedAt clears the value of the "deleted_at" field.
-func (suo *SettingUpdateOne) ClearDeletedAt() *SettingUpdateOne {
-	suo.mutation.ClearDeletedAt()
-	return suo
+func (_u *SettingUpdateOne) ClearDeletedAt() *SettingUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetValue sets the "value" field.
-func (suo *SettingUpdateOne) SetValue(s string) *SettingUpdateOne {
-	suo.mutation.SetValue(s)
-	return suo
+func (_u *SettingUpdateOne) SetValue(v string) *SettingUpdateOne {
+	_u.mutation.SetValue(v)
+	return _u
 }
 
 // SetNillableValue sets the "value" field if the given value is not nil.
-func (suo *SettingUpdateOne) SetNillableValue(s *string) *SettingUpdateOne {
-	if s != nil {
-		suo.SetValue(*s)
+func (_u *SettingUpdateOne) SetNillableValue(v *string) *SettingUpdateOne {
+	if v != nil {
+		_u.SetValue(*v)
 	}
-	return suo
+	return _u
 }
 
 // SetComment sets the "comment" field.
-func (suo *SettingUpdateOne) SetComment(s string) *SettingUpdateOne {
-	suo.mutation.SetComment(s)
-	return suo
+func (_u *SettingUpdateOne) SetComment(v string) *SettingUpdateOne {
+	_u.mutation.SetComment(v)
+	return _u
 }
 
 // SetNillableComment sets the "comment" field if the given value is not nil.
-func (suo *SettingUpdateOne) SetNillableComment(s *string) *SettingUpdateOne {
-	if s != nil {
-		suo.SetComment(*s)
+func (_u *SettingUpdateOne) SetNillableComment(v *string) *SettingUpdateOne {
+	if v != nil {
+		_u.SetComment(*v)
 	}
-	return suo
+	return _u
 }
 
 // ClearComment clears the value of the "comment" field.
-func (suo *SettingUpdateOne) ClearComment() *SettingUpdateOne {
-	suo.mutation.ClearComment()
-	return suo
+func (_u *SettingUpdateOne) ClearComment() *SettingUpdateOne {
+	_u.mutation.ClearComment()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (suo *SettingUpdateOne) SetUpdatedAt(t time.Time) *SettingUpdateOne {
-	suo.mutation.SetUpdatedAt(t)
-	return suo
+func (_u *SettingUpdateOne) SetUpdatedAt(v time.Time) *SettingUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // Mutation returns the SettingMutation object of the builder.
-func (suo *SettingUpdateOne) Mutation() *SettingMutation {
-	return suo.mutation
+func (_u *SettingUpdateOne) Mutation() *SettingMutation {
+	return _u.mutation
 }
 
 // Where appends a list predicates to the SettingUpdate builder.
-func (suo *SettingUpdateOne) Where(ps ...predicate.Setting) *SettingUpdateOne {
-	suo.mutation.Where(ps...)
-	return suo
+func (_u *SettingUpdateOne) Where(ps ...predicate.Setting) *SettingUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (suo *SettingUpdateOne) Select(field string, fields ...string) *SettingUpdateOne {
-	suo.fields = append([]string{field}, fields...)
-	return suo
+func (_u *SettingUpdateOne) Select(field string, fields ...string) *SettingUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated Setting entity.
-func (suo *SettingUpdateOne) Save(ctx context.Context) (*Setting, error) {
-	if err := suo.defaults(); err != nil {
+func (_u *SettingUpdateOne) Save(ctx context.Context) (*Setting, error) {
+	if err := _u.defaults(); err != nil {
 		return nil, err
 	}
-	return withHooks(ctx, suo.sqlSave, suo.mutation, suo.hooks)
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (suo *SettingUpdateOne) SaveX(ctx context.Context) *Setting {
-	node, err := suo.Save(ctx)
+func (_u *SettingUpdateOne) SaveX(ctx context.Context) *Setting {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -300,33 +300,33 @@ func (suo *SettingUpdateOne) SaveX(ctx context.Context) *Setting {
 }
 
 // Exec executes the query on the entity.
-func (suo *SettingUpdateOne) Exec(ctx context.Context) error {
-	_, err := suo.Save(ctx)
+func (_u *SettingUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (suo *SettingUpdateOne) ExecX(ctx context.Context) {
-	if err := suo.Exec(ctx); err != nil {
+func (_u *SettingUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (suo *SettingUpdateOne) defaults() error {
-	if _, ok := suo.mutation.UpdatedAt(); !ok {
+func (_u *SettingUpdateOne) defaults() error {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		if setting.UpdateDefaultUpdatedAt == nil {
 			return fmt.Errorf("ent: uninitialized setting.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
 		}
 		v := setting.UpdateDefaultUpdatedAt()
-		suo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (suo *SettingUpdateOne) check() error {
-	if v, ok := suo.mutation.Comment(); ok {
+func (_u *SettingUpdateOne) check() error {
+	if v, ok := _u.mutation.Comment(); ok {
 		if err := setting.CommentValidator(v); err != nil {
 			return &ValidationError{Name: "comment", err: fmt.Errorf(`ent: validator failed for field "Setting.comment": %w`, err)}
 		}
@@ -335,22 +335,22 @@ func (suo *SettingUpdateOne) check() error {
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (suo *SettingUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *SettingUpdateOne {
-	suo.modifiers = append(suo.modifiers, modifiers...)
-	return suo
+func (_u *SettingUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *SettingUpdateOne {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (suo *SettingUpdateOne) sqlSave(ctx context.Context) (_node *Setting, err error) {
-	if err := suo.check(); err != nil {
+func (_u *SettingUpdateOne) sqlSave(ctx context.Context) (_node *Setting, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(setting.Table, setting.Columns, sqlgraph.NewFieldSpec(setting.FieldID, field.TypeInt))
-	id, ok := suo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Setting.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := suo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, setting.FieldID)
 		for _, f := range fields {
@@ -362,36 +362,36 @@ func (suo *SettingUpdateOne) sqlSave(ctx context.Context) (_node *Setting, err e
 			}
 		}
 	}
-	if ps := suo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := suo.mutation.DeletedAt(); ok {
+	if value, ok := _u.mutation.DeletedAt(); ok {
 		_spec.SetField(setting.FieldDeletedAt, field.TypeTime, value)
 	}
-	if suo.mutation.DeletedAtCleared() {
+	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(setting.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := suo.mutation.Value(); ok {
+	if value, ok := _u.mutation.Value(); ok {
 		_spec.SetField(setting.FieldValue, field.TypeString, value)
 	}
-	if value, ok := suo.mutation.Comment(); ok {
+	if value, ok := _u.mutation.Comment(); ok {
 		_spec.SetField(setting.FieldComment, field.TypeString, value)
 	}
-	if suo.mutation.CommentCleared() {
+	if _u.mutation.CommentCleared() {
 		_spec.ClearField(setting.FieldComment, field.TypeString)
 	}
-	if value, ok := suo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(setting.FieldUpdatedAt, field.TypeTime, value)
 	}
-	_spec.AddModifiers(suo.modifiers...)
-	_node = &Setting{config: suo.config}
+	_spec.AddModifiers(_u.modifiers...)
+	_node = &Setting{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, suo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{setting.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -399,6 +399,6 @@ func (suo *SettingUpdateOne) sqlSave(ctx context.Context) (_node *Setting, err e
 		}
 		return nil, err
 	}
-	suo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

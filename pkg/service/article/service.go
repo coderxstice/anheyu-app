@@ -605,7 +605,18 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 				return fmt.Errorf("无效的分类ID: %w", err)
 			}
 
-			// 如果文章被分配到多个分类，则检查其中是否包含“系列”分类
+			// 验证所有分类ID是否存在
+			log.Printf("[更新文章] 验证分类ID有效性: %v", newCategoryDBIDs)
+			for _, categoryDBID := range newCategoryDBIDs {
+				categoryPublicID, _ := idgen.GeneratePublicID(categoryDBID, idgen.EntityTypePostCategory)
+				_, err := repos.PostCategory.GetByID(ctx, categoryPublicID)
+				if err != nil {
+					return fmt.Errorf("分类ID %d 不存在，请刷新页面重新选择分类", categoryDBID)
+				}
+			}
+			log.Printf("[更新文章] ✅ 所有分类ID验证通过")
+
+			// 如果文章被分配到多个分类，则检查其中是否包含"系列"分类
 			if len(newCategoryDBIDs) > 1 {
 				isSeries, err := repos.PostCategory.FindAnySeries(ctx, newCategoryDBIDs)
 				if err != nil {
@@ -717,6 +728,17 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 			if err != nil {
 				return err
 			}
+
+			// 验证所有标签ID是否存在
+			log.Printf("[更新文章] 验证标签ID有效性: %v", newTagIDs)
+			for _, tagDBID := range newTagIDs {
+				tagPublicID, _ := idgen.GeneratePublicID(tagDBID, idgen.EntityTypePostTag)
+				_, err := repos.PostTag.GetByID(ctx, tagPublicID)
+				if err != nil {
+					return fmt.Errorf("标签ID %d 不存在，请刷新页面重新选择标签", tagDBID)
+				}
+			}
+			log.Printf("[更新文章] ✅ 所有标签ID验证通过")
 		}
 
 		// 计算需要增加和减少计数的标签/分类

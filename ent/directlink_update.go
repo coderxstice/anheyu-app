@@ -25,134 +25,134 @@ type DirectLinkUpdate struct {
 }
 
 // Where appends a list predicates to the DirectLinkUpdate builder.
-func (dlu *DirectLinkUpdate) Where(ps ...predicate.DirectLink) *DirectLinkUpdate {
-	dlu.mutation.Where(ps...)
-	return dlu
+func (_u *DirectLinkUpdate) Where(ps ...predicate.DirectLink) *DirectLinkUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (dlu *DirectLinkUpdate) SetDeletedAt(t time.Time) *DirectLinkUpdate {
-	dlu.mutation.SetDeletedAt(t)
-	return dlu
+func (_u *DirectLinkUpdate) SetDeletedAt(v time.Time) *DirectLinkUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (dlu *DirectLinkUpdate) SetNillableDeletedAt(t *time.Time) *DirectLinkUpdate {
-	if t != nil {
-		dlu.SetDeletedAt(*t)
+func (_u *DirectLinkUpdate) SetNillableDeletedAt(v *time.Time) *DirectLinkUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
 	}
-	return dlu
+	return _u
 }
 
 // ClearDeletedAt clears the value of the "deleted_at" field.
-func (dlu *DirectLinkUpdate) ClearDeletedAt() *DirectLinkUpdate {
-	dlu.mutation.ClearDeletedAt()
-	return dlu
+func (_u *DirectLinkUpdate) ClearDeletedAt() *DirectLinkUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (dlu *DirectLinkUpdate) SetUpdatedAt(t time.Time) *DirectLinkUpdate {
-	dlu.mutation.SetUpdatedAt(t)
-	return dlu
+func (_u *DirectLinkUpdate) SetUpdatedAt(v time.Time) *DirectLinkUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetFileID sets the "file_id" field.
-func (dlu *DirectLinkUpdate) SetFileID(u uint) *DirectLinkUpdate {
-	dlu.mutation.SetFileID(u)
-	return dlu
+func (_u *DirectLinkUpdate) SetFileID(v uint) *DirectLinkUpdate {
+	_u.mutation.SetFileID(v)
+	return _u
 }
 
 // SetNillableFileID sets the "file_id" field if the given value is not nil.
-func (dlu *DirectLinkUpdate) SetNillableFileID(u *uint) *DirectLinkUpdate {
-	if u != nil {
-		dlu.SetFileID(*u)
+func (_u *DirectLinkUpdate) SetNillableFileID(v *uint) *DirectLinkUpdate {
+	if v != nil {
+		_u.SetFileID(*v)
 	}
-	return dlu
+	return _u
 }
 
 // SetFileName sets the "file_name" field.
-func (dlu *DirectLinkUpdate) SetFileName(s string) *DirectLinkUpdate {
-	dlu.mutation.SetFileName(s)
-	return dlu
+func (_u *DirectLinkUpdate) SetFileName(v string) *DirectLinkUpdate {
+	_u.mutation.SetFileName(v)
+	return _u
 }
 
 // SetNillableFileName sets the "file_name" field if the given value is not nil.
-func (dlu *DirectLinkUpdate) SetNillableFileName(s *string) *DirectLinkUpdate {
-	if s != nil {
-		dlu.SetFileName(*s)
+func (_u *DirectLinkUpdate) SetNillableFileName(v *string) *DirectLinkUpdate {
+	if v != nil {
+		_u.SetFileName(*v)
 	}
-	return dlu
+	return _u
 }
 
 // SetSpeedLimit sets the "speed_limit" field.
-func (dlu *DirectLinkUpdate) SetSpeedLimit(i int64) *DirectLinkUpdate {
-	dlu.mutation.ResetSpeedLimit()
-	dlu.mutation.SetSpeedLimit(i)
-	return dlu
+func (_u *DirectLinkUpdate) SetSpeedLimit(v int64) *DirectLinkUpdate {
+	_u.mutation.ResetSpeedLimit()
+	_u.mutation.SetSpeedLimit(v)
+	return _u
 }
 
 // SetNillableSpeedLimit sets the "speed_limit" field if the given value is not nil.
-func (dlu *DirectLinkUpdate) SetNillableSpeedLimit(i *int64) *DirectLinkUpdate {
-	if i != nil {
-		dlu.SetSpeedLimit(*i)
+func (_u *DirectLinkUpdate) SetNillableSpeedLimit(v *int64) *DirectLinkUpdate {
+	if v != nil {
+		_u.SetSpeedLimit(*v)
 	}
-	return dlu
+	return _u
 }
 
-// AddSpeedLimit adds i to the "speed_limit" field.
-func (dlu *DirectLinkUpdate) AddSpeedLimit(i int64) *DirectLinkUpdate {
-	dlu.mutation.AddSpeedLimit(i)
-	return dlu
+// AddSpeedLimit adds value to the "speed_limit" field.
+func (_u *DirectLinkUpdate) AddSpeedLimit(v int64) *DirectLinkUpdate {
+	_u.mutation.AddSpeedLimit(v)
+	return _u
 }
 
 // SetDownloads sets the "downloads" field.
-func (dlu *DirectLinkUpdate) SetDownloads(i int64) *DirectLinkUpdate {
-	dlu.mutation.ResetDownloads()
-	dlu.mutation.SetDownloads(i)
-	return dlu
+func (_u *DirectLinkUpdate) SetDownloads(v int64) *DirectLinkUpdate {
+	_u.mutation.ResetDownloads()
+	_u.mutation.SetDownloads(v)
+	return _u
 }
 
 // SetNillableDownloads sets the "downloads" field if the given value is not nil.
-func (dlu *DirectLinkUpdate) SetNillableDownloads(i *int64) *DirectLinkUpdate {
-	if i != nil {
-		dlu.SetDownloads(*i)
+func (_u *DirectLinkUpdate) SetNillableDownloads(v *int64) *DirectLinkUpdate {
+	if v != nil {
+		_u.SetDownloads(*v)
 	}
-	return dlu
+	return _u
 }
 
-// AddDownloads adds i to the "downloads" field.
-func (dlu *DirectLinkUpdate) AddDownloads(i int64) *DirectLinkUpdate {
-	dlu.mutation.AddDownloads(i)
-	return dlu
+// AddDownloads adds value to the "downloads" field.
+func (_u *DirectLinkUpdate) AddDownloads(v int64) *DirectLinkUpdate {
+	_u.mutation.AddDownloads(v)
+	return _u
 }
 
 // SetFile sets the "file" edge to the File entity.
-func (dlu *DirectLinkUpdate) SetFile(f *File) *DirectLinkUpdate {
-	return dlu.SetFileID(f.ID)
+func (_u *DirectLinkUpdate) SetFile(v *File) *DirectLinkUpdate {
+	return _u.SetFileID(v.ID)
 }
 
 // Mutation returns the DirectLinkMutation object of the builder.
-func (dlu *DirectLinkUpdate) Mutation() *DirectLinkMutation {
-	return dlu.mutation
+func (_u *DirectLinkUpdate) Mutation() *DirectLinkMutation {
+	return _u.mutation
 }
 
 // ClearFile clears the "file" edge to the File entity.
-func (dlu *DirectLinkUpdate) ClearFile() *DirectLinkUpdate {
-	dlu.mutation.ClearFile()
-	return dlu
+func (_u *DirectLinkUpdate) ClearFile() *DirectLinkUpdate {
+	_u.mutation.ClearFile()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (dlu *DirectLinkUpdate) Save(ctx context.Context) (int, error) {
-	if err := dlu.defaults(); err != nil {
+func (_u *DirectLinkUpdate) Save(ctx context.Context) (int, error) {
+	if err := _u.defaults(); err != nil {
 		return 0, err
 	}
-	return withHooks(ctx, dlu.sqlSave, dlu.mutation, dlu.hooks)
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (dlu *DirectLinkUpdate) SaveX(ctx context.Context) int {
-	affected, err := dlu.Save(ctx)
+func (_u *DirectLinkUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -160,86 +160,86 @@ func (dlu *DirectLinkUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (dlu *DirectLinkUpdate) Exec(ctx context.Context) error {
-	_, err := dlu.Save(ctx)
+func (_u *DirectLinkUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dlu *DirectLinkUpdate) ExecX(ctx context.Context) {
-	if err := dlu.Exec(ctx); err != nil {
+func (_u *DirectLinkUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (dlu *DirectLinkUpdate) defaults() error {
-	if _, ok := dlu.mutation.UpdatedAt(); !ok {
+func (_u *DirectLinkUpdate) defaults() error {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		if directlink.UpdateDefaultUpdatedAt == nil {
 			return fmt.Errorf("ent: uninitialized directlink.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
 		}
 		v := directlink.UpdateDefaultUpdatedAt()
-		dlu.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (dlu *DirectLinkUpdate) check() error {
-	if v, ok := dlu.mutation.FileName(); ok {
+func (_u *DirectLinkUpdate) check() error {
+	if v, ok := _u.mutation.FileName(); ok {
 		if err := directlink.FileNameValidator(v); err != nil {
 			return &ValidationError{Name: "file_name", err: fmt.Errorf(`ent: validator failed for field "DirectLink.file_name": %w`, err)}
 		}
 	}
-	if dlu.mutation.FileCleared() && len(dlu.mutation.FileIDs()) > 0 {
+	if _u.mutation.FileCleared() && len(_u.mutation.FileIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "DirectLink.file"`)
 	}
 	return nil
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (dlu *DirectLinkUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *DirectLinkUpdate {
-	dlu.modifiers = append(dlu.modifiers, modifiers...)
-	return dlu
+func (_u *DirectLinkUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *DirectLinkUpdate {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (dlu *DirectLinkUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := dlu.check(); err != nil {
-		return n, err
+func (_u *DirectLinkUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(directlink.Table, directlink.Columns, sqlgraph.NewFieldSpec(directlink.FieldID, field.TypeUint))
-	if ps := dlu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := dlu.mutation.DeletedAt(); ok {
+	if value, ok := _u.mutation.DeletedAt(); ok {
 		_spec.SetField(directlink.FieldDeletedAt, field.TypeTime, value)
 	}
-	if dlu.mutation.DeletedAtCleared() {
+	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(directlink.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := dlu.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(directlink.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := dlu.mutation.FileName(); ok {
+	if value, ok := _u.mutation.FileName(); ok {
 		_spec.SetField(directlink.FieldFileName, field.TypeString, value)
 	}
-	if value, ok := dlu.mutation.SpeedLimit(); ok {
+	if value, ok := _u.mutation.SpeedLimit(); ok {
 		_spec.SetField(directlink.FieldSpeedLimit, field.TypeInt64, value)
 	}
-	if value, ok := dlu.mutation.AddedSpeedLimit(); ok {
+	if value, ok := _u.mutation.AddedSpeedLimit(); ok {
 		_spec.AddField(directlink.FieldSpeedLimit, field.TypeInt64, value)
 	}
-	if value, ok := dlu.mutation.Downloads(); ok {
+	if value, ok := _u.mutation.Downloads(); ok {
 		_spec.SetField(directlink.FieldDownloads, field.TypeInt64, value)
 	}
-	if value, ok := dlu.mutation.AddedDownloads(); ok {
+	if value, ok := _u.mutation.AddedDownloads(); ok {
 		_spec.AddField(directlink.FieldDownloads, field.TypeInt64, value)
 	}
-	if dlu.mutation.FileCleared() {
+	if _u.mutation.FileCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -252,7 +252,7 @@ func (dlu *DirectLinkUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dlu.mutation.FileIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.FileIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -268,8 +268,8 @@ func (dlu *DirectLinkUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_spec.AddModifiers(dlu.modifiers...)
-	if n, err = sqlgraph.UpdateNodes(ctx, dlu.driver, _spec); err != nil {
+	_spec.AddModifiers(_u.modifiers...)
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{directlink.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -277,8 +277,8 @@ func (dlu *DirectLinkUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	dlu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // DirectLinkUpdateOne is the builder for updating a single DirectLink entity.
@@ -291,141 +291,141 @@ type DirectLinkUpdateOne struct {
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (dluo *DirectLinkUpdateOne) SetDeletedAt(t time.Time) *DirectLinkUpdateOne {
-	dluo.mutation.SetDeletedAt(t)
-	return dluo
+func (_u *DirectLinkUpdateOne) SetDeletedAt(v time.Time) *DirectLinkUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (dluo *DirectLinkUpdateOne) SetNillableDeletedAt(t *time.Time) *DirectLinkUpdateOne {
-	if t != nil {
-		dluo.SetDeletedAt(*t)
+func (_u *DirectLinkUpdateOne) SetNillableDeletedAt(v *time.Time) *DirectLinkUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
 	}
-	return dluo
+	return _u
 }
 
 // ClearDeletedAt clears the value of the "deleted_at" field.
-func (dluo *DirectLinkUpdateOne) ClearDeletedAt() *DirectLinkUpdateOne {
-	dluo.mutation.ClearDeletedAt()
-	return dluo
+func (_u *DirectLinkUpdateOne) ClearDeletedAt() *DirectLinkUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (dluo *DirectLinkUpdateOne) SetUpdatedAt(t time.Time) *DirectLinkUpdateOne {
-	dluo.mutation.SetUpdatedAt(t)
-	return dluo
+func (_u *DirectLinkUpdateOne) SetUpdatedAt(v time.Time) *DirectLinkUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetFileID sets the "file_id" field.
-func (dluo *DirectLinkUpdateOne) SetFileID(u uint) *DirectLinkUpdateOne {
-	dluo.mutation.SetFileID(u)
-	return dluo
+func (_u *DirectLinkUpdateOne) SetFileID(v uint) *DirectLinkUpdateOne {
+	_u.mutation.SetFileID(v)
+	return _u
 }
 
 // SetNillableFileID sets the "file_id" field if the given value is not nil.
-func (dluo *DirectLinkUpdateOne) SetNillableFileID(u *uint) *DirectLinkUpdateOne {
-	if u != nil {
-		dluo.SetFileID(*u)
+func (_u *DirectLinkUpdateOne) SetNillableFileID(v *uint) *DirectLinkUpdateOne {
+	if v != nil {
+		_u.SetFileID(*v)
 	}
-	return dluo
+	return _u
 }
 
 // SetFileName sets the "file_name" field.
-func (dluo *DirectLinkUpdateOne) SetFileName(s string) *DirectLinkUpdateOne {
-	dluo.mutation.SetFileName(s)
-	return dluo
+func (_u *DirectLinkUpdateOne) SetFileName(v string) *DirectLinkUpdateOne {
+	_u.mutation.SetFileName(v)
+	return _u
 }
 
 // SetNillableFileName sets the "file_name" field if the given value is not nil.
-func (dluo *DirectLinkUpdateOne) SetNillableFileName(s *string) *DirectLinkUpdateOne {
-	if s != nil {
-		dluo.SetFileName(*s)
+func (_u *DirectLinkUpdateOne) SetNillableFileName(v *string) *DirectLinkUpdateOne {
+	if v != nil {
+		_u.SetFileName(*v)
 	}
-	return dluo
+	return _u
 }
 
 // SetSpeedLimit sets the "speed_limit" field.
-func (dluo *DirectLinkUpdateOne) SetSpeedLimit(i int64) *DirectLinkUpdateOne {
-	dluo.mutation.ResetSpeedLimit()
-	dluo.mutation.SetSpeedLimit(i)
-	return dluo
+func (_u *DirectLinkUpdateOne) SetSpeedLimit(v int64) *DirectLinkUpdateOne {
+	_u.mutation.ResetSpeedLimit()
+	_u.mutation.SetSpeedLimit(v)
+	return _u
 }
 
 // SetNillableSpeedLimit sets the "speed_limit" field if the given value is not nil.
-func (dluo *DirectLinkUpdateOne) SetNillableSpeedLimit(i *int64) *DirectLinkUpdateOne {
-	if i != nil {
-		dluo.SetSpeedLimit(*i)
+func (_u *DirectLinkUpdateOne) SetNillableSpeedLimit(v *int64) *DirectLinkUpdateOne {
+	if v != nil {
+		_u.SetSpeedLimit(*v)
 	}
-	return dluo
+	return _u
 }
 
-// AddSpeedLimit adds i to the "speed_limit" field.
-func (dluo *DirectLinkUpdateOne) AddSpeedLimit(i int64) *DirectLinkUpdateOne {
-	dluo.mutation.AddSpeedLimit(i)
-	return dluo
+// AddSpeedLimit adds value to the "speed_limit" field.
+func (_u *DirectLinkUpdateOne) AddSpeedLimit(v int64) *DirectLinkUpdateOne {
+	_u.mutation.AddSpeedLimit(v)
+	return _u
 }
 
 // SetDownloads sets the "downloads" field.
-func (dluo *DirectLinkUpdateOne) SetDownloads(i int64) *DirectLinkUpdateOne {
-	dluo.mutation.ResetDownloads()
-	dluo.mutation.SetDownloads(i)
-	return dluo
+func (_u *DirectLinkUpdateOne) SetDownloads(v int64) *DirectLinkUpdateOne {
+	_u.mutation.ResetDownloads()
+	_u.mutation.SetDownloads(v)
+	return _u
 }
 
 // SetNillableDownloads sets the "downloads" field if the given value is not nil.
-func (dluo *DirectLinkUpdateOne) SetNillableDownloads(i *int64) *DirectLinkUpdateOne {
-	if i != nil {
-		dluo.SetDownloads(*i)
+func (_u *DirectLinkUpdateOne) SetNillableDownloads(v *int64) *DirectLinkUpdateOne {
+	if v != nil {
+		_u.SetDownloads(*v)
 	}
-	return dluo
+	return _u
 }
 
-// AddDownloads adds i to the "downloads" field.
-func (dluo *DirectLinkUpdateOne) AddDownloads(i int64) *DirectLinkUpdateOne {
-	dluo.mutation.AddDownloads(i)
-	return dluo
+// AddDownloads adds value to the "downloads" field.
+func (_u *DirectLinkUpdateOne) AddDownloads(v int64) *DirectLinkUpdateOne {
+	_u.mutation.AddDownloads(v)
+	return _u
 }
 
 // SetFile sets the "file" edge to the File entity.
-func (dluo *DirectLinkUpdateOne) SetFile(f *File) *DirectLinkUpdateOne {
-	return dluo.SetFileID(f.ID)
+func (_u *DirectLinkUpdateOne) SetFile(v *File) *DirectLinkUpdateOne {
+	return _u.SetFileID(v.ID)
 }
 
 // Mutation returns the DirectLinkMutation object of the builder.
-func (dluo *DirectLinkUpdateOne) Mutation() *DirectLinkMutation {
-	return dluo.mutation
+func (_u *DirectLinkUpdateOne) Mutation() *DirectLinkMutation {
+	return _u.mutation
 }
 
 // ClearFile clears the "file" edge to the File entity.
-func (dluo *DirectLinkUpdateOne) ClearFile() *DirectLinkUpdateOne {
-	dluo.mutation.ClearFile()
-	return dluo
+func (_u *DirectLinkUpdateOne) ClearFile() *DirectLinkUpdateOne {
+	_u.mutation.ClearFile()
+	return _u
 }
 
 // Where appends a list predicates to the DirectLinkUpdate builder.
-func (dluo *DirectLinkUpdateOne) Where(ps ...predicate.DirectLink) *DirectLinkUpdateOne {
-	dluo.mutation.Where(ps...)
-	return dluo
+func (_u *DirectLinkUpdateOne) Where(ps ...predicate.DirectLink) *DirectLinkUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (dluo *DirectLinkUpdateOne) Select(field string, fields ...string) *DirectLinkUpdateOne {
-	dluo.fields = append([]string{field}, fields...)
-	return dluo
+func (_u *DirectLinkUpdateOne) Select(field string, fields ...string) *DirectLinkUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated DirectLink entity.
-func (dluo *DirectLinkUpdateOne) Save(ctx context.Context) (*DirectLink, error) {
-	if err := dluo.defaults(); err != nil {
+func (_u *DirectLinkUpdateOne) Save(ctx context.Context) (*DirectLink, error) {
+	if err := _u.defaults(); err != nil {
 		return nil, err
 	}
-	return withHooks(ctx, dluo.sqlSave, dluo.mutation, dluo.hooks)
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (dluo *DirectLinkUpdateOne) SaveX(ctx context.Context) *DirectLink {
-	node, err := dluo.Save(ctx)
+func (_u *DirectLinkUpdateOne) SaveX(ctx context.Context) *DirectLink {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -433,60 +433,60 @@ func (dluo *DirectLinkUpdateOne) SaveX(ctx context.Context) *DirectLink {
 }
 
 // Exec executes the query on the entity.
-func (dluo *DirectLinkUpdateOne) Exec(ctx context.Context) error {
-	_, err := dluo.Save(ctx)
+func (_u *DirectLinkUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dluo *DirectLinkUpdateOne) ExecX(ctx context.Context) {
-	if err := dluo.Exec(ctx); err != nil {
+func (_u *DirectLinkUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (dluo *DirectLinkUpdateOne) defaults() error {
-	if _, ok := dluo.mutation.UpdatedAt(); !ok {
+func (_u *DirectLinkUpdateOne) defaults() error {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		if directlink.UpdateDefaultUpdatedAt == nil {
 			return fmt.Errorf("ent: uninitialized directlink.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
 		}
 		v := directlink.UpdateDefaultUpdatedAt()
-		dluo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (dluo *DirectLinkUpdateOne) check() error {
-	if v, ok := dluo.mutation.FileName(); ok {
+func (_u *DirectLinkUpdateOne) check() error {
+	if v, ok := _u.mutation.FileName(); ok {
 		if err := directlink.FileNameValidator(v); err != nil {
 			return &ValidationError{Name: "file_name", err: fmt.Errorf(`ent: validator failed for field "DirectLink.file_name": %w`, err)}
 		}
 	}
-	if dluo.mutation.FileCleared() && len(dluo.mutation.FileIDs()) > 0 {
+	if _u.mutation.FileCleared() && len(_u.mutation.FileIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "DirectLink.file"`)
 	}
 	return nil
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (dluo *DirectLinkUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *DirectLinkUpdateOne {
-	dluo.modifiers = append(dluo.modifiers, modifiers...)
-	return dluo
+func (_u *DirectLinkUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *DirectLinkUpdateOne {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (dluo *DirectLinkUpdateOne) sqlSave(ctx context.Context) (_node *DirectLink, err error) {
-	if err := dluo.check(); err != nil {
+func (_u *DirectLinkUpdateOne) sqlSave(ctx context.Context) (_node *DirectLink, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(directlink.Table, directlink.Columns, sqlgraph.NewFieldSpec(directlink.FieldID, field.TypeUint))
-	id, ok := dluo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "DirectLink.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := dluo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, directlink.FieldID)
 		for _, f := range fields {
@@ -498,38 +498,38 @@ func (dluo *DirectLinkUpdateOne) sqlSave(ctx context.Context) (_node *DirectLink
 			}
 		}
 	}
-	if ps := dluo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := dluo.mutation.DeletedAt(); ok {
+	if value, ok := _u.mutation.DeletedAt(); ok {
 		_spec.SetField(directlink.FieldDeletedAt, field.TypeTime, value)
 	}
-	if dluo.mutation.DeletedAtCleared() {
+	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(directlink.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := dluo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(directlink.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := dluo.mutation.FileName(); ok {
+	if value, ok := _u.mutation.FileName(); ok {
 		_spec.SetField(directlink.FieldFileName, field.TypeString, value)
 	}
-	if value, ok := dluo.mutation.SpeedLimit(); ok {
+	if value, ok := _u.mutation.SpeedLimit(); ok {
 		_spec.SetField(directlink.FieldSpeedLimit, field.TypeInt64, value)
 	}
-	if value, ok := dluo.mutation.AddedSpeedLimit(); ok {
+	if value, ok := _u.mutation.AddedSpeedLimit(); ok {
 		_spec.AddField(directlink.FieldSpeedLimit, field.TypeInt64, value)
 	}
-	if value, ok := dluo.mutation.Downloads(); ok {
+	if value, ok := _u.mutation.Downloads(); ok {
 		_spec.SetField(directlink.FieldDownloads, field.TypeInt64, value)
 	}
-	if value, ok := dluo.mutation.AddedDownloads(); ok {
+	if value, ok := _u.mutation.AddedDownloads(); ok {
 		_spec.AddField(directlink.FieldDownloads, field.TypeInt64, value)
 	}
-	if dluo.mutation.FileCleared() {
+	if _u.mutation.FileCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -542,7 +542,7 @@ func (dluo *DirectLinkUpdateOne) sqlSave(ctx context.Context) (_node *DirectLink
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dluo.mutation.FileIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.FileIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -558,11 +558,11 @@ func (dluo *DirectLinkUpdateOne) sqlSave(ctx context.Context) (_node *DirectLink
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_spec.AddModifiers(dluo.modifiers...)
-	_node = &DirectLink{config: dluo.config}
+	_spec.AddModifiers(_u.modifiers...)
+	_node = &DirectLink{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, dluo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{directlink.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -570,6 +570,6 @@ func (dluo *DirectLinkUpdateOne) sqlSave(ctx context.Context) (_node *DirectLink
 		}
 		return nil, err
 	}
-	dluo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

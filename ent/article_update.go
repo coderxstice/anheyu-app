@@ -28,540 +28,540 @@ type ArticleUpdate struct {
 }
 
 // Where appends a list predicates to the ArticleUpdate builder.
-func (au *ArticleUpdate) Where(ps ...predicate.Article) *ArticleUpdate {
-	au.mutation.Where(ps...)
-	return au
+func (_u *ArticleUpdate) Where(ps ...predicate.Article) *ArticleUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (au *ArticleUpdate) SetDeletedAt(t time.Time) *ArticleUpdate {
-	au.mutation.SetDeletedAt(t)
-	return au
+func (_u *ArticleUpdate) SetDeletedAt(v time.Time) *ArticleUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableDeletedAt(t *time.Time) *ArticleUpdate {
-	if t != nil {
-		au.SetDeletedAt(*t)
+func (_u *ArticleUpdate) SetNillableDeletedAt(v *time.Time) *ArticleUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearDeletedAt clears the value of the "deleted_at" field.
-func (au *ArticleUpdate) ClearDeletedAt() *ArticleUpdate {
-	au.mutation.ClearDeletedAt()
-	return au
+func (_u *ArticleUpdate) ClearDeletedAt() *ArticleUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (au *ArticleUpdate) SetUpdatedAt(t time.Time) *ArticleUpdate {
-	au.mutation.SetUpdatedAt(t)
-	return au
+func (_u *ArticleUpdate) SetUpdatedAt(v time.Time) *ArticleUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetTitle sets the "title" field.
-func (au *ArticleUpdate) SetTitle(s string) *ArticleUpdate {
-	au.mutation.SetTitle(s)
-	return au
+func (_u *ArticleUpdate) SetTitle(v string) *ArticleUpdate {
+	_u.mutation.SetTitle(v)
+	return _u
 }
 
 // SetNillableTitle sets the "title" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableTitle(s *string) *ArticleUpdate {
-	if s != nil {
-		au.SetTitle(*s)
+func (_u *ArticleUpdate) SetNillableTitle(v *string) *ArticleUpdate {
+	if v != nil {
+		_u.SetTitle(*v)
 	}
-	return au
+	return _u
 }
 
 // SetContentMd sets the "content_md" field.
-func (au *ArticleUpdate) SetContentMd(s string) *ArticleUpdate {
-	au.mutation.SetContentMd(s)
-	return au
+func (_u *ArticleUpdate) SetContentMd(v string) *ArticleUpdate {
+	_u.mutation.SetContentMd(v)
+	return _u
 }
 
 // SetNillableContentMd sets the "content_md" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableContentMd(s *string) *ArticleUpdate {
-	if s != nil {
-		au.SetContentMd(*s)
+func (_u *ArticleUpdate) SetNillableContentMd(v *string) *ArticleUpdate {
+	if v != nil {
+		_u.SetContentMd(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearContentMd clears the value of the "content_md" field.
-func (au *ArticleUpdate) ClearContentMd() *ArticleUpdate {
-	au.mutation.ClearContentMd()
-	return au
+func (_u *ArticleUpdate) ClearContentMd() *ArticleUpdate {
+	_u.mutation.ClearContentMd()
+	return _u
 }
 
 // SetContentHTML sets the "content_html" field.
-func (au *ArticleUpdate) SetContentHTML(s string) *ArticleUpdate {
-	au.mutation.SetContentHTML(s)
-	return au
+func (_u *ArticleUpdate) SetContentHTML(v string) *ArticleUpdate {
+	_u.mutation.SetContentHTML(v)
+	return _u
 }
 
 // SetNillableContentHTML sets the "content_html" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableContentHTML(s *string) *ArticleUpdate {
-	if s != nil {
-		au.SetContentHTML(*s)
+func (_u *ArticleUpdate) SetNillableContentHTML(v *string) *ArticleUpdate {
+	if v != nil {
+		_u.SetContentHTML(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearContentHTML clears the value of the "content_html" field.
-func (au *ArticleUpdate) ClearContentHTML() *ArticleUpdate {
-	au.mutation.ClearContentHTML()
-	return au
+func (_u *ArticleUpdate) ClearContentHTML() *ArticleUpdate {
+	_u.mutation.ClearContentHTML()
+	return _u
 }
 
 // SetCoverURL sets the "cover_url" field.
-func (au *ArticleUpdate) SetCoverURL(s string) *ArticleUpdate {
-	au.mutation.SetCoverURL(s)
-	return au
+func (_u *ArticleUpdate) SetCoverURL(v string) *ArticleUpdate {
+	_u.mutation.SetCoverURL(v)
+	return _u
 }
 
 // SetNillableCoverURL sets the "cover_url" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableCoverURL(s *string) *ArticleUpdate {
-	if s != nil {
-		au.SetCoverURL(*s)
+func (_u *ArticleUpdate) SetNillableCoverURL(v *string) *ArticleUpdate {
+	if v != nil {
+		_u.SetCoverURL(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearCoverURL clears the value of the "cover_url" field.
-func (au *ArticleUpdate) ClearCoverURL() *ArticleUpdate {
-	au.mutation.ClearCoverURL()
-	return au
+func (_u *ArticleUpdate) ClearCoverURL() *ArticleUpdate {
+	_u.mutation.ClearCoverURL()
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (au *ArticleUpdate) SetStatus(a article.Status) *ArticleUpdate {
-	au.mutation.SetStatus(a)
-	return au
+func (_u *ArticleUpdate) SetStatus(v article.Status) *ArticleUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableStatus(a *article.Status) *ArticleUpdate {
-	if a != nil {
-		au.SetStatus(*a)
+func (_u *ArticleUpdate) SetNillableStatus(v *article.Status) *ArticleUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return au
+	return _u
 }
 
 // SetViewCount sets the "view_count" field.
-func (au *ArticleUpdate) SetViewCount(i int) *ArticleUpdate {
-	au.mutation.ResetViewCount()
-	au.mutation.SetViewCount(i)
-	return au
+func (_u *ArticleUpdate) SetViewCount(v int) *ArticleUpdate {
+	_u.mutation.ResetViewCount()
+	_u.mutation.SetViewCount(v)
+	return _u
 }
 
 // SetNillableViewCount sets the "view_count" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableViewCount(i *int) *ArticleUpdate {
-	if i != nil {
-		au.SetViewCount(*i)
+func (_u *ArticleUpdate) SetNillableViewCount(v *int) *ArticleUpdate {
+	if v != nil {
+		_u.SetViewCount(*v)
 	}
-	return au
+	return _u
 }
 
-// AddViewCount adds i to the "view_count" field.
-func (au *ArticleUpdate) AddViewCount(i int) *ArticleUpdate {
-	au.mutation.AddViewCount(i)
-	return au
+// AddViewCount adds value to the "view_count" field.
+func (_u *ArticleUpdate) AddViewCount(v int) *ArticleUpdate {
+	_u.mutation.AddViewCount(v)
+	return _u
 }
 
 // SetWordCount sets the "word_count" field.
-func (au *ArticleUpdate) SetWordCount(i int) *ArticleUpdate {
-	au.mutation.ResetWordCount()
-	au.mutation.SetWordCount(i)
-	return au
+func (_u *ArticleUpdate) SetWordCount(v int) *ArticleUpdate {
+	_u.mutation.ResetWordCount()
+	_u.mutation.SetWordCount(v)
+	return _u
 }
 
 // SetNillableWordCount sets the "word_count" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableWordCount(i *int) *ArticleUpdate {
-	if i != nil {
-		au.SetWordCount(*i)
+func (_u *ArticleUpdate) SetNillableWordCount(v *int) *ArticleUpdate {
+	if v != nil {
+		_u.SetWordCount(*v)
 	}
-	return au
+	return _u
 }
 
-// AddWordCount adds i to the "word_count" field.
-func (au *ArticleUpdate) AddWordCount(i int) *ArticleUpdate {
-	au.mutation.AddWordCount(i)
-	return au
+// AddWordCount adds value to the "word_count" field.
+func (_u *ArticleUpdate) AddWordCount(v int) *ArticleUpdate {
+	_u.mutation.AddWordCount(v)
+	return _u
 }
 
 // SetReadingTime sets the "reading_time" field.
-func (au *ArticleUpdate) SetReadingTime(i int) *ArticleUpdate {
-	au.mutation.ResetReadingTime()
-	au.mutation.SetReadingTime(i)
-	return au
+func (_u *ArticleUpdate) SetReadingTime(v int) *ArticleUpdate {
+	_u.mutation.ResetReadingTime()
+	_u.mutation.SetReadingTime(v)
+	return _u
 }
 
 // SetNillableReadingTime sets the "reading_time" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableReadingTime(i *int) *ArticleUpdate {
-	if i != nil {
-		au.SetReadingTime(*i)
+func (_u *ArticleUpdate) SetNillableReadingTime(v *int) *ArticleUpdate {
+	if v != nil {
+		_u.SetReadingTime(*v)
 	}
-	return au
+	return _u
 }
 
-// AddReadingTime adds i to the "reading_time" field.
-func (au *ArticleUpdate) AddReadingTime(i int) *ArticleUpdate {
-	au.mutation.AddReadingTime(i)
-	return au
+// AddReadingTime adds value to the "reading_time" field.
+func (_u *ArticleUpdate) AddReadingTime(v int) *ArticleUpdate {
+	_u.mutation.AddReadingTime(v)
+	return _u
 }
 
 // SetIPLocation sets the "ip_location" field.
-func (au *ArticleUpdate) SetIPLocation(s string) *ArticleUpdate {
-	au.mutation.SetIPLocation(s)
-	return au
+func (_u *ArticleUpdate) SetIPLocation(v string) *ArticleUpdate {
+	_u.mutation.SetIPLocation(v)
+	return _u
 }
 
 // SetNillableIPLocation sets the "ip_location" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableIPLocation(s *string) *ArticleUpdate {
-	if s != nil {
-		au.SetIPLocation(*s)
+func (_u *ArticleUpdate) SetNillableIPLocation(v *string) *ArticleUpdate {
+	if v != nil {
+		_u.SetIPLocation(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearIPLocation clears the value of the "ip_location" field.
-func (au *ArticleUpdate) ClearIPLocation() *ArticleUpdate {
-	au.mutation.ClearIPLocation()
-	return au
+func (_u *ArticleUpdate) ClearIPLocation() *ArticleUpdate {
+	_u.mutation.ClearIPLocation()
+	return _u
 }
 
 // SetPrimaryColor sets the "primary_color" field.
-func (au *ArticleUpdate) SetPrimaryColor(s string) *ArticleUpdate {
-	au.mutation.SetPrimaryColor(s)
-	return au
+func (_u *ArticleUpdate) SetPrimaryColor(v string) *ArticleUpdate {
+	_u.mutation.SetPrimaryColor(v)
+	return _u
 }
 
 // SetNillablePrimaryColor sets the "primary_color" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillablePrimaryColor(s *string) *ArticleUpdate {
-	if s != nil {
-		au.SetPrimaryColor(*s)
+func (_u *ArticleUpdate) SetNillablePrimaryColor(v *string) *ArticleUpdate {
+	if v != nil {
+		_u.SetPrimaryColor(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearPrimaryColor clears the value of the "primary_color" field.
-func (au *ArticleUpdate) ClearPrimaryColor() *ArticleUpdate {
-	au.mutation.ClearPrimaryColor()
-	return au
+func (_u *ArticleUpdate) ClearPrimaryColor() *ArticleUpdate {
+	_u.mutation.ClearPrimaryColor()
+	return _u
 }
 
 // SetIsPrimaryColorManual sets the "is_primary_color_manual" field.
-func (au *ArticleUpdate) SetIsPrimaryColorManual(b bool) *ArticleUpdate {
-	au.mutation.SetIsPrimaryColorManual(b)
-	return au
+func (_u *ArticleUpdate) SetIsPrimaryColorManual(v bool) *ArticleUpdate {
+	_u.mutation.SetIsPrimaryColorManual(v)
+	return _u
 }
 
 // SetNillableIsPrimaryColorManual sets the "is_primary_color_manual" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableIsPrimaryColorManual(b *bool) *ArticleUpdate {
-	if b != nil {
-		au.SetIsPrimaryColorManual(*b)
+func (_u *ArticleUpdate) SetNillableIsPrimaryColorManual(v *bool) *ArticleUpdate {
+	if v != nil {
+		_u.SetIsPrimaryColorManual(*v)
 	}
-	return au
+	return _u
 }
 
 // SetHomeSort sets the "home_sort" field.
-func (au *ArticleUpdate) SetHomeSort(i int) *ArticleUpdate {
-	au.mutation.ResetHomeSort()
-	au.mutation.SetHomeSort(i)
-	return au
+func (_u *ArticleUpdate) SetHomeSort(v int) *ArticleUpdate {
+	_u.mutation.ResetHomeSort()
+	_u.mutation.SetHomeSort(v)
+	return _u
 }
 
 // SetNillableHomeSort sets the "home_sort" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableHomeSort(i *int) *ArticleUpdate {
-	if i != nil {
-		au.SetHomeSort(*i)
+func (_u *ArticleUpdate) SetNillableHomeSort(v *int) *ArticleUpdate {
+	if v != nil {
+		_u.SetHomeSort(*v)
 	}
-	return au
+	return _u
 }
 
-// AddHomeSort adds i to the "home_sort" field.
-func (au *ArticleUpdate) AddHomeSort(i int) *ArticleUpdate {
-	au.mutation.AddHomeSort(i)
-	return au
+// AddHomeSort adds value to the "home_sort" field.
+func (_u *ArticleUpdate) AddHomeSort(v int) *ArticleUpdate {
+	_u.mutation.AddHomeSort(v)
+	return _u
 }
 
 // SetPinSort sets the "pin_sort" field.
-func (au *ArticleUpdate) SetPinSort(i int) *ArticleUpdate {
-	au.mutation.ResetPinSort()
-	au.mutation.SetPinSort(i)
-	return au
+func (_u *ArticleUpdate) SetPinSort(v int) *ArticleUpdate {
+	_u.mutation.ResetPinSort()
+	_u.mutation.SetPinSort(v)
+	return _u
 }
 
 // SetNillablePinSort sets the "pin_sort" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillablePinSort(i *int) *ArticleUpdate {
-	if i != nil {
-		au.SetPinSort(*i)
+func (_u *ArticleUpdate) SetNillablePinSort(v *int) *ArticleUpdate {
+	if v != nil {
+		_u.SetPinSort(*v)
 	}
-	return au
+	return _u
 }
 
-// AddPinSort adds i to the "pin_sort" field.
-func (au *ArticleUpdate) AddPinSort(i int) *ArticleUpdate {
-	au.mutation.AddPinSort(i)
-	return au
+// AddPinSort adds value to the "pin_sort" field.
+func (_u *ArticleUpdate) AddPinSort(v int) *ArticleUpdate {
+	_u.mutation.AddPinSort(v)
+	return _u
 }
 
 // SetTopImgURL sets the "top_img_url" field.
-func (au *ArticleUpdate) SetTopImgURL(s string) *ArticleUpdate {
-	au.mutation.SetTopImgURL(s)
-	return au
+func (_u *ArticleUpdate) SetTopImgURL(v string) *ArticleUpdate {
+	_u.mutation.SetTopImgURL(v)
+	return _u
 }
 
 // SetNillableTopImgURL sets the "top_img_url" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableTopImgURL(s *string) *ArticleUpdate {
-	if s != nil {
-		au.SetTopImgURL(*s)
+func (_u *ArticleUpdate) SetNillableTopImgURL(v *string) *ArticleUpdate {
+	if v != nil {
+		_u.SetTopImgURL(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearTopImgURL clears the value of the "top_img_url" field.
-func (au *ArticleUpdate) ClearTopImgURL() *ArticleUpdate {
-	au.mutation.ClearTopImgURL()
-	return au
+func (_u *ArticleUpdate) ClearTopImgURL() *ArticleUpdate {
+	_u.mutation.ClearTopImgURL()
+	return _u
 }
 
 // SetSummaries sets the "summaries" field.
-func (au *ArticleUpdate) SetSummaries(s []string) *ArticleUpdate {
-	au.mutation.SetSummaries(s)
-	return au
+func (_u *ArticleUpdate) SetSummaries(v []string) *ArticleUpdate {
+	_u.mutation.SetSummaries(v)
+	return _u
 }
 
-// AppendSummaries appends s to the "summaries" field.
-func (au *ArticleUpdate) AppendSummaries(s []string) *ArticleUpdate {
-	au.mutation.AppendSummaries(s)
-	return au
+// AppendSummaries appends value to the "summaries" field.
+func (_u *ArticleUpdate) AppendSummaries(v []string) *ArticleUpdate {
+	_u.mutation.AppendSummaries(v)
+	return _u
 }
 
 // ClearSummaries clears the value of the "summaries" field.
-func (au *ArticleUpdate) ClearSummaries() *ArticleUpdate {
-	au.mutation.ClearSummaries()
-	return au
+func (_u *ArticleUpdate) ClearSummaries() *ArticleUpdate {
+	_u.mutation.ClearSummaries()
+	return _u
 }
 
 // SetAbbrlink sets the "abbrlink" field.
-func (au *ArticleUpdate) SetAbbrlink(s string) *ArticleUpdate {
-	au.mutation.SetAbbrlink(s)
-	return au
+func (_u *ArticleUpdate) SetAbbrlink(v string) *ArticleUpdate {
+	_u.mutation.SetAbbrlink(v)
+	return _u
 }
 
 // SetNillableAbbrlink sets the "abbrlink" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableAbbrlink(s *string) *ArticleUpdate {
-	if s != nil {
-		au.SetAbbrlink(*s)
+func (_u *ArticleUpdate) SetNillableAbbrlink(v *string) *ArticleUpdate {
+	if v != nil {
+		_u.SetAbbrlink(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearAbbrlink clears the value of the "abbrlink" field.
-func (au *ArticleUpdate) ClearAbbrlink() *ArticleUpdate {
-	au.mutation.ClearAbbrlink()
-	return au
+func (_u *ArticleUpdate) ClearAbbrlink() *ArticleUpdate {
+	_u.mutation.ClearAbbrlink()
+	return _u
 }
 
 // SetCopyright sets the "copyright" field.
-func (au *ArticleUpdate) SetCopyright(b bool) *ArticleUpdate {
-	au.mutation.SetCopyright(b)
-	return au
+func (_u *ArticleUpdate) SetCopyright(v bool) *ArticleUpdate {
+	_u.mutation.SetCopyright(v)
+	return _u
 }
 
 // SetNillableCopyright sets the "copyright" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableCopyright(b *bool) *ArticleUpdate {
-	if b != nil {
-		au.SetCopyright(*b)
+func (_u *ArticleUpdate) SetNillableCopyright(v *bool) *ArticleUpdate {
+	if v != nil {
+		_u.SetCopyright(*v)
 	}
-	return au
+	return _u
 }
 
 // SetCopyrightAuthor sets the "copyright_author" field.
-func (au *ArticleUpdate) SetCopyrightAuthor(s string) *ArticleUpdate {
-	au.mutation.SetCopyrightAuthor(s)
-	return au
+func (_u *ArticleUpdate) SetCopyrightAuthor(v string) *ArticleUpdate {
+	_u.mutation.SetCopyrightAuthor(v)
+	return _u
 }
 
 // SetNillableCopyrightAuthor sets the "copyright_author" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableCopyrightAuthor(s *string) *ArticleUpdate {
-	if s != nil {
-		au.SetCopyrightAuthor(*s)
+func (_u *ArticleUpdate) SetNillableCopyrightAuthor(v *string) *ArticleUpdate {
+	if v != nil {
+		_u.SetCopyrightAuthor(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearCopyrightAuthor clears the value of the "copyright_author" field.
-func (au *ArticleUpdate) ClearCopyrightAuthor() *ArticleUpdate {
-	au.mutation.ClearCopyrightAuthor()
-	return au
+func (_u *ArticleUpdate) ClearCopyrightAuthor() *ArticleUpdate {
+	_u.mutation.ClearCopyrightAuthor()
+	return _u
 }
 
 // SetCopyrightAuthorHref sets the "copyright_author_href" field.
-func (au *ArticleUpdate) SetCopyrightAuthorHref(s string) *ArticleUpdate {
-	au.mutation.SetCopyrightAuthorHref(s)
-	return au
+func (_u *ArticleUpdate) SetCopyrightAuthorHref(v string) *ArticleUpdate {
+	_u.mutation.SetCopyrightAuthorHref(v)
+	return _u
 }
 
 // SetNillableCopyrightAuthorHref sets the "copyright_author_href" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableCopyrightAuthorHref(s *string) *ArticleUpdate {
-	if s != nil {
-		au.SetCopyrightAuthorHref(*s)
+func (_u *ArticleUpdate) SetNillableCopyrightAuthorHref(v *string) *ArticleUpdate {
+	if v != nil {
+		_u.SetCopyrightAuthorHref(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearCopyrightAuthorHref clears the value of the "copyright_author_href" field.
-func (au *ArticleUpdate) ClearCopyrightAuthorHref() *ArticleUpdate {
-	au.mutation.ClearCopyrightAuthorHref()
-	return au
+func (_u *ArticleUpdate) ClearCopyrightAuthorHref() *ArticleUpdate {
+	_u.mutation.ClearCopyrightAuthorHref()
+	return _u
 }
 
 // SetCopyrightURL sets the "copyright_url" field.
-func (au *ArticleUpdate) SetCopyrightURL(s string) *ArticleUpdate {
-	au.mutation.SetCopyrightURL(s)
-	return au
+func (_u *ArticleUpdate) SetCopyrightURL(v string) *ArticleUpdate {
+	_u.mutation.SetCopyrightURL(v)
+	return _u
 }
 
 // SetNillableCopyrightURL sets the "copyright_url" field if the given value is not nil.
-func (au *ArticleUpdate) SetNillableCopyrightURL(s *string) *ArticleUpdate {
-	if s != nil {
-		au.SetCopyrightURL(*s)
+func (_u *ArticleUpdate) SetNillableCopyrightURL(v *string) *ArticleUpdate {
+	if v != nil {
+		_u.SetCopyrightURL(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearCopyrightURL clears the value of the "copyright_url" field.
-func (au *ArticleUpdate) ClearCopyrightURL() *ArticleUpdate {
-	au.mutation.ClearCopyrightURL()
-	return au
+func (_u *ArticleUpdate) ClearCopyrightURL() *ArticleUpdate {
+	_u.mutation.ClearCopyrightURL()
+	return _u
 }
 
 // AddPostTagIDs adds the "post_tags" edge to the PostTag entity by IDs.
-func (au *ArticleUpdate) AddPostTagIDs(ids ...uint) *ArticleUpdate {
-	au.mutation.AddPostTagIDs(ids...)
-	return au
+func (_u *ArticleUpdate) AddPostTagIDs(ids ...uint) *ArticleUpdate {
+	_u.mutation.AddPostTagIDs(ids...)
+	return _u
 }
 
 // AddPostTags adds the "post_tags" edges to the PostTag entity.
-func (au *ArticleUpdate) AddPostTags(p ...*PostTag) *ArticleUpdate {
-	ids := make([]uint, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+func (_u *ArticleUpdate) AddPostTags(v ...*PostTag) *ArticleUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return au.AddPostTagIDs(ids...)
+	return _u.AddPostTagIDs(ids...)
 }
 
 // AddPostCategoryIDs adds the "post_categories" edge to the PostCategory entity by IDs.
-func (au *ArticleUpdate) AddPostCategoryIDs(ids ...uint) *ArticleUpdate {
-	au.mutation.AddPostCategoryIDs(ids...)
-	return au
+func (_u *ArticleUpdate) AddPostCategoryIDs(ids ...uint) *ArticleUpdate {
+	_u.mutation.AddPostCategoryIDs(ids...)
+	return _u
 }
 
 // AddPostCategories adds the "post_categories" edges to the PostCategory entity.
-func (au *ArticleUpdate) AddPostCategories(p ...*PostCategory) *ArticleUpdate {
-	ids := make([]uint, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+func (_u *ArticleUpdate) AddPostCategories(v ...*PostCategory) *ArticleUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return au.AddPostCategoryIDs(ids...)
+	return _u.AddPostCategoryIDs(ids...)
 }
 
 // AddCommentIDs adds the "comments" edge to the Comment entity by IDs.
-func (au *ArticleUpdate) AddCommentIDs(ids ...uint) *ArticleUpdate {
-	au.mutation.AddCommentIDs(ids...)
-	return au
+func (_u *ArticleUpdate) AddCommentIDs(ids ...uint) *ArticleUpdate {
+	_u.mutation.AddCommentIDs(ids...)
+	return _u
 }
 
 // AddComments adds the "comments" edges to the Comment entity.
-func (au *ArticleUpdate) AddComments(c ...*Comment) *ArticleUpdate {
-	ids := make([]uint, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
+func (_u *ArticleUpdate) AddComments(v ...*Comment) *ArticleUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return au.AddCommentIDs(ids...)
+	return _u.AddCommentIDs(ids...)
 }
 
 // Mutation returns the ArticleMutation object of the builder.
-func (au *ArticleUpdate) Mutation() *ArticleMutation {
-	return au.mutation
+func (_u *ArticleUpdate) Mutation() *ArticleMutation {
+	return _u.mutation
 }
 
 // ClearPostTags clears all "post_tags" edges to the PostTag entity.
-func (au *ArticleUpdate) ClearPostTags() *ArticleUpdate {
-	au.mutation.ClearPostTags()
-	return au
+func (_u *ArticleUpdate) ClearPostTags() *ArticleUpdate {
+	_u.mutation.ClearPostTags()
+	return _u
 }
 
 // RemovePostTagIDs removes the "post_tags" edge to PostTag entities by IDs.
-func (au *ArticleUpdate) RemovePostTagIDs(ids ...uint) *ArticleUpdate {
-	au.mutation.RemovePostTagIDs(ids...)
-	return au
+func (_u *ArticleUpdate) RemovePostTagIDs(ids ...uint) *ArticleUpdate {
+	_u.mutation.RemovePostTagIDs(ids...)
+	return _u
 }
 
 // RemovePostTags removes "post_tags" edges to PostTag entities.
-func (au *ArticleUpdate) RemovePostTags(p ...*PostTag) *ArticleUpdate {
-	ids := make([]uint, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+func (_u *ArticleUpdate) RemovePostTags(v ...*PostTag) *ArticleUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return au.RemovePostTagIDs(ids...)
+	return _u.RemovePostTagIDs(ids...)
 }
 
 // ClearPostCategories clears all "post_categories" edges to the PostCategory entity.
-func (au *ArticleUpdate) ClearPostCategories() *ArticleUpdate {
-	au.mutation.ClearPostCategories()
-	return au
+func (_u *ArticleUpdate) ClearPostCategories() *ArticleUpdate {
+	_u.mutation.ClearPostCategories()
+	return _u
 }
 
 // RemovePostCategoryIDs removes the "post_categories" edge to PostCategory entities by IDs.
-func (au *ArticleUpdate) RemovePostCategoryIDs(ids ...uint) *ArticleUpdate {
-	au.mutation.RemovePostCategoryIDs(ids...)
-	return au
+func (_u *ArticleUpdate) RemovePostCategoryIDs(ids ...uint) *ArticleUpdate {
+	_u.mutation.RemovePostCategoryIDs(ids...)
+	return _u
 }
 
 // RemovePostCategories removes "post_categories" edges to PostCategory entities.
-func (au *ArticleUpdate) RemovePostCategories(p ...*PostCategory) *ArticleUpdate {
-	ids := make([]uint, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+func (_u *ArticleUpdate) RemovePostCategories(v ...*PostCategory) *ArticleUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return au.RemovePostCategoryIDs(ids...)
+	return _u.RemovePostCategoryIDs(ids...)
 }
 
 // ClearComments clears all "comments" edges to the Comment entity.
-func (au *ArticleUpdate) ClearComments() *ArticleUpdate {
-	au.mutation.ClearComments()
-	return au
+func (_u *ArticleUpdate) ClearComments() *ArticleUpdate {
+	_u.mutation.ClearComments()
+	return _u
 }
 
 // RemoveCommentIDs removes the "comments" edge to Comment entities by IDs.
-func (au *ArticleUpdate) RemoveCommentIDs(ids ...uint) *ArticleUpdate {
-	au.mutation.RemoveCommentIDs(ids...)
-	return au
+func (_u *ArticleUpdate) RemoveCommentIDs(ids ...uint) *ArticleUpdate {
+	_u.mutation.RemoveCommentIDs(ids...)
+	return _u
 }
 
 // RemoveComments removes "comments" edges to Comment entities.
-func (au *ArticleUpdate) RemoveComments(c ...*Comment) *ArticleUpdate {
-	ids := make([]uint, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
+func (_u *ArticleUpdate) RemoveComments(v ...*Comment) *ArticleUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return au.RemoveCommentIDs(ids...)
+	return _u.RemoveCommentIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (au *ArticleUpdate) Save(ctx context.Context) (int, error) {
-	if err := au.defaults(); err != nil {
+func (_u *ArticleUpdate) Save(ctx context.Context) (int, error) {
+	if err := _u.defaults(); err != nil {
 		return 0, err
 	}
-	return withHooks(ctx, au.sqlSave, au.mutation, au.hooks)
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (au *ArticleUpdate) SaveX(ctx context.Context) int {
-	affected, err := au.Save(ctx)
+func (_u *ArticleUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -569,63 +569,63 @@ func (au *ArticleUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (au *ArticleUpdate) Exec(ctx context.Context) error {
-	_, err := au.Save(ctx)
+func (_u *ArticleUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (au *ArticleUpdate) ExecX(ctx context.Context) {
-	if err := au.Exec(ctx); err != nil {
+func (_u *ArticleUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (au *ArticleUpdate) defaults() error {
-	if _, ok := au.mutation.UpdatedAt(); !ok {
+func (_u *ArticleUpdate) defaults() error {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		if article.UpdateDefaultUpdatedAt == nil {
 			return fmt.Errorf("ent: uninitialized article.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
 		}
 		v := article.UpdateDefaultUpdatedAt()
-		au.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (au *ArticleUpdate) check() error {
-	if v, ok := au.mutation.Title(); ok {
+func (_u *ArticleUpdate) check() error {
+	if v, ok := _u.mutation.Title(); ok {
 		if err := article.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Article.title": %w`, err)}
 		}
 	}
-	if v, ok := au.mutation.Status(); ok {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := article.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Article.status": %w`, err)}
 		}
 	}
-	if v, ok := au.mutation.ViewCount(); ok {
+	if v, ok := _u.mutation.ViewCount(); ok {
 		if err := article.ViewCountValidator(v); err != nil {
 			return &ValidationError{Name: "view_count", err: fmt.Errorf(`ent: validator failed for field "Article.view_count": %w`, err)}
 		}
 	}
-	if v, ok := au.mutation.WordCount(); ok {
+	if v, ok := _u.mutation.WordCount(); ok {
 		if err := article.WordCountValidator(v); err != nil {
 			return &ValidationError{Name: "word_count", err: fmt.Errorf(`ent: validator failed for field "Article.word_count": %w`, err)}
 		}
 	}
-	if v, ok := au.mutation.ReadingTime(); ok {
+	if v, ok := _u.mutation.ReadingTime(); ok {
 		if err := article.ReadingTimeValidator(v); err != nil {
 			return &ValidationError{Name: "reading_time", err: fmt.Errorf(`ent: validator failed for field "Article.reading_time": %w`, err)}
 		}
 	}
-	if v, ok := au.mutation.HomeSort(); ok {
+	if v, ok := _u.mutation.HomeSort(); ok {
 		if err := article.HomeSortValidator(v); err != nil {
 			return &ValidationError{Name: "home_sort", err: fmt.Errorf(`ent: validator failed for field "Article.home_sort": %w`, err)}
 		}
 	}
-	if v, ok := au.mutation.PinSort(); ok {
+	if v, ok := _u.mutation.PinSort(); ok {
 		if err := article.PinSortValidator(v); err != nil {
 			return &ValidationError{Name: "pin_sort", err: fmt.Errorf(`ent: validator failed for field "Article.pin_sort": %w`, err)}
 		}
@@ -634,146 +634,146 @@ func (au *ArticleUpdate) check() error {
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (au *ArticleUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *ArticleUpdate {
-	au.modifiers = append(au.modifiers, modifiers...)
-	return au
+func (_u *ArticleUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *ArticleUpdate {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := au.check(); err != nil {
-		return n, err
+func (_u *ArticleUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(article.Table, article.Columns, sqlgraph.NewFieldSpec(article.FieldID, field.TypeUint))
-	if ps := au.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := au.mutation.DeletedAt(); ok {
+	if value, ok := _u.mutation.DeletedAt(); ok {
 		_spec.SetField(article.FieldDeletedAt, field.TypeTime, value)
 	}
-	if au.mutation.DeletedAtCleared() {
+	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(article.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := au.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(article.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := au.mutation.Title(); ok {
+	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(article.FieldTitle, field.TypeString, value)
 	}
-	if value, ok := au.mutation.ContentMd(); ok {
+	if value, ok := _u.mutation.ContentMd(); ok {
 		_spec.SetField(article.FieldContentMd, field.TypeString, value)
 	}
-	if au.mutation.ContentMdCleared() {
+	if _u.mutation.ContentMdCleared() {
 		_spec.ClearField(article.FieldContentMd, field.TypeString)
 	}
-	if value, ok := au.mutation.ContentHTML(); ok {
+	if value, ok := _u.mutation.ContentHTML(); ok {
 		_spec.SetField(article.FieldContentHTML, field.TypeString, value)
 	}
-	if au.mutation.ContentHTMLCleared() {
+	if _u.mutation.ContentHTMLCleared() {
 		_spec.ClearField(article.FieldContentHTML, field.TypeString)
 	}
-	if value, ok := au.mutation.CoverURL(); ok {
+	if value, ok := _u.mutation.CoverURL(); ok {
 		_spec.SetField(article.FieldCoverURL, field.TypeString, value)
 	}
-	if au.mutation.CoverURLCleared() {
+	if _u.mutation.CoverURLCleared() {
 		_spec.ClearField(article.FieldCoverURL, field.TypeString)
 	}
-	if value, ok := au.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(article.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := au.mutation.ViewCount(); ok {
+	if value, ok := _u.mutation.ViewCount(); ok {
 		_spec.SetField(article.FieldViewCount, field.TypeInt, value)
 	}
-	if value, ok := au.mutation.AddedViewCount(); ok {
+	if value, ok := _u.mutation.AddedViewCount(); ok {
 		_spec.AddField(article.FieldViewCount, field.TypeInt, value)
 	}
-	if value, ok := au.mutation.WordCount(); ok {
+	if value, ok := _u.mutation.WordCount(); ok {
 		_spec.SetField(article.FieldWordCount, field.TypeInt, value)
 	}
-	if value, ok := au.mutation.AddedWordCount(); ok {
+	if value, ok := _u.mutation.AddedWordCount(); ok {
 		_spec.AddField(article.FieldWordCount, field.TypeInt, value)
 	}
-	if value, ok := au.mutation.ReadingTime(); ok {
+	if value, ok := _u.mutation.ReadingTime(); ok {
 		_spec.SetField(article.FieldReadingTime, field.TypeInt, value)
 	}
-	if value, ok := au.mutation.AddedReadingTime(); ok {
+	if value, ok := _u.mutation.AddedReadingTime(); ok {
 		_spec.AddField(article.FieldReadingTime, field.TypeInt, value)
 	}
-	if value, ok := au.mutation.IPLocation(); ok {
+	if value, ok := _u.mutation.IPLocation(); ok {
 		_spec.SetField(article.FieldIPLocation, field.TypeString, value)
 	}
-	if au.mutation.IPLocationCleared() {
+	if _u.mutation.IPLocationCleared() {
 		_spec.ClearField(article.FieldIPLocation, field.TypeString)
 	}
-	if value, ok := au.mutation.PrimaryColor(); ok {
+	if value, ok := _u.mutation.PrimaryColor(); ok {
 		_spec.SetField(article.FieldPrimaryColor, field.TypeString, value)
 	}
-	if au.mutation.PrimaryColorCleared() {
+	if _u.mutation.PrimaryColorCleared() {
 		_spec.ClearField(article.FieldPrimaryColor, field.TypeString)
 	}
-	if value, ok := au.mutation.IsPrimaryColorManual(); ok {
+	if value, ok := _u.mutation.IsPrimaryColorManual(); ok {
 		_spec.SetField(article.FieldIsPrimaryColorManual, field.TypeBool, value)
 	}
-	if value, ok := au.mutation.HomeSort(); ok {
+	if value, ok := _u.mutation.HomeSort(); ok {
 		_spec.SetField(article.FieldHomeSort, field.TypeInt, value)
 	}
-	if value, ok := au.mutation.AddedHomeSort(); ok {
+	if value, ok := _u.mutation.AddedHomeSort(); ok {
 		_spec.AddField(article.FieldHomeSort, field.TypeInt, value)
 	}
-	if value, ok := au.mutation.PinSort(); ok {
+	if value, ok := _u.mutation.PinSort(); ok {
 		_spec.SetField(article.FieldPinSort, field.TypeInt, value)
 	}
-	if value, ok := au.mutation.AddedPinSort(); ok {
+	if value, ok := _u.mutation.AddedPinSort(); ok {
 		_spec.AddField(article.FieldPinSort, field.TypeInt, value)
 	}
-	if value, ok := au.mutation.TopImgURL(); ok {
+	if value, ok := _u.mutation.TopImgURL(); ok {
 		_spec.SetField(article.FieldTopImgURL, field.TypeString, value)
 	}
-	if au.mutation.TopImgURLCleared() {
+	if _u.mutation.TopImgURLCleared() {
 		_spec.ClearField(article.FieldTopImgURL, field.TypeString)
 	}
-	if value, ok := au.mutation.Summaries(); ok {
+	if value, ok := _u.mutation.Summaries(); ok {
 		_spec.SetField(article.FieldSummaries, field.TypeJSON, value)
 	}
-	if value, ok := au.mutation.AppendedSummaries(); ok {
+	if value, ok := _u.mutation.AppendedSummaries(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, article.FieldSummaries, value)
 		})
 	}
-	if au.mutation.SummariesCleared() {
+	if _u.mutation.SummariesCleared() {
 		_spec.ClearField(article.FieldSummaries, field.TypeJSON)
 	}
-	if value, ok := au.mutation.Abbrlink(); ok {
+	if value, ok := _u.mutation.Abbrlink(); ok {
 		_spec.SetField(article.FieldAbbrlink, field.TypeString, value)
 	}
-	if au.mutation.AbbrlinkCleared() {
+	if _u.mutation.AbbrlinkCleared() {
 		_spec.ClearField(article.FieldAbbrlink, field.TypeString)
 	}
-	if value, ok := au.mutation.Copyright(); ok {
+	if value, ok := _u.mutation.Copyright(); ok {
 		_spec.SetField(article.FieldCopyright, field.TypeBool, value)
 	}
-	if value, ok := au.mutation.CopyrightAuthor(); ok {
+	if value, ok := _u.mutation.CopyrightAuthor(); ok {
 		_spec.SetField(article.FieldCopyrightAuthor, field.TypeString, value)
 	}
-	if au.mutation.CopyrightAuthorCleared() {
+	if _u.mutation.CopyrightAuthorCleared() {
 		_spec.ClearField(article.FieldCopyrightAuthor, field.TypeString)
 	}
-	if value, ok := au.mutation.CopyrightAuthorHref(); ok {
+	if value, ok := _u.mutation.CopyrightAuthorHref(); ok {
 		_spec.SetField(article.FieldCopyrightAuthorHref, field.TypeString, value)
 	}
-	if au.mutation.CopyrightAuthorHrefCleared() {
+	if _u.mutation.CopyrightAuthorHrefCleared() {
 		_spec.ClearField(article.FieldCopyrightAuthorHref, field.TypeString)
 	}
-	if value, ok := au.mutation.CopyrightURL(); ok {
+	if value, ok := _u.mutation.CopyrightURL(); ok {
 		_spec.SetField(article.FieldCopyrightURL, field.TypeString, value)
 	}
-	if au.mutation.CopyrightURLCleared() {
+	if _u.mutation.CopyrightURLCleared() {
 		_spec.ClearField(article.FieldCopyrightURL, field.TypeString)
 	}
-	if au.mutation.PostTagsCleared() {
+	if _u.mutation.PostTagsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -786,7 +786,7 @@ func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := au.mutation.RemovedPostTagsIDs(); len(nodes) > 0 && !au.mutation.PostTagsCleared() {
+	if nodes := _u.mutation.RemovedPostTagsIDs(); len(nodes) > 0 && !_u.mutation.PostTagsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -802,7 +802,7 @@ func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := au.mutation.PostTagsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.PostTagsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -818,7 +818,7 @@ func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if au.mutation.PostCategoriesCleared() {
+	if _u.mutation.PostCategoriesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -831,7 +831,7 @@ func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := au.mutation.RemovedPostCategoriesIDs(); len(nodes) > 0 && !au.mutation.PostCategoriesCleared() {
+	if nodes := _u.mutation.RemovedPostCategoriesIDs(); len(nodes) > 0 && !_u.mutation.PostCategoriesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -847,7 +847,7 @@ func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := au.mutation.PostCategoriesIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.PostCategoriesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -863,7 +863,7 @@ func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if au.mutation.CommentsCleared() {
+	if _u.mutation.CommentsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -876,7 +876,7 @@ func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := au.mutation.RemovedCommentsIDs(); len(nodes) > 0 && !au.mutation.CommentsCleared() {
+	if nodes := _u.mutation.RemovedCommentsIDs(); len(nodes) > 0 && !_u.mutation.CommentsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -892,7 +892,7 @@ func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := au.mutation.CommentsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.CommentsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -908,8 +908,8 @@ func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_spec.AddModifiers(au.modifiers...)
-	if n, err = sqlgraph.UpdateNodes(ctx, au.driver, _spec); err != nil {
+	_spec.AddModifiers(_u.modifiers...)
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{article.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -917,8 +917,8 @@ func (au *ArticleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	au.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // ArticleUpdateOne is the builder for updating a single Article entity.
@@ -931,547 +931,547 @@ type ArticleUpdateOne struct {
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (auo *ArticleUpdateOne) SetDeletedAt(t time.Time) *ArticleUpdateOne {
-	auo.mutation.SetDeletedAt(t)
-	return auo
+func (_u *ArticleUpdateOne) SetDeletedAt(v time.Time) *ArticleUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableDeletedAt(t *time.Time) *ArticleUpdateOne {
-	if t != nil {
-		auo.SetDeletedAt(*t)
+func (_u *ArticleUpdateOne) SetNillableDeletedAt(v *time.Time) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearDeletedAt clears the value of the "deleted_at" field.
-func (auo *ArticleUpdateOne) ClearDeletedAt() *ArticleUpdateOne {
-	auo.mutation.ClearDeletedAt()
-	return auo
+func (_u *ArticleUpdateOne) ClearDeletedAt() *ArticleUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (auo *ArticleUpdateOne) SetUpdatedAt(t time.Time) *ArticleUpdateOne {
-	auo.mutation.SetUpdatedAt(t)
-	return auo
+func (_u *ArticleUpdateOne) SetUpdatedAt(v time.Time) *ArticleUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetTitle sets the "title" field.
-func (auo *ArticleUpdateOne) SetTitle(s string) *ArticleUpdateOne {
-	auo.mutation.SetTitle(s)
-	return auo
+func (_u *ArticleUpdateOne) SetTitle(v string) *ArticleUpdateOne {
+	_u.mutation.SetTitle(v)
+	return _u
 }
 
 // SetNillableTitle sets the "title" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableTitle(s *string) *ArticleUpdateOne {
-	if s != nil {
-		auo.SetTitle(*s)
+func (_u *ArticleUpdateOne) SetNillableTitle(v *string) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetTitle(*v)
 	}
-	return auo
+	return _u
 }
 
 // SetContentMd sets the "content_md" field.
-func (auo *ArticleUpdateOne) SetContentMd(s string) *ArticleUpdateOne {
-	auo.mutation.SetContentMd(s)
-	return auo
+func (_u *ArticleUpdateOne) SetContentMd(v string) *ArticleUpdateOne {
+	_u.mutation.SetContentMd(v)
+	return _u
 }
 
 // SetNillableContentMd sets the "content_md" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableContentMd(s *string) *ArticleUpdateOne {
-	if s != nil {
-		auo.SetContentMd(*s)
+func (_u *ArticleUpdateOne) SetNillableContentMd(v *string) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetContentMd(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearContentMd clears the value of the "content_md" field.
-func (auo *ArticleUpdateOne) ClearContentMd() *ArticleUpdateOne {
-	auo.mutation.ClearContentMd()
-	return auo
+func (_u *ArticleUpdateOne) ClearContentMd() *ArticleUpdateOne {
+	_u.mutation.ClearContentMd()
+	return _u
 }
 
 // SetContentHTML sets the "content_html" field.
-func (auo *ArticleUpdateOne) SetContentHTML(s string) *ArticleUpdateOne {
-	auo.mutation.SetContentHTML(s)
-	return auo
+func (_u *ArticleUpdateOne) SetContentHTML(v string) *ArticleUpdateOne {
+	_u.mutation.SetContentHTML(v)
+	return _u
 }
 
 // SetNillableContentHTML sets the "content_html" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableContentHTML(s *string) *ArticleUpdateOne {
-	if s != nil {
-		auo.SetContentHTML(*s)
+func (_u *ArticleUpdateOne) SetNillableContentHTML(v *string) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetContentHTML(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearContentHTML clears the value of the "content_html" field.
-func (auo *ArticleUpdateOne) ClearContentHTML() *ArticleUpdateOne {
-	auo.mutation.ClearContentHTML()
-	return auo
+func (_u *ArticleUpdateOne) ClearContentHTML() *ArticleUpdateOne {
+	_u.mutation.ClearContentHTML()
+	return _u
 }
 
 // SetCoverURL sets the "cover_url" field.
-func (auo *ArticleUpdateOne) SetCoverURL(s string) *ArticleUpdateOne {
-	auo.mutation.SetCoverURL(s)
-	return auo
+func (_u *ArticleUpdateOne) SetCoverURL(v string) *ArticleUpdateOne {
+	_u.mutation.SetCoverURL(v)
+	return _u
 }
 
 // SetNillableCoverURL sets the "cover_url" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableCoverURL(s *string) *ArticleUpdateOne {
-	if s != nil {
-		auo.SetCoverURL(*s)
+func (_u *ArticleUpdateOne) SetNillableCoverURL(v *string) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetCoverURL(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearCoverURL clears the value of the "cover_url" field.
-func (auo *ArticleUpdateOne) ClearCoverURL() *ArticleUpdateOne {
-	auo.mutation.ClearCoverURL()
-	return auo
+func (_u *ArticleUpdateOne) ClearCoverURL() *ArticleUpdateOne {
+	_u.mutation.ClearCoverURL()
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (auo *ArticleUpdateOne) SetStatus(a article.Status) *ArticleUpdateOne {
-	auo.mutation.SetStatus(a)
-	return auo
+func (_u *ArticleUpdateOne) SetStatus(v article.Status) *ArticleUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableStatus(a *article.Status) *ArticleUpdateOne {
-	if a != nil {
-		auo.SetStatus(*a)
+func (_u *ArticleUpdateOne) SetNillableStatus(v *article.Status) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return auo
+	return _u
 }
 
 // SetViewCount sets the "view_count" field.
-func (auo *ArticleUpdateOne) SetViewCount(i int) *ArticleUpdateOne {
-	auo.mutation.ResetViewCount()
-	auo.mutation.SetViewCount(i)
-	return auo
+func (_u *ArticleUpdateOne) SetViewCount(v int) *ArticleUpdateOne {
+	_u.mutation.ResetViewCount()
+	_u.mutation.SetViewCount(v)
+	return _u
 }
 
 // SetNillableViewCount sets the "view_count" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableViewCount(i *int) *ArticleUpdateOne {
-	if i != nil {
-		auo.SetViewCount(*i)
+func (_u *ArticleUpdateOne) SetNillableViewCount(v *int) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetViewCount(*v)
 	}
-	return auo
+	return _u
 }
 
-// AddViewCount adds i to the "view_count" field.
-func (auo *ArticleUpdateOne) AddViewCount(i int) *ArticleUpdateOne {
-	auo.mutation.AddViewCount(i)
-	return auo
+// AddViewCount adds value to the "view_count" field.
+func (_u *ArticleUpdateOne) AddViewCount(v int) *ArticleUpdateOne {
+	_u.mutation.AddViewCount(v)
+	return _u
 }
 
 // SetWordCount sets the "word_count" field.
-func (auo *ArticleUpdateOne) SetWordCount(i int) *ArticleUpdateOne {
-	auo.mutation.ResetWordCount()
-	auo.mutation.SetWordCount(i)
-	return auo
+func (_u *ArticleUpdateOne) SetWordCount(v int) *ArticleUpdateOne {
+	_u.mutation.ResetWordCount()
+	_u.mutation.SetWordCount(v)
+	return _u
 }
 
 // SetNillableWordCount sets the "word_count" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableWordCount(i *int) *ArticleUpdateOne {
-	if i != nil {
-		auo.SetWordCount(*i)
+func (_u *ArticleUpdateOne) SetNillableWordCount(v *int) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetWordCount(*v)
 	}
-	return auo
+	return _u
 }
 
-// AddWordCount adds i to the "word_count" field.
-func (auo *ArticleUpdateOne) AddWordCount(i int) *ArticleUpdateOne {
-	auo.mutation.AddWordCount(i)
-	return auo
+// AddWordCount adds value to the "word_count" field.
+func (_u *ArticleUpdateOne) AddWordCount(v int) *ArticleUpdateOne {
+	_u.mutation.AddWordCount(v)
+	return _u
 }
 
 // SetReadingTime sets the "reading_time" field.
-func (auo *ArticleUpdateOne) SetReadingTime(i int) *ArticleUpdateOne {
-	auo.mutation.ResetReadingTime()
-	auo.mutation.SetReadingTime(i)
-	return auo
+func (_u *ArticleUpdateOne) SetReadingTime(v int) *ArticleUpdateOne {
+	_u.mutation.ResetReadingTime()
+	_u.mutation.SetReadingTime(v)
+	return _u
 }
 
 // SetNillableReadingTime sets the "reading_time" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableReadingTime(i *int) *ArticleUpdateOne {
-	if i != nil {
-		auo.SetReadingTime(*i)
+func (_u *ArticleUpdateOne) SetNillableReadingTime(v *int) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetReadingTime(*v)
 	}
-	return auo
+	return _u
 }
 
-// AddReadingTime adds i to the "reading_time" field.
-func (auo *ArticleUpdateOne) AddReadingTime(i int) *ArticleUpdateOne {
-	auo.mutation.AddReadingTime(i)
-	return auo
+// AddReadingTime adds value to the "reading_time" field.
+func (_u *ArticleUpdateOne) AddReadingTime(v int) *ArticleUpdateOne {
+	_u.mutation.AddReadingTime(v)
+	return _u
 }
 
 // SetIPLocation sets the "ip_location" field.
-func (auo *ArticleUpdateOne) SetIPLocation(s string) *ArticleUpdateOne {
-	auo.mutation.SetIPLocation(s)
-	return auo
+func (_u *ArticleUpdateOne) SetIPLocation(v string) *ArticleUpdateOne {
+	_u.mutation.SetIPLocation(v)
+	return _u
 }
 
 // SetNillableIPLocation sets the "ip_location" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableIPLocation(s *string) *ArticleUpdateOne {
-	if s != nil {
-		auo.SetIPLocation(*s)
+func (_u *ArticleUpdateOne) SetNillableIPLocation(v *string) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetIPLocation(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearIPLocation clears the value of the "ip_location" field.
-func (auo *ArticleUpdateOne) ClearIPLocation() *ArticleUpdateOne {
-	auo.mutation.ClearIPLocation()
-	return auo
+func (_u *ArticleUpdateOne) ClearIPLocation() *ArticleUpdateOne {
+	_u.mutation.ClearIPLocation()
+	return _u
 }
 
 // SetPrimaryColor sets the "primary_color" field.
-func (auo *ArticleUpdateOne) SetPrimaryColor(s string) *ArticleUpdateOne {
-	auo.mutation.SetPrimaryColor(s)
-	return auo
+func (_u *ArticleUpdateOne) SetPrimaryColor(v string) *ArticleUpdateOne {
+	_u.mutation.SetPrimaryColor(v)
+	return _u
 }
 
 // SetNillablePrimaryColor sets the "primary_color" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillablePrimaryColor(s *string) *ArticleUpdateOne {
-	if s != nil {
-		auo.SetPrimaryColor(*s)
+func (_u *ArticleUpdateOne) SetNillablePrimaryColor(v *string) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetPrimaryColor(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearPrimaryColor clears the value of the "primary_color" field.
-func (auo *ArticleUpdateOne) ClearPrimaryColor() *ArticleUpdateOne {
-	auo.mutation.ClearPrimaryColor()
-	return auo
+func (_u *ArticleUpdateOne) ClearPrimaryColor() *ArticleUpdateOne {
+	_u.mutation.ClearPrimaryColor()
+	return _u
 }
 
 // SetIsPrimaryColorManual sets the "is_primary_color_manual" field.
-func (auo *ArticleUpdateOne) SetIsPrimaryColorManual(b bool) *ArticleUpdateOne {
-	auo.mutation.SetIsPrimaryColorManual(b)
-	return auo
+func (_u *ArticleUpdateOne) SetIsPrimaryColorManual(v bool) *ArticleUpdateOne {
+	_u.mutation.SetIsPrimaryColorManual(v)
+	return _u
 }
 
 // SetNillableIsPrimaryColorManual sets the "is_primary_color_manual" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableIsPrimaryColorManual(b *bool) *ArticleUpdateOne {
-	if b != nil {
-		auo.SetIsPrimaryColorManual(*b)
+func (_u *ArticleUpdateOne) SetNillableIsPrimaryColorManual(v *bool) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetIsPrimaryColorManual(*v)
 	}
-	return auo
+	return _u
 }
 
 // SetHomeSort sets the "home_sort" field.
-func (auo *ArticleUpdateOne) SetHomeSort(i int) *ArticleUpdateOne {
-	auo.mutation.ResetHomeSort()
-	auo.mutation.SetHomeSort(i)
-	return auo
+func (_u *ArticleUpdateOne) SetHomeSort(v int) *ArticleUpdateOne {
+	_u.mutation.ResetHomeSort()
+	_u.mutation.SetHomeSort(v)
+	return _u
 }
 
 // SetNillableHomeSort sets the "home_sort" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableHomeSort(i *int) *ArticleUpdateOne {
-	if i != nil {
-		auo.SetHomeSort(*i)
+func (_u *ArticleUpdateOne) SetNillableHomeSort(v *int) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetHomeSort(*v)
 	}
-	return auo
+	return _u
 }
 
-// AddHomeSort adds i to the "home_sort" field.
-func (auo *ArticleUpdateOne) AddHomeSort(i int) *ArticleUpdateOne {
-	auo.mutation.AddHomeSort(i)
-	return auo
+// AddHomeSort adds value to the "home_sort" field.
+func (_u *ArticleUpdateOne) AddHomeSort(v int) *ArticleUpdateOne {
+	_u.mutation.AddHomeSort(v)
+	return _u
 }
 
 // SetPinSort sets the "pin_sort" field.
-func (auo *ArticleUpdateOne) SetPinSort(i int) *ArticleUpdateOne {
-	auo.mutation.ResetPinSort()
-	auo.mutation.SetPinSort(i)
-	return auo
+func (_u *ArticleUpdateOne) SetPinSort(v int) *ArticleUpdateOne {
+	_u.mutation.ResetPinSort()
+	_u.mutation.SetPinSort(v)
+	return _u
 }
 
 // SetNillablePinSort sets the "pin_sort" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillablePinSort(i *int) *ArticleUpdateOne {
-	if i != nil {
-		auo.SetPinSort(*i)
+func (_u *ArticleUpdateOne) SetNillablePinSort(v *int) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetPinSort(*v)
 	}
-	return auo
+	return _u
 }
 
-// AddPinSort adds i to the "pin_sort" field.
-func (auo *ArticleUpdateOne) AddPinSort(i int) *ArticleUpdateOne {
-	auo.mutation.AddPinSort(i)
-	return auo
+// AddPinSort adds value to the "pin_sort" field.
+func (_u *ArticleUpdateOne) AddPinSort(v int) *ArticleUpdateOne {
+	_u.mutation.AddPinSort(v)
+	return _u
 }
 
 // SetTopImgURL sets the "top_img_url" field.
-func (auo *ArticleUpdateOne) SetTopImgURL(s string) *ArticleUpdateOne {
-	auo.mutation.SetTopImgURL(s)
-	return auo
+func (_u *ArticleUpdateOne) SetTopImgURL(v string) *ArticleUpdateOne {
+	_u.mutation.SetTopImgURL(v)
+	return _u
 }
 
 // SetNillableTopImgURL sets the "top_img_url" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableTopImgURL(s *string) *ArticleUpdateOne {
-	if s != nil {
-		auo.SetTopImgURL(*s)
+func (_u *ArticleUpdateOne) SetNillableTopImgURL(v *string) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetTopImgURL(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearTopImgURL clears the value of the "top_img_url" field.
-func (auo *ArticleUpdateOne) ClearTopImgURL() *ArticleUpdateOne {
-	auo.mutation.ClearTopImgURL()
-	return auo
+func (_u *ArticleUpdateOne) ClearTopImgURL() *ArticleUpdateOne {
+	_u.mutation.ClearTopImgURL()
+	return _u
 }
 
 // SetSummaries sets the "summaries" field.
-func (auo *ArticleUpdateOne) SetSummaries(s []string) *ArticleUpdateOne {
-	auo.mutation.SetSummaries(s)
-	return auo
+func (_u *ArticleUpdateOne) SetSummaries(v []string) *ArticleUpdateOne {
+	_u.mutation.SetSummaries(v)
+	return _u
 }
 
-// AppendSummaries appends s to the "summaries" field.
-func (auo *ArticleUpdateOne) AppendSummaries(s []string) *ArticleUpdateOne {
-	auo.mutation.AppendSummaries(s)
-	return auo
+// AppendSummaries appends value to the "summaries" field.
+func (_u *ArticleUpdateOne) AppendSummaries(v []string) *ArticleUpdateOne {
+	_u.mutation.AppendSummaries(v)
+	return _u
 }
 
 // ClearSummaries clears the value of the "summaries" field.
-func (auo *ArticleUpdateOne) ClearSummaries() *ArticleUpdateOne {
-	auo.mutation.ClearSummaries()
-	return auo
+func (_u *ArticleUpdateOne) ClearSummaries() *ArticleUpdateOne {
+	_u.mutation.ClearSummaries()
+	return _u
 }
 
 // SetAbbrlink sets the "abbrlink" field.
-func (auo *ArticleUpdateOne) SetAbbrlink(s string) *ArticleUpdateOne {
-	auo.mutation.SetAbbrlink(s)
-	return auo
+func (_u *ArticleUpdateOne) SetAbbrlink(v string) *ArticleUpdateOne {
+	_u.mutation.SetAbbrlink(v)
+	return _u
 }
 
 // SetNillableAbbrlink sets the "abbrlink" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableAbbrlink(s *string) *ArticleUpdateOne {
-	if s != nil {
-		auo.SetAbbrlink(*s)
+func (_u *ArticleUpdateOne) SetNillableAbbrlink(v *string) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetAbbrlink(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearAbbrlink clears the value of the "abbrlink" field.
-func (auo *ArticleUpdateOne) ClearAbbrlink() *ArticleUpdateOne {
-	auo.mutation.ClearAbbrlink()
-	return auo
+func (_u *ArticleUpdateOne) ClearAbbrlink() *ArticleUpdateOne {
+	_u.mutation.ClearAbbrlink()
+	return _u
 }
 
 // SetCopyright sets the "copyright" field.
-func (auo *ArticleUpdateOne) SetCopyright(b bool) *ArticleUpdateOne {
-	auo.mutation.SetCopyright(b)
-	return auo
+func (_u *ArticleUpdateOne) SetCopyright(v bool) *ArticleUpdateOne {
+	_u.mutation.SetCopyright(v)
+	return _u
 }
 
 // SetNillableCopyright sets the "copyright" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableCopyright(b *bool) *ArticleUpdateOne {
-	if b != nil {
-		auo.SetCopyright(*b)
+func (_u *ArticleUpdateOne) SetNillableCopyright(v *bool) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetCopyright(*v)
 	}
-	return auo
+	return _u
 }
 
 // SetCopyrightAuthor sets the "copyright_author" field.
-func (auo *ArticleUpdateOne) SetCopyrightAuthor(s string) *ArticleUpdateOne {
-	auo.mutation.SetCopyrightAuthor(s)
-	return auo
+func (_u *ArticleUpdateOne) SetCopyrightAuthor(v string) *ArticleUpdateOne {
+	_u.mutation.SetCopyrightAuthor(v)
+	return _u
 }
 
 // SetNillableCopyrightAuthor sets the "copyright_author" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableCopyrightAuthor(s *string) *ArticleUpdateOne {
-	if s != nil {
-		auo.SetCopyrightAuthor(*s)
+func (_u *ArticleUpdateOne) SetNillableCopyrightAuthor(v *string) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetCopyrightAuthor(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearCopyrightAuthor clears the value of the "copyright_author" field.
-func (auo *ArticleUpdateOne) ClearCopyrightAuthor() *ArticleUpdateOne {
-	auo.mutation.ClearCopyrightAuthor()
-	return auo
+func (_u *ArticleUpdateOne) ClearCopyrightAuthor() *ArticleUpdateOne {
+	_u.mutation.ClearCopyrightAuthor()
+	return _u
 }
 
 // SetCopyrightAuthorHref sets the "copyright_author_href" field.
-func (auo *ArticleUpdateOne) SetCopyrightAuthorHref(s string) *ArticleUpdateOne {
-	auo.mutation.SetCopyrightAuthorHref(s)
-	return auo
+func (_u *ArticleUpdateOne) SetCopyrightAuthorHref(v string) *ArticleUpdateOne {
+	_u.mutation.SetCopyrightAuthorHref(v)
+	return _u
 }
 
 // SetNillableCopyrightAuthorHref sets the "copyright_author_href" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableCopyrightAuthorHref(s *string) *ArticleUpdateOne {
-	if s != nil {
-		auo.SetCopyrightAuthorHref(*s)
+func (_u *ArticleUpdateOne) SetNillableCopyrightAuthorHref(v *string) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetCopyrightAuthorHref(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearCopyrightAuthorHref clears the value of the "copyright_author_href" field.
-func (auo *ArticleUpdateOne) ClearCopyrightAuthorHref() *ArticleUpdateOne {
-	auo.mutation.ClearCopyrightAuthorHref()
-	return auo
+func (_u *ArticleUpdateOne) ClearCopyrightAuthorHref() *ArticleUpdateOne {
+	_u.mutation.ClearCopyrightAuthorHref()
+	return _u
 }
 
 // SetCopyrightURL sets the "copyright_url" field.
-func (auo *ArticleUpdateOne) SetCopyrightURL(s string) *ArticleUpdateOne {
-	auo.mutation.SetCopyrightURL(s)
-	return auo
+func (_u *ArticleUpdateOne) SetCopyrightURL(v string) *ArticleUpdateOne {
+	_u.mutation.SetCopyrightURL(v)
+	return _u
 }
 
 // SetNillableCopyrightURL sets the "copyright_url" field if the given value is not nil.
-func (auo *ArticleUpdateOne) SetNillableCopyrightURL(s *string) *ArticleUpdateOne {
-	if s != nil {
-		auo.SetCopyrightURL(*s)
+func (_u *ArticleUpdateOne) SetNillableCopyrightURL(v *string) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetCopyrightURL(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearCopyrightURL clears the value of the "copyright_url" field.
-func (auo *ArticleUpdateOne) ClearCopyrightURL() *ArticleUpdateOne {
-	auo.mutation.ClearCopyrightURL()
-	return auo
+func (_u *ArticleUpdateOne) ClearCopyrightURL() *ArticleUpdateOne {
+	_u.mutation.ClearCopyrightURL()
+	return _u
 }
 
 // AddPostTagIDs adds the "post_tags" edge to the PostTag entity by IDs.
-func (auo *ArticleUpdateOne) AddPostTagIDs(ids ...uint) *ArticleUpdateOne {
-	auo.mutation.AddPostTagIDs(ids...)
-	return auo
+func (_u *ArticleUpdateOne) AddPostTagIDs(ids ...uint) *ArticleUpdateOne {
+	_u.mutation.AddPostTagIDs(ids...)
+	return _u
 }
 
 // AddPostTags adds the "post_tags" edges to the PostTag entity.
-func (auo *ArticleUpdateOne) AddPostTags(p ...*PostTag) *ArticleUpdateOne {
-	ids := make([]uint, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+func (_u *ArticleUpdateOne) AddPostTags(v ...*PostTag) *ArticleUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return auo.AddPostTagIDs(ids...)
+	return _u.AddPostTagIDs(ids...)
 }
 
 // AddPostCategoryIDs adds the "post_categories" edge to the PostCategory entity by IDs.
-func (auo *ArticleUpdateOne) AddPostCategoryIDs(ids ...uint) *ArticleUpdateOne {
-	auo.mutation.AddPostCategoryIDs(ids...)
-	return auo
+func (_u *ArticleUpdateOne) AddPostCategoryIDs(ids ...uint) *ArticleUpdateOne {
+	_u.mutation.AddPostCategoryIDs(ids...)
+	return _u
 }
 
 // AddPostCategories adds the "post_categories" edges to the PostCategory entity.
-func (auo *ArticleUpdateOne) AddPostCategories(p ...*PostCategory) *ArticleUpdateOne {
-	ids := make([]uint, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+func (_u *ArticleUpdateOne) AddPostCategories(v ...*PostCategory) *ArticleUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return auo.AddPostCategoryIDs(ids...)
+	return _u.AddPostCategoryIDs(ids...)
 }
 
 // AddCommentIDs adds the "comments" edge to the Comment entity by IDs.
-func (auo *ArticleUpdateOne) AddCommentIDs(ids ...uint) *ArticleUpdateOne {
-	auo.mutation.AddCommentIDs(ids...)
-	return auo
+func (_u *ArticleUpdateOne) AddCommentIDs(ids ...uint) *ArticleUpdateOne {
+	_u.mutation.AddCommentIDs(ids...)
+	return _u
 }
 
 // AddComments adds the "comments" edges to the Comment entity.
-func (auo *ArticleUpdateOne) AddComments(c ...*Comment) *ArticleUpdateOne {
-	ids := make([]uint, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
+func (_u *ArticleUpdateOne) AddComments(v ...*Comment) *ArticleUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return auo.AddCommentIDs(ids...)
+	return _u.AddCommentIDs(ids...)
 }
 
 // Mutation returns the ArticleMutation object of the builder.
-func (auo *ArticleUpdateOne) Mutation() *ArticleMutation {
-	return auo.mutation
+func (_u *ArticleUpdateOne) Mutation() *ArticleMutation {
+	return _u.mutation
 }
 
 // ClearPostTags clears all "post_tags" edges to the PostTag entity.
-func (auo *ArticleUpdateOne) ClearPostTags() *ArticleUpdateOne {
-	auo.mutation.ClearPostTags()
-	return auo
+func (_u *ArticleUpdateOne) ClearPostTags() *ArticleUpdateOne {
+	_u.mutation.ClearPostTags()
+	return _u
 }
 
 // RemovePostTagIDs removes the "post_tags" edge to PostTag entities by IDs.
-func (auo *ArticleUpdateOne) RemovePostTagIDs(ids ...uint) *ArticleUpdateOne {
-	auo.mutation.RemovePostTagIDs(ids...)
-	return auo
+func (_u *ArticleUpdateOne) RemovePostTagIDs(ids ...uint) *ArticleUpdateOne {
+	_u.mutation.RemovePostTagIDs(ids...)
+	return _u
 }
 
 // RemovePostTags removes "post_tags" edges to PostTag entities.
-func (auo *ArticleUpdateOne) RemovePostTags(p ...*PostTag) *ArticleUpdateOne {
-	ids := make([]uint, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+func (_u *ArticleUpdateOne) RemovePostTags(v ...*PostTag) *ArticleUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return auo.RemovePostTagIDs(ids...)
+	return _u.RemovePostTagIDs(ids...)
 }
 
 // ClearPostCategories clears all "post_categories" edges to the PostCategory entity.
-func (auo *ArticleUpdateOne) ClearPostCategories() *ArticleUpdateOne {
-	auo.mutation.ClearPostCategories()
-	return auo
+func (_u *ArticleUpdateOne) ClearPostCategories() *ArticleUpdateOne {
+	_u.mutation.ClearPostCategories()
+	return _u
 }
 
 // RemovePostCategoryIDs removes the "post_categories" edge to PostCategory entities by IDs.
-func (auo *ArticleUpdateOne) RemovePostCategoryIDs(ids ...uint) *ArticleUpdateOne {
-	auo.mutation.RemovePostCategoryIDs(ids...)
-	return auo
+func (_u *ArticleUpdateOne) RemovePostCategoryIDs(ids ...uint) *ArticleUpdateOne {
+	_u.mutation.RemovePostCategoryIDs(ids...)
+	return _u
 }
 
 // RemovePostCategories removes "post_categories" edges to PostCategory entities.
-func (auo *ArticleUpdateOne) RemovePostCategories(p ...*PostCategory) *ArticleUpdateOne {
-	ids := make([]uint, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+func (_u *ArticleUpdateOne) RemovePostCategories(v ...*PostCategory) *ArticleUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return auo.RemovePostCategoryIDs(ids...)
+	return _u.RemovePostCategoryIDs(ids...)
 }
 
 // ClearComments clears all "comments" edges to the Comment entity.
-func (auo *ArticleUpdateOne) ClearComments() *ArticleUpdateOne {
-	auo.mutation.ClearComments()
-	return auo
+func (_u *ArticleUpdateOne) ClearComments() *ArticleUpdateOne {
+	_u.mutation.ClearComments()
+	return _u
 }
 
 // RemoveCommentIDs removes the "comments" edge to Comment entities by IDs.
-func (auo *ArticleUpdateOne) RemoveCommentIDs(ids ...uint) *ArticleUpdateOne {
-	auo.mutation.RemoveCommentIDs(ids...)
-	return auo
+func (_u *ArticleUpdateOne) RemoveCommentIDs(ids ...uint) *ArticleUpdateOne {
+	_u.mutation.RemoveCommentIDs(ids...)
+	return _u
 }
 
 // RemoveComments removes "comments" edges to Comment entities.
-func (auo *ArticleUpdateOne) RemoveComments(c ...*Comment) *ArticleUpdateOne {
-	ids := make([]uint, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
+func (_u *ArticleUpdateOne) RemoveComments(v ...*Comment) *ArticleUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return auo.RemoveCommentIDs(ids...)
+	return _u.RemoveCommentIDs(ids...)
 }
 
 // Where appends a list predicates to the ArticleUpdate builder.
-func (auo *ArticleUpdateOne) Where(ps ...predicate.Article) *ArticleUpdateOne {
-	auo.mutation.Where(ps...)
-	return auo
+func (_u *ArticleUpdateOne) Where(ps ...predicate.Article) *ArticleUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (auo *ArticleUpdateOne) Select(field string, fields ...string) *ArticleUpdateOne {
-	auo.fields = append([]string{field}, fields...)
-	return auo
+func (_u *ArticleUpdateOne) Select(field string, fields ...string) *ArticleUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated Article entity.
-func (auo *ArticleUpdateOne) Save(ctx context.Context) (*Article, error) {
-	if err := auo.defaults(); err != nil {
+func (_u *ArticleUpdateOne) Save(ctx context.Context) (*Article, error) {
+	if err := _u.defaults(); err != nil {
 		return nil, err
 	}
-	return withHooks(ctx, auo.sqlSave, auo.mutation, auo.hooks)
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (auo *ArticleUpdateOne) SaveX(ctx context.Context) *Article {
-	node, err := auo.Save(ctx)
+func (_u *ArticleUpdateOne) SaveX(ctx context.Context) *Article {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -1479,63 +1479,63 @@ func (auo *ArticleUpdateOne) SaveX(ctx context.Context) *Article {
 }
 
 // Exec executes the query on the entity.
-func (auo *ArticleUpdateOne) Exec(ctx context.Context) error {
-	_, err := auo.Save(ctx)
+func (_u *ArticleUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (auo *ArticleUpdateOne) ExecX(ctx context.Context) {
-	if err := auo.Exec(ctx); err != nil {
+func (_u *ArticleUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (auo *ArticleUpdateOne) defaults() error {
-	if _, ok := auo.mutation.UpdatedAt(); !ok {
+func (_u *ArticleUpdateOne) defaults() error {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		if article.UpdateDefaultUpdatedAt == nil {
 			return fmt.Errorf("ent: uninitialized article.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
 		}
 		v := article.UpdateDefaultUpdatedAt()
-		auo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (auo *ArticleUpdateOne) check() error {
-	if v, ok := auo.mutation.Title(); ok {
+func (_u *ArticleUpdateOne) check() error {
+	if v, ok := _u.mutation.Title(); ok {
 		if err := article.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Article.title": %w`, err)}
 		}
 	}
-	if v, ok := auo.mutation.Status(); ok {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := article.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Article.status": %w`, err)}
 		}
 	}
-	if v, ok := auo.mutation.ViewCount(); ok {
+	if v, ok := _u.mutation.ViewCount(); ok {
 		if err := article.ViewCountValidator(v); err != nil {
 			return &ValidationError{Name: "view_count", err: fmt.Errorf(`ent: validator failed for field "Article.view_count": %w`, err)}
 		}
 	}
-	if v, ok := auo.mutation.WordCount(); ok {
+	if v, ok := _u.mutation.WordCount(); ok {
 		if err := article.WordCountValidator(v); err != nil {
 			return &ValidationError{Name: "word_count", err: fmt.Errorf(`ent: validator failed for field "Article.word_count": %w`, err)}
 		}
 	}
-	if v, ok := auo.mutation.ReadingTime(); ok {
+	if v, ok := _u.mutation.ReadingTime(); ok {
 		if err := article.ReadingTimeValidator(v); err != nil {
 			return &ValidationError{Name: "reading_time", err: fmt.Errorf(`ent: validator failed for field "Article.reading_time": %w`, err)}
 		}
 	}
-	if v, ok := auo.mutation.HomeSort(); ok {
+	if v, ok := _u.mutation.HomeSort(); ok {
 		if err := article.HomeSortValidator(v); err != nil {
 			return &ValidationError{Name: "home_sort", err: fmt.Errorf(`ent: validator failed for field "Article.home_sort": %w`, err)}
 		}
 	}
-	if v, ok := auo.mutation.PinSort(); ok {
+	if v, ok := _u.mutation.PinSort(); ok {
 		if err := article.PinSortValidator(v); err != nil {
 			return &ValidationError{Name: "pin_sort", err: fmt.Errorf(`ent: validator failed for field "Article.pin_sort": %w`, err)}
 		}
@@ -1544,22 +1544,22 @@ func (auo *ArticleUpdateOne) check() error {
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (auo *ArticleUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *ArticleUpdateOne {
-	auo.modifiers = append(auo.modifiers, modifiers...)
-	return auo
+func (_u *ArticleUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *ArticleUpdateOne {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err error) {
-	if err := auo.check(); err != nil {
+func (_u *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(article.Table, article.Columns, sqlgraph.NewFieldSpec(article.FieldID, field.TypeUint))
-	id, ok := auo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Article.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := auo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, article.FieldID)
 		for _, f := range fields {
@@ -1571,136 +1571,136 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 			}
 		}
 	}
-	if ps := auo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := auo.mutation.DeletedAt(); ok {
+	if value, ok := _u.mutation.DeletedAt(); ok {
 		_spec.SetField(article.FieldDeletedAt, field.TypeTime, value)
 	}
-	if auo.mutation.DeletedAtCleared() {
+	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(article.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := auo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(article.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := auo.mutation.Title(); ok {
+	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(article.FieldTitle, field.TypeString, value)
 	}
-	if value, ok := auo.mutation.ContentMd(); ok {
+	if value, ok := _u.mutation.ContentMd(); ok {
 		_spec.SetField(article.FieldContentMd, field.TypeString, value)
 	}
-	if auo.mutation.ContentMdCleared() {
+	if _u.mutation.ContentMdCleared() {
 		_spec.ClearField(article.FieldContentMd, field.TypeString)
 	}
-	if value, ok := auo.mutation.ContentHTML(); ok {
+	if value, ok := _u.mutation.ContentHTML(); ok {
 		_spec.SetField(article.FieldContentHTML, field.TypeString, value)
 	}
-	if auo.mutation.ContentHTMLCleared() {
+	if _u.mutation.ContentHTMLCleared() {
 		_spec.ClearField(article.FieldContentHTML, field.TypeString)
 	}
-	if value, ok := auo.mutation.CoverURL(); ok {
+	if value, ok := _u.mutation.CoverURL(); ok {
 		_spec.SetField(article.FieldCoverURL, field.TypeString, value)
 	}
-	if auo.mutation.CoverURLCleared() {
+	if _u.mutation.CoverURLCleared() {
 		_spec.ClearField(article.FieldCoverURL, field.TypeString)
 	}
-	if value, ok := auo.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(article.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := auo.mutation.ViewCount(); ok {
+	if value, ok := _u.mutation.ViewCount(); ok {
 		_spec.SetField(article.FieldViewCount, field.TypeInt, value)
 	}
-	if value, ok := auo.mutation.AddedViewCount(); ok {
+	if value, ok := _u.mutation.AddedViewCount(); ok {
 		_spec.AddField(article.FieldViewCount, field.TypeInt, value)
 	}
-	if value, ok := auo.mutation.WordCount(); ok {
+	if value, ok := _u.mutation.WordCount(); ok {
 		_spec.SetField(article.FieldWordCount, field.TypeInt, value)
 	}
-	if value, ok := auo.mutation.AddedWordCount(); ok {
+	if value, ok := _u.mutation.AddedWordCount(); ok {
 		_spec.AddField(article.FieldWordCount, field.TypeInt, value)
 	}
-	if value, ok := auo.mutation.ReadingTime(); ok {
+	if value, ok := _u.mutation.ReadingTime(); ok {
 		_spec.SetField(article.FieldReadingTime, field.TypeInt, value)
 	}
-	if value, ok := auo.mutation.AddedReadingTime(); ok {
+	if value, ok := _u.mutation.AddedReadingTime(); ok {
 		_spec.AddField(article.FieldReadingTime, field.TypeInt, value)
 	}
-	if value, ok := auo.mutation.IPLocation(); ok {
+	if value, ok := _u.mutation.IPLocation(); ok {
 		_spec.SetField(article.FieldIPLocation, field.TypeString, value)
 	}
-	if auo.mutation.IPLocationCleared() {
+	if _u.mutation.IPLocationCleared() {
 		_spec.ClearField(article.FieldIPLocation, field.TypeString)
 	}
-	if value, ok := auo.mutation.PrimaryColor(); ok {
+	if value, ok := _u.mutation.PrimaryColor(); ok {
 		_spec.SetField(article.FieldPrimaryColor, field.TypeString, value)
 	}
-	if auo.mutation.PrimaryColorCleared() {
+	if _u.mutation.PrimaryColorCleared() {
 		_spec.ClearField(article.FieldPrimaryColor, field.TypeString)
 	}
-	if value, ok := auo.mutation.IsPrimaryColorManual(); ok {
+	if value, ok := _u.mutation.IsPrimaryColorManual(); ok {
 		_spec.SetField(article.FieldIsPrimaryColorManual, field.TypeBool, value)
 	}
-	if value, ok := auo.mutation.HomeSort(); ok {
+	if value, ok := _u.mutation.HomeSort(); ok {
 		_spec.SetField(article.FieldHomeSort, field.TypeInt, value)
 	}
-	if value, ok := auo.mutation.AddedHomeSort(); ok {
+	if value, ok := _u.mutation.AddedHomeSort(); ok {
 		_spec.AddField(article.FieldHomeSort, field.TypeInt, value)
 	}
-	if value, ok := auo.mutation.PinSort(); ok {
+	if value, ok := _u.mutation.PinSort(); ok {
 		_spec.SetField(article.FieldPinSort, field.TypeInt, value)
 	}
-	if value, ok := auo.mutation.AddedPinSort(); ok {
+	if value, ok := _u.mutation.AddedPinSort(); ok {
 		_spec.AddField(article.FieldPinSort, field.TypeInt, value)
 	}
-	if value, ok := auo.mutation.TopImgURL(); ok {
+	if value, ok := _u.mutation.TopImgURL(); ok {
 		_spec.SetField(article.FieldTopImgURL, field.TypeString, value)
 	}
-	if auo.mutation.TopImgURLCleared() {
+	if _u.mutation.TopImgURLCleared() {
 		_spec.ClearField(article.FieldTopImgURL, field.TypeString)
 	}
-	if value, ok := auo.mutation.Summaries(); ok {
+	if value, ok := _u.mutation.Summaries(); ok {
 		_spec.SetField(article.FieldSummaries, field.TypeJSON, value)
 	}
-	if value, ok := auo.mutation.AppendedSummaries(); ok {
+	if value, ok := _u.mutation.AppendedSummaries(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, article.FieldSummaries, value)
 		})
 	}
-	if auo.mutation.SummariesCleared() {
+	if _u.mutation.SummariesCleared() {
 		_spec.ClearField(article.FieldSummaries, field.TypeJSON)
 	}
-	if value, ok := auo.mutation.Abbrlink(); ok {
+	if value, ok := _u.mutation.Abbrlink(); ok {
 		_spec.SetField(article.FieldAbbrlink, field.TypeString, value)
 	}
-	if auo.mutation.AbbrlinkCleared() {
+	if _u.mutation.AbbrlinkCleared() {
 		_spec.ClearField(article.FieldAbbrlink, field.TypeString)
 	}
-	if value, ok := auo.mutation.Copyright(); ok {
+	if value, ok := _u.mutation.Copyright(); ok {
 		_spec.SetField(article.FieldCopyright, field.TypeBool, value)
 	}
-	if value, ok := auo.mutation.CopyrightAuthor(); ok {
+	if value, ok := _u.mutation.CopyrightAuthor(); ok {
 		_spec.SetField(article.FieldCopyrightAuthor, field.TypeString, value)
 	}
-	if auo.mutation.CopyrightAuthorCleared() {
+	if _u.mutation.CopyrightAuthorCleared() {
 		_spec.ClearField(article.FieldCopyrightAuthor, field.TypeString)
 	}
-	if value, ok := auo.mutation.CopyrightAuthorHref(); ok {
+	if value, ok := _u.mutation.CopyrightAuthorHref(); ok {
 		_spec.SetField(article.FieldCopyrightAuthorHref, field.TypeString, value)
 	}
-	if auo.mutation.CopyrightAuthorHrefCleared() {
+	if _u.mutation.CopyrightAuthorHrefCleared() {
 		_spec.ClearField(article.FieldCopyrightAuthorHref, field.TypeString)
 	}
-	if value, ok := auo.mutation.CopyrightURL(); ok {
+	if value, ok := _u.mutation.CopyrightURL(); ok {
 		_spec.SetField(article.FieldCopyrightURL, field.TypeString, value)
 	}
-	if auo.mutation.CopyrightURLCleared() {
+	if _u.mutation.CopyrightURLCleared() {
 		_spec.ClearField(article.FieldCopyrightURL, field.TypeString)
 	}
-	if auo.mutation.PostTagsCleared() {
+	if _u.mutation.PostTagsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -1713,7 +1713,7 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := auo.mutation.RemovedPostTagsIDs(); len(nodes) > 0 && !auo.mutation.PostTagsCleared() {
+	if nodes := _u.mutation.RemovedPostTagsIDs(); len(nodes) > 0 && !_u.mutation.PostTagsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -1729,7 +1729,7 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := auo.mutation.PostTagsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.PostTagsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -1745,7 +1745,7 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if auo.mutation.PostCategoriesCleared() {
+	if _u.mutation.PostCategoriesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -1758,7 +1758,7 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := auo.mutation.RemovedPostCategoriesIDs(); len(nodes) > 0 && !auo.mutation.PostCategoriesCleared() {
+	if nodes := _u.mutation.RemovedPostCategoriesIDs(); len(nodes) > 0 && !_u.mutation.PostCategoriesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -1774,7 +1774,7 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := auo.mutation.PostCategoriesIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.PostCategoriesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -1790,7 +1790,7 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if auo.mutation.CommentsCleared() {
+	if _u.mutation.CommentsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1803,7 +1803,7 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := auo.mutation.RemovedCommentsIDs(); len(nodes) > 0 && !auo.mutation.CommentsCleared() {
+	if nodes := _u.mutation.RemovedCommentsIDs(); len(nodes) > 0 && !_u.mutation.CommentsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1819,7 +1819,7 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := auo.mutation.CommentsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.CommentsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -1835,11 +1835,11 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_spec.AddModifiers(auo.modifiers...)
-	_node = &Article{config: auo.config}
+	_spec.AddModifiers(_u.modifiers...)
+	_node = &Article{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, auo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{article.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -1847,6 +1847,6 @@ func (auo *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err e
 		}
 		return nil, err
 	}
-	auo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

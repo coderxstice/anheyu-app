@@ -24,129 +24,129 @@ type VisitorStatUpdate struct {
 }
 
 // Where appends a list predicates to the VisitorStatUpdate builder.
-func (vsu *VisitorStatUpdate) Where(ps ...predicate.VisitorStat) *VisitorStatUpdate {
-	vsu.mutation.Where(ps...)
-	return vsu
+func (_u *VisitorStatUpdate) Where(ps ...predicate.VisitorStat) *VisitorStatUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (vsu *VisitorStatUpdate) SetUpdatedAt(t time.Time) *VisitorStatUpdate {
-	vsu.mutation.SetUpdatedAt(t)
-	return vsu
+func (_u *VisitorStatUpdate) SetUpdatedAt(v time.Time) *VisitorStatUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetDate sets the "date" field.
-func (vsu *VisitorStatUpdate) SetDate(t time.Time) *VisitorStatUpdate {
-	vsu.mutation.SetDate(t)
-	return vsu
+func (_u *VisitorStatUpdate) SetDate(v time.Time) *VisitorStatUpdate {
+	_u.mutation.SetDate(v)
+	return _u
 }
 
 // SetNillableDate sets the "date" field if the given value is not nil.
-func (vsu *VisitorStatUpdate) SetNillableDate(t *time.Time) *VisitorStatUpdate {
-	if t != nil {
-		vsu.SetDate(*t)
+func (_u *VisitorStatUpdate) SetNillableDate(v *time.Time) *VisitorStatUpdate {
+	if v != nil {
+		_u.SetDate(*v)
 	}
-	return vsu
+	return _u
 }
 
 // SetUniqueVisitors sets the "unique_visitors" field.
-func (vsu *VisitorStatUpdate) SetUniqueVisitors(i int64) *VisitorStatUpdate {
-	vsu.mutation.ResetUniqueVisitors()
-	vsu.mutation.SetUniqueVisitors(i)
-	return vsu
+func (_u *VisitorStatUpdate) SetUniqueVisitors(v int64) *VisitorStatUpdate {
+	_u.mutation.ResetUniqueVisitors()
+	_u.mutation.SetUniqueVisitors(v)
+	return _u
 }
 
 // SetNillableUniqueVisitors sets the "unique_visitors" field if the given value is not nil.
-func (vsu *VisitorStatUpdate) SetNillableUniqueVisitors(i *int64) *VisitorStatUpdate {
-	if i != nil {
-		vsu.SetUniqueVisitors(*i)
+func (_u *VisitorStatUpdate) SetNillableUniqueVisitors(v *int64) *VisitorStatUpdate {
+	if v != nil {
+		_u.SetUniqueVisitors(*v)
 	}
-	return vsu
+	return _u
 }
 
-// AddUniqueVisitors adds i to the "unique_visitors" field.
-func (vsu *VisitorStatUpdate) AddUniqueVisitors(i int64) *VisitorStatUpdate {
-	vsu.mutation.AddUniqueVisitors(i)
-	return vsu
+// AddUniqueVisitors adds value to the "unique_visitors" field.
+func (_u *VisitorStatUpdate) AddUniqueVisitors(v int64) *VisitorStatUpdate {
+	_u.mutation.AddUniqueVisitors(v)
+	return _u
 }
 
 // SetTotalViews sets the "total_views" field.
-func (vsu *VisitorStatUpdate) SetTotalViews(i int64) *VisitorStatUpdate {
-	vsu.mutation.ResetTotalViews()
-	vsu.mutation.SetTotalViews(i)
-	return vsu
+func (_u *VisitorStatUpdate) SetTotalViews(v int64) *VisitorStatUpdate {
+	_u.mutation.ResetTotalViews()
+	_u.mutation.SetTotalViews(v)
+	return _u
 }
 
 // SetNillableTotalViews sets the "total_views" field if the given value is not nil.
-func (vsu *VisitorStatUpdate) SetNillableTotalViews(i *int64) *VisitorStatUpdate {
-	if i != nil {
-		vsu.SetTotalViews(*i)
+func (_u *VisitorStatUpdate) SetNillableTotalViews(v *int64) *VisitorStatUpdate {
+	if v != nil {
+		_u.SetTotalViews(*v)
 	}
-	return vsu
+	return _u
 }
 
-// AddTotalViews adds i to the "total_views" field.
-func (vsu *VisitorStatUpdate) AddTotalViews(i int64) *VisitorStatUpdate {
-	vsu.mutation.AddTotalViews(i)
-	return vsu
+// AddTotalViews adds value to the "total_views" field.
+func (_u *VisitorStatUpdate) AddTotalViews(v int64) *VisitorStatUpdate {
+	_u.mutation.AddTotalViews(v)
+	return _u
 }
 
 // SetPageViews sets the "page_views" field.
-func (vsu *VisitorStatUpdate) SetPageViews(i int64) *VisitorStatUpdate {
-	vsu.mutation.ResetPageViews()
-	vsu.mutation.SetPageViews(i)
-	return vsu
+func (_u *VisitorStatUpdate) SetPageViews(v int64) *VisitorStatUpdate {
+	_u.mutation.ResetPageViews()
+	_u.mutation.SetPageViews(v)
+	return _u
 }
 
 // SetNillablePageViews sets the "page_views" field if the given value is not nil.
-func (vsu *VisitorStatUpdate) SetNillablePageViews(i *int64) *VisitorStatUpdate {
-	if i != nil {
-		vsu.SetPageViews(*i)
+func (_u *VisitorStatUpdate) SetNillablePageViews(v *int64) *VisitorStatUpdate {
+	if v != nil {
+		_u.SetPageViews(*v)
 	}
-	return vsu
+	return _u
 }
 
-// AddPageViews adds i to the "page_views" field.
-func (vsu *VisitorStatUpdate) AddPageViews(i int64) *VisitorStatUpdate {
-	vsu.mutation.AddPageViews(i)
-	return vsu
+// AddPageViews adds value to the "page_views" field.
+func (_u *VisitorStatUpdate) AddPageViews(v int64) *VisitorStatUpdate {
+	_u.mutation.AddPageViews(v)
+	return _u
 }
 
 // SetBounceCount sets the "bounce_count" field.
-func (vsu *VisitorStatUpdate) SetBounceCount(i int64) *VisitorStatUpdate {
-	vsu.mutation.ResetBounceCount()
-	vsu.mutation.SetBounceCount(i)
-	return vsu
+func (_u *VisitorStatUpdate) SetBounceCount(v int64) *VisitorStatUpdate {
+	_u.mutation.ResetBounceCount()
+	_u.mutation.SetBounceCount(v)
+	return _u
 }
 
 // SetNillableBounceCount sets the "bounce_count" field if the given value is not nil.
-func (vsu *VisitorStatUpdate) SetNillableBounceCount(i *int64) *VisitorStatUpdate {
-	if i != nil {
-		vsu.SetBounceCount(*i)
+func (_u *VisitorStatUpdate) SetNillableBounceCount(v *int64) *VisitorStatUpdate {
+	if v != nil {
+		_u.SetBounceCount(*v)
 	}
-	return vsu
+	return _u
 }
 
-// AddBounceCount adds i to the "bounce_count" field.
-func (vsu *VisitorStatUpdate) AddBounceCount(i int64) *VisitorStatUpdate {
-	vsu.mutation.AddBounceCount(i)
-	return vsu
+// AddBounceCount adds value to the "bounce_count" field.
+func (_u *VisitorStatUpdate) AddBounceCount(v int64) *VisitorStatUpdate {
+	_u.mutation.AddBounceCount(v)
+	return _u
 }
 
 // Mutation returns the VisitorStatMutation object of the builder.
-func (vsu *VisitorStatUpdate) Mutation() *VisitorStatMutation {
-	return vsu.mutation
+func (_u *VisitorStatUpdate) Mutation() *VisitorStatMutation {
+	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (vsu *VisitorStatUpdate) Save(ctx context.Context) (int, error) {
-	vsu.defaults()
-	return withHooks(ctx, vsu.sqlSave, vsu.mutation, vsu.hooks)
+func (_u *VisitorStatUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (vsu *VisitorStatUpdate) SaveX(ctx context.Context) int {
-	affected, err := vsu.Save(ctx)
+func (_u *VisitorStatUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -154,73 +154,73 @@ func (vsu *VisitorStatUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (vsu *VisitorStatUpdate) Exec(ctx context.Context) error {
-	_, err := vsu.Save(ctx)
+func (_u *VisitorStatUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (vsu *VisitorStatUpdate) ExecX(ctx context.Context) {
-	if err := vsu.Exec(ctx); err != nil {
+func (_u *VisitorStatUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (vsu *VisitorStatUpdate) defaults() {
-	if _, ok := vsu.mutation.UpdatedAt(); !ok {
+func (_u *VisitorStatUpdate) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := visitorstat.UpdateDefaultUpdatedAt()
-		vsu.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (vsu *VisitorStatUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *VisitorStatUpdate {
-	vsu.modifiers = append(vsu.modifiers, modifiers...)
-	return vsu
+func (_u *VisitorStatUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *VisitorStatUpdate {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (vsu *VisitorStatUpdate) sqlSave(ctx context.Context) (n int, err error) {
+func (_u *VisitorStatUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	_spec := sqlgraph.NewUpdateSpec(visitorstat.Table, visitorstat.Columns, sqlgraph.NewFieldSpec(visitorstat.FieldID, field.TypeUint))
-	if ps := vsu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := vsu.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(visitorstat.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := vsu.mutation.Date(); ok {
+	if value, ok := _u.mutation.Date(); ok {
 		_spec.SetField(visitorstat.FieldDate, field.TypeTime, value)
 	}
-	if value, ok := vsu.mutation.UniqueVisitors(); ok {
+	if value, ok := _u.mutation.UniqueVisitors(); ok {
 		_spec.SetField(visitorstat.FieldUniqueVisitors, field.TypeInt64, value)
 	}
-	if value, ok := vsu.mutation.AddedUniqueVisitors(); ok {
+	if value, ok := _u.mutation.AddedUniqueVisitors(); ok {
 		_spec.AddField(visitorstat.FieldUniqueVisitors, field.TypeInt64, value)
 	}
-	if value, ok := vsu.mutation.TotalViews(); ok {
+	if value, ok := _u.mutation.TotalViews(); ok {
 		_spec.SetField(visitorstat.FieldTotalViews, field.TypeInt64, value)
 	}
-	if value, ok := vsu.mutation.AddedTotalViews(); ok {
+	if value, ok := _u.mutation.AddedTotalViews(); ok {
 		_spec.AddField(visitorstat.FieldTotalViews, field.TypeInt64, value)
 	}
-	if value, ok := vsu.mutation.PageViews(); ok {
+	if value, ok := _u.mutation.PageViews(); ok {
 		_spec.SetField(visitorstat.FieldPageViews, field.TypeInt64, value)
 	}
-	if value, ok := vsu.mutation.AddedPageViews(); ok {
+	if value, ok := _u.mutation.AddedPageViews(); ok {
 		_spec.AddField(visitorstat.FieldPageViews, field.TypeInt64, value)
 	}
-	if value, ok := vsu.mutation.BounceCount(); ok {
+	if value, ok := _u.mutation.BounceCount(); ok {
 		_spec.SetField(visitorstat.FieldBounceCount, field.TypeInt64, value)
 	}
-	if value, ok := vsu.mutation.AddedBounceCount(); ok {
+	if value, ok := _u.mutation.AddedBounceCount(); ok {
 		_spec.AddField(visitorstat.FieldBounceCount, field.TypeInt64, value)
 	}
-	_spec.AddModifiers(vsu.modifiers...)
-	if n, err = sqlgraph.UpdateNodes(ctx, vsu.driver, _spec); err != nil {
+	_spec.AddModifiers(_u.modifiers...)
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{visitorstat.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -228,8 +228,8 @@ func (vsu *VisitorStatUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	vsu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // VisitorStatUpdateOne is the builder for updating a single VisitorStat entity.
@@ -242,136 +242,136 @@ type VisitorStatUpdateOne struct {
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (vsuo *VisitorStatUpdateOne) SetUpdatedAt(t time.Time) *VisitorStatUpdateOne {
-	vsuo.mutation.SetUpdatedAt(t)
-	return vsuo
+func (_u *VisitorStatUpdateOne) SetUpdatedAt(v time.Time) *VisitorStatUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetDate sets the "date" field.
-func (vsuo *VisitorStatUpdateOne) SetDate(t time.Time) *VisitorStatUpdateOne {
-	vsuo.mutation.SetDate(t)
-	return vsuo
+func (_u *VisitorStatUpdateOne) SetDate(v time.Time) *VisitorStatUpdateOne {
+	_u.mutation.SetDate(v)
+	return _u
 }
 
 // SetNillableDate sets the "date" field if the given value is not nil.
-func (vsuo *VisitorStatUpdateOne) SetNillableDate(t *time.Time) *VisitorStatUpdateOne {
-	if t != nil {
-		vsuo.SetDate(*t)
+func (_u *VisitorStatUpdateOne) SetNillableDate(v *time.Time) *VisitorStatUpdateOne {
+	if v != nil {
+		_u.SetDate(*v)
 	}
-	return vsuo
+	return _u
 }
 
 // SetUniqueVisitors sets the "unique_visitors" field.
-func (vsuo *VisitorStatUpdateOne) SetUniqueVisitors(i int64) *VisitorStatUpdateOne {
-	vsuo.mutation.ResetUniqueVisitors()
-	vsuo.mutation.SetUniqueVisitors(i)
-	return vsuo
+func (_u *VisitorStatUpdateOne) SetUniqueVisitors(v int64) *VisitorStatUpdateOne {
+	_u.mutation.ResetUniqueVisitors()
+	_u.mutation.SetUniqueVisitors(v)
+	return _u
 }
 
 // SetNillableUniqueVisitors sets the "unique_visitors" field if the given value is not nil.
-func (vsuo *VisitorStatUpdateOne) SetNillableUniqueVisitors(i *int64) *VisitorStatUpdateOne {
-	if i != nil {
-		vsuo.SetUniqueVisitors(*i)
+func (_u *VisitorStatUpdateOne) SetNillableUniqueVisitors(v *int64) *VisitorStatUpdateOne {
+	if v != nil {
+		_u.SetUniqueVisitors(*v)
 	}
-	return vsuo
+	return _u
 }
 
-// AddUniqueVisitors adds i to the "unique_visitors" field.
-func (vsuo *VisitorStatUpdateOne) AddUniqueVisitors(i int64) *VisitorStatUpdateOne {
-	vsuo.mutation.AddUniqueVisitors(i)
-	return vsuo
+// AddUniqueVisitors adds value to the "unique_visitors" field.
+func (_u *VisitorStatUpdateOne) AddUniqueVisitors(v int64) *VisitorStatUpdateOne {
+	_u.mutation.AddUniqueVisitors(v)
+	return _u
 }
 
 // SetTotalViews sets the "total_views" field.
-func (vsuo *VisitorStatUpdateOne) SetTotalViews(i int64) *VisitorStatUpdateOne {
-	vsuo.mutation.ResetTotalViews()
-	vsuo.mutation.SetTotalViews(i)
-	return vsuo
+func (_u *VisitorStatUpdateOne) SetTotalViews(v int64) *VisitorStatUpdateOne {
+	_u.mutation.ResetTotalViews()
+	_u.mutation.SetTotalViews(v)
+	return _u
 }
 
 // SetNillableTotalViews sets the "total_views" field if the given value is not nil.
-func (vsuo *VisitorStatUpdateOne) SetNillableTotalViews(i *int64) *VisitorStatUpdateOne {
-	if i != nil {
-		vsuo.SetTotalViews(*i)
+func (_u *VisitorStatUpdateOne) SetNillableTotalViews(v *int64) *VisitorStatUpdateOne {
+	if v != nil {
+		_u.SetTotalViews(*v)
 	}
-	return vsuo
+	return _u
 }
 
-// AddTotalViews adds i to the "total_views" field.
-func (vsuo *VisitorStatUpdateOne) AddTotalViews(i int64) *VisitorStatUpdateOne {
-	vsuo.mutation.AddTotalViews(i)
-	return vsuo
+// AddTotalViews adds value to the "total_views" field.
+func (_u *VisitorStatUpdateOne) AddTotalViews(v int64) *VisitorStatUpdateOne {
+	_u.mutation.AddTotalViews(v)
+	return _u
 }
 
 // SetPageViews sets the "page_views" field.
-func (vsuo *VisitorStatUpdateOne) SetPageViews(i int64) *VisitorStatUpdateOne {
-	vsuo.mutation.ResetPageViews()
-	vsuo.mutation.SetPageViews(i)
-	return vsuo
+func (_u *VisitorStatUpdateOne) SetPageViews(v int64) *VisitorStatUpdateOne {
+	_u.mutation.ResetPageViews()
+	_u.mutation.SetPageViews(v)
+	return _u
 }
 
 // SetNillablePageViews sets the "page_views" field if the given value is not nil.
-func (vsuo *VisitorStatUpdateOne) SetNillablePageViews(i *int64) *VisitorStatUpdateOne {
-	if i != nil {
-		vsuo.SetPageViews(*i)
+func (_u *VisitorStatUpdateOne) SetNillablePageViews(v *int64) *VisitorStatUpdateOne {
+	if v != nil {
+		_u.SetPageViews(*v)
 	}
-	return vsuo
+	return _u
 }
 
-// AddPageViews adds i to the "page_views" field.
-func (vsuo *VisitorStatUpdateOne) AddPageViews(i int64) *VisitorStatUpdateOne {
-	vsuo.mutation.AddPageViews(i)
-	return vsuo
+// AddPageViews adds value to the "page_views" field.
+func (_u *VisitorStatUpdateOne) AddPageViews(v int64) *VisitorStatUpdateOne {
+	_u.mutation.AddPageViews(v)
+	return _u
 }
 
 // SetBounceCount sets the "bounce_count" field.
-func (vsuo *VisitorStatUpdateOne) SetBounceCount(i int64) *VisitorStatUpdateOne {
-	vsuo.mutation.ResetBounceCount()
-	vsuo.mutation.SetBounceCount(i)
-	return vsuo
+func (_u *VisitorStatUpdateOne) SetBounceCount(v int64) *VisitorStatUpdateOne {
+	_u.mutation.ResetBounceCount()
+	_u.mutation.SetBounceCount(v)
+	return _u
 }
 
 // SetNillableBounceCount sets the "bounce_count" field if the given value is not nil.
-func (vsuo *VisitorStatUpdateOne) SetNillableBounceCount(i *int64) *VisitorStatUpdateOne {
-	if i != nil {
-		vsuo.SetBounceCount(*i)
+func (_u *VisitorStatUpdateOne) SetNillableBounceCount(v *int64) *VisitorStatUpdateOne {
+	if v != nil {
+		_u.SetBounceCount(*v)
 	}
-	return vsuo
+	return _u
 }
 
-// AddBounceCount adds i to the "bounce_count" field.
-func (vsuo *VisitorStatUpdateOne) AddBounceCount(i int64) *VisitorStatUpdateOne {
-	vsuo.mutation.AddBounceCount(i)
-	return vsuo
+// AddBounceCount adds value to the "bounce_count" field.
+func (_u *VisitorStatUpdateOne) AddBounceCount(v int64) *VisitorStatUpdateOne {
+	_u.mutation.AddBounceCount(v)
+	return _u
 }
 
 // Mutation returns the VisitorStatMutation object of the builder.
-func (vsuo *VisitorStatUpdateOne) Mutation() *VisitorStatMutation {
-	return vsuo.mutation
+func (_u *VisitorStatUpdateOne) Mutation() *VisitorStatMutation {
+	return _u.mutation
 }
 
 // Where appends a list predicates to the VisitorStatUpdate builder.
-func (vsuo *VisitorStatUpdateOne) Where(ps ...predicate.VisitorStat) *VisitorStatUpdateOne {
-	vsuo.mutation.Where(ps...)
-	return vsuo
+func (_u *VisitorStatUpdateOne) Where(ps ...predicate.VisitorStat) *VisitorStatUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (vsuo *VisitorStatUpdateOne) Select(field string, fields ...string) *VisitorStatUpdateOne {
-	vsuo.fields = append([]string{field}, fields...)
-	return vsuo
+func (_u *VisitorStatUpdateOne) Select(field string, fields ...string) *VisitorStatUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated VisitorStat entity.
-func (vsuo *VisitorStatUpdateOne) Save(ctx context.Context) (*VisitorStat, error) {
-	vsuo.defaults()
-	return withHooks(ctx, vsuo.sqlSave, vsuo.mutation, vsuo.hooks)
+func (_u *VisitorStatUpdateOne) Save(ctx context.Context) (*VisitorStat, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (vsuo *VisitorStatUpdateOne) SaveX(ctx context.Context) *VisitorStat {
-	node, err := vsuo.Save(ctx)
+func (_u *VisitorStatUpdateOne) SaveX(ctx context.Context) *VisitorStat {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -379,40 +379,40 @@ func (vsuo *VisitorStatUpdateOne) SaveX(ctx context.Context) *VisitorStat {
 }
 
 // Exec executes the query on the entity.
-func (vsuo *VisitorStatUpdateOne) Exec(ctx context.Context) error {
-	_, err := vsuo.Save(ctx)
+func (_u *VisitorStatUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (vsuo *VisitorStatUpdateOne) ExecX(ctx context.Context) {
-	if err := vsuo.Exec(ctx); err != nil {
+func (_u *VisitorStatUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (vsuo *VisitorStatUpdateOne) defaults() {
-	if _, ok := vsuo.mutation.UpdatedAt(); !ok {
+func (_u *VisitorStatUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		v := visitorstat.UpdateDefaultUpdatedAt()
-		vsuo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (vsuo *VisitorStatUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *VisitorStatUpdateOne {
-	vsuo.modifiers = append(vsuo.modifiers, modifiers...)
-	return vsuo
+func (_u *VisitorStatUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *VisitorStatUpdateOne {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (vsuo *VisitorStatUpdateOne) sqlSave(ctx context.Context) (_node *VisitorStat, err error) {
+func (_u *VisitorStatUpdateOne) sqlSave(ctx context.Context) (_node *VisitorStat, err error) {
 	_spec := sqlgraph.NewUpdateSpec(visitorstat.Table, visitorstat.Columns, sqlgraph.NewFieldSpec(visitorstat.FieldID, field.TypeUint))
-	id, ok := vsuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "VisitorStat.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := vsuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, visitorstat.FieldID)
 		for _, f := range fields {
@@ -424,48 +424,48 @@ func (vsuo *VisitorStatUpdateOne) sqlSave(ctx context.Context) (_node *VisitorSt
 			}
 		}
 	}
-	if ps := vsuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := vsuo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(visitorstat.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := vsuo.mutation.Date(); ok {
+	if value, ok := _u.mutation.Date(); ok {
 		_spec.SetField(visitorstat.FieldDate, field.TypeTime, value)
 	}
-	if value, ok := vsuo.mutation.UniqueVisitors(); ok {
+	if value, ok := _u.mutation.UniqueVisitors(); ok {
 		_spec.SetField(visitorstat.FieldUniqueVisitors, field.TypeInt64, value)
 	}
-	if value, ok := vsuo.mutation.AddedUniqueVisitors(); ok {
+	if value, ok := _u.mutation.AddedUniqueVisitors(); ok {
 		_spec.AddField(visitorstat.FieldUniqueVisitors, field.TypeInt64, value)
 	}
-	if value, ok := vsuo.mutation.TotalViews(); ok {
+	if value, ok := _u.mutation.TotalViews(); ok {
 		_spec.SetField(visitorstat.FieldTotalViews, field.TypeInt64, value)
 	}
-	if value, ok := vsuo.mutation.AddedTotalViews(); ok {
+	if value, ok := _u.mutation.AddedTotalViews(); ok {
 		_spec.AddField(visitorstat.FieldTotalViews, field.TypeInt64, value)
 	}
-	if value, ok := vsuo.mutation.PageViews(); ok {
+	if value, ok := _u.mutation.PageViews(); ok {
 		_spec.SetField(visitorstat.FieldPageViews, field.TypeInt64, value)
 	}
-	if value, ok := vsuo.mutation.AddedPageViews(); ok {
+	if value, ok := _u.mutation.AddedPageViews(); ok {
 		_spec.AddField(visitorstat.FieldPageViews, field.TypeInt64, value)
 	}
-	if value, ok := vsuo.mutation.BounceCount(); ok {
+	if value, ok := _u.mutation.BounceCount(); ok {
 		_spec.SetField(visitorstat.FieldBounceCount, field.TypeInt64, value)
 	}
-	if value, ok := vsuo.mutation.AddedBounceCount(); ok {
+	if value, ok := _u.mutation.AddedBounceCount(); ok {
 		_spec.AddField(visitorstat.FieldBounceCount, field.TypeInt64, value)
 	}
-	_spec.AddModifiers(vsuo.modifiers...)
-	_node = &VisitorStat{config: vsuo.config}
+	_spec.AddModifiers(_u.modifiers...)
+	_node = &VisitorStat{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, vsuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{visitorstat.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -473,6 +473,6 @@ func (vsuo *VisitorStatUpdateOne) sqlSave(ctx context.Context) (_node *VisitorSt
 		}
 		return nil, err
 	}
-	vsuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

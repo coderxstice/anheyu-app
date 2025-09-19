@@ -62,7 +62,7 @@ func (*LinkTag) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the LinkTag fields.
-func (lt *LinkTag) assignValues(columns []string, values []any) error {
+func (_m *LinkTag) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -73,21 +73,21 @@ func (lt *LinkTag) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			lt.ID = int(value.Int64)
+			_m.ID = int(value.Int64)
 		case linktag.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				lt.Name = value.String
+				_m.Name = value.String
 			}
 		case linktag.FieldColor:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field color", values[i])
 			} else if value.Valid {
-				lt.Color = value.String
+				_m.Color = value.String
 			}
 		default:
-			lt.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -95,43 +95,43 @@ func (lt *LinkTag) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the LinkTag.
 // This includes values selected through modifiers, order, etc.
-func (lt *LinkTag) Value(name string) (ent.Value, error) {
-	return lt.selectValues.Get(name)
+func (_m *LinkTag) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryLinks queries the "links" edge of the LinkTag entity.
-func (lt *LinkTag) QueryLinks() *LinkQuery {
-	return NewLinkTagClient(lt.config).QueryLinks(lt)
+func (_m *LinkTag) QueryLinks() *LinkQuery {
+	return NewLinkTagClient(_m.config).QueryLinks(_m)
 }
 
 // Update returns a builder for updating this LinkTag.
 // Note that you need to call LinkTag.Unwrap() before calling this method if this LinkTag
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (lt *LinkTag) Update() *LinkTagUpdateOne {
-	return NewLinkTagClient(lt.config).UpdateOne(lt)
+func (_m *LinkTag) Update() *LinkTagUpdateOne {
+	return NewLinkTagClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the LinkTag entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (lt *LinkTag) Unwrap() *LinkTag {
-	_tx, ok := lt.config.driver.(*txDriver)
+func (_m *LinkTag) Unwrap() *LinkTag {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: LinkTag is not a transactional entity")
 	}
-	lt.config.driver = _tx.drv
-	return lt
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (lt *LinkTag) String() string {
+func (_m *LinkTag) String() string {
 	var builder strings.Builder
 	builder.WriteString("LinkTag(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", lt.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("name=")
-	builder.WriteString(lt.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("color=")
-	builder.WriteString(lt.Color)
+	builder.WriteString(_m.Color)
 	builder.WriteByte(')')
 	return builder.String()
 }

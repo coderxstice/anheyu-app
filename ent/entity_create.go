@@ -25,190 +25,190 @@ type EntityCreate struct {
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (ec *EntityCreate) SetCreatedAt(t time.Time) *EntityCreate {
-	ec.mutation.SetCreatedAt(t)
-	return ec
+func (_c *EntityCreate) SetCreatedAt(v time.Time) *EntityCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (ec *EntityCreate) SetNillableCreatedAt(t *time.Time) *EntityCreate {
-	if t != nil {
-		ec.SetCreatedAt(*t)
+func (_c *EntityCreate) SetNillableCreatedAt(v *time.Time) *EntityCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return ec
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (ec *EntityCreate) SetUpdatedAt(t time.Time) *EntityCreate {
-	ec.mutation.SetUpdatedAt(t)
-	return ec
+func (_c *EntityCreate) SetUpdatedAt(v time.Time) *EntityCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (ec *EntityCreate) SetNillableUpdatedAt(t *time.Time) *EntityCreate {
-	if t != nil {
-		ec.SetUpdatedAt(*t)
+func (_c *EntityCreate) SetNillableUpdatedAt(v *time.Time) *EntityCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return ec
+	return _c
 }
 
 // SetType sets the "type" field.
-func (ec *EntityCreate) SetType(s string) *EntityCreate {
-	ec.mutation.SetType(s)
-	return ec
+func (_c *EntityCreate) SetType(v string) *EntityCreate {
+	_c.mutation.SetType(v)
+	return _c
 }
 
 // SetSource sets the "source" field.
-func (ec *EntityCreate) SetSource(s string) *EntityCreate {
-	ec.mutation.SetSource(s)
-	return ec
+func (_c *EntityCreate) SetSource(v string) *EntityCreate {
+	_c.mutation.SetSource(v)
+	return _c
 }
 
 // SetNillableSource sets the "source" field if the given value is not nil.
-func (ec *EntityCreate) SetNillableSource(s *string) *EntityCreate {
-	if s != nil {
-		ec.SetSource(*s)
+func (_c *EntityCreate) SetNillableSource(v *string) *EntityCreate {
+	if v != nil {
+		_c.SetSource(*v)
 	}
-	return ec
+	return _c
 }
 
 // SetSize sets the "size" field.
-func (ec *EntityCreate) SetSize(i int64) *EntityCreate {
-	ec.mutation.SetSize(i)
-	return ec
+func (_c *EntityCreate) SetSize(v int64) *EntityCreate {
+	_c.mutation.SetSize(v)
+	return _c
 }
 
 // SetUploadSessionID sets the "upload_session_id" field.
-func (ec *EntityCreate) SetUploadSessionID(s string) *EntityCreate {
-	ec.mutation.SetUploadSessionID(s)
-	return ec
+func (_c *EntityCreate) SetUploadSessionID(v string) *EntityCreate {
+	_c.mutation.SetUploadSessionID(v)
+	return _c
 }
 
 // SetNillableUploadSessionID sets the "upload_session_id" field if the given value is not nil.
-func (ec *EntityCreate) SetNillableUploadSessionID(s *string) *EntityCreate {
-	if s != nil {
-		ec.SetUploadSessionID(*s)
+func (_c *EntityCreate) SetNillableUploadSessionID(v *string) *EntityCreate {
+	if v != nil {
+		_c.SetUploadSessionID(*v)
 	}
-	return ec
+	return _c
 }
 
 // SetRecycleOptions sets the "recycle_options" field.
-func (ec *EntityCreate) SetRecycleOptions(s string) *EntityCreate {
-	ec.mutation.SetRecycleOptions(s)
-	return ec
+func (_c *EntityCreate) SetRecycleOptions(v string) *EntityCreate {
+	_c.mutation.SetRecycleOptions(v)
+	return _c
 }
 
 // SetNillableRecycleOptions sets the "recycle_options" field if the given value is not nil.
-func (ec *EntityCreate) SetNillableRecycleOptions(s *string) *EntityCreate {
-	if s != nil {
-		ec.SetRecycleOptions(*s)
+func (_c *EntityCreate) SetNillableRecycleOptions(v *string) *EntityCreate {
+	if v != nil {
+		_c.SetRecycleOptions(*v)
 	}
-	return ec
+	return _c
 }
 
 // SetPolicyID sets the "policy_id" field.
-func (ec *EntityCreate) SetPolicyID(u uint) *EntityCreate {
-	ec.mutation.SetPolicyID(u)
-	return ec
+func (_c *EntityCreate) SetPolicyID(v uint) *EntityCreate {
+	_c.mutation.SetPolicyID(v)
+	return _c
 }
 
 // SetCreatedBy sets the "created_by" field.
-func (ec *EntityCreate) SetCreatedBy(u uint64) *EntityCreate {
-	ec.mutation.SetCreatedBy(u)
-	return ec
+func (_c *EntityCreate) SetCreatedBy(v uint64) *EntityCreate {
+	_c.mutation.SetCreatedBy(v)
+	return _c
 }
 
 // SetNillableCreatedBy sets the "created_by" field if the given value is not nil.
-func (ec *EntityCreate) SetNillableCreatedBy(u *uint64) *EntityCreate {
-	if u != nil {
-		ec.SetCreatedBy(*u)
+func (_c *EntityCreate) SetNillableCreatedBy(v *uint64) *EntityCreate {
+	if v != nil {
+		_c.SetCreatedBy(*v)
 	}
-	return ec
+	return _c
 }
 
 // SetEtag sets the "etag" field.
-func (ec *EntityCreate) SetEtag(s string) *EntityCreate {
-	ec.mutation.SetEtag(s)
-	return ec
+func (_c *EntityCreate) SetEtag(v string) *EntityCreate {
+	_c.mutation.SetEtag(v)
+	return _c
 }
 
 // SetNillableEtag sets the "etag" field if the given value is not nil.
-func (ec *EntityCreate) SetNillableEtag(s *string) *EntityCreate {
-	if s != nil {
-		ec.SetEtag(*s)
+func (_c *EntityCreate) SetNillableEtag(v *string) *EntityCreate {
+	if v != nil {
+		_c.SetEtag(*v)
 	}
-	return ec
+	return _c
 }
 
 // SetMimeType sets the "mime_type" field.
-func (ec *EntityCreate) SetMimeType(s string) *EntityCreate {
-	ec.mutation.SetMimeType(s)
-	return ec
+func (_c *EntityCreate) SetMimeType(v string) *EntityCreate {
+	_c.mutation.SetMimeType(v)
+	return _c
 }
 
 // SetNillableMimeType sets the "mime_type" field if the given value is not nil.
-func (ec *EntityCreate) SetNillableMimeType(s *string) *EntityCreate {
-	if s != nil {
-		ec.SetMimeType(*s)
+func (_c *EntityCreate) SetNillableMimeType(v *string) *EntityCreate {
+	if v != nil {
+		_c.SetMimeType(*v)
 	}
-	return ec
+	return _c
 }
 
 // SetDimension sets the "dimension" field.
-func (ec *EntityCreate) SetDimension(s string) *EntityCreate {
-	ec.mutation.SetDimension(s)
-	return ec
+func (_c *EntityCreate) SetDimension(v string) *EntityCreate {
+	_c.mutation.SetDimension(v)
+	return _c
 }
 
 // SetNillableDimension sets the "dimension" field if the given value is not nil.
-func (ec *EntityCreate) SetNillableDimension(s *string) *EntityCreate {
-	if s != nil {
-		ec.SetDimension(*s)
+func (_c *EntityCreate) SetNillableDimension(v *string) *EntityCreate {
+	if v != nil {
+		_c.SetDimension(*v)
 	}
-	return ec
+	return _c
 }
 
 // SetStorageMetadata sets the "storage_metadata" field.
-func (ec *EntityCreate) SetStorageMetadata(mm model.JSONMap) *EntityCreate {
-	ec.mutation.SetStorageMetadata(mm)
-	return ec
+func (_c *EntityCreate) SetStorageMetadata(v model.JSONMap) *EntityCreate {
+	_c.mutation.SetStorageMetadata(v)
+	return _c
 }
 
 // SetID sets the "id" field.
-func (ec *EntityCreate) SetID(u uint) *EntityCreate {
-	ec.mutation.SetID(u)
-	return ec
+func (_c *EntityCreate) SetID(v uint) *EntityCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // AddFileVersionIDs adds the "file_versions" edge to the FileEntity entity by IDs.
-func (ec *EntityCreate) AddFileVersionIDs(ids ...uint) *EntityCreate {
-	ec.mutation.AddFileVersionIDs(ids...)
-	return ec
+func (_c *EntityCreate) AddFileVersionIDs(ids ...uint) *EntityCreate {
+	_c.mutation.AddFileVersionIDs(ids...)
+	return _c
 }
 
 // AddFileVersions adds the "file_versions" edges to the FileEntity entity.
-func (ec *EntityCreate) AddFileVersions(f ...*FileEntity) *EntityCreate {
-	ids := make([]uint, len(f))
-	for i := range f {
-		ids[i] = f[i].ID
+func (_c *EntityCreate) AddFileVersions(v ...*FileEntity) *EntityCreate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ec.AddFileVersionIDs(ids...)
+	return _c.AddFileVersionIDs(ids...)
 }
 
 // Mutation returns the EntityMutation object of the builder.
-func (ec *EntityCreate) Mutation() *EntityMutation {
-	return ec.mutation
+func (_c *EntityCreate) Mutation() *EntityMutation {
+	return _c.mutation
 }
 
 // Save creates the Entity in the database.
-func (ec *EntityCreate) Save(ctx context.Context) (*Entity, error) {
-	ec.defaults()
-	return withHooks(ctx, ec.sqlSave, ec.mutation, ec.hooks)
+func (_c *EntityCreate) Save(ctx context.Context) (*Entity, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (ec *EntityCreate) SaveX(ctx context.Context) *Entity {
-	v, err := ec.Save(ctx)
+func (_c *EntityCreate) SaveX(ctx context.Context) *Entity {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -216,63 +216,63 @@ func (ec *EntityCreate) SaveX(ctx context.Context) *Entity {
 }
 
 // Exec executes the query.
-func (ec *EntityCreate) Exec(ctx context.Context) error {
-	_, err := ec.Save(ctx)
+func (_c *EntityCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ec *EntityCreate) ExecX(ctx context.Context) {
-	if err := ec.Exec(ctx); err != nil {
+func (_c *EntityCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (ec *EntityCreate) defaults() {
-	if _, ok := ec.mutation.CreatedAt(); !ok {
+func (_c *EntityCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := entity.DefaultCreatedAt()
-		ec.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := ec.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := entity.DefaultUpdatedAt()
-		ec.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ec *EntityCreate) check() error {
-	if _, ok := ec.mutation.CreatedAt(); !ok {
+func (_c *EntityCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Entity.created_at"`)}
 	}
-	if _, ok := ec.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Entity.updated_at"`)}
 	}
-	if _, ok := ec.mutation.GetType(); !ok {
+	if _, ok := _c.mutation.GetType(); !ok {
 		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "Entity.type"`)}
 	}
-	if _, ok := ec.mutation.Size(); !ok {
+	if _, ok := _c.mutation.Size(); !ok {
 		return &ValidationError{Name: "size", err: errors.New(`ent: missing required field "Entity.size"`)}
 	}
-	if v, ok := ec.mutation.UploadSessionID(); ok {
+	if v, ok := _c.mutation.UploadSessionID(); ok {
 		if err := entity.UploadSessionIDValidator(v); err != nil {
 			return &ValidationError{Name: "upload_session_id", err: fmt.Errorf(`ent: validator failed for field "Entity.upload_session_id": %w`, err)}
 		}
 	}
-	if _, ok := ec.mutation.PolicyID(); !ok {
+	if _, ok := _c.mutation.PolicyID(); !ok {
 		return &ValidationError{Name: "policy_id", err: errors.New(`ent: missing required field "Entity.policy_id"`)}
 	}
-	if v, ok := ec.mutation.Etag(); ok {
+	if v, ok := _c.mutation.Etag(); ok {
 		if err := entity.EtagValidator(v); err != nil {
 			return &ValidationError{Name: "etag", err: fmt.Errorf(`ent: validator failed for field "Entity.etag": %w`, err)}
 		}
 	}
-	if v, ok := ec.mutation.MimeType(); ok {
+	if v, ok := _c.mutation.MimeType(); ok {
 		if err := entity.MimeTypeValidator(v); err != nil {
 			return &ValidationError{Name: "mime_type", err: fmt.Errorf(`ent: validator failed for field "Entity.mime_type": %w`, err)}
 		}
 	}
-	if v, ok := ec.mutation.Dimension(); ok {
+	if v, ok := _c.mutation.Dimension(); ok {
 		if err := entity.DimensionValidator(v); err != nil {
 			return &ValidationError{Name: "dimension", err: fmt.Errorf(`ent: validator failed for field "Entity.dimension": %w`, err)}
 		}
@@ -280,12 +280,12 @@ func (ec *EntityCreate) check() error {
 	return nil
 }
 
-func (ec *EntityCreate) sqlSave(ctx context.Context) (*Entity, error) {
-	if err := ec.check(); err != nil {
+func (_c *EntityCreate) sqlSave(ctx context.Context) (*Entity, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := ec.createSpec()
-	if err := sqlgraph.CreateNode(ctx, ec.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -295,74 +295,74 @@ func (ec *EntityCreate) sqlSave(ctx context.Context) (*Entity, error) {
 		id := _spec.ID.Value.(int64)
 		_node.ID = uint(id)
 	}
-	ec.mutation.id = &_node.ID
-	ec.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (ec *EntityCreate) createSpec() (*Entity, *sqlgraph.CreateSpec) {
+func (_c *EntityCreate) createSpec() (*Entity, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Entity{config: ec.config}
+		_node = &Entity{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(entity.Table, sqlgraph.NewFieldSpec(entity.FieldID, field.TypeUint))
 	)
-	_spec.OnConflict = ec.conflict
-	if id, ok := ec.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := ec.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(entity.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := ec.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(entity.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if value, ok := ec.mutation.GetType(); ok {
+	if value, ok := _c.mutation.GetType(); ok {
 		_spec.SetField(entity.FieldType, field.TypeString, value)
 		_node.Type = value
 	}
-	if value, ok := ec.mutation.Source(); ok {
+	if value, ok := _c.mutation.Source(); ok {
 		_spec.SetField(entity.FieldSource, field.TypeString, value)
 		_node.Source = &value
 	}
-	if value, ok := ec.mutation.Size(); ok {
+	if value, ok := _c.mutation.Size(); ok {
 		_spec.SetField(entity.FieldSize, field.TypeInt64, value)
 		_node.Size = value
 	}
-	if value, ok := ec.mutation.UploadSessionID(); ok {
+	if value, ok := _c.mutation.UploadSessionID(); ok {
 		_spec.SetField(entity.FieldUploadSessionID, field.TypeString, value)
 		_node.UploadSessionID = &value
 	}
-	if value, ok := ec.mutation.RecycleOptions(); ok {
+	if value, ok := _c.mutation.RecycleOptions(); ok {
 		_spec.SetField(entity.FieldRecycleOptions, field.TypeString, value)
 		_node.RecycleOptions = &value
 	}
-	if value, ok := ec.mutation.PolicyID(); ok {
+	if value, ok := _c.mutation.PolicyID(); ok {
 		_spec.SetField(entity.FieldPolicyID, field.TypeUint, value)
 		_node.PolicyID = value
 	}
-	if value, ok := ec.mutation.CreatedBy(); ok {
+	if value, ok := _c.mutation.CreatedBy(); ok {
 		_spec.SetField(entity.FieldCreatedBy, field.TypeUint64, value)
 		_node.CreatedBy = &value
 	}
-	if value, ok := ec.mutation.Etag(); ok {
+	if value, ok := _c.mutation.Etag(); ok {
 		_spec.SetField(entity.FieldEtag, field.TypeString, value)
 		_node.Etag = &value
 	}
-	if value, ok := ec.mutation.MimeType(); ok {
+	if value, ok := _c.mutation.MimeType(); ok {
 		_spec.SetField(entity.FieldMimeType, field.TypeString, value)
 		_node.MimeType = &value
 	}
-	if value, ok := ec.mutation.Dimension(); ok {
+	if value, ok := _c.mutation.Dimension(); ok {
 		_spec.SetField(entity.FieldDimension, field.TypeString, value)
 		_node.Dimension = &value
 	}
-	if value, ok := ec.mutation.StorageMetadata(); ok {
+	if value, ok := _c.mutation.StorageMetadata(); ok {
 		_spec.SetField(entity.FieldStorageMetadata, field.TypeOther, value)
 		_node.StorageMetadata = value
 	}
-	if nodes := ec.mutation.FileVersionsIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.FileVersionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -397,10 +397,10 @@ func (ec *EntityCreate) createSpec() (*Entity, *sqlgraph.CreateSpec) {
 //			SetCreatedAt(v+v).
 //		}).
 //		Exec(ctx)
-func (ec *EntityCreate) OnConflict(opts ...sql.ConflictOption) *EntityUpsertOne {
-	ec.conflict = opts
+func (_c *EntityCreate) OnConflict(opts ...sql.ConflictOption) *EntityUpsertOne {
+	_c.conflict = opts
 	return &EntityUpsertOne{
-		create: ec,
+		create: _c,
 	}
 }
 
@@ -410,10 +410,10 @@ func (ec *EntityCreate) OnConflict(opts ...sql.ConflictOption) *EntityUpsertOne 
 //	client.Entity.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (ec *EntityCreate) OnConflictColumns(columns ...string) *EntityUpsertOne {
-	ec.conflict = append(ec.conflict, sql.ConflictColumns(columns...))
+func (_c *EntityCreate) OnConflictColumns(columns ...string) *EntityUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &EntityUpsertOne{
-		create: ec,
+		create: _c,
 	}
 }
 
@@ -978,16 +978,16 @@ type EntityCreateBulk struct {
 }
 
 // Save creates the Entity entities in the database.
-func (ecb *EntityCreateBulk) Save(ctx context.Context) ([]*Entity, error) {
-	if ecb.err != nil {
-		return nil, ecb.err
+func (_c *EntityCreateBulk) Save(ctx context.Context) ([]*Entity, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(ecb.builders))
-	nodes := make([]*Entity, len(ecb.builders))
-	mutators := make([]Mutator, len(ecb.builders))
-	for i := range ecb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*Entity, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := ecb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*EntityMutation)
@@ -1001,12 +1001,12 @@ func (ecb *EntityCreateBulk) Save(ctx context.Context) ([]*Entity, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, ecb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = ecb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, ecb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -1030,7 +1030,7 @@ func (ecb *EntityCreateBulk) Save(ctx context.Context) ([]*Entity, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, ecb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -1038,8 +1038,8 @@ func (ecb *EntityCreateBulk) Save(ctx context.Context) ([]*Entity, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (ecb *EntityCreateBulk) SaveX(ctx context.Context) []*Entity {
-	v, err := ecb.Save(ctx)
+func (_c *EntityCreateBulk) SaveX(ctx context.Context) []*Entity {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -1047,14 +1047,14 @@ func (ecb *EntityCreateBulk) SaveX(ctx context.Context) []*Entity {
 }
 
 // Exec executes the query.
-func (ecb *EntityCreateBulk) Exec(ctx context.Context) error {
-	_, err := ecb.Save(ctx)
+func (_c *EntityCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ecb *EntityCreateBulk) ExecX(ctx context.Context) {
-	if err := ecb.Exec(ctx); err != nil {
+func (_c *EntityCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -1074,10 +1074,10 @@ func (ecb *EntityCreateBulk) ExecX(ctx context.Context) {
 //			SetCreatedAt(v+v).
 //		}).
 //		Exec(ctx)
-func (ecb *EntityCreateBulk) OnConflict(opts ...sql.ConflictOption) *EntityUpsertBulk {
-	ecb.conflict = opts
+func (_c *EntityCreateBulk) OnConflict(opts ...sql.ConflictOption) *EntityUpsertBulk {
+	_c.conflict = opts
 	return &EntityUpsertBulk{
-		create: ecb,
+		create: _c,
 	}
 }
 
@@ -1087,10 +1087,10 @@ func (ecb *EntityCreateBulk) OnConflict(opts ...sql.ConflictOption) *EntityUpser
 //	client.Entity.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (ecb *EntityCreateBulk) OnConflictColumns(columns ...string) *EntityUpsertBulk {
-	ecb.conflict = append(ecb.conflict, sql.ConflictColumns(columns...))
+func (_c *EntityCreateBulk) OnConflictColumns(columns ...string) *EntityUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &EntityUpsertBulk{
-		create: ecb,
+		create: _c,
 	}
 }
 

@@ -52,6 +52,8 @@ type Tx struct {
 	User *UserClient
 	// UserGroup is the client for interacting with the UserGroup builders.
 	UserGroup *UserGroupClient
+	// UserInstalledTheme is the client for interacting with the UserInstalledTheme builders.
+	UserInstalledTheme *UserInstalledThemeClient
 	// VisitorLog is the client for interacting with the VisitorLog builders.
 	VisitorLog *VisitorLogClient
 	// VisitorStat is the client for interacting with the VisitorStat builders.
@@ -207,6 +209,7 @@ func (tx *Tx) init() {
 	tx.URLStat = NewURLStatClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 	tx.UserGroup = NewUserGroupClient(tx.config)
+	tx.UserInstalledTheme = NewUserInstalledThemeClient(tx.config)
 	tx.VisitorLog = NewVisitorLogClient(tx.config)
 	tx.VisitorStat = NewVisitorStatClient(tx.config)
 }

@@ -26,164 +26,164 @@ type FileEntityUpdate struct {
 }
 
 // Where appends a list predicates to the FileEntityUpdate builder.
-func (feu *FileEntityUpdate) Where(ps ...predicate.FileEntity) *FileEntityUpdate {
-	feu.mutation.Where(ps...)
-	return feu
+func (_u *FileEntityUpdate) Where(ps ...predicate.FileEntity) *FileEntityUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (feu *FileEntityUpdate) SetDeletedAt(t time.Time) *FileEntityUpdate {
-	feu.mutation.SetDeletedAt(t)
-	return feu
+func (_u *FileEntityUpdate) SetDeletedAt(v time.Time) *FileEntityUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (feu *FileEntityUpdate) SetNillableDeletedAt(t *time.Time) *FileEntityUpdate {
-	if t != nil {
-		feu.SetDeletedAt(*t)
+func (_u *FileEntityUpdate) SetNillableDeletedAt(v *time.Time) *FileEntityUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
 	}
-	return feu
+	return _u
 }
 
 // ClearDeletedAt clears the value of the "deleted_at" field.
-func (feu *FileEntityUpdate) ClearDeletedAt() *FileEntityUpdate {
-	feu.mutation.ClearDeletedAt()
-	return feu
+func (_u *FileEntityUpdate) ClearDeletedAt() *FileEntityUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (feu *FileEntityUpdate) SetUpdatedAt(t time.Time) *FileEntityUpdate {
-	feu.mutation.SetUpdatedAt(t)
-	return feu
+func (_u *FileEntityUpdate) SetUpdatedAt(v time.Time) *FileEntityUpdate {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetFileID sets the "file_id" field.
-func (feu *FileEntityUpdate) SetFileID(u uint) *FileEntityUpdate {
-	feu.mutation.SetFileID(u)
-	return feu
+func (_u *FileEntityUpdate) SetFileID(v uint) *FileEntityUpdate {
+	_u.mutation.SetFileID(v)
+	return _u
 }
 
 // SetNillableFileID sets the "file_id" field if the given value is not nil.
-func (feu *FileEntityUpdate) SetNillableFileID(u *uint) *FileEntityUpdate {
-	if u != nil {
-		feu.SetFileID(*u)
+func (_u *FileEntityUpdate) SetNillableFileID(v *uint) *FileEntityUpdate {
+	if v != nil {
+		_u.SetFileID(*v)
 	}
-	return feu
+	return _u
 }
 
 // SetEntityID sets the "entity_id" field.
-func (feu *FileEntityUpdate) SetEntityID(u uint) *FileEntityUpdate {
-	feu.mutation.SetEntityID(u)
-	return feu
+func (_u *FileEntityUpdate) SetEntityID(v uint) *FileEntityUpdate {
+	_u.mutation.SetEntityID(v)
+	return _u
 }
 
 // SetNillableEntityID sets the "entity_id" field if the given value is not nil.
-func (feu *FileEntityUpdate) SetNillableEntityID(u *uint) *FileEntityUpdate {
-	if u != nil {
-		feu.SetEntityID(*u)
+func (_u *FileEntityUpdate) SetNillableEntityID(v *uint) *FileEntityUpdate {
+	if v != nil {
+		_u.SetEntityID(*v)
 	}
-	return feu
+	return _u
 }
 
 // SetVersion sets the "version" field.
-func (feu *FileEntityUpdate) SetVersion(s string) *FileEntityUpdate {
-	feu.mutation.SetVersion(s)
-	return feu
+func (_u *FileEntityUpdate) SetVersion(v string) *FileEntityUpdate {
+	_u.mutation.SetVersion(v)
+	return _u
 }
 
 // SetNillableVersion sets the "version" field if the given value is not nil.
-func (feu *FileEntityUpdate) SetNillableVersion(s *string) *FileEntityUpdate {
-	if s != nil {
-		feu.SetVersion(*s)
+func (_u *FileEntityUpdate) SetNillableVersion(v *string) *FileEntityUpdate {
+	if v != nil {
+		_u.SetVersion(*v)
 	}
-	return feu
+	return _u
 }
 
 // ClearVersion clears the value of the "version" field.
-func (feu *FileEntityUpdate) ClearVersion() *FileEntityUpdate {
-	feu.mutation.ClearVersion()
-	return feu
+func (_u *FileEntityUpdate) ClearVersion() *FileEntityUpdate {
+	_u.mutation.ClearVersion()
+	return _u
 }
 
 // SetIsCurrent sets the "is_current" field.
-func (feu *FileEntityUpdate) SetIsCurrent(b bool) *FileEntityUpdate {
-	feu.mutation.SetIsCurrent(b)
-	return feu
+func (_u *FileEntityUpdate) SetIsCurrent(v bool) *FileEntityUpdate {
+	_u.mutation.SetIsCurrent(v)
+	return _u
 }
 
 // SetNillableIsCurrent sets the "is_current" field if the given value is not nil.
-func (feu *FileEntityUpdate) SetNillableIsCurrent(b *bool) *FileEntityUpdate {
-	if b != nil {
-		feu.SetIsCurrent(*b)
+func (_u *FileEntityUpdate) SetNillableIsCurrent(v *bool) *FileEntityUpdate {
+	if v != nil {
+		_u.SetIsCurrent(*v)
 	}
-	return feu
+	return _u
 }
 
 // SetUploadedByUserID sets the "uploaded_by_user_id" field.
-func (feu *FileEntityUpdate) SetUploadedByUserID(u uint64) *FileEntityUpdate {
-	feu.mutation.ResetUploadedByUserID()
-	feu.mutation.SetUploadedByUserID(u)
-	return feu
+func (_u *FileEntityUpdate) SetUploadedByUserID(v uint64) *FileEntityUpdate {
+	_u.mutation.ResetUploadedByUserID()
+	_u.mutation.SetUploadedByUserID(v)
+	return _u
 }
 
 // SetNillableUploadedByUserID sets the "uploaded_by_user_id" field if the given value is not nil.
-func (feu *FileEntityUpdate) SetNillableUploadedByUserID(u *uint64) *FileEntityUpdate {
-	if u != nil {
-		feu.SetUploadedByUserID(*u)
+func (_u *FileEntityUpdate) SetNillableUploadedByUserID(v *uint64) *FileEntityUpdate {
+	if v != nil {
+		_u.SetUploadedByUserID(*v)
 	}
-	return feu
+	return _u
 }
 
-// AddUploadedByUserID adds u to the "uploaded_by_user_id" field.
-func (feu *FileEntityUpdate) AddUploadedByUserID(u int64) *FileEntityUpdate {
-	feu.mutation.AddUploadedByUserID(u)
-	return feu
+// AddUploadedByUserID adds value to the "uploaded_by_user_id" field.
+func (_u *FileEntityUpdate) AddUploadedByUserID(v int64) *FileEntityUpdate {
+	_u.mutation.AddUploadedByUserID(v)
+	return _u
 }
 
 // ClearUploadedByUserID clears the value of the "uploaded_by_user_id" field.
-func (feu *FileEntityUpdate) ClearUploadedByUserID() *FileEntityUpdate {
-	feu.mutation.ClearUploadedByUserID()
-	return feu
+func (_u *FileEntityUpdate) ClearUploadedByUserID() *FileEntityUpdate {
+	_u.mutation.ClearUploadedByUserID()
+	return _u
 }
 
 // SetFile sets the "file" edge to the File entity.
-func (feu *FileEntityUpdate) SetFile(f *File) *FileEntityUpdate {
-	return feu.SetFileID(f.ID)
+func (_u *FileEntityUpdate) SetFile(v *File) *FileEntityUpdate {
+	return _u.SetFileID(v.ID)
 }
 
 // SetEntity sets the "entity" edge to the Entity entity.
-func (feu *FileEntityUpdate) SetEntity(e *Entity) *FileEntityUpdate {
-	return feu.SetEntityID(e.ID)
+func (_u *FileEntityUpdate) SetEntity(v *Entity) *FileEntityUpdate {
+	return _u.SetEntityID(v.ID)
 }
 
 // Mutation returns the FileEntityMutation object of the builder.
-func (feu *FileEntityUpdate) Mutation() *FileEntityMutation {
-	return feu.mutation
+func (_u *FileEntityUpdate) Mutation() *FileEntityMutation {
+	return _u.mutation
 }
 
 // ClearFile clears the "file" edge to the File entity.
-func (feu *FileEntityUpdate) ClearFile() *FileEntityUpdate {
-	feu.mutation.ClearFile()
-	return feu
+func (_u *FileEntityUpdate) ClearFile() *FileEntityUpdate {
+	_u.mutation.ClearFile()
+	return _u
 }
 
 // ClearEntity clears the "entity" edge to the Entity entity.
-func (feu *FileEntityUpdate) ClearEntity() *FileEntityUpdate {
-	feu.mutation.ClearEntity()
-	return feu
+func (_u *FileEntityUpdate) ClearEntity() *FileEntityUpdate {
+	_u.mutation.ClearEntity()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (feu *FileEntityUpdate) Save(ctx context.Context) (int, error) {
-	if err := feu.defaults(); err != nil {
+func (_u *FileEntityUpdate) Save(ctx context.Context) (int, error) {
+	if err := _u.defaults(); err != nil {
 		return 0, err
 	}
-	return withHooks(ctx, feu.sqlSave, feu.mutation, feu.hooks)
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (feu *FileEntityUpdate) SaveX(ctx context.Context) int {
-	affected, err := feu.Save(ctx)
+func (_u *FileEntityUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -191,92 +191,92 @@ func (feu *FileEntityUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (feu *FileEntityUpdate) Exec(ctx context.Context) error {
-	_, err := feu.Save(ctx)
+func (_u *FileEntityUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (feu *FileEntityUpdate) ExecX(ctx context.Context) {
-	if err := feu.Exec(ctx); err != nil {
+func (_u *FileEntityUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (feu *FileEntityUpdate) defaults() error {
-	if _, ok := feu.mutation.UpdatedAt(); !ok {
+func (_u *FileEntityUpdate) defaults() error {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		if fileentity.UpdateDefaultUpdatedAt == nil {
 			return fmt.Errorf("ent: uninitialized fileentity.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
 		}
 		v := fileentity.UpdateDefaultUpdatedAt()
-		feu.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (feu *FileEntityUpdate) check() error {
-	if v, ok := feu.mutation.Version(); ok {
+func (_u *FileEntityUpdate) check() error {
+	if v, ok := _u.mutation.Version(); ok {
 		if err := fileentity.VersionValidator(v); err != nil {
 			return &ValidationError{Name: "version", err: fmt.Errorf(`ent: validator failed for field "FileEntity.version": %w`, err)}
 		}
 	}
-	if feu.mutation.FileCleared() && len(feu.mutation.FileIDs()) > 0 {
+	if _u.mutation.FileCleared() && len(_u.mutation.FileIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "FileEntity.file"`)
 	}
-	if feu.mutation.EntityCleared() && len(feu.mutation.EntityIDs()) > 0 {
+	if _u.mutation.EntityCleared() && len(_u.mutation.EntityIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "FileEntity.entity"`)
 	}
 	return nil
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (feu *FileEntityUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *FileEntityUpdate {
-	feu.modifiers = append(feu.modifiers, modifiers...)
-	return feu
+func (_u *FileEntityUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *FileEntityUpdate {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (feu *FileEntityUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := feu.check(); err != nil {
-		return n, err
+func (_u *FileEntityUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(fileentity.Table, fileentity.Columns, sqlgraph.NewFieldSpec(fileentity.FieldID, field.TypeUint))
-	if ps := feu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := feu.mutation.DeletedAt(); ok {
+	if value, ok := _u.mutation.DeletedAt(); ok {
 		_spec.SetField(fileentity.FieldDeletedAt, field.TypeTime, value)
 	}
-	if feu.mutation.DeletedAtCleared() {
+	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(fileentity.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := feu.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(fileentity.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := feu.mutation.Version(); ok {
+	if value, ok := _u.mutation.Version(); ok {
 		_spec.SetField(fileentity.FieldVersion, field.TypeString, value)
 	}
-	if feu.mutation.VersionCleared() {
+	if _u.mutation.VersionCleared() {
 		_spec.ClearField(fileentity.FieldVersion, field.TypeString)
 	}
-	if value, ok := feu.mutation.IsCurrent(); ok {
+	if value, ok := _u.mutation.IsCurrent(); ok {
 		_spec.SetField(fileentity.FieldIsCurrent, field.TypeBool, value)
 	}
-	if value, ok := feu.mutation.UploadedByUserID(); ok {
+	if value, ok := _u.mutation.UploadedByUserID(); ok {
 		_spec.SetField(fileentity.FieldUploadedByUserID, field.TypeUint64, value)
 	}
-	if value, ok := feu.mutation.AddedUploadedByUserID(); ok {
+	if value, ok := _u.mutation.AddedUploadedByUserID(); ok {
 		_spec.AddField(fileentity.FieldUploadedByUserID, field.TypeUint64, value)
 	}
-	if feu.mutation.UploadedByUserIDCleared() {
+	if _u.mutation.UploadedByUserIDCleared() {
 		_spec.ClearField(fileentity.FieldUploadedByUserID, field.TypeUint64)
 	}
-	if feu.mutation.FileCleared() {
+	if _u.mutation.FileCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -289,7 +289,7 @@ func (feu *FileEntityUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := feu.mutation.FileIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.FileIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -305,7 +305,7 @@ func (feu *FileEntityUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if feu.mutation.EntityCleared() {
+	if _u.mutation.EntityCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -318,7 +318,7 @@ func (feu *FileEntityUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := feu.mutation.EntityIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.EntityIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -334,8 +334,8 @@ func (feu *FileEntityUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_spec.AddModifiers(feu.modifiers...)
-	if n, err = sqlgraph.UpdateNodes(ctx, feu.driver, _spec); err != nil {
+	_spec.AddModifiers(_u.modifiers...)
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{fileentity.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -343,8 +343,8 @@ func (feu *FileEntityUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	feu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // FileEntityUpdateOne is the builder for updating a single FileEntity entity.
@@ -357,171 +357,171 @@ type FileEntityUpdateOne struct {
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (feuo *FileEntityUpdateOne) SetDeletedAt(t time.Time) *FileEntityUpdateOne {
-	feuo.mutation.SetDeletedAt(t)
-	return feuo
+func (_u *FileEntityUpdateOne) SetDeletedAt(v time.Time) *FileEntityUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (feuo *FileEntityUpdateOne) SetNillableDeletedAt(t *time.Time) *FileEntityUpdateOne {
-	if t != nil {
-		feuo.SetDeletedAt(*t)
+func (_u *FileEntityUpdateOne) SetNillableDeletedAt(v *time.Time) *FileEntityUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
 	}
-	return feuo
+	return _u
 }
 
 // ClearDeletedAt clears the value of the "deleted_at" field.
-func (feuo *FileEntityUpdateOne) ClearDeletedAt() *FileEntityUpdateOne {
-	feuo.mutation.ClearDeletedAt()
-	return feuo
+func (_u *FileEntityUpdateOne) ClearDeletedAt() *FileEntityUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (feuo *FileEntityUpdateOne) SetUpdatedAt(t time.Time) *FileEntityUpdateOne {
-	feuo.mutation.SetUpdatedAt(t)
-	return feuo
+func (_u *FileEntityUpdateOne) SetUpdatedAt(v time.Time) *FileEntityUpdateOne {
+	_u.mutation.SetUpdatedAt(v)
+	return _u
 }
 
 // SetFileID sets the "file_id" field.
-func (feuo *FileEntityUpdateOne) SetFileID(u uint) *FileEntityUpdateOne {
-	feuo.mutation.SetFileID(u)
-	return feuo
+func (_u *FileEntityUpdateOne) SetFileID(v uint) *FileEntityUpdateOne {
+	_u.mutation.SetFileID(v)
+	return _u
 }
 
 // SetNillableFileID sets the "file_id" field if the given value is not nil.
-func (feuo *FileEntityUpdateOne) SetNillableFileID(u *uint) *FileEntityUpdateOne {
-	if u != nil {
-		feuo.SetFileID(*u)
+func (_u *FileEntityUpdateOne) SetNillableFileID(v *uint) *FileEntityUpdateOne {
+	if v != nil {
+		_u.SetFileID(*v)
 	}
-	return feuo
+	return _u
 }
 
 // SetEntityID sets the "entity_id" field.
-func (feuo *FileEntityUpdateOne) SetEntityID(u uint) *FileEntityUpdateOne {
-	feuo.mutation.SetEntityID(u)
-	return feuo
+func (_u *FileEntityUpdateOne) SetEntityID(v uint) *FileEntityUpdateOne {
+	_u.mutation.SetEntityID(v)
+	return _u
 }
 
 // SetNillableEntityID sets the "entity_id" field if the given value is not nil.
-func (feuo *FileEntityUpdateOne) SetNillableEntityID(u *uint) *FileEntityUpdateOne {
-	if u != nil {
-		feuo.SetEntityID(*u)
+func (_u *FileEntityUpdateOne) SetNillableEntityID(v *uint) *FileEntityUpdateOne {
+	if v != nil {
+		_u.SetEntityID(*v)
 	}
-	return feuo
+	return _u
 }
 
 // SetVersion sets the "version" field.
-func (feuo *FileEntityUpdateOne) SetVersion(s string) *FileEntityUpdateOne {
-	feuo.mutation.SetVersion(s)
-	return feuo
+func (_u *FileEntityUpdateOne) SetVersion(v string) *FileEntityUpdateOne {
+	_u.mutation.SetVersion(v)
+	return _u
 }
 
 // SetNillableVersion sets the "version" field if the given value is not nil.
-func (feuo *FileEntityUpdateOne) SetNillableVersion(s *string) *FileEntityUpdateOne {
-	if s != nil {
-		feuo.SetVersion(*s)
+func (_u *FileEntityUpdateOne) SetNillableVersion(v *string) *FileEntityUpdateOne {
+	if v != nil {
+		_u.SetVersion(*v)
 	}
-	return feuo
+	return _u
 }
 
 // ClearVersion clears the value of the "version" field.
-func (feuo *FileEntityUpdateOne) ClearVersion() *FileEntityUpdateOne {
-	feuo.mutation.ClearVersion()
-	return feuo
+func (_u *FileEntityUpdateOne) ClearVersion() *FileEntityUpdateOne {
+	_u.mutation.ClearVersion()
+	return _u
 }
 
 // SetIsCurrent sets the "is_current" field.
-func (feuo *FileEntityUpdateOne) SetIsCurrent(b bool) *FileEntityUpdateOne {
-	feuo.mutation.SetIsCurrent(b)
-	return feuo
+func (_u *FileEntityUpdateOne) SetIsCurrent(v bool) *FileEntityUpdateOne {
+	_u.mutation.SetIsCurrent(v)
+	return _u
 }
 
 // SetNillableIsCurrent sets the "is_current" field if the given value is not nil.
-func (feuo *FileEntityUpdateOne) SetNillableIsCurrent(b *bool) *FileEntityUpdateOne {
-	if b != nil {
-		feuo.SetIsCurrent(*b)
+func (_u *FileEntityUpdateOne) SetNillableIsCurrent(v *bool) *FileEntityUpdateOne {
+	if v != nil {
+		_u.SetIsCurrent(*v)
 	}
-	return feuo
+	return _u
 }
 
 // SetUploadedByUserID sets the "uploaded_by_user_id" field.
-func (feuo *FileEntityUpdateOne) SetUploadedByUserID(u uint64) *FileEntityUpdateOne {
-	feuo.mutation.ResetUploadedByUserID()
-	feuo.mutation.SetUploadedByUserID(u)
-	return feuo
+func (_u *FileEntityUpdateOne) SetUploadedByUserID(v uint64) *FileEntityUpdateOne {
+	_u.mutation.ResetUploadedByUserID()
+	_u.mutation.SetUploadedByUserID(v)
+	return _u
 }
 
 // SetNillableUploadedByUserID sets the "uploaded_by_user_id" field if the given value is not nil.
-func (feuo *FileEntityUpdateOne) SetNillableUploadedByUserID(u *uint64) *FileEntityUpdateOne {
-	if u != nil {
-		feuo.SetUploadedByUserID(*u)
+func (_u *FileEntityUpdateOne) SetNillableUploadedByUserID(v *uint64) *FileEntityUpdateOne {
+	if v != nil {
+		_u.SetUploadedByUserID(*v)
 	}
-	return feuo
+	return _u
 }
 
-// AddUploadedByUserID adds u to the "uploaded_by_user_id" field.
-func (feuo *FileEntityUpdateOne) AddUploadedByUserID(u int64) *FileEntityUpdateOne {
-	feuo.mutation.AddUploadedByUserID(u)
-	return feuo
+// AddUploadedByUserID adds value to the "uploaded_by_user_id" field.
+func (_u *FileEntityUpdateOne) AddUploadedByUserID(v int64) *FileEntityUpdateOne {
+	_u.mutation.AddUploadedByUserID(v)
+	return _u
 }
 
 // ClearUploadedByUserID clears the value of the "uploaded_by_user_id" field.
-func (feuo *FileEntityUpdateOne) ClearUploadedByUserID() *FileEntityUpdateOne {
-	feuo.mutation.ClearUploadedByUserID()
-	return feuo
+func (_u *FileEntityUpdateOne) ClearUploadedByUserID() *FileEntityUpdateOne {
+	_u.mutation.ClearUploadedByUserID()
+	return _u
 }
 
 // SetFile sets the "file" edge to the File entity.
-func (feuo *FileEntityUpdateOne) SetFile(f *File) *FileEntityUpdateOne {
-	return feuo.SetFileID(f.ID)
+func (_u *FileEntityUpdateOne) SetFile(v *File) *FileEntityUpdateOne {
+	return _u.SetFileID(v.ID)
 }
 
 // SetEntity sets the "entity" edge to the Entity entity.
-func (feuo *FileEntityUpdateOne) SetEntity(e *Entity) *FileEntityUpdateOne {
-	return feuo.SetEntityID(e.ID)
+func (_u *FileEntityUpdateOne) SetEntity(v *Entity) *FileEntityUpdateOne {
+	return _u.SetEntityID(v.ID)
 }
 
 // Mutation returns the FileEntityMutation object of the builder.
-func (feuo *FileEntityUpdateOne) Mutation() *FileEntityMutation {
-	return feuo.mutation
+func (_u *FileEntityUpdateOne) Mutation() *FileEntityMutation {
+	return _u.mutation
 }
 
 // ClearFile clears the "file" edge to the File entity.
-func (feuo *FileEntityUpdateOne) ClearFile() *FileEntityUpdateOne {
-	feuo.mutation.ClearFile()
-	return feuo
+func (_u *FileEntityUpdateOne) ClearFile() *FileEntityUpdateOne {
+	_u.mutation.ClearFile()
+	return _u
 }
 
 // ClearEntity clears the "entity" edge to the Entity entity.
-func (feuo *FileEntityUpdateOne) ClearEntity() *FileEntityUpdateOne {
-	feuo.mutation.ClearEntity()
-	return feuo
+func (_u *FileEntityUpdateOne) ClearEntity() *FileEntityUpdateOne {
+	_u.mutation.ClearEntity()
+	return _u
 }
 
 // Where appends a list predicates to the FileEntityUpdate builder.
-func (feuo *FileEntityUpdateOne) Where(ps ...predicate.FileEntity) *FileEntityUpdateOne {
-	feuo.mutation.Where(ps...)
-	return feuo
+func (_u *FileEntityUpdateOne) Where(ps ...predicate.FileEntity) *FileEntityUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (feuo *FileEntityUpdateOne) Select(field string, fields ...string) *FileEntityUpdateOne {
-	feuo.fields = append([]string{field}, fields...)
-	return feuo
+func (_u *FileEntityUpdateOne) Select(field string, fields ...string) *FileEntityUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated FileEntity entity.
-func (feuo *FileEntityUpdateOne) Save(ctx context.Context) (*FileEntity, error) {
-	if err := feuo.defaults(); err != nil {
+func (_u *FileEntityUpdateOne) Save(ctx context.Context) (*FileEntity, error) {
+	if err := _u.defaults(); err != nil {
 		return nil, err
 	}
-	return withHooks(ctx, feuo.sqlSave, feuo.mutation, feuo.hooks)
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (feuo *FileEntityUpdateOne) SaveX(ctx context.Context) *FileEntity {
-	node, err := feuo.Save(ctx)
+func (_u *FileEntityUpdateOne) SaveX(ctx context.Context) *FileEntity {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -529,63 +529,63 @@ func (feuo *FileEntityUpdateOne) SaveX(ctx context.Context) *FileEntity {
 }
 
 // Exec executes the query on the entity.
-func (feuo *FileEntityUpdateOne) Exec(ctx context.Context) error {
-	_, err := feuo.Save(ctx)
+func (_u *FileEntityUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (feuo *FileEntityUpdateOne) ExecX(ctx context.Context) {
-	if err := feuo.Exec(ctx); err != nil {
+func (_u *FileEntityUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (feuo *FileEntityUpdateOne) defaults() error {
-	if _, ok := feuo.mutation.UpdatedAt(); !ok {
+func (_u *FileEntityUpdateOne) defaults() error {
+	if _, ok := _u.mutation.UpdatedAt(); !ok {
 		if fileentity.UpdateDefaultUpdatedAt == nil {
 			return fmt.Errorf("ent: uninitialized fileentity.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
 		}
 		v := fileentity.UpdateDefaultUpdatedAt()
-		feuo.mutation.SetUpdatedAt(v)
+		_u.mutation.SetUpdatedAt(v)
 	}
 	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (feuo *FileEntityUpdateOne) check() error {
-	if v, ok := feuo.mutation.Version(); ok {
+func (_u *FileEntityUpdateOne) check() error {
+	if v, ok := _u.mutation.Version(); ok {
 		if err := fileentity.VersionValidator(v); err != nil {
 			return &ValidationError{Name: "version", err: fmt.Errorf(`ent: validator failed for field "FileEntity.version": %w`, err)}
 		}
 	}
-	if feuo.mutation.FileCleared() && len(feuo.mutation.FileIDs()) > 0 {
+	if _u.mutation.FileCleared() && len(_u.mutation.FileIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "FileEntity.file"`)
 	}
-	if feuo.mutation.EntityCleared() && len(feuo.mutation.EntityIDs()) > 0 {
+	if _u.mutation.EntityCleared() && len(_u.mutation.EntityIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "FileEntity.entity"`)
 	}
 	return nil
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
-func (feuo *FileEntityUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *FileEntityUpdateOne {
-	feuo.modifiers = append(feuo.modifiers, modifiers...)
-	return feuo
+func (_u *FileEntityUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *FileEntityUpdateOne {
+	_u.modifiers = append(_u.modifiers, modifiers...)
+	return _u
 }
 
-func (feuo *FileEntityUpdateOne) sqlSave(ctx context.Context) (_node *FileEntity, err error) {
-	if err := feuo.check(); err != nil {
+func (_u *FileEntityUpdateOne) sqlSave(ctx context.Context) (_node *FileEntity, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(fileentity.Table, fileentity.Columns, sqlgraph.NewFieldSpec(fileentity.FieldID, field.TypeUint))
-	id, ok := feuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "FileEntity.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := feuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, fileentity.FieldID)
 		for _, f := range fields {
@@ -597,41 +597,41 @@ func (feuo *FileEntityUpdateOne) sqlSave(ctx context.Context) (_node *FileEntity
 			}
 		}
 	}
-	if ps := feuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := feuo.mutation.DeletedAt(); ok {
+	if value, ok := _u.mutation.DeletedAt(); ok {
 		_spec.SetField(fileentity.FieldDeletedAt, field.TypeTime, value)
 	}
-	if feuo.mutation.DeletedAtCleared() {
+	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(fileentity.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := feuo.mutation.UpdatedAt(); ok {
+	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(fileentity.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := feuo.mutation.Version(); ok {
+	if value, ok := _u.mutation.Version(); ok {
 		_spec.SetField(fileentity.FieldVersion, field.TypeString, value)
 	}
-	if feuo.mutation.VersionCleared() {
+	if _u.mutation.VersionCleared() {
 		_spec.ClearField(fileentity.FieldVersion, field.TypeString)
 	}
-	if value, ok := feuo.mutation.IsCurrent(); ok {
+	if value, ok := _u.mutation.IsCurrent(); ok {
 		_spec.SetField(fileentity.FieldIsCurrent, field.TypeBool, value)
 	}
-	if value, ok := feuo.mutation.UploadedByUserID(); ok {
+	if value, ok := _u.mutation.UploadedByUserID(); ok {
 		_spec.SetField(fileentity.FieldUploadedByUserID, field.TypeUint64, value)
 	}
-	if value, ok := feuo.mutation.AddedUploadedByUserID(); ok {
+	if value, ok := _u.mutation.AddedUploadedByUserID(); ok {
 		_spec.AddField(fileentity.FieldUploadedByUserID, field.TypeUint64, value)
 	}
-	if feuo.mutation.UploadedByUserIDCleared() {
+	if _u.mutation.UploadedByUserIDCleared() {
 		_spec.ClearField(fileentity.FieldUploadedByUserID, field.TypeUint64)
 	}
-	if feuo.mutation.FileCleared() {
+	if _u.mutation.FileCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -644,7 +644,7 @@ func (feuo *FileEntityUpdateOne) sqlSave(ctx context.Context) (_node *FileEntity
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := feuo.mutation.FileIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.FileIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -660,7 +660,7 @@ func (feuo *FileEntityUpdateOne) sqlSave(ctx context.Context) (_node *FileEntity
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if feuo.mutation.EntityCleared() {
+	if _u.mutation.EntityCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -673,7 +673,7 @@ func (feuo *FileEntityUpdateOne) sqlSave(ctx context.Context) (_node *FileEntity
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := feuo.mutation.EntityIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.EntityIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -689,11 +689,11 @@ func (feuo *FileEntityUpdateOne) sqlSave(ctx context.Context) (_node *FileEntity
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_spec.AddModifiers(feuo.modifiers...)
-	_node = &FileEntity{config: feuo.config}
+	_spec.AddModifiers(_u.modifiers...)
+	_node = &FileEntity{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, feuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{fileentity.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -701,6 +701,6 @@ func (feuo *FileEntityUpdateOne) sqlSave(ctx context.Context) (_node *FileEntity
 		}
 		return nil, err
 	}
-	feuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

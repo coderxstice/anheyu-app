@@ -76,7 +76,7 @@ func (*Album) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Album fields.
-func (a *Album) assignValues(columns []string, values []any) error {
+func (_m *Album) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -87,118 +87,118 @@ func (a *Album) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			a.ID = uint(value.Int64)
+			_m.ID = uint(value.Int64)
 		case album.FieldDeletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
-				a.DeletedAt = new(time.Time)
-				*a.DeletedAt = value.Time
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
 			}
 		case album.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				a.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case album.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				a.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		case album.FieldImageURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field image_url", values[i])
 			} else if value.Valid {
-				a.ImageURL = value.String
+				_m.ImageURL = value.String
 			}
 		case album.FieldBigImageURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field big_image_url", values[i])
 			} else if value.Valid {
-				a.BigImageURL = value.String
+				_m.BigImageURL = value.String
 			}
 		case album.FieldDownloadURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field download_url", values[i])
 			} else if value.Valid {
-				a.DownloadURL = value.String
+				_m.DownloadURL = value.String
 			}
 		case album.FieldThumbParam:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field thumb_param", values[i])
 			} else if value.Valid {
-				a.ThumbParam = value.String
+				_m.ThumbParam = value.String
 			}
 		case album.FieldBigParam:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field big_param", values[i])
 			} else if value.Valid {
-				a.BigParam = value.String
+				_m.BigParam = value.String
 			}
 		case album.FieldTags:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field tags", values[i])
 			} else if value.Valid {
-				a.Tags = value.String
+				_m.Tags = value.String
 			}
 		case album.FieldViewCount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field view_count", values[i])
 			} else if value.Valid {
-				a.ViewCount = int(value.Int64)
+				_m.ViewCount = int(value.Int64)
 			}
 		case album.FieldDownloadCount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field download_count", values[i])
 			} else if value.Valid {
-				a.DownloadCount = int(value.Int64)
+				_m.DownloadCount = int(value.Int64)
 			}
 		case album.FieldWidth:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field width", values[i])
 			} else if value.Valid {
-				a.Width = int(value.Int64)
+				_m.Width = int(value.Int64)
 			}
 		case album.FieldHeight:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field height", values[i])
 			} else if value.Valid {
-				a.Height = int(value.Int64)
+				_m.Height = int(value.Int64)
 			}
 		case album.FieldFileSize:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field file_size", values[i])
 			} else if value.Valid {
-				a.FileSize = value.Int64
+				_m.FileSize = value.Int64
 			}
 		case album.FieldFormat:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field format", values[i])
 			} else if value.Valid {
-				a.Format = value.String
+				_m.Format = value.String
 			}
 		case album.FieldAspectRatio:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field aspect_ratio", values[i])
 			} else if value.Valid {
-				a.AspectRatio = value.String
+				_m.AspectRatio = value.String
 			}
 		case album.FieldFileHash:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field file_hash", values[i])
 			} else if value.Valid {
-				a.FileHash = value.String
+				_m.FileHash = value.String
 			}
 		case album.FieldDisplayOrder:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field display_order", values[i])
 			} else if value.Valid {
-				a.DisplayOrder = int(value.Int64)
+				_m.DisplayOrder = int(value.Int64)
 			}
 		default:
-			a.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -206,88 +206,88 @@ func (a *Album) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the Album.
 // This includes values selected through modifiers, order, etc.
-func (a *Album) Value(name string) (ent.Value, error) {
-	return a.selectValues.Get(name)
+func (_m *Album) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // Update returns a builder for updating this Album.
 // Note that you need to call Album.Unwrap() before calling this method if this Album
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (a *Album) Update() *AlbumUpdateOne {
-	return NewAlbumClient(a.config).UpdateOne(a)
+func (_m *Album) Update() *AlbumUpdateOne {
+	return NewAlbumClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Album entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (a *Album) Unwrap() *Album {
-	_tx, ok := a.config.driver.(*txDriver)
+func (_m *Album) Unwrap() *Album {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: Album is not a transactional entity")
 	}
-	a.config.driver = _tx.drv
-	return a
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (a *Album) String() string {
+func (_m *Album) String() string {
 	var builder strings.Builder
 	builder.WriteString("Album(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", a.ID))
-	if v := a.DeletedAt; v != nil {
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	if v := _m.DeletedAt; v != nil {
 		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(a.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(a.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("image_url=")
-	builder.WriteString(a.ImageURL)
+	builder.WriteString(_m.ImageURL)
 	builder.WriteString(", ")
 	builder.WriteString("big_image_url=")
-	builder.WriteString(a.BigImageURL)
+	builder.WriteString(_m.BigImageURL)
 	builder.WriteString(", ")
 	builder.WriteString("download_url=")
-	builder.WriteString(a.DownloadURL)
+	builder.WriteString(_m.DownloadURL)
 	builder.WriteString(", ")
 	builder.WriteString("thumb_param=")
-	builder.WriteString(a.ThumbParam)
+	builder.WriteString(_m.ThumbParam)
 	builder.WriteString(", ")
 	builder.WriteString("big_param=")
-	builder.WriteString(a.BigParam)
+	builder.WriteString(_m.BigParam)
 	builder.WriteString(", ")
 	builder.WriteString("tags=")
-	builder.WriteString(a.Tags)
+	builder.WriteString(_m.Tags)
 	builder.WriteString(", ")
 	builder.WriteString("view_count=")
-	builder.WriteString(fmt.Sprintf("%v", a.ViewCount))
+	builder.WriteString(fmt.Sprintf("%v", _m.ViewCount))
 	builder.WriteString(", ")
 	builder.WriteString("download_count=")
-	builder.WriteString(fmt.Sprintf("%v", a.DownloadCount))
+	builder.WriteString(fmt.Sprintf("%v", _m.DownloadCount))
 	builder.WriteString(", ")
 	builder.WriteString("width=")
-	builder.WriteString(fmt.Sprintf("%v", a.Width))
+	builder.WriteString(fmt.Sprintf("%v", _m.Width))
 	builder.WriteString(", ")
 	builder.WriteString("height=")
-	builder.WriteString(fmt.Sprintf("%v", a.Height))
+	builder.WriteString(fmt.Sprintf("%v", _m.Height))
 	builder.WriteString(", ")
 	builder.WriteString("file_size=")
-	builder.WriteString(fmt.Sprintf("%v", a.FileSize))
+	builder.WriteString(fmt.Sprintf("%v", _m.FileSize))
 	builder.WriteString(", ")
 	builder.WriteString("format=")
-	builder.WriteString(a.Format)
+	builder.WriteString(_m.Format)
 	builder.WriteString(", ")
 	builder.WriteString("aspect_ratio=")
-	builder.WriteString(a.AspectRatio)
+	builder.WriteString(_m.AspectRatio)
 	builder.WriteString(", ")
 	builder.WriteString("file_hash=")
-	builder.WriteString(a.FileHash)
+	builder.WriteString(_m.FileHash)
 	builder.WriteString(", ")
 	builder.WriteString("display_order=")
-	builder.WriteString(fmt.Sprintf("%v", a.DisplayOrder))
+	builder.WriteString(fmt.Sprintf("%v", _m.DisplayOrder))
 	builder.WriteByte(')')
 	return builder.String()
 }

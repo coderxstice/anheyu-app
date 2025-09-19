@@ -25,144 +25,144 @@ type UserGroupCreate struct {
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (ugc *UserGroupCreate) SetDeletedAt(t time.Time) *UserGroupCreate {
-	ugc.mutation.SetDeletedAt(t)
-	return ugc
+func (_c *UserGroupCreate) SetDeletedAt(v time.Time) *UserGroupCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (ugc *UserGroupCreate) SetNillableDeletedAt(t *time.Time) *UserGroupCreate {
-	if t != nil {
-		ugc.SetDeletedAt(*t)
+func (_c *UserGroupCreate) SetNillableDeletedAt(v *time.Time) *UserGroupCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
 	}
-	return ugc
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (ugc *UserGroupCreate) SetCreatedAt(t time.Time) *UserGroupCreate {
-	ugc.mutation.SetCreatedAt(t)
-	return ugc
+func (_c *UserGroupCreate) SetCreatedAt(v time.Time) *UserGroupCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (ugc *UserGroupCreate) SetNillableCreatedAt(t *time.Time) *UserGroupCreate {
-	if t != nil {
-		ugc.SetCreatedAt(*t)
+func (_c *UserGroupCreate) SetNillableCreatedAt(v *time.Time) *UserGroupCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return ugc
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (ugc *UserGroupCreate) SetUpdatedAt(t time.Time) *UserGroupCreate {
-	ugc.mutation.SetUpdatedAt(t)
-	return ugc
+func (_c *UserGroupCreate) SetUpdatedAt(v time.Time) *UserGroupCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (ugc *UserGroupCreate) SetNillableUpdatedAt(t *time.Time) *UserGroupCreate {
-	if t != nil {
-		ugc.SetUpdatedAt(*t)
+func (_c *UserGroupCreate) SetNillableUpdatedAt(v *time.Time) *UserGroupCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return ugc
+	return _c
 }
 
 // SetName sets the "name" field.
-func (ugc *UserGroupCreate) SetName(s string) *UserGroupCreate {
-	ugc.mutation.SetName(s)
-	return ugc
+func (_c *UserGroupCreate) SetName(v string) *UserGroupCreate {
+	_c.mutation.SetName(v)
+	return _c
 }
 
 // SetDescription sets the "description" field.
-func (ugc *UserGroupCreate) SetDescription(s string) *UserGroupCreate {
-	ugc.mutation.SetDescription(s)
-	return ugc
+func (_c *UserGroupCreate) SetDescription(v string) *UserGroupCreate {
+	_c.mutation.SetDescription(v)
+	return _c
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (ugc *UserGroupCreate) SetNillableDescription(s *string) *UserGroupCreate {
-	if s != nil {
-		ugc.SetDescription(*s)
+func (_c *UserGroupCreate) SetNillableDescription(v *string) *UserGroupCreate {
+	if v != nil {
+		_c.SetDescription(*v)
 	}
-	return ugc
+	return _c
 }
 
 // SetPermissions sets the "permissions" field.
-func (ugc *UserGroupCreate) SetPermissions(m model.Boolset) *UserGroupCreate {
-	ugc.mutation.SetPermissions(m)
-	return ugc
+func (_c *UserGroupCreate) SetPermissions(v model.Boolset) *UserGroupCreate {
+	_c.mutation.SetPermissions(v)
+	return _c
 }
 
 // SetMaxStorage sets the "max_storage" field.
-func (ugc *UserGroupCreate) SetMaxStorage(i int64) *UserGroupCreate {
-	ugc.mutation.SetMaxStorage(i)
-	return ugc
+func (_c *UserGroupCreate) SetMaxStorage(v int64) *UserGroupCreate {
+	_c.mutation.SetMaxStorage(v)
+	return _c
 }
 
 // SetNillableMaxStorage sets the "max_storage" field if the given value is not nil.
-func (ugc *UserGroupCreate) SetNillableMaxStorage(i *int64) *UserGroupCreate {
-	if i != nil {
-		ugc.SetMaxStorage(*i)
+func (_c *UserGroupCreate) SetNillableMaxStorage(v *int64) *UserGroupCreate {
+	if v != nil {
+		_c.SetMaxStorage(*v)
 	}
-	return ugc
+	return _c
 }
 
 // SetSpeedLimit sets the "speed_limit" field.
-func (ugc *UserGroupCreate) SetSpeedLimit(i int64) *UserGroupCreate {
-	ugc.mutation.SetSpeedLimit(i)
-	return ugc
+func (_c *UserGroupCreate) SetSpeedLimit(v int64) *UserGroupCreate {
+	_c.mutation.SetSpeedLimit(v)
+	return _c
 }
 
 // SetNillableSpeedLimit sets the "speed_limit" field if the given value is not nil.
-func (ugc *UserGroupCreate) SetNillableSpeedLimit(i *int64) *UserGroupCreate {
-	if i != nil {
-		ugc.SetSpeedLimit(*i)
+func (_c *UserGroupCreate) SetNillableSpeedLimit(v *int64) *UserGroupCreate {
+	if v != nil {
+		_c.SetSpeedLimit(*v)
 	}
-	return ugc
+	return _c
 }
 
 // SetSettings sets the "settings" field.
-func (ugc *UserGroupCreate) SetSettings(ms *model.GroupSettings) *UserGroupCreate {
-	ugc.mutation.SetSettings(ms)
-	return ugc
+func (_c *UserGroupCreate) SetSettings(v *model.GroupSettings) *UserGroupCreate {
+	_c.mutation.SetSettings(v)
+	return _c
 }
 
 // SetID sets the "id" field.
-func (ugc *UserGroupCreate) SetID(u uint) *UserGroupCreate {
-	ugc.mutation.SetID(u)
-	return ugc
+func (_c *UserGroupCreate) SetID(v uint) *UserGroupCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // AddUserIDs adds the "users" edge to the User entity by IDs.
-func (ugc *UserGroupCreate) AddUserIDs(ids ...uint) *UserGroupCreate {
-	ugc.mutation.AddUserIDs(ids...)
-	return ugc
+func (_c *UserGroupCreate) AddUserIDs(ids ...uint) *UserGroupCreate {
+	_c.mutation.AddUserIDs(ids...)
+	return _c
 }
 
 // AddUsers adds the "users" edges to the User entity.
-func (ugc *UserGroupCreate) AddUsers(u ...*User) *UserGroupCreate {
-	ids := make([]uint, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+func (_c *UserGroupCreate) AddUsers(v ...*User) *UserGroupCreate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ugc.AddUserIDs(ids...)
+	return _c.AddUserIDs(ids...)
 }
 
 // Mutation returns the UserGroupMutation object of the builder.
-func (ugc *UserGroupCreate) Mutation() *UserGroupMutation {
-	return ugc.mutation
+func (_c *UserGroupCreate) Mutation() *UserGroupMutation {
+	return _c.mutation
 }
 
 // Save creates the UserGroup in the database.
-func (ugc *UserGroupCreate) Save(ctx context.Context) (*UserGroup, error) {
-	if err := ugc.defaults(); err != nil {
+func (_c *UserGroupCreate) Save(ctx context.Context) (*UserGroup, error) {
+	if err := _c.defaults(); err != nil {
 		return nil, err
 	}
-	return withHooks(ctx, ugc.sqlSave, ugc.mutation, ugc.hooks)
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (ugc *UserGroupCreate) SaveX(ctx context.Context) *UserGroup {
-	v, err := ugc.Save(ctx)
+func (_c *UserGroupCreate) SaveX(ctx context.Context) *UserGroup {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -170,91 +170,91 @@ func (ugc *UserGroupCreate) SaveX(ctx context.Context) *UserGroup {
 }
 
 // Exec executes the query.
-func (ugc *UserGroupCreate) Exec(ctx context.Context) error {
-	_, err := ugc.Save(ctx)
+func (_c *UserGroupCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ugc *UserGroupCreate) ExecX(ctx context.Context) {
-	if err := ugc.Exec(ctx); err != nil {
+func (_c *UserGroupCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (ugc *UserGroupCreate) defaults() error {
-	if _, ok := ugc.mutation.CreatedAt(); !ok {
+func (_c *UserGroupCreate) defaults() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		if usergroup.DefaultCreatedAt == nil {
 			return fmt.Errorf("ent: uninitialized usergroup.DefaultCreatedAt (forgotten import ent/runtime?)")
 		}
 		v := usergroup.DefaultCreatedAt()
-		ugc.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := ugc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		if usergroup.DefaultUpdatedAt == nil {
 			return fmt.Errorf("ent: uninitialized usergroup.DefaultUpdatedAt (forgotten import ent/runtime?)")
 		}
 		v := usergroup.DefaultUpdatedAt()
-		ugc.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := ugc.mutation.MaxStorage(); !ok {
+	if _, ok := _c.mutation.MaxStorage(); !ok {
 		v := usergroup.DefaultMaxStorage
-		ugc.mutation.SetMaxStorage(v)
+		_c.mutation.SetMaxStorage(v)
 	}
-	if _, ok := ugc.mutation.SpeedLimit(); !ok {
+	if _, ok := _c.mutation.SpeedLimit(); !ok {
 		v := usergroup.DefaultSpeedLimit
-		ugc.mutation.SetSpeedLimit(v)
+		_c.mutation.SetSpeedLimit(v)
 	}
-	if _, ok := ugc.mutation.Settings(); !ok {
+	if _, ok := _c.mutation.Settings(); !ok {
 		v := usergroup.DefaultSettings
-		ugc.mutation.SetSettings(v)
+		_c.mutation.SetSettings(v)
 	}
 	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ugc *UserGroupCreate) check() error {
-	if _, ok := ugc.mutation.CreatedAt(); !ok {
+func (_c *UserGroupCreate) check() error {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "UserGroup.created_at"`)}
 	}
-	if _, ok := ugc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "UserGroup.updated_at"`)}
 	}
-	if _, ok := ugc.mutation.Name(); !ok {
+	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "UserGroup.name"`)}
 	}
-	if v, ok := ugc.mutation.Name(); ok {
+	if v, ok := _c.mutation.Name(); ok {
 		if err := usergroup.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "UserGroup.name": %w`, err)}
 		}
 	}
-	if v, ok := ugc.mutation.Description(); ok {
+	if v, ok := _c.mutation.Description(); ok {
 		if err := usergroup.DescriptionValidator(v); err != nil {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "UserGroup.description": %w`, err)}
 		}
 	}
-	if _, ok := ugc.mutation.Permissions(); !ok {
+	if _, ok := _c.mutation.Permissions(); !ok {
 		return &ValidationError{Name: "permissions", err: errors.New(`ent: missing required field "UserGroup.permissions"`)}
 	}
-	if _, ok := ugc.mutation.MaxStorage(); !ok {
+	if _, ok := _c.mutation.MaxStorage(); !ok {
 		return &ValidationError{Name: "max_storage", err: errors.New(`ent: missing required field "UserGroup.max_storage"`)}
 	}
-	if _, ok := ugc.mutation.SpeedLimit(); !ok {
+	if _, ok := _c.mutation.SpeedLimit(); !ok {
 		return &ValidationError{Name: "speed_limit", err: errors.New(`ent: missing required field "UserGroup.speed_limit"`)}
 	}
-	if _, ok := ugc.mutation.Settings(); !ok {
+	if _, ok := _c.mutation.Settings(); !ok {
 		return &ValidationError{Name: "settings", err: errors.New(`ent: missing required field "UserGroup.settings"`)}
 	}
 	return nil
 }
 
-func (ugc *UserGroupCreate) sqlSave(ctx context.Context) (*UserGroup, error) {
-	if err := ugc.check(); err != nil {
+func (_c *UserGroupCreate) sqlSave(ctx context.Context) (*UserGroup, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := ugc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, ugc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -264,58 +264,58 @@ func (ugc *UserGroupCreate) sqlSave(ctx context.Context) (*UserGroup, error) {
 		id := _spec.ID.Value.(int64)
 		_node.ID = uint(id)
 	}
-	ugc.mutation.id = &_node.ID
-	ugc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (ugc *UserGroupCreate) createSpec() (*UserGroup, *sqlgraph.CreateSpec) {
+func (_c *UserGroupCreate) createSpec() (*UserGroup, *sqlgraph.CreateSpec) {
 	var (
-		_node = &UserGroup{config: ugc.config}
+		_node = &UserGroup{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(usergroup.Table, sqlgraph.NewFieldSpec(usergroup.FieldID, field.TypeUint))
 	)
-	_spec.OnConflict = ugc.conflict
-	if id, ok := ugc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := ugc.mutation.DeletedAt(); ok {
+	if value, ok := _c.mutation.DeletedAt(); ok {
 		_spec.SetField(usergroup.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
 	}
-	if value, ok := ugc.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(usergroup.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := ugc.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(usergroup.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if value, ok := ugc.mutation.Name(); ok {
+	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(usergroup.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := ugc.mutation.Description(); ok {
+	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(usergroup.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
-	if value, ok := ugc.mutation.Permissions(); ok {
+	if value, ok := _c.mutation.Permissions(); ok {
 		_spec.SetField(usergroup.FieldPermissions, field.TypeOther, value)
 		_node.Permissions = value
 	}
-	if value, ok := ugc.mutation.MaxStorage(); ok {
+	if value, ok := _c.mutation.MaxStorage(); ok {
 		_spec.SetField(usergroup.FieldMaxStorage, field.TypeInt64, value)
 		_node.MaxStorage = value
 	}
-	if value, ok := ugc.mutation.SpeedLimit(); ok {
+	if value, ok := _c.mutation.SpeedLimit(); ok {
 		_spec.SetField(usergroup.FieldSpeedLimit, field.TypeInt64, value)
 		_node.SpeedLimit = value
 	}
-	if value, ok := ugc.mutation.Settings(); ok {
+	if value, ok := _c.mutation.Settings(); ok {
 		_spec.SetField(usergroup.FieldSettings, field.TypeOther, value)
 		_node.Settings = value
 	}
-	if nodes := ugc.mutation.UsersIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -350,10 +350,10 @@ func (ugc *UserGroupCreate) createSpec() (*UserGroup, *sqlgraph.CreateSpec) {
 //			SetDeletedAt(v+v).
 //		}).
 //		Exec(ctx)
-func (ugc *UserGroupCreate) OnConflict(opts ...sql.ConflictOption) *UserGroupUpsertOne {
-	ugc.conflict = opts
+func (_c *UserGroupCreate) OnConflict(opts ...sql.ConflictOption) *UserGroupUpsertOne {
+	_c.conflict = opts
 	return &UserGroupUpsertOne{
-		create: ugc,
+		create: _c,
 	}
 }
 
@@ -363,10 +363,10 @@ func (ugc *UserGroupCreate) OnConflict(opts ...sql.ConflictOption) *UserGroupUps
 //	client.UserGroup.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (ugc *UserGroupCreate) OnConflictColumns(columns ...string) *UserGroupUpsertOne {
-	ugc.conflict = append(ugc.conflict, sql.ConflictColumns(columns...))
+func (_c *UserGroupCreate) OnConflictColumns(columns ...string) *UserGroupUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &UserGroupUpsertOne{
-		create: ugc,
+		create: _c,
 	}
 }
 
@@ -736,16 +736,16 @@ type UserGroupCreateBulk struct {
 }
 
 // Save creates the UserGroup entities in the database.
-func (ugcb *UserGroupCreateBulk) Save(ctx context.Context) ([]*UserGroup, error) {
-	if ugcb.err != nil {
-		return nil, ugcb.err
+func (_c *UserGroupCreateBulk) Save(ctx context.Context) ([]*UserGroup, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(ugcb.builders))
-	nodes := make([]*UserGroup, len(ugcb.builders))
-	mutators := make([]Mutator, len(ugcb.builders))
-	for i := range ugcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*UserGroup, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := ugcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*UserGroupMutation)
@@ -759,12 +759,12 @@ func (ugcb *UserGroupCreateBulk) Save(ctx context.Context) ([]*UserGroup, error)
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, ugcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = ugcb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, ugcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -788,7 +788,7 @@ func (ugcb *UserGroupCreateBulk) Save(ctx context.Context) ([]*UserGroup, error)
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, ugcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -796,8 +796,8 @@ func (ugcb *UserGroupCreateBulk) Save(ctx context.Context) ([]*UserGroup, error)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (ugcb *UserGroupCreateBulk) SaveX(ctx context.Context) []*UserGroup {
-	v, err := ugcb.Save(ctx)
+func (_c *UserGroupCreateBulk) SaveX(ctx context.Context) []*UserGroup {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -805,14 +805,14 @@ func (ugcb *UserGroupCreateBulk) SaveX(ctx context.Context) []*UserGroup {
 }
 
 // Exec executes the query.
-func (ugcb *UserGroupCreateBulk) Exec(ctx context.Context) error {
-	_, err := ugcb.Save(ctx)
+func (_c *UserGroupCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ugcb *UserGroupCreateBulk) ExecX(ctx context.Context) {
-	if err := ugcb.Exec(ctx); err != nil {
+func (_c *UserGroupCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -832,10 +832,10 @@ func (ugcb *UserGroupCreateBulk) ExecX(ctx context.Context) {
 //			SetDeletedAt(v+v).
 //		}).
 //		Exec(ctx)
-func (ugcb *UserGroupCreateBulk) OnConflict(opts ...sql.ConflictOption) *UserGroupUpsertBulk {
-	ugcb.conflict = opts
+func (_c *UserGroupCreateBulk) OnConflict(opts ...sql.ConflictOption) *UserGroupUpsertBulk {
+	_c.conflict = opts
 	return &UserGroupUpsertBulk{
-		create: ugcb,
+		create: _c,
 	}
 }
 
@@ -845,10 +845,10 @@ func (ugcb *UserGroupCreateBulk) OnConflict(opts ...sql.ConflictOption) *UserGro
 //	client.UserGroup.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (ugcb *UserGroupCreateBulk) OnConflictColumns(columns ...string) *UserGroupUpsertBulk {
-	ugcb.conflict = append(ugcb.conflict, sql.ConflictColumns(columns...))
+func (_c *UserGroupCreateBulk) OnConflictColumns(columns ...string) *UserGroupUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &UserGroupUpsertBulk{
-		create: ugcb,
+		create: _c,
 	}
 }
 

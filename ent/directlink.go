@@ -78,7 +78,7 @@ func (*DirectLink) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the DirectLink fields.
-func (dl *DirectLink) assignValues(columns []string, values []any) error {
+func (_m *DirectLink) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -89,52 +89,52 @@ func (dl *DirectLink) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			dl.ID = uint(value.Int64)
+			_m.ID = uint(value.Int64)
 		case directlink.FieldDeletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
-				dl.DeletedAt = new(time.Time)
-				*dl.DeletedAt = value.Time
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
 			}
 		case directlink.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				dl.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case directlink.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				dl.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		case directlink.FieldFileID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field file_id", values[i])
 			} else if value.Valid {
-				dl.FileID = uint(value.Int64)
+				_m.FileID = uint(value.Int64)
 			}
 		case directlink.FieldFileName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field file_name", values[i])
 			} else if value.Valid {
-				dl.FileName = value.String
+				_m.FileName = value.String
 			}
 		case directlink.FieldSpeedLimit:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field speed_limit", values[i])
 			} else if value.Valid {
-				dl.SpeedLimit = value.Int64
+				_m.SpeedLimit = value.Int64
 			}
 		case directlink.FieldDownloads:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field downloads", values[i])
 			} else if value.Valid {
-				dl.Downloads = value.Int64
+				_m.Downloads = value.Int64
 			}
 		default:
-			dl.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -142,60 +142,60 @@ func (dl *DirectLink) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the DirectLink.
 // This includes values selected through modifiers, order, etc.
-func (dl *DirectLink) Value(name string) (ent.Value, error) {
-	return dl.selectValues.Get(name)
+func (_m *DirectLink) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryFile queries the "file" edge of the DirectLink entity.
-func (dl *DirectLink) QueryFile() *FileQuery {
-	return NewDirectLinkClient(dl.config).QueryFile(dl)
+func (_m *DirectLink) QueryFile() *FileQuery {
+	return NewDirectLinkClient(_m.config).QueryFile(_m)
 }
 
 // Update returns a builder for updating this DirectLink.
 // Note that you need to call DirectLink.Unwrap() before calling this method if this DirectLink
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (dl *DirectLink) Update() *DirectLinkUpdateOne {
-	return NewDirectLinkClient(dl.config).UpdateOne(dl)
+func (_m *DirectLink) Update() *DirectLinkUpdateOne {
+	return NewDirectLinkClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the DirectLink entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (dl *DirectLink) Unwrap() *DirectLink {
-	_tx, ok := dl.config.driver.(*txDriver)
+func (_m *DirectLink) Unwrap() *DirectLink {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: DirectLink is not a transactional entity")
 	}
-	dl.config.driver = _tx.drv
-	return dl
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (dl *DirectLink) String() string {
+func (_m *DirectLink) String() string {
 	var builder strings.Builder
 	builder.WriteString("DirectLink(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", dl.ID))
-	if v := dl.DeletedAt; v != nil {
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	if v := _m.DeletedAt; v != nil {
 		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(dl.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(dl.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("file_id=")
-	builder.WriteString(fmt.Sprintf("%v", dl.FileID))
+	builder.WriteString(fmt.Sprintf("%v", _m.FileID))
 	builder.WriteString(", ")
 	builder.WriteString("file_name=")
-	builder.WriteString(dl.FileName)
+	builder.WriteString(_m.FileName)
 	builder.WriteString(", ")
 	builder.WriteString("speed_limit=")
-	builder.WriteString(fmt.Sprintf("%v", dl.SpeedLimit))
+	builder.WriteString(fmt.Sprintf("%v", _m.SpeedLimit))
 	builder.WriteString(", ")
 	builder.WriteString("downloads=")
-	builder.WriteString(fmt.Sprintf("%v", dl.Downloads))
+	builder.WriteString(fmt.Sprintf("%v", _m.Downloads))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -20,56 +20,56 @@ type FileEntityDelete struct {
 }
 
 // Where appends a list predicates to the FileEntityDelete builder.
-func (fed *FileEntityDelete) Where(ps ...predicate.FileEntity) *FileEntityDelete {
-	fed.mutation.Where(ps...)
-	return fed
+func (_d *FileEntityDelete) Where(ps ...predicate.FileEntity) *FileEntityDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (fed *FileEntityDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, fed.sqlExec, fed.mutation, fed.hooks)
+func (_d *FileEntityDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (fed *FileEntityDelete) ExecX(ctx context.Context) int {
-	n, err := fed.Exec(ctx)
+func (_d *FileEntityDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (fed *FileEntityDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *FileEntityDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(fileentity.Table, sqlgraph.NewFieldSpec(fileentity.FieldID, field.TypeUint))
-	if ps := fed.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, fed.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	fed.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // FileEntityDeleteOne is the builder for deleting a single FileEntity entity.
 type FileEntityDeleteOne struct {
-	fed *FileEntityDelete
+	_d *FileEntityDelete
 }
 
 // Where appends a list predicates to the FileEntityDelete builder.
-func (fedo *FileEntityDeleteOne) Where(ps ...predicate.FileEntity) *FileEntityDeleteOne {
-	fedo.fed.mutation.Where(ps...)
-	return fedo
+func (_d *FileEntityDeleteOne) Where(ps ...predicate.FileEntity) *FileEntityDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (fedo *FileEntityDeleteOne) Exec(ctx context.Context) error {
-	n, err := fedo.fed.Exec(ctx)
+func (_d *FileEntityDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (fedo *FileEntityDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (fedo *FileEntityDeleteOne) ExecX(ctx context.Context) {
-	if err := fedo.Exec(ctx); err != nil {
+func (_d *FileEntityDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

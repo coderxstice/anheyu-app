@@ -23,129 +23,129 @@ type PageCreate struct {
 }
 
 // SetDeletedAt sets the "deleted_at" field.
-func (pc *PageCreate) SetDeletedAt(t time.Time) *PageCreate {
-	pc.mutation.SetDeletedAt(t)
-	return pc
+func (_c *PageCreate) SetDeletedAt(v time.Time) *PageCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
 }
 
 // SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (pc *PageCreate) SetNillableDeletedAt(t *time.Time) *PageCreate {
-	if t != nil {
-		pc.SetDeletedAt(*t)
+func (_c *PageCreate) SetNillableDeletedAt(v *time.Time) *PageCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
 	}
-	return pc
+	return _c
 }
 
 // SetTitle sets the "title" field.
-func (pc *PageCreate) SetTitle(s string) *PageCreate {
-	pc.mutation.SetTitle(s)
-	return pc
+func (_c *PageCreate) SetTitle(v string) *PageCreate {
+	_c.mutation.SetTitle(v)
+	return _c
 }
 
 // SetPath sets the "path" field.
-func (pc *PageCreate) SetPath(s string) *PageCreate {
-	pc.mutation.SetPath(s)
-	return pc
+func (_c *PageCreate) SetPath(v string) *PageCreate {
+	_c.mutation.SetPath(v)
+	return _c
 }
 
 // SetContent sets the "content" field.
-func (pc *PageCreate) SetContent(s string) *PageCreate {
-	pc.mutation.SetContent(s)
-	return pc
+func (_c *PageCreate) SetContent(v string) *PageCreate {
+	_c.mutation.SetContent(v)
+	return _c
 }
 
 // SetDescription sets the "description" field.
-func (pc *PageCreate) SetDescription(s string) *PageCreate {
-	pc.mutation.SetDescription(s)
-	return pc
+func (_c *PageCreate) SetDescription(v string) *PageCreate {
+	_c.mutation.SetDescription(v)
+	return _c
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (pc *PageCreate) SetNillableDescription(s *string) *PageCreate {
-	if s != nil {
-		pc.SetDescription(*s)
+func (_c *PageCreate) SetNillableDescription(v *string) *PageCreate {
+	if v != nil {
+		_c.SetDescription(*v)
 	}
-	return pc
+	return _c
 }
 
 // SetIsPublished sets the "is_published" field.
-func (pc *PageCreate) SetIsPublished(b bool) *PageCreate {
-	pc.mutation.SetIsPublished(b)
-	return pc
+func (_c *PageCreate) SetIsPublished(v bool) *PageCreate {
+	_c.mutation.SetIsPublished(v)
+	return _c
 }
 
 // SetNillableIsPublished sets the "is_published" field if the given value is not nil.
-func (pc *PageCreate) SetNillableIsPublished(b *bool) *PageCreate {
-	if b != nil {
-		pc.SetIsPublished(*b)
+func (_c *PageCreate) SetNillableIsPublished(v *bool) *PageCreate {
+	if v != nil {
+		_c.SetIsPublished(*v)
 	}
-	return pc
+	return _c
 }
 
 // SetSort sets the "sort" field.
-func (pc *PageCreate) SetSort(i int) *PageCreate {
-	pc.mutation.SetSort(i)
-	return pc
+func (_c *PageCreate) SetSort(v int) *PageCreate {
+	_c.mutation.SetSort(v)
+	return _c
 }
 
 // SetNillableSort sets the "sort" field if the given value is not nil.
-func (pc *PageCreate) SetNillableSort(i *int) *PageCreate {
-	if i != nil {
-		pc.SetSort(*i)
+func (_c *PageCreate) SetNillableSort(v *int) *PageCreate {
+	if v != nil {
+		_c.SetSort(*v)
 	}
-	return pc
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (pc *PageCreate) SetCreatedAt(t time.Time) *PageCreate {
-	pc.mutation.SetCreatedAt(t)
-	return pc
+func (_c *PageCreate) SetCreatedAt(v time.Time) *PageCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (pc *PageCreate) SetNillableCreatedAt(t *time.Time) *PageCreate {
-	if t != nil {
-		pc.SetCreatedAt(*t)
+func (_c *PageCreate) SetNillableCreatedAt(v *time.Time) *PageCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return pc
+	return _c
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (pc *PageCreate) SetUpdatedAt(t time.Time) *PageCreate {
-	pc.mutation.SetUpdatedAt(t)
-	return pc
+func (_c *PageCreate) SetUpdatedAt(v time.Time) *PageCreate {
+	_c.mutation.SetUpdatedAt(v)
+	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (pc *PageCreate) SetNillableUpdatedAt(t *time.Time) *PageCreate {
-	if t != nil {
-		pc.SetUpdatedAt(*t)
+func (_c *PageCreate) SetNillableUpdatedAt(v *time.Time) *PageCreate {
+	if v != nil {
+		_c.SetUpdatedAt(*v)
 	}
-	return pc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (pc *PageCreate) SetID(u uint) *PageCreate {
-	pc.mutation.SetID(u)
-	return pc
+func (_c *PageCreate) SetID(v uint) *PageCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // Mutation returns the PageMutation object of the builder.
-func (pc *PageCreate) Mutation() *PageMutation {
-	return pc.mutation
+func (_c *PageCreate) Mutation() *PageMutation {
+	return _c.mutation
 }
 
 // Save creates the Page in the database.
-func (pc *PageCreate) Save(ctx context.Context) (*Page, error) {
-	if err := pc.defaults(); err != nil {
+func (_c *PageCreate) Save(ctx context.Context) (*Page, error) {
+	if err := _c.defaults(); err != nil {
 		return nil, err
 	}
-	return withHooks(ctx, pc.sqlSave, pc.mutation, pc.hooks)
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (pc *PageCreate) SaveX(ctx context.Context) *Page {
-	v, err := pc.Save(ctx)
+func (_c *PageCreate) SaveX(ctx context.Context) *Page {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -153,92 +153,92 @@ func (pc *PageCreate) SaveX(ctx context.Context) *Page {
 }
 
 // Exec executes the query.
-func (pc *PageCreate) Exec(ctx context.Context) error {
-	_, err := pc.Save(ctx)
+func (_c *PageCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (pc *PageCreate) ExecX(ctx context.Context) {
-	if err := pc.Exec(ctx); err != nil {
+func (_c *PageCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (pc *PageCreate) defaults() error {
-	if _, ok := pc.mutation.IsPublished(); !ok {
+func (_c *PageCreate) defaults() error {
+	if _, ok := _c.mutation.IsPublished(); !ok {
 		v := page.DefaultIsPublished
-		pc.mutation.SetIsPublished(v)
+		_c.mutation.SetIsPublished(v)
 	}
-	if _, ok := pc.mutation.Sort(); !ok {
+	if _, ok := _c.mutation.Sort(); !ok {
 		v := page.DefaultSort
-		pc.mutation.SetSort(v)
+		_c.mutation.SetSort(v)
 	}
-	if _, ok := pc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		if page.DefaultCreatedAt == nil {
 			return fmt.Errorf("ent: uninitialized page.DefaultCreatedAt (forgotten import ent/runtime?)")
 		}
 		v := page.DefaultCreatedAt()
-		pc.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
-	if _, ok := pc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		if page.DefaultUpdatedAt == nil {
 			return fmt.Errorf("ent: uninitialized page.DefaultUpdatedAt (forgotten import ent/runtime?)")
 		}
 		v := page.DefaultUpdatedAt()
-		pc.mutation.SetUpdatedAt(v)
+		_c.mutation.SetUpdatedAt(v)
 	}
 	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (pc *PageCreate) check() error {
-	if _, ok := pc.mutation.Title(); !ok {
+func (_c *PageCreate) check() error {
+	if _, ok := _c.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Page.title"`)}
 	}
-	if v, ok := pc.mutation.Title(); ok {
+	if v, ok := _c.mutation.Title(); ok {
 		if err := page.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Page.title": %w`, err)}
 		}
 	}
-	if _, ok := pc.mutation.Path(); !ok {
+	if _, ok := _c.mutation.Path(); !ok {
 		return &ValidationError{Name: "path", err: errors.New(`ent: missing required field "Page.path"`)}
 	}
-	if v, ok := pc.mutation.Path(); ok {
+	if v, ok := _c.mutation.Path(); ok {
 		if err := page.PathValidator(v); err != nil {
 			return &ValidationError{Name: "path", err: fmt.Errorf(`ent: validator failed for field "Page.path": %w`, err)}
 		}
 	}
-	if _, ok := pc.mutation.Content(); !ok {
+	if _, ok := _c.mutation.Content(); !ok {
 		return &ValidationError{Name: "content", err: errors.New(`ent: missing required field "Page.content"`)}
 	}
-	if v, ok := pc.mutation.Description(); ok {
+	if v, ok := _c.mutation.Description(); ok {
 		if err := page.DescriptionValidator(v); err != nil {
 			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "Page.description": %w`, err)}
 		}
 	}
-	if _, ok := pc.mutation.IsPublished(); !ok {
+	if _, ok := _c.mutation.IsPublished(); !ok {
 		return &ValidationError{Name: "is_published", err: errors.New(`ent: missing required field "Page.is_published"`)}
 	}
-	if _, ok := pc.mutation.Sort(); !ok {
+	if _, ok := _c.mutation.Sort(); !ok {
 		return &ValidationError{Name: "sort", err: errors.New(`ent: missing required field "Page.sort"`)}
 	}
-	if _, ok := pc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Page.created_at"`)}
 	}
-	if _, ok := pc.mutation.UpdatedAt(); !ok {
+	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Page.updated_at"`)}
 	}
 	return nil
 }
 
-func (pc *PageCreate) sqlSave(ctx context.Context) (*Page, error) {
-	if err := pc.check(); err != nil {
+func (_c *PageCreate) sqlSave(ctx context.Context) (*Page, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := pc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, pc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -248,54 +248,54 @@ func (pc *PageCreate) sqlSave(ctx context.Context) (*Page, error) {
 		id := _spec.ID.Value.(int64)
 		_node.ID = uint(id)
 	}
-	pc.mutation.id = &_node.ID
-	pc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (pc *PageCreate) createSpec() (*Page, *sqlgraph.CreateSpec) {
+func (_c *PageCreate) createSpec() (*Page, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Page{config: pc.config}
+		_node = &Page{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(page.Table, sqlgraph.NewFieldSpec(page.FieldID, field.TypeUint))
 	)
-	_spec.OnConflict = pc.conflict
-	if id, ok := pc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := pc.mutation.DeletedAt(); ok {
+	if value, ok := _c.mutation.DeletedAt(); ok {
 		_spec.SetField(page.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
 	}
-	if value, ok := pc.mutation.Title(); ok {
+	if value, ok := _c.mutation.Title(); ok {
 		_spec.SetField(page.FieldTitle, field.TypeString, value)
 		_node.Title = value
 	}
-	if value, ok := pc.mutation.Path(); ok {
+	if value, ok := _c.mutation.Path(); ok {
 		_spec.SetField(page.FieldPath, field.TypeString, value)
 		_node.Path = value
 	}
-	if value, ok := pc.mutation.Content(); ok {
+	if value, ok := _c.mutation.Content(); ok {
 		_spec.SetField(page.FieldContent, field.TypeString, value)
 		_node.Content = value
 	}
-	if value, ok := pc.mutation.Description(); ok {
+	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(page.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
-	if value, ok := pc.mutation.IsPublished(); ok {
+	if value, ok := _c.mutation.IsPublished(); ok {
 		_spec.SetField(page.FieldIsPublished, field.TypeBool, value)
 		_node.IsPublished = value
 	}
-	if value, ok := pc.mutation.Sort(); ok {
+	if value, ok := _c.mutation.Sort(); ok {
 		_spec.SetField(page.FieldSort, field.TypeInt, value)
 		_node.Sort = value
 	}
-	if value, ok := pc.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(page.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := pc.mutation.UpdatedAt(); ok {
+	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(page.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
@@ -318,10 +318,10 @@ func (pc *PageCreate) createSpec() (*Page, *sqlgraph.CreateSpec) {
 //			SetDeletedAt(v+v).
 //		}).
 //		Exec(ctx)
-func (pc *PageCreate) OnConflict(opts ...sql.ConflictOption) *PageUpsertOne {
-	pc.conflict = opts
+func (_c *PageCreate) OnConflict(opts ...sql.ConflictOption) *PageUpsertOne {
+	_c.conflict = opts
 	return &PageUpsertOne{
-		create: pc,
+		create: _c,
 	}
 }
 
@@ -331,10 +331,10 @@ func (pc *PageCreate) OnConflict(opts ...sql.ConflictOption) *PageUpsertOne {
 //	client.Page.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (pc *PageCreate) OnConflictColumns(columns ...string) *PageUpsertOne {
-	pc.conflict = append(pc.conflict, sql.ConflictColumns(columns...))
+func (_c *PageCreate) OnConflictColumns(columns ...string) *PageUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &PageUpsertOne{
-		create: pc,
+		create: _c,
 	}
 }
 
@@ -691,16 +691,16 @@ type PageCreateBulk struct {
 }
 
 // Save creates the Page entities in the database.
-func (pcb *PageCreateBulk) Save(ctx context.Context) ([]*Page, error) {
-	if pcb.err != nil {
-		return nil, pcb.err
+func (_c *PageCreateBulk) Save(ctx context.Context) ([]*Page, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(pcb.builders))
-	nodes := make([]*Page, len(pcb.builders))
-	mutators := make([]Mutator, len(pcb.builders))
-	for i := range pcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*Page, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := pcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*PageMutation)
@@ -714,12 +714,12 @@ func (pcb *PageCreateBulk) Save(ctx context.Context) ([]*Page, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, pcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = pcb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, pcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -743,7 +743,7 @@ func (pcb *PageCreateBulk) Save(ctx context.Context) ([]*Page, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, pcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -751,8 +751,8 @@ func (pcb *PageCreateBulk) Save(ctx context.Context) ([]*Page, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (pcb *PageCreateBulk) SaveX(ctx context.Context) []*Page {
-	v, err := pcb.Save(ctx)
+func (_c *PageCreateBulk) SaveX(ctx context.Context) []*Page {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -760,14 +760,14 @@ func (pcb *PageCreateBulk) SaveX(ctx context.Context) []*Page {
 }
 
 // Exec executes the query.
-func (pcb *PageCreateBulk) Exec(ctx context.Context) error {
-	_, err := pcb.Save(ctx)
+func (_c *PageCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (pcb *PageCreateBulk) ExecX(ctx context.Context) {
-	if err := pcb.Exec(ctx); err != nil {
+func (_c *PageCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -787,10 +787,10 @@ func (pcb *PageCreateBulk) ExecX(ctx context.Context) {
 //			SetDeletedAt(v+v).
 //		}).
 //		Exec(ctx)
-func (pcb *PageCreateBulk) OnConflict(opts ...sql.ConflictOption) *PageUpsertBulk {
-	pcb.conflict = opts
+func (_c *PageCreateBulk) OnConflict(opts ...sql.ConflictOption) *PageUpsertBulk {
+	_c.conflict = opts
 	return &PageUpsertBulk{
-		create: pcb,
+		create: _c,
 	}
 }
 
@@ -800,10 +800,10 @@ func (pcb *PageCreateBulk) OnConflict(opts ...sql.ConflictOption) *PageUpsertBul
 //	client.Page.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (pcb *PageCreateBulk) OnConflictColumns(columns ...string) *PageUpsertBulk {
-	pcb.conflict = append(pcb.conflict, sql.ConflictColumns(columns...))
+func (_c *PageCreateBulk) OnConflictColumns(columns ...string) *PageUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &PageUpsertBulk{
-		create: pcb,
+		create: _c,
 	}
 }
 

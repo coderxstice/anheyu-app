@@ -60,7 +60,7 @@ func (*Page) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Page fields.
-func (pa *Page) assignValues(columns []string, values []any) error {
+func (_m *Page) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -71,64 +71,64 @@ func (pa *Page) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			pa.ID = uint(value.Int64)
+			_m.ID = uint(value.Int64)
 		case page.FieldDeletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
-				pa.DeletedAt = new(time.Time)
-				*pa.DeletedAt = value.Time
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
 			}
 		case page.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field title", values[i])
 			} else if value.Valid {
-				pa.Title = value.String
+				_m.Title = value.String
 			}
 		case page.FieldPath:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field path", values[i])
 			} else if value.Valid {
-				pa.Path = value.String
+				_m.Path = value.String
 			}
 		case page.FieldContent:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field content", values[i])
 			} else if value.Valid {
-				pa.Content = value.String
+				_m.Content = value.String
 			}
 		case page.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				pa.Description = value.String
+				_m.Description = value.String
 			}
 		case page.FieldIsPublished:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field is_published", values[i])
 			} else if value.Valid {
-				pa.IsPublished = value.Bool
+				_m.IsPublished = value.Bool
 			}
 		case page.FieldSort:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field sort", values[i])
 			} else if value.Valid {
-				pa.Sort = int(value.Int64)
+				_m.Sort = int(value.Int64)
 			}
 		case page.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				pa.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case page.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				pa.UpdatedAt = value.Time
+				_m.UpdatedAt = value.Time
 			}
 		default:
-			pa.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -136,61 +136,61 @@ func (pa *Page) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the Page.
 // This includes values selected through modifiers, order, etc.
-func (pa *Page) Value(name string) (ent.Value, error) {
-	return pa.selectValues.Get(name)
+func (_m *Page) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // Update returns a builder for updating this Page.
 // Note that you need to call Page.Unwrap() before calling this method if this Page
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (pa *Page) Update() *PageUpdateOne {
-	return NewPageClient(pa.config).UpdateOne(pa)
+func (_m *Page) Update() *PageUpdateOne {
+	return NewPageClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Page entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (pa *Page) Unwrap() *Page {
-	_tx, ok := pa.config.driver.(*txDriver)
+func (_m *Page) Unwrap() *Page {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: Page is not a transactional entity")
 	}
-	pa.config.driver = _tx.drv
-	return pa
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (pa *Page) String() string {
+func (_m *Page) String() string {
 	var builder strings.Builder
 	builder.WriteString("Page(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", pa.ID))
-	if v := pa.DeletedAt; v != nil {
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	if v := _m.DeletedAt; v != nil {
 		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("title=")
-	builder.WriteString(pa.Title)
+	builder.WriteString(_m.Title)
 	builder.WriteString(", ")
 	builder.WriteString("path=")
-	builder.WriteString(pa.Path)
+	builder.WriteString(_m.Path)
 	builder.WriteString(", ")
 	builder.WriteString("content=")
-	builder.WriteString(pa.Content)
+	builder.WriteString(_m.Content)
 	builder.WriteString(", ")
 	builder.WriteString("description=")
-	builder.WriteString(pa.Description)
+	builder.WriteString(_m.Description)
 	builder.WriteString(", ")
 	builder.WriteString("is_published=")
-	builder.WriteString(fmt.Sprintf("%v", pa.IsPublished))
+	builder.WriteString(fmt.Sprintf("%v", _m.IsPublished))
 	builder.WriteString(", ")
 	builder.WriteString("sort=")
-	builder.WriteString(fmt.Sprintf("%v", pa.Sort))
+	builder.WriteString(fmt.Sprintf("%v", _m.Sort))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(pa.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(pa.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

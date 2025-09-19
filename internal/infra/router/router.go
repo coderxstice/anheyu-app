@@ -28,6 +28,7 @@ import (
 	setting_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/setting"
 	statistics_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/statistics"
 	storage_policy_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/storage_policy"
+	theme_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/theme"
 	thumbnail_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/thumbnail"
 	user_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/user"
 )
@@ -50,6 +51,7 @@ type Router struct {
 	linkHandler          *link_handler.Handler
 	pageHandler          *page_handler.Handler
 	statisticsHandler    *statistics_handler.StatisticsHandler
+	themeHandler         *theme_handler.Handler
 	mw                   *middleware.Middleware
 	searchHandler        *search_handler.Handler
 	proxyHandler         *proxy_handler.ProxyHandler
@@ -73,6 +75,7 @@ func NewRouter(
 	linkHandler *link_handler.Handler,
 	pageHandler *page_handler.Handler,
 	statisticsHandler *statistics_handler.StatisticsHandler,
+	themeHandler *theme_handler.Handler,
 	mw *middleware.Middleware,
 	searchHandler *search_handler.Handler,
 	proxyHandler *proxy_handler.ProxyHandler,
@@ -94,6 +97,7 @@ func NewRouter(
 		linkHandler:          linkHandler,
 		pageHandler:          pageHandler,
 		statisticsHandler:    statisticsHandler,
+		themeHandler:         themeHandler,
 		mw:                   mw,
 		searchHandler:        searchHandler,
 		proxyHandler:         proxyHandler,
@@ -139,6 +143,7 @@ func (r *Router) Setup(engine *gin.Engine) {
 	r.registerSearchRoutes(apiGroup)
 	r.registerLinkRoutes(apiGroup)
 	r.registerStatisticsRoutes(apiGroup)
+	r.registerThemeRoutes(apiGroup)
 }
 
 func (r *Router) registerCommentRoutes(api *gin.RouterGroup) {
@@ -486,5 +491,46 @@ func (r *Router) registerPageRoutes(api *gin.RouterGroup) {
 		pagesAdmin.PUT("/:id", r.pageHandler.Update)                         // PUT /api/pages/:id
 		pagesAdmin.DELETE("/:id", r.pageHandler.Delete)                      // DELETE /api/pages/:id
 		pagesAdmin.POST("/initialize", r.pageHandler.InitializeDefaultPages) // POST /api/pages/initialize
+	}
+}
+
+// registerThemeRoutes 注册主题管理相关的路由（基于Context7最佳实践优化）
+func (r *Router) registerThemeRoutes(api *gin.RouterGroup) {
+	// 公开的主题商城接口
+	themePublic := api.Group("/public/theme")
+	{
+		// 获取主题商城列表: GET /api/public/theme/market
+		themePublic.GET("/market", r.themeHandler.GetThemeMarket)
+
+		// 检查静态模式状态: GET /api/public/theme/static-mode
+		themePublic.GET("/static-mode", r.themeHandler.CheckStaticMode)
+	}
+
+	// 需要登录的主题管理接口
+	themeAuth := api.Group("/theme").Use(r.mw.JWTAuth())
+	{
+		// 获取当前主题: GET /api/theme/current
+		themeAuth.GET("/current", r.themeHandler.GetCurrentTheme)
+
+		// 获取已安装主题列表: GET /api/theme/installed
+		themeAuth.GET("/installed", r.themeHandler.GetInstalledThemes)
+
+		// 安装主题: POST /api/theme/install
+		themeAuth.POST("/install", r.themeHandler.InstallTheme)
+
+		// 上传主题: POST /api/theme/upload
+		themeAuth.POST("/upload", r.themeHandler.UploadTheme)
+
+		// 验证主题: POST /api/theme/validate
+		themeAuth.POST("/validate", r.themeHandler.ValidateTheme)
+
+		// 切换主题: POST /api/theme/switch
+		themeAuth.POST("/switch", r.themeHandler.SwitchTheme)
+
+		// 切换到官方主题: POST /api/theme/official
+		themeAuth.POST("/official", r.themeHandler.SwitchToOfficial)
+
+		// 卸载主题: POST /api/theme/uninstall
+		themeAuth.POST("/uninstall", r.themeHandler.UninstallTheme)
 	}
 }
