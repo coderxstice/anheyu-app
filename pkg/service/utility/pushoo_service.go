@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-09-04 10:46:35
- * @LastEditTime: 2025-09-19 16:18:15
+ * @LastEditTime: 2025-09-20 16:33:18
  * @LastEditors: 安知鱼
  */
 // pkg/service/utility/pushoo_service.go
@@ -118,21 +118,14 @@ func (s *pushooService) prepareTemplateData(newComment *model.Comment, parentCom
 		body = fmt.Sprintf("%s 发表了评论：「%s」", newComment.Author.Nickname, newComment.Content)
 	}
 
-	// 为Bark URL路径部分进行URL编码
-	// 对于Bark，我们需要特殊处理，避免某些字符影响显示
-	encodedTitle := strings.ReplaceAll(url.QueryEscape(title), "+", "%20")
-	encodedBody := strings.ReplaceAll(url.QueryEscape(body), "+", "%20")
-
-	// 移除换行符，避免显示问题
-	encodedBody = strings.ReplaceAll(encodedBody, "%0A", " ")
-	encodedBody = strings.ReplaceAll(encodedBody, "%0D", "")
-
+	// 统一使用原始内容，不进行URL编码，保持所有变量的一致性
+	// URL编码将在特定渠道需要时进行处理（如Bark URL路径）
 	data := map[string]interface{}{
 		"SITE_NAME":      siteName,
 		"SITE_URL":       siteURL,
 		"POST_URL":       pageURL,
-		"TITLE":          encodedTitle,
-		"BODY":           encodedBody,
+		"TITLE":          title,
+		"BODY":           body,
 		"NICK":           newComment.Author.Nickname,
 		"COMMENT":        newComment.Content,
 		"IP":             newComment.Author.IP,
@@ -148,7 +141,26 @@ func (s *pushooService) prepareTemplateData(newComment *model.Comment, parentCom
 func (s *pushooService) sendBarkPush(ctx context.Context, pushURLTpl string, data map[string]interface{}) error {
 	log.Printf("[DEBUG] sendBarkPush 开始执行，URL模板: %s", pushURLTpl)
 
-	finalURL, err := renderPushooTemplate(pushURLTpl, data)
+	// 为Bark创建专门的数据副本，对URL路径部分进行编码
+	barkData := make(map[string]interface{})
+	for k, v := range data {
+		barkData[k] = v
+	}
+
+	// 对于Bark，需要对URL路径中的特殊字符进行编码
+	if title, ok := data["TITLE"].(string); ok {
+		encodedTitle := strings.ReplaceAll(url.QueryEscape(title), "+", "%20")
+		barkData["TITLE"] = encodedTitle
+	}
+	if body, ok := data["BODY"].(string); ok {
+		encodedBody := strings.ReplaceAll(url.QueryEscape(body), "+", "%20")
+		// 移除换行符，避免显示问题
+		encodedBody = strings.ReplaceAll(encodedBody, "%0A", " ")
+		encodedBody = strings.ReplaceAll(encodedBody, "%0D", "")
+		barkData["BODY"] = encodedBody
+	}
+
+	finalURL, err := renderPushooTemplate(pushURLTpl, barkData)
 	if err != nil {
 		log.Printf("[ERROR] 渲染Bark URL模板失败: %v", err)
 		return fmt.Errorf("渲染bark URL模板失败: %w", err)

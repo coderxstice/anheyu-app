@@ -4,6 +4,7 @@ package comment
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/handler/comment/dto"
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/comment"
+	"github.com/anzhiyu-c/anheyu-app/pkg/util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -232,7 +234,24 @@ func (h *Handler) Create(c *gin.Context) {
 		return
 	}
 
-	ip := c.ClientIP()
+	// 添加详细的调试日志来排查IP获取问题
+	log.Printf("[DEBUG] 评论创建 - 原始请求信息:")
+	log.Printf("[DEBUG]   RemoteAddr: %s", c.Request.RemoteAddr)
+	log.Printf("[DEBUG]   Host: %s", c.Request.Host)
+	log.Printf("[DEBUG]   X-Forwarded-For: '%s'", c.GetHeader("X-Forwarded-For"))
+	log.Printf("[DEBUG]   X-Real-IP: '%s'", c.GetHeader("X-Real-IP"))
+	log.Printf("[DEBUG]   X-Original-Forwarded-For: '%s'", c.GetHeader("X-Original-Forwarded-For"))
+	log.Printf("[DEBUG]   CF-Connecting-IP: '%s'", c.GetHeader("CF-Connecting-IP"))
+	log.Printf("[DEBUG]   CF-Ray: '%s'", c.GetHeader("CF-Ray"))
+	log.Printf("[DEBUG]   True-Client-IP: '%s'", c.GetHeader("True-Client-IP"))
+	log.Printf("[DEBUG]   X-Client-IP: '%s'", c.GetHeader("X-Client-IP"))
+	log.Printf("[DEBUG]   Forwarded: '%s'", c.GetHeader("Forwarded"))
+	log.Printf("[DEBUG]   User-Agent: '%s'", c.GetHeader("User-Agent"))
+	log.Printf("[DEBUG]   Gin ClientIP(): %s", c.ClientIP())
+
+	// 使用改进的IP获取方法，优先检查代理头部
+	ip := util.GetRealClientIP(c)
+	log.Printf("[DEBUG]   最终获取的IP: %s", ip)
 	ua := c.Request.UserAgent()
 
 	var claims *auth.CustomClaims

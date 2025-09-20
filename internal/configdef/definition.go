@@ -221,6 +221,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyAboutPageMusic, Value: `{"tips":"音乐偏好","title":"许嵩、民谣、华语流行","link":"/music","background":"https://p2.music.126.net/Mrg1i7DwcwjWBvQPIMt_Mg==/79164837213438.jpg"}`, Comment: "音乐配置 (JSON格式)", IsPublic: true},
 	{Key: constant.KeyAboutPageCareers, Value: `{"tips":"生涯","title":"无限进步","img":"https://upload-bbs.miyoushe.com/upload/2025/08/21/125766904/a0c75864c723d53d3b9967e8c19a99c6_2075143858961311655.png?x-oss-process=image/format,avif","list":[{"desc":"EDU,软件工程专业","color":"#357ef5"}]}`, Comment: "职业经历配置 (JSON格式)", IsPublic: true},
 	{Key: constant.KeyAboutPageSkillsTips, Value: `{"tips":"技能","title":"开启创造力"}`, Comment: "技能信息提示配置 (JSON格式)", IsPublic: true},
+	{Key: constant.KeyMusicPlayerPlaylistID, Value: "8152976493", Comment: "音乐播放器播放列表ID (网易云歌单ID)", IsPublic: true},
 }
 
 // AllUserGroups 是所有默认用户组的"单一事实来源"

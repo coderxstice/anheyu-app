@@ -11,6 +11,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
+	"github.com/anzhiyu-c/anheyu-app/pkg/util"
 
 	articleSvc "github.com/anzhiyu-c/anheyu-app/pkg/service/article"
 
@@ -182,8 +183,8 @@ func (h *Handler) Create(c *gin.Context) {
 		return
 	}
 
-	// 从 Gin 的 Context 中获取客户端IP地址
-	clientIP := c.ClientIP()
+	// 使用改进的IP获取方法，优先检查代理头部
+	clientIP := util.GetRealClientIP(c)
 
 	// 调用 Service 时传递 IP 地址
 	article, err := h.svc.Create(c.Request.Context(), &req, clientIP)
@@ -292,9 +293,9 @@ func (h *Handler) Update(c *gin.Context) {
 		return
 	}
 
-	// 获取客户端 IP 地址
-	clientIP := c.ClientIP()
-	log.Printf("[DEBUG] 准备更新文章，从 Gin Context 获取到的原始 IP 是: %s", clientIP)
+	// 使用改进的IP获取方法，优先检查代理头部
+	clientIP := util.GetRealClientIP(c)
+	log.Printf("[DEBUG] 准备更新文章，获取到的真实 IP 是: %s", clientIP)
 
 	// 将 clientIP 传递给 Service 层
 	article, err := h.svc.Update(c.Request.Context(), id, &req, clientIP)
