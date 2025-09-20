@@ -362,7 +362,7 @@ type ThemeMarketListResponse struct {
 // @Produce json
 // @Success 200 {object} response.Response{data=ThemeMarketListResponse}
 // @Failure 500 {object} response.Response
-// @Router /api/theme/market [get]
+// @Router /api/public/theme/market [get]
 func (h *Handler) GetThemeMarket(c *gin.Context) {
 	themes, err := h.themeService.GetThemeMarketList(c.Request.Context())
 	if err != nil {

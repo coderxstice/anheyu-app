@@ -2,7 +2,7 @@
  * @Description: 访问统计中间件
  * @Author: 安知鱼
  * @Date: 2025-01-20 15:30:00
- * @LastEditTime: 2025-01-20 15:30:00
+ * @LastEditTime: 2025-09-20 16:52:02
  * @LastEditors: 安知鱼
  */
 package middleware
@@ -16,6 +16,7 @@ import (
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/statistics"
+	"github.com/anzhiyu-c/anheyu-app/pkg/util"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
@@ -143,7 +144,7 @@ func (m *StatisticsMiddleware) cacheFailedRecord(ctx context.Context, req *model
 		"page_title": req.PageTitle,
 		"referer":    req.Referer,
 		"duration":   req.Duration,
-		"ip":         c.ClientIP(),
+		"ip":         util.GetRealClientIP(c),
 		"user_agent": c.GetHeader("User-Agent"),
 		"timestamp":  time.Now().Unix(),
 	}
