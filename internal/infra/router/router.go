@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-15 11:30:55
- * @LastEditTime: 2025-09-01 23:34:24
+ * @LastEditTime: 2025-09-21 21:56:07
  * @LastEditors: 安知鱼
  */
 // anheyu-app/pkg/router/router.go
@@ -517,7 +517,7 @@ func (r *Router) registerPageRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// registerThemeRoutes 注册主题管理相关的路由（基于Context7最佳实践优化）
+// registerThemeRoutes 注册主题管理相关的路由
 func (r *Router) registerThemeRoutes(api *gin.RouterGroup) {
 	// 公开的主题商城接口
 	themePublic := api.Group("/public/theme")
