@@ -39,6 +39,7 @@ import (
 	public_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/public"
 	search_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/search"
 	setting_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/setting"
+	sitemap_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/sitemap"
 	statistics_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/statistics"
 	storage_policy_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/storage_policy"
 	theme_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/theme"
@@ -61,6 +62,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/process"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/search"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/sitemap"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/statistics"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/theme"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/thumbnail"
@@ -244,6 +246,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	}
 
 	searchSvc := search.NewSearchService()
+	sitemapSvc := sitemap.NewService(articleRepo, pageRepo, linkRepo, settingSvc)
 
 	// 重建所有文章的搜索索引
 	go func() {
@@ -309,6 +312,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	searchHandler := search_handler.NewHandler(searchSvc)
 	statisticsHandler := statistics_handler.NewStatisticsHandler(statService)
 	themeHandler := theme_handler.NewHandler(themeSvc)
+	sitemapHandler := sitemap_handler.NewHandler(sitemapSvc)
 	proxyHandler := proxy_handler.NewHandler()
 
 	// --- Phase 7: 初始化路由 ---
@@ -333,6 +337,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		mw,
 		searchHandler,
 		proxyHandler,
+		sitemapHandler,
 	)
 
 	// --- Phase 8: 配置 Gin 引擎 ---

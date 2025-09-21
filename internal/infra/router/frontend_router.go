@@ -32,14 +32,14 @@ func (r CustomHTMLRender) Instance(name string, data interface{}) render.Render 
 	return render.HTML{Template: r.Templates, Name: name, Data: data}
 }
 
-// Context7最佳实践：生成内容ETag
+// ：生成内容ETag
 func generateContentETag(content interface{}) string {
 	data, _ := json.Marshal(content)
 	hash := md5.Sum(data)
 	return fmt.Sprintf(`"ctx7-%x"`, hash)
 }
 
-// Context7最佳实践：设置智能缓存策略
+// ：设置智能缓存策略
 func setSmartCacheHeaders(c *gin.Context, pageType string, etag string, maxAge int) {
 	switch pageType {
 	case "article_detail":
@@ -67,13 +67,11 @@ func setSmartCacheHeaders(c *gin.Context, pageType string, etag string, maxAge i
 		c.Header("ETag", etag)
 		c.Header("Vary", "Accept-Encoding")
 	}
-
-	// Context7推荐的安全头
 	c.Header("X-Frame-Options", "SAMEORIGIN")
 	c.Header("X-XSS-Protection", "1; mode=block")
 }
 
-// Context7最佳实践：处理条件请求
+// ：处理条件请求
 func handleConditionalRequest(c *gin.Context, etag string) bool {
 	// 检查 If-None-Match 头
 	ifNoneMatch := c.GetHeader("If-None-Match")
@@ -149,6 +147,39 @@ func isStaticFileRequest(filePath string) bool {
 	}
 
 	return false
+}
+
+// shouldReturnIndexHTML 判断是否应该返回 index.html（让前端路由处理）
+// 这个函数使用排除法：只有明确不是SPA路由的请求才不返回index.html
+func shouldReturnIndexHTML(path string) bool {
+	// 明确排除的路径（这些不应该由前端处理）
+	excludedPrefixes := []string{
+		"/api/",          // API 接口
+		"/f/",            // 文件服务
+		"/needcache/",    // 缓存服务
+		"/static/",       // 静态资源
+		"/manifest.json", // PWA manifest
+		"/sw.js",         // Service Worker
+		"/robots.txt",    // 搜索引擎爬虫文件
+		"/sitemap.xml",   // 网站地图
+		"/favicon.ico",   // 网站图标
+	}
+
+	// 检查是否是被排除的路径
+	for _, prefix := range excludedPrefixes {
+		if strings.HasPrefix(path, prefix) || path == strings.TrimSuffix(prefix, "/") {
+			return false
+		}
+	}
+
+	// 如果路径有文件扩展名，检查是否是静态文件
+	if strings.Contains(path, ".") {
+		return !isStaticFileRequest(path)
+	}
+
+	// 其他所有路径都应该返回 index.html 让前端处理
+	// 这包括：/admin/dashboard, /login, /posts/xxx, 以及任何未来新增的前端路由
+	return true
 }
 
 // isStaticModeActive 检查是否使用静态模式（与主题服务保持一致）
@@ -284,56 +315,65 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 
 	// 动态根目录文件路由
 	engine.NoRoute(func(c *gin.Context) {
-		if strings.HasPrefix(c.Request.URL.Path, "/api/") {
+		path := c.Request.URL.Path
+
+		// API路由直接返回404
+		if strings.HasPrefix(path, "/api/") {
 			response.Fail(c, http.StatusNotFound, "API 路由未找到")
 			return
 		}
 
-		// 处理非 /static/ 路径和非根路径的请求
-		if !strings.HasPrefix(c.Request.URL.Path, "/static/") && c.Request.URL.Path != "/" {
-			filePath := strings.TrimPrefix(c.Request.URL.Path, "/")
+		// 判断是否应该返回 index.html 让前端路由处理
+		if shouldReturnIndexHTML(path) {
+			log.Printf("SPA路由请求: %s，返回index.html让前端处理", path)
 
-			// 尝试提供静态文件
-			if tryServeStaticFile(c, filePath, isStaticModeActive(), distFS) {
-				return
-			}
+			// 渲染HTML页面
+			staticMode := isStaticModeActive()
+			var templateInstance *template.Template
 
-			// 如果是静态文件请求但找不到文件，返回404
-			if isStaticFileRequest(filePath) {
-				log.Printf("静态文件请求未找到: %s", filePath)
-				c.JSON(http.StatusNotFound, gin.H{"error": "File not found"})
-				return
-			}
-		}
-
-		// 渲染HTML页面
-		staticMode := isStaticModeActive()
-		var templateInstance *template.Template
-
-		if staticMode {
-			log.Printf("动态路由：当前使用外部主题模式，路径: %s", c.Request.URL.Path)
-			// 每次都重新解析外部模板，确保获取最新内容
-			overrideDir := "static"
-			parsedTemplates, err := template.New("index.html").Funcs(funcMap).ParseFiles(filepath.Join(overrideDir, "index.html"))
-			if err != nil {
-				log.Printf("解析外部HTML模板失败: %v，回退到内嵌模板", err)
-				templateInstance = embeddedTemplates
+			if staticMode {
+				log.Printf("动态路由：当前使用外部主题模式，路径: %s", path)
+				// 每次都重新解析外部模板，确保获取最新内容
+				overrideDir := "static"
+				parsedTemplates, err := template.New("index.html").Funcs(funcMap).ParseFiles(filepath.Join(overrideDir, "index.html"))
+				if err != nil {
+					log.Printf("解析外部HTML模板失败: %v，回退到内嵌模板", err)
+					templateInstance = embeddedTemplates
+				} else {
+					templateInstance = parsedTemplates
+				}
 			} else {
-				templateInstance = parsedTemplates
+				log.Printf("动态路由：当前使用内嵌主题模式，路径: %s", path)
+				templateInstance = embeddedTemplates
 			}
-		} else {
-			log.Printf("动态路由：当前使用内嵌主题模式，路径: %s", c.Request.URL.Path)
-			templateInstance = embeddedTemplates
+
+			// 渲染HTML页面
+			renderHTMLPage(c, settingSvc, articleSvc, templateInstance)
+			return
 		}
 
-		// 渲染HTML页面
-		renderHTMLPage(c, settingSvc, articleSvc, templateInstance)
+		// 尝试提供静态文件（处理根目录下的静态文件，如 favicon.ico, robots.txt 等）
+		filePath := strings.TrimPrefix(path, "/")
+		if filePath != "" && tryServeStaticFile(c, filePath, isStaticModeActive(), distFS) {
+			return
+		}
+
+		// 如果是静态文件请求但找不到文件，返回404
+		if filePath != "" && isStaticFileRequest(filePath) {
+			log.Printf("静态文件请求未找到: %s", filePath)
+			c.JSON(http.StatusNotFound, gin.H{"error": "File not found"})
+			return
+		}
+
+		// 其他未知请求，返回404
+		log.Printf("未知请求: %s", path)
+		c.JSON(http.StatusNotFound, gin.H{"error": "Page not found"})
 	})
 
 	log.Println("动态前端路由系统配置完成")
 }
 
-// renderHTMLPage 渲染HTML页面的通用函数（Context7最佳实践版本）
+// renderHTMLPage 渲染HTML页面的通用函数（版本）
 func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSvc article_service.Service, templates *template.Template) {
 	// 获取完整的当前页面 URL
 	fullURL := fmt.Sprintf("%s://%s%s", getRequestScheme(c), c.Request.Host, c.Request.URL.RequestURI())
@@ -343,7 +383,7 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 		slug := strings.TrimPrefix(c.Request.URL.Path, "/posts/")
 		articleResponse, err := articleSvc.GetPublicBySlugOrID(c.Request.Context(), slug)
 		if err == nil && articleResponse != nil {
-			// 🎯 Context7最佳实践：生成文章内容ETag（基于更新时间和内容）
+			// 🎯 ：生成文章内容ETag（基于更新时间和内容）
 			contentForETag := struct {
 				UpdatedAt   time.Time `json:"updated_at"`
 				Title       string    `json:"title"`
@@ -355,12 +395,11 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 			}
 			etag := generateContentETag(contentForETag)
 
-			// 🚀 Context7最佳实践：处理条件请求
 			if handleConditionalRequest(c, etag) {
-				return // 返回304 Not Modified
+				return
 			}
 
-			// 📊 Context7最佳实践：设置文章页面缓存策略（基于更新时间动态调整）
+			// 📊 ：设置文章页面缓存策略（基于更新时间动态调整）
 			timeSinceUpdate := time.Since(articleResponse.UpdatedAt)
 			var cacheMaxAge int
 			if timeSinceUpdate < 24*time.Hour {
@@ -429,7 +468,7 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 	defaultDescription := settingSvc.Get(constant.KeySiteDescription.String())
 	defaultImage := settingSvc.Get(constant.KeyLogoURL512.String())
 
-	// 🎯 Context7最佳实践：为默认页面生成ETag（基于站点配置）
+	// 🎯 ：为默认页面生成ETag（基于站点配置）
 	siteConfigForETag := struct {
 		Title       string `json:"title"`
 		Description string `json:"description"`
@@ -443,12 +482,12 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 	}
 	defaultETag := generateContentETag(siteConfigForETag)
 
-	// 🚀 Context7最佳实践：处理条件请求
+	// 🚀 ：处理条件请求
 	if handleConditionalRequest(c, defaultETag) {
 		return // 返回304 Not Modified
 	}
 
-	// 📊 Context7最佳实践：根据页面类型设置缓存策略
+	// 📊 ：根据页面类型设置缓存策略
 	var pageType string
 	if c.Request.URL.Path == "/" || c.Request.URL.Path == "/index" {
 		pageType = "home_page"

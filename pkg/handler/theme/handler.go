@@ -2,10 +2,9 @@
  * @Description: 主题管理处理器（优化版）
  * @Author: 安知鱼
  * @Date: 2025-09-18 11:00:00
- * @LastEditTime: 2025-09-18 18:45:00
+ * @LastEditTime: 2025-09-21 21:56:02
  * @LastEditors: 安知鱼
  *
- * 基于Context7最佳实践优化：
  * 1. 结构化数据绑定和验证
  * 2. 统一错误处理
  * 3. 更好的Context管理
