@@ -26,6 +26,7 @@ import (
 	public_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/public"
 	search_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/search"
 	setting_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/setting"
+	sitemap_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/sitemap"
 	statistics_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/statistics"
 	storage_policy_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/storage_policy"
 	theme_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/theme"
@@ -71,6 +72,7 @@ type Router struct {
 	mw                   *middleware.Middleware
 	searchHandler        *search_handler.Handler
 	proxyHandler         *proxy_handler.ProxyHandler
+	sitemapHandler       *sitemap_handler.Handler
 }
 
 // NewRouter 是 Router 的构造函数，通过依赖注入接收所有处理器。
@@ -95,6 +97,7 @@ func NewRouter(
 	mw *middleware.Middleware,
 	searchHandler *search_handler.Handler,
 	proxyHandler *proxy_handler.ProxyHandler,
+	sitemapHandler *sitemap_handler.Handler,
 ) *Router {
 	return &Router{
 		authHandler:          authHandler,
@@ -117,6 +120,7 @@ func NewRouter(
 		mw:                   mw,
 		searchHandler:        searchHandler,
 		proxyHandler:         proxyHandler,
+		sitemapHandler:       sitemapHandler,
 	}
 }
 
@@ -162,6 +166,7 @@ func (r *Router) Setup(engine *gin.Engine) {
 	r.registerLinkRoutes(apiGroup)
 	r.registerStatisticsRoutes(apiGroup)
 	r.registerThemeRoutes(apiGroup)
+	r.registerSitemapRoutes(engine) // 直接注册到engine，不使用/api前缀
 }
 
 func (r *Router) registerCommentRoutes(api *gin.RouterGroup) {
@@ -551,4 +556,16 @@ func (r *Router) registerThemeRoutes(api *gin.RouterGroup) {
 		// 卸载主题: POST /api/theme/uninstall
 		themeAuth.POST("/uninstall", r.themeHandler.UninstallTheme)
 	}
+}
+
+// registerSitemapRoutes 注册站点地图相关路由
+func (r *Router) registerSitemapRoutes(engine *gin.Engine) {
+	// 站点地图路由 - 直接注册到根路径，不使用/api前缀
+	// 这些路由主要供搜索引擎使用，需要符合SEO标准
+
+	// GET /sitemap.xml - 站点地图
+	engine.GET("/sitemap.xml", r.sitemapHandler.GetSitemap)
+
+	// GET /robots.txt - 搜索引擎抓取规则
+	engine.GET("/robots.txt", r.sitemapHandler.GetRobots)
 }
