@@ -32,6 +32,7 @@ import (
 	direct_link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/direct_link"
 	file_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/file"
 	link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/link"
+	music_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/music"
 	page_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/page"
 	post_category_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_category"
 	post_tag_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_tag"
@@ -55,6 +56,7 @@ import (
 	file_service "github.com/anzhiyu-c/anheyu-app/pkg/service/file"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/file_info"
 	link_service "github.com/anzhiyu-c/anheyu-app/pkg/service/link"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/music"
 	page_service "github.com/anzhiyu-c/anheyu-app/pkg/service/page"
 	parser_service "github.com/anzhiyu-c/anheyu-app/pkg/service/parser"
 	post_category_service "github.com/anzhiyu-c/anheyu-app/pkg/service/post_category"
@@ -292,6 +294,11 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	themeSvc := theme.NewThemeService(entClient, userRepo)
 	_ = listener.NewFilePostProcessingListener(eventBus, taskBroker, extractionSvc)
 
+	// 初始化音乐服务
+	log.Printf("[DEBUG] 正在初始化 MusicService...")
+	musicSvc := music.NewMusicService(settingSvc)
+	log.Printf("[DEBUG] MusicService 初始化完成")
+
 	// --- Phase 6: 初始化表现层 (Handlers) ---
 	mw := middleware.NewMiddleware(tokenSvc)
 	authHandler := auth_handler.NewAuthHandler(authSvc, tokenSvc, settingSvc)
@@ -314,6 +321,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	themeHandler := theme_handler.NewHandler(themeSvc)
 	sitemapHandler := sitemap_handler.NewHandler(sitemapSvc)
 	proxyHandler := proxy_handler.NewHandler()
+	musicHandler := music_handler.NewMusicHandler(musicSvc)
 
 	// --- Phase 7: 初始化路由 ---
 	appRouter := router.NewRouter(
@@ -331,6 +339,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		postCategoryHandler,
 		commentHandler,
 		linkHandler,
+		musicHandler,
 		pageHandler,
 		statisticsHandler,
 		themeHandler,

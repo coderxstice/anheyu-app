@@ -19,6 +19,7 @@ import (
 	direct_link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/direct_link"
 	file_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/file"
 	link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/link"
+	music_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/music"
 	page_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/page"
 	post_category_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_category"
 	post_tag_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_tag"
@@ -66,6 +67,7 @@ type Router struct {
 	postCategoryHandler  *post_category_handler.Handler
 	commentHandler       *comment_handler.Handler
 	linkHandler          *link_handler.Handler
+	musicHandler         *music_handler.MusicHandler
 	pageHandler          *page_handler.Handler
 	statisticsHandler    *statistics_handler.StatisticsHandler
 	themeHandler         *theme_handler.Handler
@@ -91,6 +93,7 @@ func NewRouter(
 	postCategoryHandler *post_category_handler.Handler,
 	commentHandler *comment_handler.Handler,
 	linkHandler *link_handler.Handler,
+	musicHandler *music_handler.MusicHandler,
 	pageHandler *page_handler.Handler,
 	statisticsHandler *statistics_handler.StatisticsHandler,
 	themeHandler *theme_handler.Handler,
@@ -114,6 +117,7 @@ func NewRouter(
 		postCategoryHandler:  postCategoryHandler,
 		commentHandler:       commentHandler,
 		linkHandler:          linkHandler,
+		musicHandler:         musicHandler,
 		pageHandler:          pageHandler,
 		statisticsHandler:    statisticsHandler,
 		themeHandler:         themeHandler,
@@ -164,6 +168,7 @@ func (r *Router) Setup(engine *gin.Engine) {
 	r.registerPageRoutes(apiGroup)
 	r.registerSearchRoutes(apiGroup)
 	r.registerLinkRoutes(apiGroup)
+	r.registerMusicRoutes(apiGroup)
 	r.registerStatisticsRoutes(apiGroup)
 	r.registerThemeRoutes(apiGroup)
 	r.registerSitemapRoutes(engine) // 直接注册到engine，不使用/api前缀
@@ -555,6 +560,34 @@ func (r *Router) registerThemeRoutes(api *gin.RouterGroup) {
 
 		// 卸载主题: POST /api/theme/uninstall
 		themeAuth.POST("/uninstall", r.themeHandler.UninstallTheme)
+	}
+}
+
+// registerMusicRoutes 注册音乐相关的路由
+func (r *Router) registerMusicRoutes(api *gin.RouterGroup) {
+	// --- 前台公开音乐接口 ---
+	musicPublic := api.Group("/public/music")
+	{
+		// 获取播放列表: GET /api/public/music/playlist
+		musicPublic.GET("/playlist", r.musicHandler.GetPlaylist)
+
+		// 获取歌曲资源: POST /api/public/music/song-resources
+		musicPublic.POST("/song-resources", r.musicHandler.GetSongResources)
+
+		// 获取高质量音频URL: GET /api/public/music/high-quality-url
+		musicPublic.GET("/high-quality-url", r.musicHandler.GetHighQualityMusicUrl)
+
+		// 获取高质量歌词: GET /api/public/music/high-quality-lyrics
+		musicPublic.GET("/high-quality-lyrics", r.musicHandler.GetHighQualityLyrics)
+
+		// 获取歌词: GET /api/public/music/lyrics
+		musicPublic.GET("/lyrics", r.musicHandler.GetLyrics)
+
+		// 获取音乐配置: GET /api/public/music/config
+		musicPublic.GET("/config", r.musicHandler.GetMusicConfig)
+
+		// 健康检查: GET /api/public/music/health
+		musicPublic.GET("/health", r.musicHandler.HealthCheck)
 	}
 }
 
