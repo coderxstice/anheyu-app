@@ -223,7 +223,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyAboutPageSkillsTips, Value: `{"tips":"技能","title":"开启创造力"}`, Comment: "技能信息提示配置 (JSON格式)", IsPublic: true},
 
 	// --- 音乐播放器配置 ---
-	{Key: constant.KeyMusicPlayerEnable, Value: "true", Comment: "是否启用音乐播放器功能 (true/false)", IsPublic: true},
+	{Key: constant.KeyMusicPlayerEnable, Value: "false", Comment: "是否启用音乐播放器功能 (true/false)", IsPublic: true},
 	{Key: constant.KeyMusicPlayerPlaylistID, Value: "8152976493", Comment: "音乐播放器播放列表ID (网易云歌单ID)", IsPublic: true},
 }
 
