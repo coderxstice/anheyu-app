@@ -104,7 +104,7 @@ func tryServeStaticFile(c *gin.Context, filePath string, staticMode bool, distFS
 		overrideDir := "static"
 		fullPath := filepath.Join(overrideDir, filePath)
 		if _, err := os.Stat(fullPath); err == nil {
-			log.Printf("提供外部静态文件: %s", fullPath)
+			// log.Printf("提供外部静态文件: %s", fullPath)
 			c.File(fullPath)
 			return true
 		} else {
@@ -115,7 +115,7 @@ func tryServeStaticFile(c *gin.Context, filePath string, staticMode bool, distFS
 		if file, err := distFS.Open(filePath); err == nil {
 			defer file.Close()
 			if stat, err := file.Stat(); err == nil && !stat.IsDir() {
-				log.Printf("提供内嵌静态文件: %s", filePath)
+				// log.Printf("提供内嵌静态文件: %s", filePath)
 				http.ServeFileFS(c.Writer, c.Request, distFS, filePath)
 				return true
 			}
