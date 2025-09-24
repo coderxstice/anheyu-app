@@ -361,13 +361,13 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 		// 如果是静态文件请求但找不到文件，返回404
 		if filePath != "" && isStaticFileRequest(filePath) {
 			log.Printf("静态文件请求未找到: %s", filePath)
-			c.JSON(http.StatusNotFound, gin.H{"error": "File not found"})
+			response.Fail(c, http.StatusNotFound, "文件未找到")
 			return
 		}
 
 		// 其他未知请求，返回404
 		log.Printf("未知请求: %s", path)
-		c.JSON(http.StatusNotFound, gin.H{"error": "Page not found"})
+		response.Fail(c, http.StatusNotFound, "页面未找到")
 	})
 
 	log.Println("动态前端路由系统配置完成")
@@ -382,7 +382,13 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 	if isPostDetail {
 		slug := strings.TrimPrefix(c.Request.URL.Path, "/posts/")
 		articleResponse, err := articleSvc.GetPublicBySlugOrID(c.Request.Context(), slug)
-		if err == nil && articleResponse != nil {
+		if err != nil {
+			// 文章不存在或已删除，返回404
+			log.Printf("文章未找到或已删除: %s, 错误: %v", slug, err)
+			response.Fail(c, http.StatusNotFound, "文章未找到")
+			return
+		}
+		if articleResponse != nil {
 			// 🎯 ：生成文章内容ETag（基于更新时间和内容）
 			contentForETag := struct {
 				UpdatedAt   time.Time `json:"updated_at"`
