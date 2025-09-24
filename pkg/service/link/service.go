@@ -4,10 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/anzhiyu-c/anheyu-app/internal/app/task"
+	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 )
 
 // Service 定义了友链相关的业务逻辑接口。
@@ -43,6 +46,8 @@ type service struct {
 	broker *task.Broker
 	// 保留事务管理器以备将来使用
 	txManager repository.TransactionManager
+	// 用于获取系统配置
+	settingSvc setting.SettingService
 }
 
 // NewService 是 service 的构造函数，注入所有依赖。
@@ -52,6 +57,7 @@ func NewService(
 	linkTagRepo repository.LinkTagRepository,
 	txManager repository.TransactionManager,
 	broker *task.Broker,
+	settingSvc setting.SettingService,
 ) Service {
 	return &service{
 		linkRepo:         linkRepo,
@@ -59,6 +65,7 @@ func NewService(
 		linkTagRepo:      linkTagRepo,
 		txManager:        txManager,
 		broker:           broker,
+		settingSvc:       settingSvc,
 	}
 }
 
@@ -90,8 +97,17 @@ func (s *service) GetRandomLinks(ctx context.Context, num int) ([]*model.LinkDTO
 
 // ApplyLink 处理前台友链申请。
 func (s *service) ApplyLink(ctx context.Context, req *model.ApplyLinkRequest) (*model.LinkDTO, error) {
+	// 从配置中获取默认分类ID
+	defaultCategoryIDStr := s.settingSvc.Get(constant.KeyFriendLinkDefaultCategory.String())
+	defaultCategoryID := 2 // 默认值，如果配置获取失败
+	if defaultCategoryIDStr != "" {
+		if id, err := strconv.Atoi(defaultCategoryIDStr); err == nil && id > 0 {
+			defaultCategoryID = id
+		}
+	}
+
 	// 获取默认分类信息，用于验证样式要求
-	defaultCategory, err := s.linkCategoryRepo.GetByID(ctx, 1) // 默认分类ID为1
+	defaultCategory, err := s.linkCategoryRepo.GetByID(ctx, defaultCategoryID)
 	if err != nil {
 		return nil, fmt.Errorf("获取默认分类失败: %w", err)
 	}
@@ -101,7 +117,6 @@ func (s *service) ApplyLink(ctx context.Context, req *model.ApplyLinkRequest) (*
 		return nil, errors.New("卡片样式的友链申请时必须提供网站快照(siteshot)")
 	}
 
-	const defaultCategoryID = 1 // 业务逻辑：暂时将所有申请归类到 ID 1
 	return s.linkRepo.Create(ctx, req, defaultCategoryID)
 }
 
