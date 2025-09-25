@@ -74,12 +74,12 @@ type MusicService interface {
 	FetchPlaylist(ctx context.Context) ([]Song, error)
 	// 获取歌曲资源（音频和歌词）
 	FetchSongResources(ctx context.Context, song Song) (SongResourceResponse, error)
-	// 获取高质量音频URL
-	FetchHighQualityMusicUrl(ctx context.Context, neteaseID string) (string, error)
-	// 获取高质量歌词
-	FetchHighQualityLyrics(ctx context.Context, neteaseID string) (string, error)
-	// 获取歌词
-	FetchLyrics(ctx context.Context, lrcUrl string) (string, error)
+	// 获取高质量音频URL（内部使用）
+	fetchHighQualityMusicUrl(ctx context.Context, neteaseID string) (string, error)
+	// 获取高质量歌词（内部使用）
+	fetchHighQualityLyrics(ctx context.Context, neteaseID string) (string, error)
+	// 获取歌词（内部使用）
+	fetchLyrics(ctx context.Context, lrcUrl string) (string, error)
 }
 
 // musicService 音乐服务实现
@@ -521,7 +521,89 @@ func (s *musicService) extractIDFromURL(url string) string {
 }
 
 // FetchHighQualityMusicUrl 获取高质量音频URL
-func (s *musicService) FetchHighQualityMusicUrl(ctx context.Context, neteaseID string) (string, error) {
+
+// FetchSongResources 获取歌曲的完整资源
+func (s *musicService) FetchSongResources(ctx context.Context, song Song) (SongResourceResponse, error) {
+	log.Printf("[MUSIC_API] 开始获取歌曲资源 - 歌曲: %s, 艺术家: %s", song.Name, song.Artist)
+	log.Printf("[MUSIC_API] 歌曲详细信息 - ID: %s, NeteaseID: %s, URL: %s, Pic: %s, Lrc: %s",
+		song.ID, song.NeteaseID, song.URL, song.Pic, song.Lrc)
+
+	result := SongResourceResponse{
+		AudioURL:         song.URL, // 默认使用原始URL
+		LyricsText:       "",
+		UsingHighQuality: false,
+	}
+
+	// 如果有网易云ID，尝试获取高质量资源
+	if song.NeteaseID != "" && s.isHighQualityApiEnabled {
+		// 先验证ID格式
+		if !s.isValidNeteaseID(song.NeteaseID) {
+			log.Printf("[MUSIC_API] 歌曲包含无效的网易云音乐ID，跳过高质量资源获取 - ID: %s, 歌曲: %s", song.NeteaseID, song.Name)
+		} else {
+			log.Printf("[MUSIC_API] 尝试获取高质量资源 - 网易云ID: %s", song.NeteaseID)
+
+			// 尝试获取高质量音频
+			if highQualityURL, err := s.fetchHighQualityMusicUrl(ctx, song.NeteaseID); err == nil && highQualityURL != "" {
+				result.AudioURL = highQualityURL
+				result.UsingHighQuality = true
+				log.Printf("[MUSIC_API] 使用高质量音频URL")
+
+				// 音频成功后尝试获取高质量歌词
+				if highQualityLyrics, err := s.fetchHighQualityLyrics(ctx, song.NeteaseID); err == nil && highQualityLyrics != "" {
+					result.LyricsText = highQualityLyrics
+					log.Printf("[MUSIC_API] 使用高质量歌词")
+				}
+			}
+		}
+	}
+
+	// 如果还没有歌词，尝试获取原始歌词
+	if result.LyricsText == "" && song.Lrc != "" {
+		log.Printf("[MUSIC_API] 尝试获取原始歌词")
+		if originalLyrics, err := s.fetchLyrics(ctx, song.Lrc); err == nil && originalLyrics != "" {
+			result.LyricsText = originalLyrics
+			log.Printf("[MUSIC_API] 使用原始歌词")
+		}
+	}
+
+	log.Printf("[MUSIC_API] 歌曲资源获取完成 - 高质量: %v, 有歌词: %v",
+		result.UsingHighQuality, result.LyricsText != "")
+
+	return result, nil
+}
+
+// disableHighQualityApi 禁用高质量API
+func (s *musicService) disableHighQualityApi(reason string) {
+	if s.isHighQualityApiEnabled {
+		s.isHighQualityApiEnabled = false
+		log.Printf("[MUSIC_API] 禁用高质量API - 原因: %s", reason)
+	}
+}
+
+// isValidLRCFormat 验证LRC格式
+func (s *musicService) isValidLRCFormat(lrcText string) bool {
+	if lrcText == "" {
+		return false
+	}
+
+	// 检查是否包含LRC时间标签
+	lrcPattern := regexp.MustCompile(`\[\d{1,2}:\d{2}[\.:]?\d{0,3}\]`)
+	return lrcPattern.MatchString(lrcText)
+}
+
+// isValidNeteaseID 验证网易云音乐ID格式是否有效
+func (s *musicService) isValidNeteaseID(neteaseID string) bool {
+	if neteaseID == "" {
+		return false
+	}
+
+	// 网易云音乐ID应该是纯数字格式，长度通常在6-12位
+	neteaseIDPattern := regexp.MustCompile(`^\d{6,12}$`)
+	return neteaseIDPattern.MatchString(neteaseID)
+}
+
+// fetchHighQualityMusicUrl 获取高质量音频URL（内部方法）
+func (s *musicService) fetchHighQualityMusicUrl(ctx context.Context, neteaseID string) (string, error) {
 	if !s.isHighQualityApiEnabled {
 		log.Printf("[MUSIC_API] 高质量API已禁用，跳过获取高质量音频")
 		return "", nil
@@ -621,8 +703,8 @@ func (s *musicService) FetchHighQualityMusicUrl(ctx context.Context, neteaseID s
 	return "", nil
 }
 
-// FetchHighQualityLyrics 获取高质量歌词
-func (s *musicService) FetchHighQualityLyrics(ctx context.Context, neteaseID string) (string, error) {
+// fetchHighQualityLyrics 获取高质量歌词（内部方法）
+func (s *musicService) fetchHighQualityLyrics(ctx context.Context, neteaseID string) (string, error) {
 	if !s.isHighQualityApiEnabled {
 		log.Printf("[MUSIC_API] 高质量API已禁用，跳过获取高质量歌词")
 		return "", nil
@@ -722,8 +804,8 @@ func (s *musicService) FetchHighQualityLyrics(ctx context.Context, neteaseID str
 	return "", nil
 }
 
-// FetchLyrics 获取原始歌词
-func (s *musicService) FetchLyrics(ctx context.Context, lrcUrl string) (string, error) {
+// fetchLyrics 获取原始歌词（内部方法）
+func (s *musicService) fetchLyrics(ctx context.Context, lrcUrl string) (string, error) {
 	if lrcUrl == "" {
 		return "", nil
 	}
@@ -774,86 +856,6 @@ func (s *musicService) FetchLyrics(ctx context.Context, lrcUrl string) (string, 
 
 	log.Printf("[MUSIC_API] 成功获取原始歌词 - 长度: %d", len(lrcText))
 	return lrcText, nil
-}
-
-// FetchSongResources 获取歌曲的完整资源
-func (s *musicService) FetchSongResources(ctx context.Context, song Song) (SongResourceResponse, error) {
-	log.Printf("[MUSIC_API] 开始获取歌曲资源 - 歌曲: %s, 艺术家: %s", song.Name, song.Artist)
-	log.Printf("[MUSIC_API] 歌曲详细信息 - ID: %s, NeteaseID: %s, URL: %s, Pic: %s, Lrc: %s",
-		song.ID, song.NeteaseID, song.URL, song.Pic, song.Lrc)
-
-	result := SongResourceResponse{
-		AudioURL:         song.URL, // 默认使用原始URL
-		LyricsText:       "",
-		UsingHighQuality: false,
-	}
-
-	// 如果有网易云ID，尝试获取高质量资源
-	if song.NeteaseID != "" && s.isHighQualityApiEnabled {
-		// 先验证ID格式
-		if !s.isValidNeteaseID(song.NeteaseID) {
-			log.Printf("[MUSIC_API] 歌曲包含无效的网易云音乐ID，跳过高质量资源获取 - ID: %s, 歌曲: %s", song.NeteaseID, song.Name)
-		} else {
-			log.Printf("[MUSIC_API] 尝试获取高质量资源 - 网易云ID: %s", song.NeteaseID)
-
-			// 尝试获取高质量音频
-			if highQualityURL, err := s.FetchHighQualityMusicUrl(ctx, song.NeteaseID); err == nil && highQualityURL != "" {
-				result.AudioURL = highQualityURL
-				result.UsingHighQuality = true
-				log.Printf("[MUSIC_API] 使用高质量音频URL")
-
-				// 音频成功后尝试获取高质量歌词
-				if highQualityLyrics, err := s.FetchHighQualityLyrics(ctx, song.NeteaseID); err == nil && highQualityLyrics != "" {
-					result.LyricsText = highQualityLyrics
-					log.Printf("[MUSIC_API] 使用高质量歌词")
-				}
-			}
-		}
-	}
-
-	// 如果还没有歌词，尝试获取原始歌词
-	if result.LyricsText == "" && song.Lrc != "" {
-		log.Printf("[MUSIC_API] 尝试获取原始歌词")
-		if originalLyrics, err := s.FetchLyrics(ctx, song.Lrc); err == nil && originalLyrics != "" {
-			result.LyricsText = originalLyrics
-			log.Printf("[MUSIC_API] 使用原始歌词")
-		}
-	}
-
-	log.Printf("[MUSIC_API] 歌曲资源获取完成 - 高质量: %v, 有歌词: %v",
-		result.UsingHighQuality, result.LyricsText != "")
-
-	return result, nil
-}
-
-// disableHighQualityApi 禁用高质量API
-func (s *musicService) disableHighQualityApi(reason string) {
-	if s.isHighQualityApiEnabled {
-		s.isHighQualityApiEnabled = false
-		log.Printf("[MUSIC_API] 禁用高质量API - 原因: %s", reason)
-	}
-}
-
-// isValidLRCFormat 验证LRC格式
-func (s *musicService) isValidLRCFormat(lrcText string) bool {
-	if lrcText == "" {
-		return false
-	}
-
-	// 检查是否包含LRC时间标签
-	lrcPattern := regexp.MustCompile(`\[\d{1,2}:\d{2}[\.:]?\d{0,3}\]`)
-	return lrcPattern.MatchString(lrcText)
-}
-
-// isValidNeteaseID 验证网易云音乐ID格式是否有效
-func (s *musicService) isValidNeteaseID(neteaseID string) bool {
-	if neteaseID == "" {
-		return false
-	}
-
-	// 网易云音乐ID应该是纯数字格式，长度通常在6-12位
-	neteaseIDPattern := regexp.MustCompile(`^\d{6,12}$`)
-	return neteaseIDPattern.MatchString(neteaseID)
 }
 
 // getString 安全地获取字符串值
