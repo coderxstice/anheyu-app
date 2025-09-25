@@ -556,8 +556,12 @@ func (s *musicService) FetchSongResources(ctx context.Context, song Song) (SongR
 	}
 
 	if audioURL == "" {
-		log.Printf("[MUSIC_API] 高质量音频URL为空 - 网易云ID: %s", song.NeteaseID)
-		return SongResourceResponse{}, fmt.Errorf("高质量音频URL为空，网易云ID: %s", song.NeteaseID)
+		log.Printf("[MUSIC_API] 高质量音频URL为空，允许前端降级使用基础资源 - 网易云ID: %s", song.NeteaseID)
+		// 不抛出错误，返回空的响应，让前端自动降级到基础资源
+		return SongResourceResponse{
+			AudioURL:   "",
+			LyricsText: "",
+		}, nil
 	}
 
 	log.Printf("[MUSIC_API] 成功获取高质量音频URL - 网易云ID: %s", song.NeteaseID)
@@ -668,9 +672,15 @@ func (s *musicService) fetchHighQualityMusicUrl(ctx context.Context, neteaseID s
 	duration := time.Since(startTime)
 	s.logResponse(s.highQualityMusicAPI, resp.StatusCode, responseBody, duration)
 
+	// 验证响应格式
+	if err := s.validateJSONResponse(resp, responseBody, "高质量音频"); err != nil {
+		return "", err
+	}
+
 	// 解析响应
 	var apiResponse MusicApiResponse
 	if err := json.Unmarshal(responseBody, &apiResponse); err != nil {
+		log.Printf("[MUSIC_API] JSON解析失败，响应内容: %s", string(responseBody))
 		s.logError("解析高质量音频JSON", s.highQualityMusicAPI, err)
 		return "", fmt.Errorf("解析高质量音频JSON失败: %w", err)
 	}
@@ -762,9 +772,15 @@ func (s *musicService) fetchHighQualityLyrics(ctx context.Context, neteaseID str
 	duration := time.Since(startTime)
 	s.logResponse(s.highQualityLyricAPI, resp.StatusCode, responseBody, duration)
 
+	// 验证响应格式
+	if err := s.validateJSONResponse(resp, responseBody, "高质量歌词"); err != nil {
+		return "", err
+	}
+
 	// 解析响应
 	var apiResponse LyricApiResponse
 	if err := json.Unmarshal(responseBody, &apiResponse); err != nil {
+		log.Printf("[MUSIC_API] JSON解析失败，响应内容: %s", string(responseBody))
 		s.logError("解析高质量歌词JSON", s.highQualityLyricAPI, err)
 		return "", fmt.Errorf("解析高质量歌词JSON失败: %w", err)
 	}
@@ -1051,6 +1067,47 @@ func (s *musicService) constructHighQualityURL(originalURL string) string {
 	// 对于meting API URL，我们不尝试构造，因为没有真实的hash值
 	// 返回空字符串，让前端处理默认图片
 	return ""
+}
+
+// validateJSONResponse 验证HTTP响应是否为有效的JSON格式
+func (s *musicService) validateJSONResponse(resp *http.Response, responseBody []byte, apiName string) error {
+	// 检查响应状态码
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("[MUSIC_API] %s API返回错误状态码: %d", apiName, resp.StatusCode)
+		log.Printf("[MUSIC_API] 响应内容: %s", string(responseBody))
+		return fmt.Errorf("%s API返回错误状态码: %d", apiName, resp.StatusCode)
+	}
+
+	// 检查Content-Type是否为JSON
+	contentType := resp.Header.Get("Content-Type")
+	if contentType != "" && !strings.Contains(strings.ToLower(contentType), "application/json") {
+		log.Printf("[MUSIC_API] %s 响应Content-Type不是JSON: %s", apiName, contentType)
+		log.Printf("[MUSIC_API] 响应内容预览: %.200s", string(responseBody))
+		return fmt.Errorf("%s API返回非JSON响应，Content-Type: %s", apiName, contentType)
+	}
+
+	// 验证响应是否为有效的JSON格式
+	responseStr := strings.TrimSpace(string(responseBody))
+	if len(responseStr) == 0 {
+		log.Printf("[MUSIC_API] %s API返回空响应", apiName)
+		return fmt.Errorf("%s API返回空响应", apiName)
+	}
+
+	// 检查响应是否以JSON开始符号开头
+	if !strings.HasPrefix(responseStr, "{") && !strings.HasPrefix(responseStr, "[") {
+		log.Printf("[MUSIC_API] %s 响应不是有效的JSON格式，开始字符: %c", apiName, responseStr[0])
+		log.Printf("[MUSIC_API] 响应内容预览: %.300s", responseStr)
+
+		// 检查是否是HTML错误页面
+		if strings.HasPrefix(responseStr, "<") {
+			log.Printf("[MUSIC_API] 疑似收到HTML错误页面而非JSON响应")
+			return fmt.Errorf("%s API返回HTML页面而非JSON数据，可能是服务器错误或API地址变更", apiName)
+		}
+
+		return fmt.Errorf("%s API返回无效的JSON格式", apiName)
+	}
+
+	return nil
 }
 
 // getString 安全地获取字符串值
