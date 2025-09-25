@@ -15,6 +15,8 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
@@ -63,9 +65,8 @@ type LyricApiResponse struct {
 
 // SongResourceResponse 歌曲资源响应结构
 type SongResourceResponse struct {
-	AudioURL         string `json:"audioUrl"`
-	LyricsText       string `json:"lyricsText"`
-	UsingHighQuality bool   `json:"usingHighQuality"`
+	AudioURL   string `json:"audioUrl"`
+	LyricsText string `json:"lyricsText"`
 }
 
 // MusicService 定义音乐服务接口
@@ -74,12 +75,14 @@ type MusicService interface {
 	FetchPlaylist(ctx context.Context) ([]Song, error)
 	// 获取歌曲资源（音频和歌词）
 	FetchSongResources(ctx context.Context, song Song) (SongResourceResponse, error)
-	// 获取高质量音频URL
-	FetchHighQualityMusicUrl(ctx context.Context, neteaseID string) (string, error)
-	// 获取高质量歌词
-	FetchHighQualityLyrics(ctx context.Context, neteaseID string) (string, error)
-	// 获取歌词
-	FetchLyrics(ctx context.Context, lrcUrl string) (string, error)
+	// 获取高质量音频URL（内部使用）
+	fetchHighQualityMusicUrl(ctx context.Context, neteaseID string) (string, error)
+	// 获取高质量歌词（内部使用）
+	fetchHighQualityLyrics(ctx context.Context, neteaseID string) (string, error)
+	// 获取歌词（内部使用）
+	fetchLyrics(ctx context.Context, lrcUrl string) (string, error)
+	// 优化图片URL尺寸（内部使用）
+	optimizePicUrl(ctx context.Context, originalPicUrl string) (string, error)
 }
 
 // musicService 音乐服务实现
@@ -89,18 +92,21 @@ type musicService struct {
 	// API URLs
 	highQualityMusicAPI string
 	highQualityLyricAPI string
-	// 状态控制
-	isHighQualityApiEnabled bool
+	// 图片URL缓存，key: 原始URL, value: 优化后的URL
+	picUrlCache sync.Map
+	// 并发控制
+	concurrencyLimit int
 }
 
 // NewMusicService 创建新的音乐服务
 func NewMusicService(settingSvc setting.SettingService) MusicService {
 	return &musicService{
-		settingSvc:              settingSvc,
-		httpClient:              &http.Client{Timeout: 15 * time.Second},
-		highQualityMusicAPI:     "https://wyapi.toubiec.cn/api/music/url",
-		highQualityLyricAPI:     "https://wyapi.toubiec.cn/api/music/lyric",
-		isHighQualityApiEnabled: true,
+		settingSvc:          settingSvc,
+		httpClient:          &http.Client{Timeout: 15 * time.Second},
+		highQualityMusicAPI: "https://wyapi.toubiec.cn/api/music/url",
+		highQualityLyricAPI: "https://wyapi.toubiec.cn/api/music/lyric",
+		picUrlCache:         sync.Map{},
+		concurrencyLimit:    20, // 限制并发数量为20
 	}
 }
 
@@ -452,7 +458,7 @@ func (s *musicService) FetchPlaylist(ctx context.Context) ([]Song, error) {
 		return nil, fmt.Errorf("解析播放列表JSON失败: %w", err)
 	}
 
-	// 验证和转换数据
+	// 验证和转换数据 - 第一步：收集所有有效歌曲的基本信息
 	var songs []Song
 	validCount := 0
 
@@ -471,7 +477,7 @@ func (s *musicService) FetchPlaylist(ctx context.Context) ([]Song, error) {
 			Name:      getString(item["name"]),
 			Artist:    getString(item["artist"]),
 			URL:       getString(item["url"]),
-			Pic:       getString(item["pic"]),
+			Pic:       getString(item["pic"]), // 先使用原始URL
 			Lrc:       getString(item["lrc"]),
 		}
 
@@ -479,7 +485,15 @@ func (s *musicService) FetchPlaylist(ctx context.Context) ([]Song, error) {
 		validCount++
 	}
 
-	log.Printf("[MUSIC_API] 播放列表解析完成 - 总数: %d, 有效: %d", len(data), validCount)
+	log.Printf("[MUSIC_API] 基本数据解析完成 - 总数: %d, 有效: %d", len(data), validCount)
+
+	// 第二步：快速并发优化图片URL（带时间限制）
+	if len(songs) > 0 {
+		log.Printf("[MUSIC_API] 开始快速优化 %d 个图片URL", len(songs))
+		optimized := s.optimizePicUrlsWithTimeout(ctx, songs, 500*time.Millisecond)
+		log.Printf("[MUSIC_API] 图片URL优化完成 - 成功优化: %d/%d", optimized, len(songs))
+	}
+
 	return songs, nil
 }
 
@@ -520,12 +534,79 @@ func (s *musicService) extractIDFromURL(url string) string {
 	return ""
 }
 
-// FetchHighQualityMusicUrl 获取高质量音频URL
-func (s *musicService) FetchHighQualityMusicUrl(ctx context.Context, neteaseID string) (string, error) {
-	if !s.isHighQualityApiEnabled {
-		log.Printf("[MUSIC_API] 高质量API已禁用，跳过获取高质量音频")
-		return "", nil
+// FetchSongResources 获取歌曲的高质量资源
+func (s *musicService) FetchSongResources(ctx context.Context, song Song) (SongResourceResponse, error) {
+	log.Printf("[MUSIC_API] 开始获取高质量歌曲资源 - 网易云ID: %s", song.NeteaseID)
+
+	// 验证网易云ID
+	if song.NeteaseID == "" {
+		return SongResourceResponse{}, fmt.Errorf("网易云音乐ID不能为空")
 	}
+
+	if !s.isValidNeteaseID(song.NeteaseID) {
+		return SongResourceResponse{}, fmt.Errorf("网易云音乐ID格式无效: %s", song.NeteaseID)
+	}
+
+	// 获取高质量音频 - 必须成功
+	log.Printf("[MUSIC_API] 获取高质量音频 - 网易云ID: %s", song.NeteaseID)
+	audioURL, err := s.fetchHighQualityMusicUrl(ctx, song.NeteaseID)
+	if err != nil {
+		log.Printf("[MUSIC_API] 高质量音频获取失败 - 网易云ID: %s, 错误: %v", song.NeteaseID, err)
+		return SongResourceResponse{}, fmt.Errorf("高质量音频获取失败: %w", err)
+	}
+
+	if audioURL == "" {
+		log.Printf("[MUSIC_API] 高质量音频URL为空 - 网易云ID: %s", song.NeteaseID)
+		return SongResourceResponse{}, fmt.Errorf("高质量音频URL为空，网易云ID: %s", song.NeteaseID)
+	}
+
+	log.Printf("[MUSIC_API] 成功获取高质量音频URL - 网易云ID: %s", song.NeteaseID)
+
+	// 获取高质量歌词 - 可选，失败不影响整体结果
+	var lyricsText string
+	log.Printf("[MUSIC_API] 获取高质量歌词 - 网易云ID: %s", song.NeteaseID)
+	if lyrics, err := s.fetchHighQualityLyrics(ctx, song.NeteaseID); err == nil && lyrics != "" {
+		lyricsText = lyrics
+		log.Printf("[MUSIC_API] 成功获取高质量歌词 - 网易云ID: %s", song.NeteaseID)
+	} else {
+		log.Printf("[MUSIC_API] 高质量歌词获取失败，但不影响音频 - 网易云ID: %s, 错误: %v", song.NeteaseID, err)
+	}
+
+	result := SongResourceResponse{
+		AudioURL:   audioURL,
+		LyricsText: lyricsText,
+	}
+
+	log.Printf("[MUSIC_API] 高质量资源获取完成 - 网易云ID: %s, 有歌词: %v",
+		song.NeteaseID, lyricsText != "")
+
+	return result, nil
+}
+
+// isValidLRCFormat 验证LRC格式
+func (s *musicService) isValidLRCFormat(lrcText string) bool {
+	if lrcText == "" {
+		return false
+	}
+
+	// 检查是否包含LRC时间标签
+	lrcPattern := regexp.MustCompile(`\[\d{1,2}:\d{2}[\.:]?\d{0,3}\]`)
+	return lrcPattern.MatchString(lrcText)
+}
+
+// isValidNeteaseID 验证网易云音乐ID格式是否有效
+func (s *musicService) isValidNeteaseID(neteaseID string) bool {
+	if neteaseID == "" {
+		return false
+	}
+
+	// 网易云音乐ID应该是纯数字格式，长度通常在6-12位
+	neteaseIDPattern := regexp.MustCompile(`^\d{6,12}$`)
+	return neteaseIDPattern.MatchString(neteaseID)
+}
+
+// fetchHighQualityMusicUrl 获取高质量音频URL（内部方法）
+func (s *musicService) fetchHighQualityMusicUrl(ctx context.Context, neteaseID string) (string, error) {
 
 	if neteaseID == "" {
 		log.Printf("[MUSIC_API] 网易云音乐ID为空，无法获取高质量音频")
@@ -573,9 +654,7 @@ func (s *musicService) FetchHighQualityMusicUrl(ctx context.Context, neteaseID s
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
 		s.logError("获取高质量音频", s.highQualityMusicAPI, err)
-		// 禁用高质量API
-		s.disableHighQualityApi("高质量音频请求失败")
-		return "", nil // 返回nil而不是错误，允许降级到原始API
+		return "", fmt.Errorf("高质量音频请求失败: %w", err)
 	}
 	defer resp.Body.Close()
 
@@ -621,12 +700,8 @@ func (s *musicService) FetchHighQualityMusicUrl(ctx context.Context, neteaseID s
 	return "", nil
 }
 
-// FetchHighQualityLyrics 获取高质量歌词
-func (s *musicService) FetchHighQualityLyrics(ctx context.Context, neteaseID string) (string, error) {
-	if !s.isHighQualityApiEnabled {
-		log.Printf("[MUSIC_API] 高质量API已禁用，跳过获取高质量歌词")
-		return "", nil
-	}
+// fetchHighQualityLyrics 获取高质量歌词（内部方法）
+func (s *musicService) fetchHighQualityLyrics(ctx context.Context, neteaseID string) (string, error) {
 
 	if neteaseID == "" {
 		log.Printf("[MUSIC_API] 网易云音乐ID为空，无法获取高质量歌词")
@@ -673,9 +748,7 @@ func (s *musicService) FetchHighQualityLyrics(ctx context.Context, neteaseID str
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
 		s.logError("获取高质量歌词", s.highQualityLyricAPI, err)
-		// 禁用高质量API
-		s.disableHighQualityApi("高质量歌词请求失败")
-		return "", nil // 返回nil而不是错误，允许降级到原始API
+		return "", fmt.Errorf("高质量歌词请求失败: %w", err)
 	}
 	defer resp.Body.Close()
 
@@ -722,8 +795,8 @@ func (s *musicService) FetchHighQualityLyrics(ctx context.Context, neteaseID str
 	return "", nil
 }
 
-// FetchLyrics 获取原始歌词
-func (s *musicService) FetchLyrics(ctx context.Context, lrcUrl string) (string, error) {
+// fetchLyrics 获取原始歌词（内部方法）
+func (s *musicService) fetchLyrics(ctx context.Context, lrcUrl string) (string, error) {
 	if lrcUrl == "" {
 		return "", nil
 	}
@@ -776,84 +849,208 @@ func (s *musicService) FetchLyrics(ctx context.Context, lrcUrl string) (string, 
 	return lrcText, nil
 }
 
-// FetchSongResources 获取歌曲的完整资源
-func (s *musicService) FetchSongResources(ctx context.Context, song Song) (SongResourceResponse, error) {
-	log.Printf("[MUSIC_API] 开始获取歌曲资源 - 歌曲: %s, 艺术家: %s", song.Name, song.Artist)
-	log.Printf("[MUSIC_API] 歌曲详细信息 - ID: %s, NeteaseID: %s, URL: %s, Pic: %s, Lrc: %s",
-		song.ID, song.NeteaseID, song.URL, song.Pic, song.Lrc)
+// optimizePicUrlsWithTimeout 在指定时间内并发优化图片URL
+func (s *musicService) optimizePicUrlsWithTimeout(ctx context.Context, songs []Song, timeout time.Duration) int {
+	var wg sync.WaitGroup
+	var optimizedCount int32
 
-	result := SongResourceResponse{
-		AudioURL:         song.URL, // 默认使用原始URL
-		LyricsText:       "",
-		UsingHighQuality: false,
-	}
+	// 创建信号量控制并发数量
+	semaphore := make(chan struct{}, s.concurrencyLimit)
 
-	// 如果有网易云ID，尝试获取高质量资源
-	if song.NeteaseID != "" && s.isHighQualityApiEnabled {
-		// 先验证ID格式
-		if !s.isValidNeteaseID(song.NeteaseID) {
-			log.Printf("[MUSIC_API] 歌曲包含无效的网易云音乐ID，跳过高质量资源获取 - ID: %s, 歌曲: %s", song.NeteaseID, song.Name)
-		} else {
-			log.Printf("[MUSIC_API] 尝试获取高质量资源 - 网易云ID: %s", song.NeteaseID)
+	// 创建带超时的context
+	timeoutCtx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
 
-			// 尝试获取高质量音频
-			if highQualityURL, err := s.FetchHighQualityMusicUrl(ctx, song.NeteaseID); err == nil && highQualityURL != "" {
-				result.AudioURL = highQualityURL
-				result.UsingHighQuality = true
-				log.Printf("[MUSIC_API] 使用高质量音频URL")
+	optimizeStartTime := time.Now()
 
-				// 音频成功后尝试获取高质量歌词
-				if highQualityLyrics, err := s.FetchHighQualityLyrics(ctx, song.NeteaseID); err == nil && highQualityLyrics != "" {
-					result.LyricsText = highQualityLyrics
-					log.Printf("[MUSIC_API] 使用高质量歌词")
-				}
+	for i := range songs {
+		wg.Add(1)
+
+		go func(songIndex int) {
+			defer wg.Done()
+
+			// 检查是否已经超时
+			select {
+			case <-timeoutCtx.Done():
+				return
+			default:
 			}
+
+			// 获取信号量
+			select {
+			case semaphore <- struct{}{}:
+				defer func() { <-semaphore }()
+			case <-timeoutCtx.Done():
+				return
+			}
+
+			originalURL := songs[songIndex].Pic
+			optimizedURL, err := s.optimizePicUrl(timeoutCtx, originalURL)
+			if err != nil {
+				// 如果优化失败，尝试智能构造高质量URL
+				if smartURL := s.constructHighQualityURL(originalURL); smartURL != "" {
+					songs[songIndex].Pic = smartURL
+					atomic.AddInt32(&optimizedCount, 1)
+				} else {
+					// 如果都失败了，设置为空字符串，让前端处理默认图片
+					songs[songIndex].Pic = ""
+				}
+				return
+			}
+
+			// 更新歌曲的图片URL
+			songs[songIndex].Pic = optimizedURL
+
+			// 增加成功计数（原子操作）
+			atomic.AddInt32(&optimizedCount, 1)
+		}(i)
+	}
+
+	// 等待所有goroutine完成或超时
+	done := make(chan struct{})
+	go func() {
+		wg.Wait()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+		// 所有任务完成
+	case <-timeoutCtx.Done():
+		// 超时，但goroutine会自行结束
+		log.Printf("[MUSIC_API] 图片URL优化达到时间限制: %v", timeout)
+	}
+
+	totalDuration := time.Since(optimizeStartTime)
+	log.Printf("[MUSIC_API] 快速图片URL优化完成 - 耗时: %v", totalDuration)
+
+	return int(optimizedCount)
+}
+
+// optimizePicUrl 优化图片URL尺寸，将90y90升级为150y150（支持缓存）
+func (s *musicService) optimizePicUrl(ctx context.Context, originalPicUrl string) (string, error) {
+	if originalPicUrl == "" {
+		return "", nil
+	}
+
+	// 首先检查缓存
+	if cached, ok := s.picUrlCache.Load(originalPicUrl); ok {
+		if cachedURL, ok := cached.(string); ok {
+			return cachedURL, nil
 		}
 	}
 
-	// 如果还没有歌词，尝试获取原始歌词
-	if result.LyricsText == "" && song.Lrc != "" {
-		log.Printf("[MUSIC_API] 尝试获取原始歌词")
-		if originalLyrics, err := s.FetchLyrics(ctx, song.Lrc); err == nil && originalLyrics != "" {
-			result.LyricsText = originalLyrics
-			log.Printf("[MUSIC_API] 使用原始歌词")
+	// 检查是否是meting API的pic URL
+	if !strings.Contains(originalPicUrl, "meting.qjqq.cn") || !strings.Contains(originalPicUrl, "type=pic") {
+		// 如果不是meting API，尝试智能构造高质量URL
+		if smartURL := s.constructHighQualityURL(originalPicUrl); smartURL != "" {
+			s.picUrlCache.Store(originalPicUrl, smartURL)
+			return smartURL, nil
 		}
+		// 如果无法构造，返回错误而不是原始URL
+		return "", fmt.Errorf("无法处理非meting API的图片URL")
 	}
 
-	log.Printf("[MUSIC_API] 歌曲资源获取完成 - 高质量: %v, 有歌词: %v",
-		result.UsingHighQuality, result.LyricsText != "")
+	// 创建不跟随重定向的HTTP客户端
+	client := &http.Client{
+		Timeout: 3 * time.Second, // 快速超时
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			// 不跟随重定向，我们手动处理
+			return http.ErrUseLastResponse
+		},
+	}
 
-	return result, nil
+	// 发送HEAD请求获取重定向信息
+	req, err := http.NewRequestWithContext(ctx, "HEAD", originalPicUrl, nil)
+	if err != nil {
+		// 尝试智能构造高质量URL
+		if smartURL := s.constructHighQualityURL(originalPicUrl); smartURL != "" {
+			s.picUrlCache.Store(originalPicUrl, smartURL)
+			return smartURL, nil
+		}
+		return "", err
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		// 尝试智能构造高质量URL
+		if smartURL := s.constructHighQualityURL(originalPicUrl); smartURL != "" {
+			s.picUrlCache.Store(originalPicUrl, smartURL)
+			return smartURL, nil
+		}
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	// 检查是否是重定向状态码
+	if resp.StatusCode != http.StatusFound && resp.StatusCode != http.StatusMovedPermanently {
+		// 尝试智能构造高质量URL
+		if smartURL := s.constructHighQualityURL(originalPicUrl); smartURL != "" {
+			s.picUrlCache.Store(originalPicUrl, smartURL)
+			return smartURL, nil
+		}
+		return "", fmt.Errorf("图片URL未返回重定向，状态码: %d", resp.StatusCode)
+	}
+
+	// 获取重定向的Location
+	redirectURL := resp.Header.Get("Location")
+	if redirectURL == "" {
+		// 尝试智能构造高质量URL
+		if smartURL := s.constructHighQualityURL(originalPicUrl); smartURL != "" {
+			s.picUrlCache.Store(originalPicUrl, smartURL)
+			return smartURL, nil
+		}
+		return "", fmt.Errorf("重定向响应中没有Location头")
+	}
+
+	// 优化图片尺寸参数
+	optimizedURL := s.upgradePicSize(redirectURL)
+
+	// 缓存优化结果
+	s.picUrlCache.Store(originalPicUrl, optimizedURL)
+
+	return optimizedURL, nil
 }
 
-// disableHighQualityApi 禁用高质量API
-func (s *musicService) disableHighQualityApi(reason string) {
-	if s.isHighQualityApiEnabled {
-		s.isHighQualityApiEnabled = false
-		log.Printf("[MUSIC_API] 禁用高质量API - 原因: %s", reason)
+// upgradePicSize 将图片URL中的尺寸参数从90y90升级为150y150
+func (s *musicService) upgradePicSize(picURL string) string {
+	// 网易云音乐图片URL格式：https://p3.music.126.net/xxx/xxx.jpg?param=90y90
+
+	// 使用正则表达式匹配并替换param参数
+	// 匹配 param=数字y数字 的模式
+	paramPattern := regexp.MustCompile(`(\?|&)param=\d+y\d+`)
+
+	if paramPattern.MatchString(picURL) {
+		// 替换为150y150
+		optimizedURL := paramPattern.ReplaceAllString(picURL, "${1}param=150y150")
+		log.Printf("[MUSIC_API] 图片尺寸参数已优化: %s -> %s", picURL, optimizedURL)
+		return optimizedURL
+	}
+
+	// 如果URL中没有param参数，尝试添加
+	if strings.Contains(picURL, "?") {
+		// 已有其他参数，追加param
+		return picURL + "&param=150y150"
+	} else {
+		// 没有参数，添加param
+		return picURL + "?param=150y150"
 	}
 }
 
-// isValidLRCFormat 验证LRC格式
-func (s *musicService) isValidLRCFormat(lrcText string) bool {
-	if lrcText == "" {
-		return false
+// constructHighQualityURL 智能构造高质量图片URL
+func (s *musicService) constructHighQualityURL(originalURL string) string {
+	if originalURL == "" {
+		return ""
 	}
 
-	// 检查是否包含LRC时间标签
-	lrcPattern := regexp.MustCompile(`\[\d{1,2}:\d{2}[\.:]?\d{0,3}\]`)
-	return lrcPattern.MatchString(lrcText)
-}
-
-// isValidNeteaseID 验证网易云音乐ID格式是否有效
-func (s *musicService) isValidNeteaseID(neteaseID string) bool {
-	if neteaseID == "" {
-		return false
+	// 如果已经是网易云音乐的URL，直接升级参数
+	if strings.Contains(originalURL, "p3.music.126.net") || strings.Contains(originalURL, "music.163.com") {
+		return s.upgradePicSize(originalURL)
 	}
 
-	// 网易云音乐ID应该是纯数字格式，长度通常在6-12位
-	neteaseIDPattern := regexp.MustCompile(`^\d{6,12}$`)
-	return neteaseIDPattern.MatchString(neteaseID)
+	// 对于meting API URL，我们不尝试构造，因为没有真实的hash值
+	// 返回空字符串，让前端处理默认图片
+	return ""
 }
 
 // getString 安全地获取字符串值

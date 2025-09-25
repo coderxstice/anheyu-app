@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-15 11:30:55
- * @LastEditTime: 2025-09-21 21:56:07
+ * @LastEditTime: 2025-09-25 01:37:44
  * @LastEditors: 安知鱼
  */
 // anheyu-app/pkg/router/router.go
@@ -573,21 +573,6 @@ func (r *Router) registerMusicRoutes(api *gin.RouterGroup) {
 
 		// 获取歌曲资源: POST /api/public/music/song-resources
 		musicPublic.POST("/song-resources", r.musicHandler.GetSongResources)
-
-		// 获取高质量音频URL: GET /api/public/music/high-quality-url
-		musicPublic.GET("/high-quality-url", r.musicHandler.GetHighQualityMusicUrl)
-
-		// 获取高质量歌词: GET /api/public/music/high-quality-lyrics
-		musicPublic.GET("/high-quality-lyrics", r.musicHandler.GetHighQualityLyrics)
-
-		// 获取歌词: GET /api/public/music/lyrics
-		musicPublic.GET("/lyrics", r.musicHandler.GetLyrics)
-
-		// 获取音乐配置: GET /api/public/music/config
-		musicPublic.GET("/config", r.musicHandler.GetMusicConfig)
-
-		// 健康检查: GET /api/public/music/health
-		musicPublic.GET("/health", r.musicHandler.HealthCheck)
 	}
 }
 
