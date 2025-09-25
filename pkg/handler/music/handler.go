@@ -53,11 +53,11 @@ func (h *MusicHandler) GetPlaylist(c *gin.Context) {
 
 // GetSongResources 获取歌曲资源（音频和歌词）
 // @Summary 获取歌曲资源
-// @Description 根据歌曲信息获取音频URL和歌词内容，自动尝试高质量资源
+// @Description 根据网易云歌曲ID获取音频URL和歌词内容，自动尝试高质量资源
 // @Tags 音乐
 // @Accept json
 // @Produce json
-// @Param body body GetSongResourcesRequest true "歌曲信息"
+// @Param body body GetSongResourcesRequest true "网易云歌曲ID"
 // @Success 200 {object} response.Response{data=music.SongResourceResponse} "成功"
 // @Failure 400 {object} response.Response "请求参数错误"
 // @Failure 500 {object} response.Response "服务器错误"
@@ -69,21 +69,9 @@ func (h *MusicHandler) GetSongResources(c *gin.Context) {
 		return
 	}
 
-	// 验证必要参数（binding已经处理了必需字段的验证）
-	// 如果ID为空，使用默认值
-	if req.ID == "" {
-		req.ID = "unknown"
-	}
-
-	// 构建歌曲对象
+	// 构建歌曲对象，只需要NeteaseID
 	song := music.Song{
-		ID:        req.ID,
 		NeteaseID: req.NeteaseID,
-		Name:      req.Name,
-		Artist:    req.Artist,
-		URL:       req.URL,
-		Pic:       req.Pic,
-		Lrc:       req.Lrc,
 	}
 
 	// 获取歌曲资源
@@ -99,11 +87,5 @@ func (h *MusicHandler) GetSongResources(c *gin.Context) {
 
 // GetSongResourcesRequest 获取歌曲资源的请求结构
 type GetSongResourcesRequest struct {
-	ID        string `json:"id"`
-	NeteaseID string `json:"neteaseId"`
-	Name      string `json:"name" binding:"required"`
-	Artist    string `json:"artist" binding:"required"`
-	URL       string `json:"url" binding:"required"`
-	Pic       string `json:"pic"`
-	Lrc       string `json:"lrc"`
+	NeteaseID string `json:"neteaseId" binding:"required"`
 }

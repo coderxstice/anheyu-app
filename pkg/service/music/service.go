@@ -63,9 +63,8 @@ type LyricApiResponse struct {
 
 // SongResourceResponse 歌曲资源响应结构
 type SongResourceResponse struct {
-	AudioURL         string `json:"audioUrl"`
-	LyricsText       string `json:"lyricsText"`
-	UsingHighQuality bool   `json:"usingHighQuality"`
+	AudioURL   string `json:"audioUrl"`
+	LyricsText string `json:"lyricsText"`
 }
 
 // MusicService 定义音乐服务接口
@@ -89,18 +88,15 @@ type musicService struct {
 	// API URLs
 	highQualityMusicAPI string
 	highQualityLyricAPI string
-	// 状态控制
-	isHighQualityApiEnabled bool
 }
 
 // NewMusicService 创建新的音乐服务
 func NewMusicService(settingSvc setting.SettingService) MusicService {
 	return &musicService{
-		settingSvc:              settingSvc,
-		httpClient:              &http.Client{Timeout: 15 * time.Second},
-		highQualityMusicAPI:     "https://wyapi.toubiec.cn/api/music/url",
-		highQualityLyricAPI:     "https://wyapi.toubiec.cn/api/music/lyric",
-		isHighQualityApiEnabled: true,
+		settingSvc:          settingSvc,
+		httpClient:          &http.Client{Timeout: 15 * time.Second},
+		highQualityMusicAPI: "https://wyapi.toubiec.cn/api/music/url",
+		highQualityLyricAPI: "https://wyapi.toubiec.cn/api/music/lyric",
 	}
 }
 
@@ -520,64 +516,53 @@ func (s *musicService) extractIDFromURL(url string) string {
 	return ""
 }
 
-// FetchHighQualityMusicUrl 获取高质量音频URL
-
-// FetchSongResources 获取歌曲的完整资源
+// FetchSongResources 获取歌曲的高质量资源
 func (s *musicService) FetchSongResources(ctx context.Context, song Song) (SongResourceResponse, error) {
-	log.Printf("[MUSIC_API] 开始获取歌曲资源 - 歌曲: %s, 艺术家: %s", song.Name, song.Artist)
-	log.Printf("[MUSIC_API] 歌曲详细信息 - ID: %s, NeteaseID: %s, URL: %s, Pic: %s, Lrc: %s",
-		song.ID, song.NeteaseID, song.URL, song.Pic, song.Lrc)
+	log.Printf("[MUSIC_API] 开始获取高质量歌曲资源 - 网易云ID: %s", song.NeteaseID)
+
+	// 验证网易云ID
+	if song.NeteaseID == "" {
+		return SongResourceResponse{}, fmt.Errorf("网易云音乐ID不能为空")
+	}
+
+	if !s.isValidNeteaseID(song.NeteaseID) {
+		return SongResourceResponse{}, fmt.Errorf("网易云音乐ID格式无效: %s", song.NeteaseID)
+	}
+
+	// 获取高质量音频 - 必须成功
+	log.Printf("[MUSIC_API] 获取高质量音频 - 网易云ID: %s", song.NeteaseID)
+	audioURL, err := s.fetchHighQualityMusicUrl(ctx, song.NeteaseID)
+	if err != nil {
+		log.Printf("[MUSIC_API] 高质量音频获取失败 - 网易云ID: %s, 错误: %v", song.NeteaseID, err)
+		return SongResourceResponse{}, fmt.Errorf("高质量音频获取失败: %w", err)
+	}
+
+	if audioURL == "" {
+		log.Printf("[MUSIC_API] 高质量音频URL为空 - 网易云ID: %s", song.NeteaseID)
+		return SongResourceResponse{}, fmt.Errorf("高质量音频URL为空，网易云ID: %s", song.NeteaseID)
+	}
+
+	log.Printf("[MUSIC_API] 成功获取高质量音频URL - 网易云ID: %s", song.NeteaseID)
+
+	// 获取高质量歌词 - 可选，失败不影响整体结果
+	var lyricsText string
+	log.Printf("[MUSIC_API] 获取高质量歌词 - 网易云ID: %s", song.NeteaseID)
+	if lyrics, err := s.fetchHighQualityLyrics(ctx, song.NeteaseID); err == nil && lyrics != "" {
+		lyricsText = lyrics
+		log.Printf("[MUSIC_API] 成功获取高质量歌词 - 网易云ID: %s", song.NeteaseID)
+	} else {
+		log.Printf("[MUSIC_API] 高质量歌词获取失败，但不影响音频 - 网易云ID: %s, 错误: %v", song.NeteaseID, err)
+	}
 
 	result := SongResourceResponse{
-		AudioURL:         song.URL, // 默认使用原始URL
-		LyricsText:       "",
-		UsingHighQuality: false,
+		AudioURL:   audioURL,
+		LyricsText: lyricsText,
 	}
 
-	// 如果有网易云ID，尝试获取高质量资源
-	if song.NeteaseID != "" && s.isHighQualityApiEnabled {
-		// 先验证ID格式
-		if !s.isValidNeteaseID(song.NeteaseID) {
-			log.Printf("[MUSIC_API] 歌曲包含无效的网易云音乐ID，跳过高质量资源获取 - ID: %s, 歌曲: %s", song.NeteaseID, song.Name)
-		} else {
-			log.Printf("[MUSIC_API] 尝试获取高质量资源 - 网易云ID: %s", song.NeteaseID)
-
-			// 尝试获取高质量音频
-			if highQualityURL, err := s.fetchHighQualityMusicUrl(ctx, song.NeteaseID); err == nil && highQualityURL != "" {
-				result.AudioURL = highQualityURL
-				result.UsingHighQuality = true
-				log.Printf("[MUSIC_API] 使用高质量音频URL")
-
-				// 音频成功后尝试获取高质量歌词
-				if highQualityLyrics, err := s.fetchHighQualityLyrics(ctx, song.NeteaseID); err == nil && highQualityLyrics != "" {
-					result.LyricsText = highQualityLyrics
-					log.Printf("[MUSIC_API] 使用高质量歌词")
-				}
-			}
-		}
-	}
-
-	// 如果还没有歌词，尝试获取原始歌词
-	if result.LyricsText == "" && song.Lrc != "" {
-		log.Printf("[MUSIC_API] 尝试获取原始歌词")
-		if originalLyrics, err := s.fetchLyrics(ctx, song.Lrc); err == nil && originalLyrics != "" {
-			result.LyricsText = originalLyrics
-			log.Printf("[MUSIC_API] 使用原始歌词")
-		}
-	}
-
-	log.Printf("[MUSIC_API] 歌曲资源获取完成 - 高质量: %v, 有歌词: %v",
-		result.UsingHighQuality, result.LyricsText != "")
+	log.Printf("[MUSIC_API] 高质量资源获取完成 - 网易云ID: %s, 有歌词: %v",
+		song.NeteaseID, lyricsText != "")
 
 	return result, nil
-}
-
-// disableHighQualityApi 禁用高质量API
-func (s *musicService) disableHighQualityApi(reason string) {
-	if s.isHighQualityApiEnabled {
-		s.isHighQualityApiEnabled = false
-		log.Printf("[MUSIC_API] 禁用高质量API - 原因: %s", reason)
-	}
 }
 
 // isValidLRCFormat 验证LRC格式
@@ -604,10 +589,6 @@ func (s *musicService) isValidNeteaseID(neteaseID string) bool {
 
 // fetchHighQualityMusicUrl 获取高质量音频URL（内部方法）
 func (s *musicService) fetchHighQualityMusicUrl(ctx context.Context, neteaseID string) (string, error) {
-	if !s.isHighQualityApiEnabled {
-		log.Printf("[MUSIC_API] 高质量API已禁用，跳过获取高质量音频")
-		return "", nil
-	}
 
 	if neteaseID == "" {
 		log.Printf("[MUSIC_API] 网易云音乐ID为空，无法获取高质量音频")
@@ -655,9 +636,7 @@ func (s *musicService) fetchHighQualityMusicUrl(ctx context.Context, neteaseID s
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
 		s.logError("获取高质量音频", s.highQualityMusicAPI, err)
-		// 禁用高质量API
-		s.disableHighQualityApi("高质量音频请求失败")
-		return "", nil // 返回nil而不是错误，允许降级到原始API
+		return "", fmt.Errorf("高质量音频请求失败: %w", err)
 	}
 	defer resp.Body.Close()
 
@@ -705,10 +684,6 @@ func (s *musicService) fetchHighQualityMusicUrl(ctx context.Context, neteaseID s
 
 // fetchHighQualityLyrics 获取高质量歌词（内部方法）
 func (s *musicService) fetchHighQualityLyrics(ctx context.Context, neteaseID string) (string, error) {
-	if !s.isHighQualityApiEnabled {
-		log.Printf("[MUSIC_API] 高质量API已禁用，跳过获取高质量歌词")
-		return "", nil
-	}
 
 	if neteaseID == "" {
 		log.Printf("[MUSIC_API] 网易云音乐ID为空，无法获取高质量歌词")
@@ -755,9 +730,7 @@ func (s *musicService) fetchHighQualityLyrics(ctx context.Context, neteaseID str
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
 		s.logError("获取高质量歌词", s.highQualityLyricAPI, err)
-		// 禁用高质量API
-		s.disableHighQualityApi("高质量歌词请求失败")
-		return "", nil // 返回nil而不是错误，允许降级到原始API
+		return "", fmt.Errorf("高质量歌词请求失败: %w", err)
 	}
 	defer resp.Body.Close()
 
