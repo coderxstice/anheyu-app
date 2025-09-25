@@ -97,14 +97,171 @@ func getRequestScheme(c *gin.Context) string {
 	return "http"
 }
 
-// tryServeStaticFile 尝试从对应的文件系统中提供静态文件
+// generateFileETag 为文件生成基于内容的ETag
+func generateFileETag(filePath string, modTime time.Time, size int64) string {
+	// 使用文件路径、修改时间和大小生成ETag，避免读取大文件内容
+	data := fmt.Sprintf("%s-%d-%d", filePath, modTime.Unix(), size)
+	hash := md5.Sum([]byte(data))
+	return fmt.Sprintf(`"static-%x"`, hash)
+}
+
+// getAcceptedEncoding 获取客户端支持的编码格式，按优先级排序
+func getAcceptedEncoding(c *gin.Context) string {
+	acceptEncoding := c.GetHeader("Accept-Encoding")
+	if acceptEncoding == "" {
+		return ""
+	}
+
+	// 优先级：brotli > gzip > identity
+	if strings.Contains(acceptEncoding, "br") {
+		return "br"
+	}
+	if strings.Contains(acceptEncoding, "gzip") {
+		return "gzip"
+	}
+	return ""
+}
+
+// tryServeCompressedFile 尝试提供压缩文件
+func tryServeCompressedFile(c *gin.Context, basePath string, staticMode bool, distFS fs.FS) (bool, string, time.Time, int64) {
+	encoding := getAcceptedEncoding(c)
+	if encoding == "" {
+		return false, "", time.Time{}, 0
+	}
+
+	var compressedPath string
+	var contentEncoding string
+
+	switch encoding {
+	case "br":
+		compressedPath = basePath + ".br"
+		contentEncoding = "br"
+	case "gzip":
+		compressedPath = basePath + ".gz"
+		contentEncoding = "gzip"
+	default:
+		return false, "", time.Time{}, 0
+	}
+
+	if staticMode {
+		// 外部主题模式
+		overrideDir := "static"
+		fullPath := filepath.Join(overrideDir, compressedPath)
+		if fileInfo, err := os.Stat(fullPath); err == nil {
+			c.Header("Content-Encoding", contentEncoding)
+			c.Header("Content-Type", getContentType(basePath))
+			return true, fullPath, fileInfo.ModTime(), fileInfo.Size()
+		}
+	} else {
+		// 内嵌主题模式
+		if file, err := distFS.Open(compressedPath); err == nil {
+			defer file.Close()
+			if stat, err := file.Stat(); err == nil && !stat.IsDir() {
+				c.Header("Content-Encoding", contentEncoding)
+				c.Header("Content-Type", getContentType(basePath))
+				return true, compressedPath, stat.ModTime(), stat.Size()
+			}
+		}
+	}
+
+	return false, "", time.Time{}, 0
+}
+
+// getContentType 根据文件扩展名获取MIME类型
+func getContentType(filePath string) string {
+	ext := strings.ToLower(filepath.Ext(filePath))
+	switch ext {
+	case ".js":
+		return "application/javascript; charset=utf-8"
+	case ".css":
+		return "text/css; charset=utf-8"
+	case ".html":
+		return "text/html; charset=utf-8"
+	case ".json":
+		return "application/json; charset=utf-8"
+	case ".svg":
+		return "image/svg+xml"
+	case ".png":
+		return "image/png"
+	case ".jpg", ".jpeg":
+		return "image/jpeg"
+	case ".gif":
+		return "image/gif"
+	case ".ico":
+		return "image/x-icon"
+	case ".woff":
+		return "font/woff"
+	case ".woff2":
+		return "font/woff2"
+	case ".ttf":
+		return "font/ttf"
+	default:
+		return "application/octet-stream"
+	}
+}
+
+// handleStaticFileConditionalRequest 处理静态文件的条件请求
+func handleStaticFileConditionalRequest(c *gin.Context, etag string) bool {
+	// 检查 If-None-Match 头
+	ifNoneMatch := c.GetHeader("If-None-Match")
+	if ifNoneMatch != "" && ifNoneMatch == etag {
+		// 内容未修改，返回304
+		c.Header("ETag", etag)
+		c.Header("Cache-Control", "public, max-age=31536000") // 1年缓存
+		c.Status(http.StatusNotModified)
+		return true
+	}
+	return false
+}
+
+// tryServeStaticFile 尝试从对应的文件系统中提供静态文件（优先压缩版本）
 func tryServeStaticFile(c *gin.Context, filePath string, staticMode bool, distFS fs.FS) bool {
+	// 首先尝试提供压缩文件
+	if compressed, compressedPath, modTime, size := tryServeCompressedFile(c, filePath, staticMode, distFS); compressed {
+		// 生成基于压缩文件的ETag
+		etag := generateFileETag(compressedPath, modTime, size)
+
+		// 处理条件请求
+		if handleStaticFileConditionalRequest(c, etag) {
+			return true
+		}
+
+		// 设置缓存头
+		c.Header("ETag", etag)
+		c.Header("Cache-Control", "public, max-age=31536000") // 1年缓存
+		c.Header("Vary", "Accept-Encoding")
+
+		if staticMode {
+			// log.Printf("提供外部压缩静态文件: %s", compressedPath)
+			c.File(compressedPath)
+		} else {
+			// log.Printf("提供内嵌压缩静态文件: %s", compressedPath)
+			http.ServeFileFS(c.Writer, c.Request, distFS, compressedPath)
+		}
+		return true
+	}
+
+	// 如果没有压缩版本，提供原文件
 	if staticMode {
 		// 外部主题模式：从 static 目录查找文件
 		overrideDir := "static"
 		fullPath := filepath.Join(overrideDir, filePath)
-		if _, err := os.Stat(fullPath); err == nil {
-			// log.Printf("提供外部静态文件: %s", fullPath)
+		if fileInfo, err := os.Stat(fullPath); err == nil {
+			// 生成基于文件内容的ETag
+			etag := generateFileETag(filePath, fileInfo.ModTime(), fileInfo.Size())
+
+			// 处理条件请求
+			if handleStaticFileConditionalRequest(c, etag) {
+				return true
+			}
+
+			// 设置缓存头
+			c.Header("ETag", etag)
+			c.Header("Cache-Control", "public, max-age=31536000") // 1年缓存
+			c.Header("Vary", "Accept-Encoding")
+			c.Header("Content-Type", getContentType(filePath))
+
+			// log.Printf("提供外部原始静态文件: %s", fullPath)
 			c.File(fullPath)
 			return true
 		} else {
@@ -115,7 +272,21 @@ func tryServeStaticFile(c *gin.Context, filePath string, staticMode bool, distFS
 		if file, err := distFS.Open(filePath); err == nil {
 			defer file.Close()
 			if stat, err := file.Stat(); err == nil && !stat.IsDir() {
-				// log.Printf("提供内嵌静态文件: %s", filePath)
+				// 生成基于文件内容的ETag
+				etag := generateFileETag(filePath, stat.ModTime(), stat.Size())
+
+				// 处理条件请求
+				if handleStaticFileConditionalRequest(c, etag) {
+					return true
+				}
+
+				// 设置缓存头
+				c.Header("ETag", etag)
+				c.Header("Cache-Control", "public, max-age=31536000") // 1年缓存
+				c.Header("Vary", "Accept-Encoding")
+				c.Header("Content-Type", getContentType(filePath))
+
+				// log.Printf("提供内嵌原始静态文件: %s", filePath)
 				http.ServeFileFS(c.Writer, c.Request, distFS, filePath)
 				return true
 			}
@@ -286,30 +457,96 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 		log.Fatalf("致命错误: 无法从嵌入的资源中创建 'assets/dist' 子文件系统: %v", err)
 	}
 
-	embeddedStaticFS, _ := fs.Sub(distFS, "static")
 	embeddedTemplates, err := template.New("index.html").Funcs(funcMap).ParseFS(distFS, "index.html")
 	if err != nil {
 		log.Fatalf("解析嵌入式HTML模板失败: %v", err)
 	}
 
-	// 动态静态文件路由 - 每次请求都检查静态模式
+	// 动态静态文件路由 - 每次请求都检查静态模式（支持压缩）
 	engine.GET("/static/*filepath", func(c *gin.Context) {
-		if isStaticModeActive() {
+		filePath := strings.TrimPrefix(c.Param("filepath"), "/")
+		staticMode := isStaticModeActive()
+
+		// 首先尝试提供压缩文件
+		if compressed, compressedPath, modTime, size := tryServeCompressedFile(c, "static/"+filePath, staticMode, distFS); compressed {
+			// 生成基于压缩文件的ETag
+			etag := generateFileETag(compressedPath, modTime, size)
+
+			// 处理条件请求
+			if handleStaticFileConditionalRequest(c, etag) {
+				return
+			}
+
+			// 设置缓存头
+			c.Header("ETag", etag)
+			c.Header("Cache-Control", "public, max-age=31536000") // 1年缓存
+			c.Header("Vary", "Accept-Encoding")
+
+			if staticMode {
+				log.Printf("动态路由：使用外部主题压缩文件 %s", compressedPath)
+				c.File(compressedPath)
+			} else {
+				log.Printf("动态路由：使用内嵌压缩文件 %s", compressedPath)
+				http.ServeFileFS(c.Writer, c.Request, distFS, compressedPath)
+			}
+			return
+		}
+
+		// 如果没有压缩版本，提供原文件
+		if staticMode {
 			// 使用外部 static 目录
-			log.Printf("动态路由：使用外部主题静态文件 %s", c.Param("filepath"))
 			overrideDir := "static"
-			staticHandler := http.StripPrefix("/static", http.FileServer(http.Dir(filepath.Join(overrideDir, "static"))))
-			c.Header("Cache-Control", "public, max-age=300") // 5分钟缓存
-			c.Header("ETag", fmt.Sprintf(`"external-%d"`, time.Now().Unix()/300))
-			staticHandler.ServeHTTP(c.Writer, c.Request)
+			fullPath := filepath.Join(overrideDir, "static", filePath)
+
+			if fileInfo, err := os.Stat(fullPath); err == nil {
+				// 生成基于文件内容的ETag
+				etag := generateFileETag(filePath, fileInfo.ModTime(), fileInfo.Size())
+
+				// 处理条件请求
+				if handleStaticFileConditionalRequest(c, etag) {
+					return
+				}
+
+				// 设置缓存头
+				c.Header("ETag", etag)
+				c.Header("Cache-Control", "public, max-age=31536000") // 1年缓存
+				c.Header("Vary", "Accept-Encoding")
+				c.Header("Content-Type", getContentType(filePath))
+
+				log.Printf("动态路由：使用外部主题原始文件 %s", c.Param("filepath"))
+				staticHandler := http.StripPrefix("/static", http.FileServer(http.Dir(filepath.Join(overrideDir, "static"))))
+				staticHandler.ServeHTTP(c.Writer, c.Request)
+			} else {
+				c.Status(http.StatusNotFound)
+			}
 		} else {
 			// 使用内嵌资源
-			log.Printf("动态路由：使用内嵌静态文件 %s", c.Param("filepath"))
-			c.Header("Cache-Control", "public, max-age=3600") // 1小时缓存
-			c.Header("ETag", fmt.Sprintf(`"embedded-%d"`, time.Now().Unix()/3600))
-			// 需要去掉 /static 前缀，因为 embeddedStaticFS 已经是 static 目录了
-			embeddedStaticHandler := http.StripPrefix("/static", http.FileServer(http.FS(embeddedStaticFS)))
-			embeddedStaticHandler.ServeHTTP(c.Writer, c.Request)
+			staticFilePath := "static/" + filePath
+			if file, err := distFS.Open(staticFilePath); err == nil {
+				defer file.Close()
+				if stat, err := file.Stat(); err == nil && !stat.IsDir() {
+					// 生成基于文件内容的ETag
+					etag := generateFileETag(filePath, stat.ModTime(), stat.Size())
+
+					// 处理条件请求
+					if handleStaticFileConditionalRequest(c, etag) {
+						return
+					}
+
+					// 设置缓存头
+					c.Header("ETag", etag)
+					c.Header("Cache-Control", "public, max-age=31536000") // 1年缓存
+					c.Header("Vary", "Accept-Encoding")
+					c.Header("Content-Type", getContentType(filePath))
+
+					log.Printf("动态路由：使用内嵌原始文件 %s", c.Param("filepath"))
+					http.ServeFileFS(c.Writer, c.Request, distFS, staticFilePath)
+				} else {
+					c.Status(http.StatusNotFound)
+				}
+			} else {
+				c.Status(http.StatusNotFound)
+			}
 		}
 	})
 
