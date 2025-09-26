@@ -31,6 +31,9 @@ ENV AN_SETTING_DEFAULT_ENABLE_FFMPEG_GENERATOR=true \
     AN_SETTING_DEFAULT_ENABLE_VIPS_GENERATOR=true \
     AN_SETTING_DEFAULT_ENABLE_LIBRAW_GENERATOR=true
 
+# GoReleaser v2 多平台构建支持
+ARG TARGETPLATFORM
+
 COPY anheyu-app ./anheyu-app
 
 COPY default_files ./default-data

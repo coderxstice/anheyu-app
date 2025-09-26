@@ -72,14 +72,10 @@ archives:
 
     # 包含的文件 (GoReleaser v2 语法)
     files:
-      - src: default_files
-        dst: .
-      - src: README.md
-        dst: .
-      - src: LICENSE
-        dst: .
-      - src: entrypoint.sh
-        dst: .
+      - default_files/**/*
+      - README.md
+      - LICENSE
+      - entrypoint.sh
 
 # Checksum 配置
 checksum:
@@ -124,27 +120,44 @@ changelog:
       regexp: "^(chore|refactor|style)\\([\\w]+\\): .*$"
       order: 999
 
-# Docker 镜像配置 (v2)
-dockers:
+# Docker 镜像配置 (dockers_v2 - GoReleaser v2 标准语法)
+dockers_v2:
   - id: anheyu-app-docker
-    image_templates:
-      - "anheyu/anheyu-backend:latest"
-      - "anheyu/anheyu-backend:{{ .Tag }}"
-      - "anheyu/anheyu-backend:v{{ .Major }}"
-      - "anheyu/anheyu-backend:v{{ .Major }}.{{ .Minor }}"
 
-    dockerfile: Dockerfile
-
-    # 多平台构建
-    use: buildx
-    build_flag_templates:
-      - "--platform=linux/amd64,linux/arm64"
-      - "--pull"
-      - "--build-arg=VERSION={{ .Version }}"
-      - "--build-arg=COMMIT={{ .ShortCommit }}"
-      - "--build-arg=BUILD_DATE={{ .Date }}"
+    # 镜像名称
+    images:
+      - "anheyu/anheyu-backend"
 
     # 标签
+    tags:
+      - "latest"
+      - "{{ .Tag }}"
+      - "v{{ .Major }}"
+      - "v{{ .Major }}.{{ .Minor }}"
+
+    # 多平台构建
+    platforms:
+      - linux/amd64
+      - linux/arm64
+
+    # 构建参数
+    build_args:
+      VERSION: "{{ .Version }}"
+      COMMIT: "{{ .ShortCommit }}"
+      BUILD_DATE: "{{ .Date }}"
+
+    # 镜像标签
+    labels:
+      org.opencontainers.image.title: "{{ .ProjectName }}"
+      org.opencontainers.image.description: "Anheyu App - Self-hosted blog and content management system"
+      org.opencontainers.image.url: "https://github.com/anzhiyu-c/anheyu-app"
+      org.opencontainers.image.source: "https://github.com/anzhiyu-c/anheyu-app"
+      org.opencontainers.image.version: "{{ .Version }}"
+      org.opencontainers.image.created: "{{ .Date }}"
+      org.opencontainers.image.revision: "{{ .FullCommit }}"
+      org.opencontainers.image.licenses: "MIT"
+
+    # 额外文件
     extra_files:
       - default_files/
       - entrypoint.sh
