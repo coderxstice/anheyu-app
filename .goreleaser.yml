@@ -104,19 +104,19 @@ changelog:
       - "Merge branch"
 
   groups:
-    - title: "🚀 Features"
+    - title: "🚀 新功能"
       regexp: "^feat\\([\\w]+\\): .*$"
       order: 0
-    - title: "🐛 Bug Fixes"
+    - title: "🐛 问题修复"
       regexp: "^fix\\([\\w]+\\): .*$"
       order: 1
-    - title: "📚 Documentation"
+    - title: "📚 文档更新"
       regexp: "^docs\\([\\w]+\\): .*$"
       order: 2
-    - title: "⚡ Performance"
+    - title: "⚡️ 性能优化"
       regexp: "^perf\\([\\w]+\\): .*$"
       order: 3
-    - title: "🔧 Maintenance"
+    - title: "🔧 维护更新"
       regexp: "^(chore|refactor|style)\\([\\w]+\\): .*$"
       order: 999
 
@@ -175,36 +175,6 @@ release:
     - **Commit**: [`{{ .ShortCommit }}`](https://github.com/anzhiyu-c/anheyu-app/commit/{{ .FullCommit }})
     - **构建时间**: `{{ .Date }}`
     - **Go 版本**: `{{ .Env.GOVERSION }}`
-
-    ### 📦 下载
-
-    通过 [GitHub Releases](https://github.com/anzhiyu-c/anheyu-app/releases/tag/{{ .Tag }}) 下载适合您系统的版本：
-
-    - **Linux AMD64**: `anheyu-app_{{ .Tag }}_linux_amd64.tar.gz`
-    - **Linux ARM64**: `anheyu-app_{{ .Tag }}_linux_arm64.tar.gz`  
-    - **macOS AMD64**: `anheyu-app_{{ .Tag }}_darwin_amd64.tar.gz`
-    - **macOS ARM64**: `anheyu-app_{{ .Tag }}_darwin_arm64.tar.gz`
-    - **Windows AMD64**: `anheyu-app_{{ .Tag }}_windows_amd64.zip`
-
-    ### 🐳 Docker 镜像
-    ```bash
-    # 拉取最新版本
-    docker pull anheyu/anheyu-backend:{{ .Tag }}
-    docker pull anheyu/anheyu-backend:latest
-
-    # 多架构支持自动选择
-    ```
-
-    ### 🚀 快速开始
-    ```bash
-    # 下载并运行
-    wget https://github.com/anzhiyu-c/anheyu-app/releases/download/{{ .Tag }}/anheyu-app_{{ .Tag }}_linux_amd64.tar.gz
-    tar -xzf anheyu-app_{{ .Tag }}_linux_amd64.tar.gz
-    ./anheyu-app
-
-    # 或使用 Docker
-    docker run -d -p 8091:8091 anheyu/anheyu-backend:{{ .Tag }}
-    ```
 
   footer: |
     ---
