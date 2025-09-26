@@ -1,0 +1,271 @@
+# .goreleaser.yml - Anheyu App Release Configuration
+
+# 项目配置
+project_name: anheyu-app
+
+# 环境变量
+env:
+  - GO111MODULE=on
+  - CGO_ENABLED=0
+
+# 构建前钩子 - 构建前端资源
+before:
+  hooks:
+    - go mod tidy
+    - go mod download
+    - cd assets && pnpm install && pnpm run build
+
+# 构建配置
+builds:
+  - id: anheyu-app
+    main: ./main.go
+    binary: anheyu-app
+
+    # 版本信息注入
+    ldflags:
+      - -s -w
+      - -X 'github.com/anzhiyu-c/anheyu-app/internal/pkg/version.Version={{.Version}}'
+      - -X 'github.com/anzhiyu-c/anheyu-app/internal/pkg/version.Commit={{.ShortCommit}}'
+      - -X 'github.com/anzhiyu-c/anheyu-app/internal/pkg/version.Date={{.Date}}'
+
+    # 构建目标
+    goos:
+      - linux
+      - windows
+      - darwin
+
+    goarch:
+      - amd64
+      - arm64
+
+    # 特定平台配置
+    goamd64:
+      - v1
+
+    # 忽略特定组合
+    ignore:
+      - goos: windows
+        goarch: arm64
+
+    # 输出文件名模板
+    hooks:
+      post:
+        - cmd: echo "Built {{ .Path }}"
+
+# 归档配置
+archives:
+  - id: anheyu-app-archives
+    builds:
+      - anheyu-app
+
+    # 归档文件名模板
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+
+    # 文件格式
+    format_overrides:
+      - goos: windows
+        format: zip
+
+    # 包含的文件
+    files:
+      - default_files/**/*
+      - README.md
+      - LICENSE
+      - entrypoint.sh
+
+# Checksum 配置
+checksum:
+  name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
+  algorithm: sha256
+
+# 快照配置
+snapshot:
+  name_template: "{{ .Version }}-SNAPSHOT-{{ .ShortCommit }}"
+
+# 更新日志配置
+changelog:
+  sort: asc
+  use: github
+
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "^build:"
+      - "^style:"
+      - "^refactor:"
+      - "Merge pull request"
+      - "Merge branch"
+
+  groups:
+    - title: "🚀 Features"
+      regexp: "^feat(\\([\\w]+\\))?: .*$"
+      order: 0
+    - title: "🐛 Bug Fixes"
+      regexp: "^fix(\\([\\w]+\\))?: .*$"
+      order: 1
+    - title: "📚 Documentation"
+      regexp: "^docs(\\([\\w]+\\))?: .*$"
+      order: 2
+    - title: "⚡ Performance"
+      regexp: "^perf(\\([\\w]+\\))?: .*$"
+      order: 3
+    - title: "🔧 Maintenance"
+      regexp: "^(chore|refactor|style)(\\([\\w]+\\))?: .*$"
+      order: 999
+
+# Docker 镜像配置
+dockers:
+  - id: anheyu-app-docker
+    goos: linux
+    goarch: amd64
+
+    # Docker 构建配置
+    image_templates:
+      - "anheyu/anheyu-backend:latest"
+      - "anheyu/anheyu-backend:{{ .Tag }}"
+      - "anheyu/anheyu-backend:v{{ .Major }}"
+      - "anheyu/anheyu-backend:v{{ .Major }}.{{ .Minor }}"
+
+    # Dockerfile
+    dockerfile: Dockerfile
+
+    # 构建标志
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--build-arg=VERSION={{ .Version }}"
+      - "--build-arg=COMMIT={{ .ShortCommit }}"
+      - "--build-arg=BUILD_DATE={{ .Date }}"
+      - "--build-arg=TARGETARCH=amd64"
+      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.description=Anheyu App - Self-hosted blog and content management system"
+      - "--label=org.opencontainers.image.url=https://github.com/anzhiyu-c/anheyu-app"
+      - "--label=org.opencontainers.image.source=https://github.com/anzhiyu-c/anheyu-app"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.created={{ .Date }}"
+      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
+      - "--label=org.opencontainers.image.licenses=MIT"
+
+    # 额外文件
+    extra_files:
+      - default_files/
+      - entrypoint.sh
+
+  # ARM64 Docker 镜像
+  - id: anheyu-app-docker-arm64
+    goos: linux
+    goarch: arm64
+
+    image_templates:
+      - "anheyu/anheyu-backend:latest-arm64"
+      - "anheyu/anheyu-backend:{{ .Tag }}-arm64"
+
+    dockerfile: Dockerfile
+
+    build_flag_templates:
+      - "--platform=linux/arm64"
+      - "--build-arg=VERSION={{ .Version }}"
+      - "--build-arg=COMMIT={{ .ShortCommit }}"
+      - "--build-arg=BUILD_DATE={{ .Date }}"
+      - "--build-arg=TARGETARCH=arm64"
+      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.description=Anheyu App - Self-hosted blog and content management system"
+      - "--label=org.opencontainers.image.url=https://github.com/anzhiyu-c/anheyu-app"
+      - "--label=org.opencontainers.image.source=https://github.com/anzhiyu-c/anheyu-app"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.created={{ .Date }}"
+      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
+      - "--label=org.opencontainers.image.licenses=MIT"
+
+    extra_files:
+      - default_files/
+      - entrypoint.sh
+
+# Docker 多架构镜像
+docker_manifests:
+  - name_template: "anheyu/anheyu-backend:{{ .Tag }}"
+    image_templates:
+      - "anheyu/anheyu-backend:{{ .Tag }}"
+      - "anheyu/anheyu-backend:{{ .Tag }}-arm64"
+
+  - name_template: "anheyu/anheyu-backend:latest"
+    image_templates:
+      - "anheyu/anheyu-backend:latest"
+      - "anheyu/anheyu-backend:latest-arm64"
+
+# GitHub Release 配置
+release:
+  github:
+    owner: anzhiyu-c
+    name: anheyu-app
+
+  # Release 名称
+  name_template: "Anheyu App {{ .Tag }}"
+
+  # 发布模式
+  mode: replace
+
+  # 预发布检测
+  prerelease: auto
+
+  # Release Notes 模板
+  header: |
+    ## Anheyu App {{ .Tag }}
+
+    🎉 **新版本发布！**
+
+    ### 📋 构建信息
+    - **版本**: `{{ .Tag }}`
+    - **Commit**: [`{{ .ShortCommit }}`](https://github.com/anzhiyu-c/anheyu-app/commit/{{ .FullCommit }})
+    - **构建时间**: `{{ .Date }}`
+    - **Go 版本**: `{{ .Env.GOVERSION }}`
+
+    ### 📦 下载
+
+    | 平台 | 架构 | 下载链接 |
+    |------|------|----------|
+    {{- range .Builds }}
+    {{- range .Goos }}
+    {{- $os := . }}
+    {{- range $.Goarch }}
+    | {{ $os }} | {{ . }} | [anheyu-app_{{ $.Tag }}_{{ $os }}_{{ . }}](https://github.com/anzhiyu-c/anheyu-app/releases/download/{{ $.Tag }}/anheyu-app_{{ $.Tag }}_{{ $os }}_{{ . }}.tar.gz) |
+    {{- end }}
+    {{- end }}
+    {{- end }}
+
+    ### 🐳 Docker 镜像
+    ```bash
+    # 拉取最新版本
+    docker pull anheyu/anheyu-backend:{{ .Tag }}
+    docker pull anheyu/anheyu-backend:latest
+
+    # 多架构支持
+    docker pull anheyu/anheyu-backend:{{ .Tag }}      # 自动选择架构
+    docker pull anheyu/anheyu-backend:{{ .Tag }}-arm64  # ARM64 专用
+    ```
+
+    ### 🚀 快速开始
+    ```bash
+    # 下载并运行
+    wget https://github.com/anzhiyu-c/anheyu-app/releases/download/{{ .Tag }}/anheyu-app_{{ .Tag }}_linux_amd64.tar.gz
+    tar -xzf anheyu-app_{{ .Tag }}_linux_amd64.tar.gz
+    ./anheyu-app
+
+    # 或使用 Docker
+    docker run -d -p 8091:8091 anheyu/anheyu-backend:{{ .Tag }}
+    ```
+
+  footer: |
+    ---
+
+    ### 📚 相关链接
+    - [完整更新日志](https://github.com/anzhiyu-c/anheyu-app/releases)
+    - [文档](https://github.com/anzhiyu-c/anheyu-app/blob/main/README.md)
+    - [问题反馈](https://github.com/anzhiyu-c/anheyu-app/issues)
+
+    **完整的 SHA256 校验和**：[anheyu-app_{{ .Tag }}_checksums.txt](https://github.com/anzhiyu-c/anheyu-app/releases/download/{{ .Tag }}/anheyu-app_{{ .Tag }}_checksums.txt)
+
+# 公告配置
+announce:
+  skip: "{{gt .Patch 0}}" # 跳过 patch 版本的公告

@@ -33,6 +33,7 @@ import (
 	theme_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/theme"
 	thumbnail_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/thumbnail"
 	user_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/user"
+	version_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/version"
 )
 
 // NoCacheMiddleware 全局反缓存中间件，确保所有API响应都不会被CDN缓存
@@ -75,6 +76,7 @@ type Router struct {
 	searchHandler        *search_handler.Handler
 	proxyHandler         *proxy_handler.ProxyHandler
 	sitemapHandler       *sitemap_handler.Handler
+	versionHandler       *version_handler.Handler
 }
 
 // NewRouter 是 Router 的构造函数，通过依赖注入接收所有处理器。
@@ -101,6 +103,7 @@ func NewRouter(
 	searchHandler *search_handler.Handler,
 	proxyHandler *proxy_handler.ProxyHandler,
 	sitemapHandler *sitemap_handler.Handler,
+	versionHandler *version_handler.Handler,
 ) *Router {
 	return &Router{
 		authHandler:          authHandler,
@@ -125,6 +128,7 @@ func NewRouter(
 		searchHandler:        searchHandler,
 		proxyHandler:         proxyHandler,
 		sitemapHandler:       sitemapHandler,
+		versionHandler:       versionHandler,
 	}
 }
 
@@ -171,6 +175,7 @@ func (r *Router) Setup(engine *gin.Engine) {
 	r.registerMusicRoutes(apiGroup)
 	r.registerStatisticsRoutes(apiGroup)
 	r.registerThemeRoutes(apiGroup)
+	r.registerVersionRoutes(apiGroup)
 	r.registerSitemapRoutes(engine) // 直接注册到engine，不使用/api前缀
 }
 
@@ -586,4 +591,17 @@ func (r *Router) registerSitemapRoutes(engine *gin.Engine) {
 
 	// GET /robots.txt - 搜索引擎抓取规则
 	engine.GET("/robots.txt", r.sitemapHandler.GetRobots)
+}
+
+// registerVersionRoutes 注册版本信息相关路由
+func (r *Router) registerVersionRoutes(api *gin.RouterGroup) {
+	// 版本信息路由 - 公开接口，不需要认证
+	versionGroup := api.Group("/version")
+	{
+		// GET /api/version - 获取版本信息 (JSON格式)
+		versionGroup.GET("", r.versionHandler.GetVersion)
+
+		// GET /api/version/string - 获取版本字符串 (简单字符串格式)
+		versionGroup.GET("/string", r.versionHandler.GetVersionString)
+	}
 }

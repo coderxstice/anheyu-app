@@ -46,6 +46,7 @@ import (
 	theme_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/theme"
 	thumbnail_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/thumbnail"
 	user_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/user"
+	version_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/version"
 	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/album"
 	article_service "github.com/anzhiyu-c/anheyu-app/pkg/service/article"
@@ -108,10 +109,10 @@ func (a *App) PrintBanner() {
 
 	if os.Getenv("ANHEYU_LICENSE_KEY") != "" {
 		// 如果存在，就认为是 PRO 版本
-		log.Printf(" Anheyu App - PRO Version: %s", a.appVersion)
+		log.Printf(" Anheyu App - PRO Version: %s", version.GetVersionString())
 	} else {
 		// 如果不存在，就是社区版
-		log.Printf(" Anheyu App - Community Version: %s", a.appVersion)
+		log.Printf(" Anheyu App - Community Version: %s", version.GetVersionString())
 	}
 
 	log.Println("--------------------------------------------------------")
@@ -322,6 +323,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	sitemapHandler := sitemap_handler.NewHandler(sitemapSvc)
 	proxyHandler := proxy_handler.NewHandler()
 	musicHandler := music_handler.NewMusicHandler(musicSvc)
+	versionHandler := version_handler.NewHandler()
 
 	// --- Phase 7: 初始化路由 ---
 	appRouter := router.NewRouter(
@@ -347,6 +349,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		searchHandler,
 		proxyHandler,
 		sitemapHandler,
+		versionHandler,
 	)
 
 	// --- Phase 8: 配置 Gin 引擎 ---
