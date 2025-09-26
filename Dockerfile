@@ -31,7 +31,7 @@ ENV AN_SETTING_DEFAULT_ENABLE_FFMPEG_GENERATOR=true \
     AN_SETTING_DEFAULT_ENABLE_VIPS_GENERATOR=true \
     AN_SETTING_DEFAULT_ENABLE_LIBRAW_GENERATOR=true
 
-COPY anheyu-app-linux-${TARGETARCH} ./anheyu-app
+COPY anheyu-app ./anheyu-app
 
 COPY default_files ./default-data
 
