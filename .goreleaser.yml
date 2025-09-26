@@ -16,7 +16,7 @@ before:
   hooks:
     - go mod tidy
     - go mod download
-    - cd assets && pnpm install && pnpm run build
+    - sh -c "cd assets && pnpm install && pnpm run build"
 
 # 构建配置
 builds:
