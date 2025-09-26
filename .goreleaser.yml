@@ -127,7 +127,7 @@ dockers:
     goarch: amd64
 
     image_templates:
-      - 'anheyu/anheyu-backend:{{ if hasPrefix .Tag "v" }}{{ .Tag | slice 1 }}{{ else }}{{ .Tag }}{{ end }}'
+      - 'anheyu/anheyu-backend:{{ if eq (substr .Tag 0 1) "v" }}{{ substr .Tag 1 }}{{ else }}{{ .Tag }}{{ end }}'
       - "anheyu/anheyu-backend:latest"
 
     dockerfile: Dockerfile
@@ -189,7 +189,7 @@ release:
     ### 🐳 Docker 镜像
     ```bash
     # 拉取最新版本
-    docker pull anheyu/anheyu-backend:{{ if hasPrefix .Tag "v" }}{{ .Tag | slice 1 }}{{ else }}{{ .Tag }}{{ end }}
+    docker pull anheyu/anheyu-backend:{{ if eq (substr .Tag 0 1) "v" }}{{ substr .Tag 1 }}{{ else }}{{ .Tag }}{{ end }}
     docker pull anheyu/anheyu-backend:latest
 
     # 多架构支持自动选择
@@ -203,7 +203,7 @@ release:
     ./anheyu-app
 
     # 或使用 Docker
-    docker run -d -p 8091:8091 anheyu/anheyu-backend:{{ if hasPrefix .Tag "v" }}{{ .Tag | slice 1 }}{{ else }}{{ .Tag }}{{ end }}
+    docker run -d -p 8091:8091 anheyu/anheyu-backend:{{ if eq (substr .Tag 0 1) "v" }}{{ substr .Tag 1 }}{{ else }}{{ .Tag }}{{ end }}
     ```
 
   footer: |
