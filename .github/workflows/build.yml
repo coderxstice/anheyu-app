@@ -173,7 +173,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: anheyu/anheyu-backend
-          readme-filepath: ./readme.md
+          readme-filepath: ./README.md
         continue-on-error: true
 
       - name: Create release summary
