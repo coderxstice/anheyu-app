@@ -1,5 +1,8 @@
 # .goreleaser.yml - Anheyu App Release Configuration
 
+# GoReleaser 配置版本
+version: 2
+
 # 项目配置
 project_name: anheyu-app
 
@@ -89,30 +92,30 @@ changelog:
 
   filters:
     exclude:
-      - "^docs:"
-      - "^test:"
-      - "^ci:"
-      - "^build:"
-      - "^style:"
-      - "^refactor:"
+      - "^docs\\([\\w]+\\):"
+      - "^test\\([\\w]+\\):"
+      - "^ci\\([\\w]+\\):"
+      - "^build\\([\\w]+\\):"
+      - "^style\\([\\w]+\\):"
+      - "^refactor\\([\\w]+\\):"
       - "Merge pull request"
       - "Merge branch"
 
   groups:
     - title: "🚀 Features"
-      regexp: "^feat(\\([\\w]+\\))?: .*$"
+      regexp: "^feat\\([\\w]+\\): .*$"
       order: 0
     - title: "🐛 Bug Fixes"
-      regexp: "^fix(\\([\\w]+\\))?: .*$"
+      regexp: "^fix\\([\\w]+\\): .*$"
       order: 1
     - title: "📚 Documentation"
-      regexp: "^docs(\\([\\w]+\\))?: .*$"
+      regexp: "^docs\\([\\w]+\\): .*$"
       order: 2
     - title: "⚡ Performance"
-      regexp: "^perf(\\([\\w]+\\))?: .*$"
+      regexp: "^perf\\([\\w]+\\): .*$"
       order: 3
     - title: "🔧 Maintenance"
-      regexp: "^(chore|refactor|style)(\\([\\w]+\\))?: .*$"
+      regexp: "^(chore|refactor|style)\\([\\w]+\\): .*$"
       order: 999
 
 # Docker 镜像配置
