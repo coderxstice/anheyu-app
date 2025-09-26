@@ -80,7 +80,7 @@ dev-docker:
 	@echo "📦 Stopping existing services..."
 	docker compose down
 	@echo "🔨 Building ARM64 binary for Docker..."
-	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o anheyu-app-linux-arm64
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o anheyu-app
 	@echo "🐳 Building and starting Docker services..."
 	docker compose up -d --build
 	@echo "✅ Development environment ready!"
