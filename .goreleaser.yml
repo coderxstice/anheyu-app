@@ -120,14 +120,14 @@ changelog:
       regexp: "^(chore|refactor|style)\\([\\w]+\\): .*$"
       order: 999
 
-# Docker 镜像配置 - 稳定配置 (暂时接受弃用警告)
+# Docker 镜像配置 - 使用修复后的 dockers 格式
 dockers:
   - id: anheyu-app-docker
     goos: linux
     goarch: amd64
 
     image_templates:
-      - 'anheyu/anheyu-backend:{{ .Tag | trimPrefix "v" }}'
+      - 'anheyu/anheyu-backend:{{ if hasPrefix .Tag "v" }}{{ .Tag | slice 1 }}{{ else }}{{ .Tag }}{{ end }}'
       - "anheyu/anheyu-backend:latest"
 
     dockerfile: Dockerfile
@@ -189,7 +189,7 @@ release:
     ### 🐳 Docker 镜像
     ```bash
     # 拉取最新版本
-    docker pull anheyu/anheyu-backend:{{ .Tag }}
+    docker pull anheyu/anheyu-backend:{{ if hasPrefix .Tag "v" }}{{ .Tag | slice 1 }}{{ else }}{{ .Tag }}{{ end }}
     docker pull anheyu/anheyu-backend:latest
 
     # 多架构支持自动选择
@@ -203,7 +203,7 @@ release:
     ./anheyu-app
 
     # 或使用 Docker
-    docker run -d -p 8091:8091 anheyu/anheyu-backend:{{ .Tag }}
+    docker run -d -p 8091:8091 anheyu/anheyu-backend:{{ if hasPrefix .Tag "v" }}{{ .Tag | slice 1 }}{{ else }}{{ .Tag }}{{ end }}
     ```
 
   footer: |
