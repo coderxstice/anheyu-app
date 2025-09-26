@@ -70,12 +70,12 @@ archives:
         formats:
           - zip
 
-    # 包含的文件 (GoReleaser v2 语法)
+    # 包含的文件 (现在可以使用简单glob，因为有.gitkeep文件)
     files:
-      - default_files/**/*
       - README.md
       - LICENSE
       - entrypoint.sh
+      - default_files/**/*
 
 # Checksum 配置
 checksum:
@@ -120,47 +120,41 @@ changelog:
       regexp: "^(chore|refactor|style)\\([\\w]+\\): .*$"
       order: 999
 
-# Docker 镜像配置 (dockers_v2 - GoReleaser v2 标准语法)
-dockers_v2:
+# Docker 镜像配置 - 稳定版本
+dockers:
   - id: anheyu-app-docker
+    goos: linux
+    goarch: amd64
 
-    # 镜像名称
-    images:
-      - "anheyu/anheyu-backend"
+    image_templates:
+      - "anheyu/anheyu-backend:latest"
+      - "anheyu/anheyu-backend:{{ .Tag }}"
+      - "anheyu/anheyu-backend:v{{ .Major }}"
+      - "anheyu/anheyu-backend:v{{ .Major }}.{{ .Minor }}"
 
-    # 标签
-    tags:
-      - "latest"
-      - "{{ .Tag }}"
-      - "v{{ .Major }}"
-      - "v{{ .Major }}.{{ .Minor }}"
+    dockerfile: Dockerfile
+    use: buildx
 
-    # 多平台构建
-    platforms:
-      - linux/amd64
-      - linux/arm64
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--pull"
+      - "--build-arg=VERSION={{ .Version }}"
+      - "--build-arg=COMMIT={{ .ShortCommit }}"
+      - "--build-arg=BUILD_DATE={{ .Date }}"
+      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.description=Anheyu App - Self-hosted blog and content management system"
+      - "--label=org.opencontainers.image.url=https://github.com/anzhiyu-c/anheyu-app"
+      - "--label=org.opencontainers.image.source=https://github.com/anzhiyu-c/anheyu-app"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.created={{ .Date }}"
+      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
+      - "--label=org.opencontainers.image.licenses=MIT"
 
-    # 构建参数
-    build_args:
-      VERSION: "{{ .Version }}"
-      COMMIT: "{{ .ShortCommit }}"
-      BUILD_DATE: "{{ .Date }}"
-
-    # 镜像标签
-    labels:
-      org.opencontainers.image.title: "{{ .ProjectName }}"
-      org.opencontainers.image.description: "Anheyu App - Self-hosted blog and content management system"
-      org.opencontainers.image.url: "https://github.com/anzhiyu-c/anheyu-app"
-      org.opencontainers.image.source: "https://github.com/anzhiyu-c/anheyu-app"
-      org.opencontainers.image.version: "{{ .Version }}"
-      org.opencontainers.image.created: "{{ .Date }}"
-      org.opencontainers.image.revision: "{{ .FullCommit }}"
-      org.opencontainers.image.licenses: "MIT"
-
-    # 额外文件
     extra_files:
-      - default_files/
+      - README.md
+      - LICENSE
       - entrypoint.sh
+      - default_files/
 
 # GitHub Release 配置
 release:
