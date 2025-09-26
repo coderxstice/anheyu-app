@@ -127,7 +127,7 @@ dockers:
     goarch: amd64
 
     image_templates:
-      - "anheyu/anheyu-backend:{{ .Tag }}"
+      - 'anheyu/anheyu-backend:{{ .Tag | trimPrefix "v" }}'
       - "anheyu/anheyu-backend:latest"
 
     dockerfile: Dockerfile
