@@ -57,23 +57,29 @@ builds:
 # 归档配置
 archives:
   - id: anheyu-app-archives
-    builds:
-      - anheyu-app
+    # GoReleaser v2 自动关联所有构建，无需指定 builds
 
     # 归档文件名模板
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
 
-    # 文件格式
+    # 文件格式 (v2 最新语法)
+    formats:
+      - tar.gz
     format_overrides:
       - goos: windows
-        format: zip
+        formats: 
+          - zip
 
-    # 包含的文件
+    # 包含的文件 (GoReleaser v2 语法)
     files:
-      - default_files/**/*
-      - README.md
-      - LICENSE
-      - entrypoint.sh
+      - src: default_files
+        dst: .
+      - src: README.md
+        dst: .
+      - src: LICENSE
+        dst: .
+      - src: entrypoint.sh
+        dst: .
 
 # Checksum 配置
 checksum:
@@ -82,7 +88,8 @@ checksum:
 
 # 快照配置
 snapshot:
-  name_template: "{{ .Version }}-SNAPSHOT-{{ .ShortCommit }}"
+  # GoReleaser v2 使用 version_template 替代 name_template
+  version_template: "{{ .Version }}-SNAPSHOT-{{ .ShortCommit }}"
 
 # 更新日志配置
 changelog:
@@ -117,84 +124,30 @@ changelog:
       regexp: "^(chore|refactor|style)\\([\\w]+\\): .*$"
       order: 999
 
-# Docker 镜像配置
+# Docker 镜像配置 (v2)
 dockers:
   - id: anheyu-app-docker
-    goos: linux
-    goarch: amd64
-
-    # Docker 构建配置
     image_templates:
       - "anheyu/anheyu-backend:latest"
       - "anheyu/anheyu-backend:{{ .Tag }}"
       - "anheyu/anheyu-backend:v{{ .Major }}"
       - "anheyu/anheyu-backend:v{{ .Major }}.{{ .Minor }}"
 
-    # Dockerfile
     dockerfile: Dockerfile
 
-    # 构建标志
+    # 多平台构建
+    use: buildx
     build_flag_templates:
-      - "--platform=linux/amd64"
+      - "--platform=linux/amd64,linux/arm64"
+      - "--pull"
       - "--build-arg=VERSION={{ .Version }}"
       - "--build-arg=COMMIT={{ .ShortCommit }}"
       - "--build-arg=BUILD_DATE={{ .Date }}"
-      - "--build-arg=TARGETARCH=amd64"
-      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.description=Anheyu App - Self-hosted blog and content management system"
-      - "--label=org.opencontainers.image.url=https://github.com/anzhiyu-c/anheyu-app"
-      - "--label=org.opencontainers.image.source=https://github.com/anzhiyu-c/anheyu-app"
-      - "--label=org.opencontainers.image.version={{ .Version }}"
-      - "--label=org.opencontainers.image.created={{ .Date }}"
-      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - "--label=org.opencontainers.image.licenses=MIT"
 
-    # 额外文件
+    # 标签
     extra_files:
       - default_files/
       - entrypoint.sh
-
-  # ARM64 Docker 镜像
-  - id: anheyu-app-docker-arm64
-    goos: linux
-    goarch: arm64
-
-    image_templates:
-      - "anheyu/anheyu-backend:latest-arm64"
-      - "anheyu/anheyu-backend:{{ .Tag }}-arm64"
-
-    dockerfile: Dockerfile
-
-    build_flag_templates:
-      - "--platform=linux/arm64"
-      - "--build-arg=VERSION={{ .Version }}"
-      - "--build-arg=COMMIT={{ .ShortCommit }}"
-      - "--build-arg=BUILD_DATE={{ .Date }}"
-      - "--build-arg=TARGETARCH=arm64"
-      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.description=Anheyu App - Self-hosted blog and content management system"
-      - "--label=org.opencontainers.image.url=https://github.com/anzhiyu-c/anheyu-app"
-      - "--label=org.opencontainers.image.source=https://github.com/anzhiyu-c/anheyu-app"
-      - "--label=org.opencontainers.image.version={{ .Version }}"
-      - "--label=org.opencontainers.image.created={{ .Date }}"
-      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - "--label=org.opencontainers.image.licenses=MIT"
-
-    extra_files:
-      - default_files/
-      - entrypoint.sh
-
-# Docker 多架构镜像
-docker_manifests:
-  - name_template: "anheyu/anheyu-backend:{{ .Tag }}"
-    image_templates:
-      - "anheyu/anheyu-backend:{{ .Tag }}"
-      - "anheyu/anheyu-backend:{{ .Tag }}-arm64"
-
-  - name_template: "anheyu/anheyu-backend:latest"
-    image_templates:
-      - "anheyu/anheyu-backend:latest"
-      - "anheyu/anheyu-backend:latest-arm64"
 
 # GitHub Release 配置
 release:
