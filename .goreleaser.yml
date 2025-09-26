@@ -120,17 +120,15 @@ changelog:
       regexp: "^(chore|refactor|style)\\([\\w]+\\): .*$"
       order: 999
 
-# Docker 镜像配置 - 稳定版本
+# Docker 镜像配置 - 稳定配置 (暂时接受弃用警告)
 dockers:
   - id: anheyu-app-docker
     goos: linux
     goarch: amd64
 
     image_templates:
-      - "anheyu/anheyu-backend:latest"
       - "anheyu/anheyu-backend:{{ .Tag }}"
-      - "anheyu/anheyu-backend:v{{ .Major }}"
-      - "anheyu/anheyu-backend:v{{ .Major }}.{{ .Minor }}"
+      - "anheyu/anheyu-backend:latest"
 
     dockerfile: Dockerfile
     use: buildx
@@ -141,14 +139,9 @@ dockers:
       - "--build-arg=VERSION={{ .Version }}"
       - "--build-arg=COMMIT={{ .ShortCommit }}"
       - "--build-arg=BUILD_DATE={{ .Date }}"
-      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.description=Anheyu App - Self-hosted blog and content management system"
-      - "--label=org.opencontainers.image.url=https://github.com/anzhiyu-c/anheyu-app"
-      - "--label=org.opencontainers.image.source=https://github.com/anzhiyu-c/anheyu-app"
+      - "--label=org.opencontainers.image.source={{ .GitURL }}"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - "--label=org.opencontainers.image.created={{ .Date }}"
-      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - "--label=org.opencontainers.image.licenses=MIT"
 
     extra_files:
       - README.md
@@ -185,16 +178,13 @@ release:
 
     ### 📦 下载
 
-    | 平台 | 架构 | 下载链接 |
-    |------|------|----------|
-    {{- range .Builds }}
-    {{- range .Goos }}
-    {{- $os := . }}
-    {{- range $.Goarch }}
-    | {{ $os }} | {{ . }} | [anheyu-app_{{ $.Tag }}_{{ $os }}_{{ . }}](https://github.com/anzhiyu-c/anheyu-app/releases/download/{{ $.Tag }}/anheyu-app_{{ $.Tag }}_{{ $os }}_{{ . }}.tar.gz) |
-    {{- end }}
-    {{- end }}
-    {{- end }}
+    通过 [GitHub Releases](https://github.com/anzhiyu-c/anheyu-app/releases/tag/{{ .Tag }}) 下载适合您系统的版本：
+
+    - **Linux AMD64**: `anheyu-app_{{ .Tag }}_linux_amd64.tar.gz`
+    - **Linux ARM64**: `anheyu-app_{{ .Tag }}_linux_arm64.tar.gz`  
+    - **macOS AMD64**: `anheyu-app_{{ .Tag }}_darwin_amd64.tar.gz`
+    - **macOS ARM64**: `anheyu-app_{{ .Tag }}_darwin_arm64.tar.gz`
+    - **Windows AMD64**: `anheyu-app_{{ .Tag }}_windows_amd64.zip`
 
     ### 🐳 Docker 镜像
     ```bash
@@ -202,9 +192,7 @@ release:
     docker pull anheyu/anheyu-backend:{{ .Tag }}
     docker pull anheyu/anheyu-backend:latest
 
-    # 多架构支持
-    docker pull anheyu/anheyu-backend:{{ .Tag }}      # 自动选择架构
-    docker pull anheyu/anheyu-backend:{{ .Tag }}-arm64  # ARM64 专用
+    # 多架构支持自动选择
     ```
 
     ### 🚀 快速开始
