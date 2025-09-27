@@ -92,6 +92,9 @@ changelog:
   sort: asc
   use: github
 
+  # 使用模板格式控制 commit hash 显示
+  format: "{{ .Message }} ({{ .ShortCommit }})"
+
   filters:
     exclude:
       - "^docs\\([\\w]+\\):"
