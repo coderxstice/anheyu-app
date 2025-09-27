@@ -1,6 +1,6 @@
 # .github/workflows/build.yml
 
-name: Build, Release and Publish Docker Image
+name: Build, Release and Publish with GoReleaser
 
 on:
   push:
@@ -8,22 +8,32 @@ on:
       - main
     tags:
       - "v*"
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  packages: write
 
 jobs:
-  build:
-    name: Build Binaries
+  # 开发构建和测试作业（非 tag 推送）
+  test:
+    name: Test and Build (Development)
     runs-on: ubuntu-latest
+    if: ${{ !startsWith(github.ref, 'refs/tags/') }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           submodules: "recursive"
-          token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GH_PAT || github.token }}
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.24"
+          go-version: "1.25"
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v3
@@ -37,81 +47,125 @@ jobs:
           cache: "pnpm"
           cache-dependency-path: "assets/pnpm-lock.yaml"
 
-      - name: Install Frontend
-        run: |
-          cd assets
-          pnpm install
+      - name: Install and setup GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          install-only: true
 
       - name: Build Frontend
         run: |
           cd assets
+          pnpm install
           pnpm run build
 
-      - name: Cross-compile for Linux amd64
-        run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GOAMD64=v1 go build -trimpath -ldflags="-s -w" -o anheyu-app-linux-amd64 .
+      - name: Test GoReleaser configuration
+        run: goreleaser check
 
-      - name: Cross-compile for Linux arm64
-        run: CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -ldflags="-s -w" -o anheyu-app-linux-arm64 .
+      - name: Run GoReleaser in snapshot mode
+        run: goreleaser build --snapshot --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Cross-compile for Windows amd64
-        run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o anheyu-app-windows-amd64.exe .
+      - name: Test version information
+        run: |
+          echo "🔍 Testing version information..."
+          # 测试 Linux AMD64 构建
+          if [ -f "dist/anheyu-app_linux_amd64_v1/anheyu-app" ]; then
+            echo "✅ Linux AMD64 build found"
+            
+            # 创建测试程序
+            cat > test_version.go << 'EOF'
+          package main
+          import (
+            "fmt"
+            "github.com/anzhiyu-c/anheyu-app/internal/pkg/version"
+          )
+          func main() {
+            fmt.Printf("Version: %s\n", version.GetVersion())
+            fmt.Printf("Commit: %s\n", version.GetCommit())
+            fmt.Printf("Date: %s\n", version.GetBuildDate())
+            fmt.Printf("Full: %s\n", version.GetVersionString())
+          }
+          EOF
+            
+            # 使用快照构建的参数测试
+            go run test_version.go
+            rm -f test_version.go
+          else
+            echo "❌ Linux AMD64 build not found"
+            ls -la dist/
+          fi
 
-      - name: Cross-compile for macOS amd64
-        run: CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o anheyu-app-macos-amd64 .
-
-      - name: Upload Artifacts
+      - name: Upload snapshot artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: dist-files
-          path: |
-            anheyu-app-linux-amd64
-            anheyu-app-linux-arm64
-            anheyu-app-windows-amd64.exe
-            anheyu-app-macos-amd64
-            default_files/
+          name: snapshot-build
+          path: dist/
+        if: always()
 
-  docker:
-    name: Build and Push Docker Image
+  # 生产发布作业（tag 推送）
+  release:
+    name: Release with GoReleaser
     runs-on: ubuntu-latest
-    needs: build
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
         with:
-          name: dist-files
-          path: .
+          fetch-depth: 0
+          submodules: "recursive"
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: "assets/pnpm-lock.yaml"
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Extract metadata for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: anheyu/anheyu-backend
-          tags: |
-            type=semver,pattern={{version}}
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+      - name: Build Frontend
+        run: |
+          cd assets
+          pnpm install
+          pnpm run build
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
+      - name: Prepare Go version environment
+        run: |
+          echo "GOVERSION=$(go version)" >> $GITHUB_ENV
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
         with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCKER_CLI_EXPERIMENTAL: enabled
 
       - name: Update Docker Hub README
         uses: peter-evans/dockerhub-description@v3
@@ -119,26 +173,27 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: anheyu/anheyu-backend
-          readme-filepath: ./readme.md
+          readme-filepath: ./README.md
+        continue-on-error: true
 
-  release:
-    name: Create GitHub Release
-    runs-on: ubuntu-latest
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/')
-    permissions:
-      contents: write
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: dist-files
-          path: .
-      - name: Create Release and Upload Assets
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            anheyu-app-linux-amd64
-            anheyu-app-linux-arm64
-            anheyu-app-windows-amd64.exe
-            anheyu-app-macos-amd64
+      - name: Create release summary
+        run: |
+          echo "🎉 **Release completed successfully!**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Release Information" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: \`${GITHUB_REF#refs/tags/}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: \`$(git rev-parse --short HEAD)\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Date**: \`$(date -u '+%Y-%m-%d %H:%M:%S')\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Links" >> $GITHUB_STEP_SUMMARY
+          echo "- [📦 GitHub Release](https://github.com/anzhiyu-c/anheyu-app/releases/tag/${GITHUB_REF#refs/tags/})" >> $GITHUB_STEP_SUMMARY
+          echo "- [🐳 Docker Hub](https://hub.docker.com/r/anheyu/anheyu-backend)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 Quick Start" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "# Docker" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull anheyu/anheyu-backend:${GITHUB_REF#refs/tags/}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Binary download" >> $GITHUB_STEP_SUMMARY
+          echo "wget https://github.com/anzhiyu-c/anheyu-app/releases/download/${GITHUB_REF#refs/tags/}/anheyu-app_${GITHUB_REF#refs/tags/}_linux_amd64.tar.gz" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
