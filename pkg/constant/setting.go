@@ -225,6 +225,7 @@ const (
 	KeyAboutPageSkillsTips           SettingKey = "about.page.skills_tips"
 	KeyAboutPageStatisticsBackground SettingKey = "about.page.statistics_background"
 
-	KeyMusicPlayerEnable     SettingKey = "music.player.enable"
-	KeyMusicPlayerPlaylistID SettingKey = "music.player.playlist_id"
+	KeyMusicPlayerEnable         SettingKey = "music.player.enable"
+	KeyMusicPlayerPlaylistID     SettingKey = "music.player.playlist_id"
+	KeyMusicPlayerCustomPlaylist SettingKey = "music.player.custom_playlist"
 )
