@@ -123,15 +123,16 @@ changelog:
       regexp: "^(chore|refactor|style)\\([\\w]+\\): .*$"
       order: 999
 
-# Docker 镜像配置 - 使用修复后的 dockers 格式
+# Docker 镜像配置 - 多架构支持 (AMD64 + ARM64)
 dockers:
-  - id: anheyu-app-docker
+  # AMD64 镜像
+  - id: anheyu-app-docker-amd64
     goos: linux
     goarch: amd64
 
     image_templates:
-      - "anheyu/anheyu-backend:{{ .Version }}"
-      - "anheyu/anheyu-backend:latest"
+      - "anheyu/anheyu-backend:{{ .Version }}-amd64"
+      - "anheyu/anheyu-backend:latest-amd64"
 
     dockerfile: Dockerfile
     use: buildx
@@ -151,6 +152,48 @@ dockers:
       - LICENSE
       - entrypoint.sh
       - default_files/
+
+  # ARM64 镜像
+  - id: anheyu-app-docker-arm64
+    goos: linux
+    goarch: arm64
+
+    image_templates:
+      - "anheyu/anheyu-backend:{{ .Version }}-arm64"
+      - "anheyu/anheyu-backend:latest-arm64"
+
+    dockerfile: Dockerfile
+    use: buildx
+
+    build_flag_templates:
+      - "--platform=linux/arm64"
+      - "--pull"
+      - "--build-arg=VERSION={{ .Version }}"
+      - "--build-arg=COMMIT={{ .ShortCommit }}"
+      - "--build-arg=BUILD_DATE={{ .Date }}"
+      - "--label=org.opencontainers.image.source={{ .GitURL }}"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.created={{ .Date }}"
+
+    extra_files:
+      - README.md
+      - LICENSE
+      - entrypoint.sh
+      - default_files/
+
+# Docker Manifest 配置 - 多架构镜像聚合
+docker_manifests:
+  # 版本标签的多架构 manifest
+  - name_template: "anheyu/anheyu-backend:{{ .Version }}"
+    image_templates:
+      - "anheyu/anheyu-backend:{{ .Version }}-amd64"
+      - "anheyu/anheyu-backend:{{ .Version }}-arm64"
+
+  # latest 标签的多架构 manifest
+  - name_template: "anheyu/anheyu-backend:latest"
+    image_templates:
+      - "anheyu/anheyu-backend:latest-amd64"
+      - "anheyu/anheyu-backend:latest-arm64"
 
 # GitHub Release 配置
 release:
