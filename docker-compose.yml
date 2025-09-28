@@ -24,7 +24,10 @@ services:
       - ./backup:/anheyu/backup
 
   anheyu_postgresql:
-    image: postgres:latest
+    # Best practice: Pin to major version.
+    # NOTE: For major version jumps:
+    # backup & consult https://www.postgresql.org/docs/current/pgupgrade.html
+    image: postgres:17
     container_name: anheyu_postgresql
     ports:
       - "5432:5432"

@@ -225,6 +225,7 @@ var AllSettings = []Definition{
 	// --- 音乐播放器配置 ---
 	{Key: constant.KeyMusicPlayerEnable, Value: "false", Comment: "是否启用音乐播放器功能 (true/false)", IsPublic: true},
 	{Key: constant.KeyMusicPlayerPlaylistID, Value: "8152976493", Comment: "音乐播放器播放列表ID (网易云歌单ID)", IsPublic: true},
+	{Key: constant.KeyMusicPlayerCustomPlaylist, Value: "", Comment: "自定义音乐歌单JSON文件链接", IsPublic: true},
 }
 
 // AllUserGroups 是所有默认用户组的"单一事实来源"
