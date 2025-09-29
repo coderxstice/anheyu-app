@@ -218,10 +218,20 @@ jobs:
 
       - name: Create release summary
         run: |
-          echo "🎉 **Release completed successfully!**" >> $GITHUB_STEP_SUMMARY
+          VERSION="${GITHUB_REF#refs/tags/}"
+
+          # 检测是否为预发布版本
+          if [[ "$VERSION" == *"beta"* ]] || [[ "$VERSION" == *"alpha"* ]] || [[ "$VERSION" == *"rc"* ]]; then
+            echo "🧪 **预发布版本发布完成！**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "> ⚠️ 这是一个预发布版本，请谨慎在生产环境中使用。" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "🎉 **正式版本发布完成！**" >> $GITHUB_STEP_SUMMARY
+          fi
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📋 Release Information" >> $GITHUB_STEP_SUMMARY
-          echo "- **Version**: \`${GITHUB_REF#refs/tags/}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: \`${VERSION}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: \`$(git rev-parse --short HEAD)\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Build Date**: \`$(date -u '+%Y-%m-%d %H:%M:%S')\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -231,8 +241,27 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 🚀 Quick Start" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "# Docker (多架构镜像，自动选择适合的架构)" >> $GITHUB_STEP_SUMMARY
-          echo "docker pull anheyu/anheyu-backend:${GITHUB_REF#refs/tags/}" >> $GITHUB_STEP_SUMMARY
+
+          # 根据版本类型提供不同的Docker说明
+          if [[ "$VERSION" == *"beta"* ]]; then
+            echo "# Docker - Beta版本 (多架构镜像，自动选择适合的架构)" >> $GITHUB_STEP_SUMMARY
+            echo "docker pull anheyu/anheyu-backend:${VERSION}" >> $GITHUB_STEP_SUMMARY
+            echo "# 或者使用beta标签获取最新的beta版本" >> $GITHUB_STEP_SUMMARY
+            echo "docker pull anheyu/anheyu-backend:beta" >> $GITHUB_STEP_SUMMARY
+          elif [[ "$VERSION" == *"alpha"* ]]; then
+            echo "# Docker - Alpha版本 (多架构镜像，自动选择适合的架构)" >> $GITHUB_STEP_SUMMARY
+            echo "docker pull anheyu/anheyu-backend:${VERSION}" >> $GITHUB_STEP_SUMMARY
+            echo "# 或者使用alpha标签获取最新的alpha版本" >> $GITHUB_STEP_SUMMARY
+            echo "docker pull anheyu/anheyu-backend:alpha" >> $GITHUB_STEP_SUMMARY
+          elif [[ "$VERSION" == *"rc"* ]]; then
+            echo "# Docker - RC版本 (多架构镜像，自动选择适合的架构)" >> $GITHUB_STEP_SUMMARY
+            echo "docker pull anheyu/anheyu-backend:${VERSION}" >> $GITHUB_STEP_SUMMARY
+            echo "# 或者使用rc标签获取最新的rc版本" >> $GITHUB_STEP_SUMMARY
+            echo "docker pull anheyu/anheyu-backend:rc" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "# Docker - 正式版本 (多架构镜像，自动选择适合的架构)" >> $GITHUB_STEP_SUMMARY
+            echo "docker pull anheyu/anheyu-backend:${VERSION}" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "# Binary download - Linux AMD64" >> $GITHUB_STEP_SUMMARY
           echo "wget https://github.com/anzhiyu-c/anheyu-app/releases/download/${GITHUB_REF#refs/tags/}/anheyu-app_${GITHUB_REF#refs/tags/}_linux_amd64.tar.gz" >> $GITHUB_STEP_SUMMARY
