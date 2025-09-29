@@ -55,7 +55,7 @@ type IStorageProvider interface {
 	// CreateDirectory 在存储中创建一个目录。
 	CreateDirectory(ctx context.Context, policy *model.StoragePolicy, virtualPath string) error
 	// Delete 删除一个或多个物理文件，需要处理空文件夹情况。
-	Delete(ctx context.Context, sources []string) error
+	Delete(ctx context.Context, policy *model.StoragePolicy, sources []string) error
 	// GetDownloadURL 为存储中的文件生成一个临时的、可公开访问的下载链接。
 	GetDownloadURL(ctx context.Context, policy *model.StoragePolicy, source string, options DownloadURLOptions) (string, error)
 	// DeleteDirectory 删除一个空目录。
@@ -65,7 +65,7 @@ type IStorageProvider interface {
 	// Stream 将文件内容以流式传输到给定的写入器。
 	Stream(ctx context.Context, policy *model.StoragePolicy, source string, writer io.Writer) error
 	// IsExist 检查给定的源路径是否存在物理文件。
-	IsExist(ctx context.Context, source string) (bool, error)
+	IsExist(ctx context.Context, policy *model.StoragePolicy, source string) (bool, error)
 	// Get 返回一个可读的文件流，用于服务内部的文件处理，如元数据提取。
 	Get(ctx context.Context, policy *model.StoragePolicy, source string) (io.ReadCloser, error)
 	// List 列出指定虚拟路径下的所有文件和目录。

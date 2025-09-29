@@ -29,11 +29,10 @@ func NewEntStoragePolicyRepository(client *ent.Client) repository.StoragePolicyR
 }
 
 func (r *entStoragePolicyRepo) Create(ctx context.Context, policy *model.StoragePolicy) error {
-	created, err := r.client.StoragePolicy.
+	create := r.client.StoragePolicy.
 		Create().
 		SetName(policy.Name).
 		SetType(string(policy.Type)).
-		SetFlag(policy.Flag).
 		SetServer(policy.Server).
 		SetBucketName(policy.BucketName).
 		SetIsPrivate(policy.IsPrivate).
@@ -43,8 +42,15 @@ func (r *entStoragePolicyRepo) Create(ctx context.Context, policy *model.Storage
 		SetBasePath(policy.BasePath).
 		SetVirtualPath(policy.VirtualPath).
 		SetSettings(policy.Settings).
-		SetNillableNodeID(policy.NodeID).
-		Save(ctx)
+		SetNillableNodeID(policy.NodeID)
+
+	// 正确处理flag字段：空字符串设置为NULL，非空字符串正常设置
+	if policy.Flag != "" {
+		create.SetFlag(policy.Flag)
+	}
+	// 如果flag为空字符串，则不设置该字段，让数据库使用NULL值
+
+	created, err := create.Save(ctx)
 	if err != nil {
 		return err
 	}
@@ -79,11 +85,10 @@ func (r *entStoragePolicyRepo) FindByID(ctx context.Context, id uint) (*model.St
 }
 
 func (r *entStoragePolicyRepo) Update(ctx context.Context, policy *model.StoragePolicy) error {
-	_, err := r.client.StoragePolicy.
+	update := r.client.StoragePolicy.
 		UpdateOneID(policy.ID).
 		SetName(policy.Name).
 		SetType(string(policy.Type)).
-		SetFlag(policy.Flag).
 		SetServer(policy.Server).
 		SetBucketName(policy.BucketName).
 		SetIsPrivate(policy.IsPrivate).
@@ -93,8 +98,17 @@ func (r *entStoragePolicyRepo) Update(ctx context.Context, policy *model.Storage
 		SetBasePath(policy.BasePath).
 		SetVirtualPath(policy.VirtualPath).
 		SetSettings(policy.Settings).
-		SetNillableNodeID(policy.NodeID).
-		Save(ctx)
+		SetNillableNodeID(policy.NodeID)
+
+	// 正确处理flag字段：空字符串设置为NULL，非空字符串正常设置
+	if policy.Flag != "" {
+		update.SetFlag(policy.Flag)
+	} else {
+		// 明确清除flag字段，设置为NULL
+		update.ClearFlag()
+	}
+
+	_, err := update.Save(ctx)
 	return err
 }
 
@@ -216,4 +230,11 @@ func (r *entStoragePolicyRepo) FindByFlag(ctx context.Context, flag string) (*mo
 	}
 
 	return toDomainStoragePolicy(po), nil
+}
+
+// ClearFlag 清除指定策略的 Flag 标志
+func (r *entStoragePolicyRepo) ClearFlag(ctx context.Context, policyID uint) error {
+	return r.client.StoragePolicy.UpdateOneID(policyID).
+		ClearFlag().
+		Exec(ctx)
 }

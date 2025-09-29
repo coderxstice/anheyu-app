@@ -360,8 +360,8 @@ func (p *OneDriveProvider) CreateDirectory(ctx context.Context, policy *model.St
 }
 
 // Delete 从 OneDrive 删除一个或多个物理文件或目录。
-// 它会根据文件路径自动查找对应的存储策略，并对要删除的路径进行分组处理。
-func (p *OneDriveProvider) Delete(ctx context.Context, sources []string) error {
+// 注意：OneDrive的实现暂时忽略传入的policy参数，仍然使用原有的路径查找策略逻辑。
+func (p *OneDriveProvider) Delete(ctx context.Context, policy *model.StoragePolicy, sources []string) error {
 	policyCache := make(map[uint]*model.StoragePolicy)
 	groupedSources := make(map[uint][]string)
 
@@ -574,7 +574,7 @@ func (p *OneDriveProvider) Stream(ctx context.Context, policy *model.StoragePoli
 }
 
 // IsExist 检查给定的源路径在 OneDrive 上是否存在物理文件或目录。
-func (p *OneDriveProvider) IsExist(ctx context.Context, source string) (bool, error) {
+func (p *OneDriveProvider) IsExist(ctx context.Context, policy *model.StoragePolicy, source string) (bool, error) {
 	policy, apiPath, err := p.getPolicyAndAPIPath(ctx, source)
 	if err != nil {
 		if errors.Is(err, constant.ErrNotFound) {

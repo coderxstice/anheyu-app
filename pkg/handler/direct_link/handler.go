@@ -112,15 +112,30 @@ func (h *DirectLinkHandler) HandleDirectDownload(c *gin.Context) {
 		return
 	}
 
-	encodedFileName := url.QueryEscape(filename)
-	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename*=UTF-8''%s", encodedFileName))
-	c.Header("Content-Type", file.PrimaryEntity.MimeType.String)
-	c.Header("Content-Length", fmt.Sprintf("%d", file.Size))
+	if policy.Type == constant.PolicyTypeLocal {
+		// 本地存储：直接流式传输
+		encodedFileName := url.QueryEscape(filename)
+		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename*=UTF-8''%s", encodedFileName))
+		c.Header("Content-Type", file.PrimaryEntity.MimeType.String)
+		c.Header("Content-Length", fmt.Sprintf("%d", file.Size))
 
-	throttledWriter := utils.NewThrottledWriter(c.Writer, speedLimit, c.Request.Context())
+		throttledWriter := utils.NewThrottledWriter(c.Writer, speedLimit, c.Request.Context())
 
-	err = provider.Stream(c.Request.Context(), policy, file.PrimaryEntity.Source.String, throttledWriter)
-	if err != nil {
-		log.Printf("下载文件 [FileID: %d] 时流式传输失败: %v", file.ID, err)
+		err = provider.Stream(c.Request.Context(), policy, file.PrimaryEntity.Source.String, throttledWriter)
+		if err != nil {
+			log.Printf("下载文件 [FileID: %d] 时流式传输失败: %v", file.ID, err)
+		}
+	} else {
+		// 云存储：重定向到直接下载链接
+		options := storage.DownloadURLOptions{ExpiresIn: 3600}
+		downloadURL, err := provider.GetDownloadURL(c.Request.Context(), policy, file.PrimaryEntity.Source.String, options)
+		if err != nil {
+			log.Printf("获取云存储下载链接失败 [FileID: %d]: %v", file.ID, err)
+			response.Fail(c, http.StatusInternalServerError, "获取下载链接失败")
+			return
+		}
+
+		// 302重定向到云存储的直接下载链接
+		c.Redirect(http.StatusFound, downloadURL)
 	}
 }

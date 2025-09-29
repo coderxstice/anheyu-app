@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-23 15:08:11
- * @LastEditTime: 2025-08-17 03:53:43
+ * @LastEditTime: 2025-09-28 16:45:44
  * @LastEditors: 安知鱼
  */
 package repository
@@ -25,4 +25,5 @@ type StoragePolicyRepository interface {
 	FindByVirtualPath(ctx context.Context, path string) (*model.StoragePolicy, error)
 	FindByFlag(ctx context.Context, flag string) (*model.StoragePolicy, error)
 	FindByNodeID(ctx context.Context, nodeID uint) (*model.StoragePolicy, error)
+	ClearFlag(ctx context.Context, policyID uint) error
 }

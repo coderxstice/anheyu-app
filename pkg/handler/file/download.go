@@ -83,3 +83,40 @@ func (h *FileHandler) DownloadFile(c *gin.Context) {
 		c.Header("Content-Length", fmt.Sprintf("%d", fileMeta.Size))
 	}
 }
+
+// GetDownloadInfo 获取文件下载信息 (e.g., GET /api/file/download-info/:id)
+func (h *FileHandler) GetDownloadInfo(c *gin.Context) {
+	publicFileID := c.Param("id")
+	if publicFileID == "" {
+		response.Fail(c, http.StatusBadRequest, "文件ID不能为空")
+		return
+	}
+
+	claims, err := getClaims(c)
+	if err != nil {
+		response.Fail(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	// 从 claims 中解码出数据库 viewerID
+	viewerID, userEntityType, err := idgen.DecodePublicID(claims.UserID)
+	if err != nil || userEntityType != idgen.EntityTypeUser {
+		response.Fail(c, http.StatusUnauthorized, "无效的用户凭证")
+		return
+	}
+
+	// 调用获取下载信息的服务
+	downloadInfo, err := h.fileSvc.GetDownloadInfo(c.Request.Context(), uint(viewerID), publicFileID)
+	if err != nil {
+		if errors.Is(err, constant.ErrNotFound) {
+			response.Fail(c, http.StatusNotFound, "文件不存在")
+		} else if errors.Is(err, constant.ErrForbidden) {
+			response.Fail(c, http.StatusForbidden, "无权访问此文件")
+		} else {
+			response.Fail(c, http.StatusInternalServerError, "获取下载信息失败: "+err.Error())
+		}
+		return
+	}
+
+	response.Success(c, downloadInfo, "获取下载信息成功")
+}

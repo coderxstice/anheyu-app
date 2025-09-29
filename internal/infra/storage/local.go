@@ -206,7 +206,7 @@ func (p *LocalProvider) Upload(ctx context.Context, file io.Reader, policy *mode
 }
 
 // Delete 实现了删除本机上一个或多个物理文件或目录的逻辑。
-func (p *LocalProvider) Delete(ctx context.Context, sources []string) error {
+func (p *LocalProvider) Delete(ctx context.Context, policy *model.StoragePolicy, sources []string) error {
 	for _, source := range sources {
 		info, err := os.Stat(source)
 		if err != nil {
@@ -269,7 +269,7 @@ func (p *LocalProvider) Rename(ctx context.Context, policy *model.StoragePolicy,
 }
 
 // IsExist 检查本地文件系统中指定路径的文件或目录是否存在。
-func (p *LocalProvider) IsExist(ctx context.Context, source string) (bool, error) {
+func (p *LocalProvider) IsExist(ctx context.Context, policy *model.StoragePolicy, source string) (bool, error) {
 	_, err := os.Stat(source)
 	if err == nil {
 		return true, nil

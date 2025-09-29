@@ -38,6 +38,8 @@ type FileService interface {
 	RenameItem(ctx context.Context, ownerID uint, req *model.RenameItemRequest) (*model.FileInfoResponse, error)
 	// Download 提供一个流式下载文件的服务。
 	Download(ctx context.Context, viewerID uint, publicFileID string, writer io.Writer) (*DownloadResult, error)
+	// GetDownloadInfo 获取文件的下载信息，告诉前端应该如何下载文件。
+	GetDownloadInfo(ctx context.Context, viewerID uint, publicFileID string) (*DownloadInfo, error)
 	// GetFolderTree 获取一个文件夹下所有子文件的树状结构列表，用于打包下载。
 	GetFolderTree(ctx context.Context, viewerID uint, publicFolderID string) (*model.FolderTreeResponse, error)
 	// ProcessSignedDownload 验证并处理一个带签名的下载请求。

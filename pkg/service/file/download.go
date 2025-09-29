@@ -26,6 +26,15 @@ type DownloadResult struct {
 	Size int64
 }
 
+// DownloadInfo 封装了下载信息，告诉前端如何下载文件
+type DownloadInfo struct {
+	Type        string `json:"type"`                   // "local" 或 "cloud"
+	URL         string `json:"url,omitempty"`          // 如果是云存储，提供直接下载链接
+	StorageType string `json:"storage_type,omitempty"` // 存储类型：local, onedrive, tencent_cos等
+	FileName    string `json:"file_name"`
+	FileSize    int64  `json:"file_size"`
+}
+
 // Download 是核心的文件下载业务逻辑。
 // 这个版本保持了它的纯粹性，只负责根据权限获取文件并写入io.Writer。
 func (s *serviceImpl) Download(ctx context.Context, viewerID uint, publicFileID string, writer io.Writer) (*DownloadResult, error) {
@@ -161,4 +170,70 @@ func (s *serviceImpl) ProcessSignedDownload(c context.Context, w http.ResponseWr
 	}
 
 	return err
+}
+
+// GetDownloadInfo 获取文件的下载信息，告诉前端应该如何下载文件
+func (s *serviceImpl) GetDownloadInfo(ctx context.Context, viewerID uint, publicFileID string) (*DownloadInfo, error) {
+	dbID, entityType, err := idgen.DecodePublicID(publicFileID)
+	if err != nil || entityType != idgen.EntityTypeFile {
+		return nil, constant.ErrNotFound
+	}
+
+	file, err := s.fileRepo.FindByID(ctx, dbID)
+	if err != nil {
+		return nil, constant.ErrNotFound
+	}
+
+	if viewerID != 0 && file.OwnerID != viewerID {
+		return nil, constant.ErrForbidden
+	}
+
+	if file.Type != model.FileTypeFile {
+		return nil, fmt.Errorf("目标不是一个文件: %w", constant.ErrInvalidOperation)
+	}
+
+	if !file.PrimaryEntityID.Valid {
+		return nil, errors.New("文件没有关联的物理实体")
+	}
+
+	entity, err := s.entityRepo.FindByID(ctx, uint(file.PrimaryEntityID.Uint64))
+	if err != nil {
+		return nil, fmt.Errorf("找不到物理实体: %w", err)
+	}
+
+	policy, err := s.policySvc.GetPolicyByDatabaseID(ctx, entity.PolicyID)
+	if err != nil {
+		return nil, fmt.Errorf("找不到存储策略: %w", err)
+	}
+
+	downloadInfo := &DownloadInfo{
+		FileName: file.Name,
+		FileSize: file.Size,
+	}
+
+	if policy.Type == constant.PolicyTypeLocal {
+		// 本地存储，前端需要通过API下载
+		downloadInfo.Type = "local"
+		downloadInfo.StorageType = "local"
+	} else {
+		// 云存储，可以提供直接下载链接
+		downloadInfo.Type = "cloud"
+		downloadInfo.StorageType = string(policy.Type)
+
+		// 获取云存储的直接下载链接
+		provider, err := s.GetProviderForPolicy(policy)
+		if err != nil {
+			return nil, err
+		}
+
+		options := storage.DownloadURLOptions{ExpiresIn: 3600}
+		downloadURL, err := provider.GetDownloadURL(ctx, policy, entity.Source.String, options)
+		if err != nil {
+			return nil, fmt.Errorf("无法从云存储获取下载链接: %w", err)
+		}
+
+		downloadInfo.URL = downloadURL
+	}
+
+	return downloadInfo, nil
 }
