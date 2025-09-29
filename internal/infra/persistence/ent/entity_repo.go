@@ -232,6 +232,78 @@ func (r *entEntityRepository) Transaction(ctx context.Context, fn func(repo repo
 	return tx.Commit()
 }
 
+// CountEntityByStoragePolicyID 统计指定存储策略下的实体数量和总大小。
+func (r *entEntityRepository) CountEntityByStoragePolicyID(ctx context.Context, policyID uint) (count int64, totalSize int64, err error) {
+	// 统计数量
+	countResult, err := r.client.Entity.Query().
+		Where(entity.PolicyID(policyID)).
+		Count(ctx)
+	if err != nil {
+		return 0, 0, fmt.Errorf("统计实体数量失败: %w", err)
+	}
+	count = int64(countResult)
+
+	if count == 0 {
+		return 0, 0, nil
+	}
+
+	// 统计总大小
+	var v []struct {
+		Sum int64 `json:"sum"`
+	}
+	err = r.client.Entity.Query().
+		Where(entity.PolicyID(policyID)).
+		Aggregate(ent.Sum(entity.FieldSize)).
+		Scan(ctx, &v)
+	if err != nil {
+		return 0, 0, fmt.Errorf("统计实体总大小失败: %w", err)
+	}
+
+	if len(v) > 0 {
+		totalSize = v[0].Sum
+	}
+
+	return count, totalSize, nil
+}
+
+// IsStoragePolicyUsedByEntities 检查指定的存储策略是否被任何实体使用。
+func (r *entEntityRepository) IsStoragePolicyUsedByEntities(ctx context.Context, policyID uint) (bool, error) {
+	count, err := r.client.Entity.Query().
+		Where(entity.PolicyID(policyID)).
+		Count(ctx)
+	if err != nil {
+		return false, fmt.Errorf("检查存储策略使用情况失败: %w", err)
+	}
+	return count > 0, nil
+}
+
+// FindByStoragePolicyID 查找指定存储策略下的所有实体。
+func (r *entEntityRepository) FindByStoragePolicyID(ctx context.Context, policyID uint) ([]*model.FileStorageEntity, error) {
+	entEntities, err := r.client.Entity.Query().
+		Where(entity.PolicyID(policyID)).
+		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("查找存储策略下的实体失败: %w", err)
+	}
+
+	domainEntities := make([]*model.FileStorageEntity, len(entEntities))
+	for i, e := range entEntities {
+		domainEntities[i] = toDomainEntity(e)
+	}
+	return domainEntities, nil
+}
+
+// DeleteByStoragePolicyID 删除指定存储策略下的所有实体记录。
+func (r *entEntityRepository) DeleteByStoragePolicyID(ctx context.Context, policyID uint) error {
+	_, err := r.client.Entity.Delete().
+		Where(entity.PolicyID(policyID)).
+		Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("删除存储策略下的实体失败: %w", err)
+	}
+	return nil
+}
+
 // --- 数据转换辅助函数 ---
 
 // toDomainEntity 将 ent 生成的实体对象转换为自定义的领域模型对象。

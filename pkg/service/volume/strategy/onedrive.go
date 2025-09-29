@@ -11,6 +11,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"net/url"
 	"strconv"
 
@@ -62,7 +63,11 @@ func (s *OneDriveStrategy) GetAuthHandler() IPolicyAuthHandler {
 
 // BeforeDelete 在删除 OneDrive 策略前执行的操作
 func (s *OneDriveStrategy) BeforeDelete(ctx context.Context, policy *model.StoragePolicy) error {
-	// 未来可以在这里实现撤销(revoke) refresh_token 的逻辑
+	// TODO: 未来可以在这里实现撤销(revoke) refresh_token 的逻辑
+
+	// 当前版本：清理可能存在的Redis缓存凭证
+	// 注意：这个方法目前无法访问CacheService，需要在调用方处理Redis清理
+	log.Printf("[OneDrive策略删除] 策略 ID=%d 的凭证清理将由调用方处理", policy.ID)
 	return nil
 }
 

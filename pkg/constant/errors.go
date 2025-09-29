@@ -68,6 +68,9 @@ var (
 	// ErrPolicyNotSupportAuth 表示存储策略不支持此授权方式，可以由 Handler 转换为 400
 	ErrPolicyNotSupportAuth = errors.New("存储策略不支持此授权方式")
 
+	// ErrPolicyUsedByFiles 表示存储策略正在被文件使用，无法删除，可以由 Handler 转换为 409
+	ErrPolicyUsedByFiles = errors.New("存储策略正在被文件使用，无法删除")
+
 	// ErrAdminEmailUsedByGuest 表示匿名用户尝试使用管理员邮箱发表评论
 	ErrAdminEmailUsedByGuest = errors.New("此邮箱为管理员专属，请登录后发表评论")
 )

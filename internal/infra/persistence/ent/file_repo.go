@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/types"
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
@@ -94,6 +95,11 @@ func (r *entFileRepository) Delete(ctx context.Context, id uint) error {
 	return r.client.File.DeleteOneID(id).Exec(ctx)
 }
 
+func (r *entFileRepository) SoftDelete(ctx context.Context, id uint) error {
+	now := time.Now()
+	return r.client.File.UpdateOneID(id).SetDeletedAt(now).Exec(ctx)
+}
+
 func (r *entFileRepository) HardDelete(ctx context.Context, id uint) error {
 	allowCtx := privacy.DecisionContext(ctx, privacy.Allow)
 	return r.client.File.DeleteOneID(id).Exec(allowCtx)
@@ -101,7 +107,10 @@ func (r *entFileRepository) HardDelete(ctx context.Context, id uint) error {
 
 func (r *entFileRepository) FindByID(ctx context.Context, id uint) (*model.File, error) {
 	entFile, err := r.client.File.Query().
-		Where(file.ID(id)).
+		Where(
+			file.ID(id),
+			file.DeletedAtIsNil(), // 过滤掉已软删除的文件
+		).
 		WithPrimaryEntity().
 		Only(ctx)
 	if err != nil {
@@ -156,6 +165,7 @@ func (r *entFileRepository) FindByPath(ctx context.Context, ownerID uint, path s
 		Where(
 			file.OwnerID(ownerID),
 			file.ParentIDIsNil(),
+			file.DeletedAtIsNil(), // 过滤掉已软删除的文件
 		).
 		Only(ctx)
 	if err != nil {
@@ -177,6 +187,7 @@ func (r *entFileRepository) FindByPath(ctx context.Context, ownerID uint, path s
 				file.OwnerID(ownerID),
 				file.ParentID(currentItem.ID),
 				file.Name(segment),
+				file.DeletedAtIsNil(), // 过滤掉已软删除的文件
 			).
 			WithPrimaryEntity().
 			Only(ctx)
@@ -297,9 +308,15 @@ func (r *entFileRepository) ListByParentIDWithCursor(
 	query := r.client.File.Query()
 
 	if parentID == 0 {
-		query = query.Where(file.ParentIDIsNil())
+		query = query.Where(
+			file.ParentIDIsNil(),
+			file.DeletedAtIsNil(), // 过滤掉已软删除的文件
+		)
 	} else {
-		query = query.Where(file.ParentID(parentID))
+		query = query.Where(
+			file.ParentID(parentID),
+			file.DeletedAtIsNil(), // 过滤掉已软删除的文件
+		)
 	}
 
 	isDesc := strings.ToLower(direction) == "desc"
@@ -535,9 +552,15 @@ func (r *entFileRepository) GetDescendantFileInfo(ctx context.Context, folderID 
 func (r *entFileRepository) ListByParentID(ctx context.Context, parentID uint) ([]*model.File, error) {
 	query := r.client.File.Query()
 	if parentID == 0 {
-		query = query.Where(file.ParentIDIsNil())
+		query = query.Where(
+			file.ParentIDIsNil(),
+			file.DeletedAtIsNil(), // 过滤掉已软删除的文件
+		)
 	} else {
-		query = query.Where(file.ParentID(parentID))
+		query = query.Where(
+			file.ParentID(parentID),
+			file.DeletedAtIsNil(), // 过滤掉已软删除的文件
+		)
 	}
 	entFiles, err := query.All(ctx)
 	if err != nil {
