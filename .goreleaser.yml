@@ -133,6 +133,10 @@ dockers:
     image_templates:
       - "anheyu/anheyu-backend:{{ .Version }}-amd64"
       - "anheyu/anheyu-backend:latest-amd64"
+      # Beta版本标签策略
+      - '{{ if contains .Version "beta" }}anheyu/anheyu-backend:beta-amd64{{ end }}'
+      - '{{ if contains .Version "alpha" }}anheyu/anheyu-backend:alpha-amd64{{ end }}'
+      - '{{ if contains .Version "rc" }}anheyu/anheyu-backend:rc-amd64{{ end }}'
 
     dockerfile: Dockerfile
     use: buildx
@@ -161,6 +165,10 @@ dockers:
     image_templates:
       - "anheyu/anheyu-backend:{{ .Version }}-arm64"
       - "anheyu/anheyu-backend:latest-arm64"
+      # Beta版本标签策略
+      - '{{ if contains .Version "beta" }}anheyu/anheyu-backend:beta-arm64{{ end }}'
+      - '{{ if contains .Version "alpha" }}anheyu/anheyu-backend:alpha-arm64{{ end }}'
+      - '{{ if contains .Version "rc" }}anheyu/anheyu-backend:rc-arm64{{ end }}'
 
     dockerfile: Dockerfile
     use: buildx
@@ -195,6 +203,24 @@ docker_manifests:
       - "anheyu/anheyu-backend:latest-amd64"
       - "anheyu/anheyu-backend:latest-arm64"
 
+  # Beta版本的多架构 manifest
+  - name_template: '{{ if contains .Version "beta" }}anheyu/anheyu-backend:beta{{ end }}'
+    image_templates:
+      - '{{ if contains .Version "beta" }}anheyu/anheyu-backend:beta-amd64{{ end }}'
+      - '{{ if contains .Version "beta" }}anheyu/anheyu-backend:beta-arm64{{ end }}'
+
+  # Alpha版本的多架构 manifest
+  - name_template: '{{ if contains .Version "alpha" }}anheyu/anheyu-backend:alpha{{ end }}'
+    image_templates:
+      - '{{ if contains .Version "alpha" }}anheyu/anheyu-backend:alpha-amd64{{ end }}'
+      - '{{ if contains .Version "alpha" }}anheyu/anheyu-backend:alpha-arm64{{ end }}'
+
+  # RC版本的多架构 manifest
+  - name_template: '{{ if contains .Version "rc" }}anheyu/anheyu-backend:rc{{ end }}'
+    image_templates:
+      - '{{ if contains .Version "rc" }}anheyu/anheyu-backend:rc-amd64{{ end }}'
+      - '{{ if contains .Version "rc" }}anheyu/anheyu-backend:rc-arm64{{ end }}'
+
 # GitHub Release 配置
 release:
   github:
@@ -214,13 +240,39 @@ release:
   header: |
     ## Anheyu App {{ .Tag }}
 
-    🎉 **新版本发布！**
+    {{- if .Prerelease }}
+
+    🧪 **预发布版本！**
+
+    > ⚠️ 这是一个预发布版本，可能包含未稳定的功能或已知问题。不建议在生产环境中使用。
+
+    {{- else }}
+
+    🎉 **正式版本发布！**
+
+    {{- end }}
 
     ### 📋 构建信息
-    - **版本**: `{{ .Tag }}`
+    - **版本**: `{{ .Tag }}`{{ if .Prerelease }} (预发布){{ end }}
     - **Commit**: [`{{ .ShortCommit }}`](https://github.com/anzhiyu-c/anheyu-app/commit/{{ .FullCommit }})
     - **构建时间**: `{{ .Date }}`
     - **Go 版本**: `{{ .Env.GOVERSION }}`
+
+    {{- if .Prerelease }}
+
+    ### 🔍 预发布说明
+    {{- if contains .Tag "beta" }}
+    - 此版本包含新功能的测试实现，可能存在功能不完整或稳定性问题
+    - 欢迎测试并反馈问题，帮助我们改进
+    {{- else if contains .Tag "alpha" }}
+    - 此版本包含早期开发的功能，非常不稳定，仅供开发测试使用
+    - 不建议在任何重要环境中使用
+    {{- else if contains .Tag "rc" }}
+    - 此版本是正式版的候选版本，功能相对稳定但需要进一步测试
+    - 如无重大问题，将成为下一个正式版本
+    {{- end }}
+
+    {{- end }}
 
   footer: |
     ---
