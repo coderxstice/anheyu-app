@@ -144,13 +144,14 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		sqlDB.Close()
 		return nil, nil, fmt.Errorf("连接 Redis 失败: %w", err)
 	}
-	cleanup := func() {
+	// 临时cleanup函数，后面会被增强版本替换
+	tempCleanup := func() {
 		log.Println("执行清理操作：关闭数据库和Redis连接...")
 		sqlDB.Close()
 		redisClient.Close()
 	}
 	if err := idgen.InitSqidsEncoder(); err != nil {
-		return nil, cleanup, fmt.Errorf("初始化 ID 编码器失败: %w", err)
+		return nil, tempCleanup, fmt.Errorf("初始化 ID 编码器失败: %w", err)
 	}
 	eventBus := event.NewEventBus()
 	dbType := cfg.GetString(config.KeyDBType)
@@ -186,14 +187,14 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	// --- Phase 4: 初始化应用引导程序 ---
 	bootstrapper := bootstrap.NewBootstrapper(entClient)
 	if err := bootstrapper.InitializeDatabase(); err != nil {
-		return nil, cleanup, fmt.Errorf("数据库初始化失败: %w", err)
+		return nil, tempCleanup, fmt.Errorf("数据库初始化失败: %w", err)
 	}
 
 	// --- Phase 5: 初始化业务逻辑层 ---
 	txManager := ent_impl.NewEntTransactionManager(entClient, sqlDB, dbType)
 	settingSvc := setting.NewSettingService(settingRepo, eventBus)
 	if err := settingSvc.LoadAllSettings(context.Background()); err != nil {
-		return nil, cleanup, fmt.Errorf("从数据库加载站点配置失败: %w", err)
+		return nil, tempCleanup, fmt.Errorf("从数据库加载站点配置失败: %w", err)
 	}
 	strategyManager := strategy.NewManager()
 	strategyManager.Register(constant.PolicyTypeLocal, strategy.NewLocalStrategy())
@@ -225,7 +226,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	storagePolicySvc := volume.NewStoragePolicyService(storagePolicyRepo, fileRepo, txManager, strategyManager, settingSvc, cacheSvc, storageProviders)
 	thumbnailSvc := thumbnail.NewThumbnailService(metadataSvc, fileRepo, entityRepo, storagePolicySvc, settingSvc, storageProviders)
 	if err != nil {
-		return nil, cleanup, fmt.Errorf("初始化缩略图服务失败: %w", err)
+		return nil, tempCleanup, fmt.Errorf("初始化缩略图服务失败: %w", err)
 	}
 	pathLocker := utility.NewPathLocker()
 	syncSvc := process.NewSyncService(txManager, fileRepo, entityRepo, fileEntityRepo, storagePolicySvc, eventBus, storageProviders)
@@ -242,7 +243,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		geoSvc,
 	)
 	if err != nil {
-		return nil, cleanup, fmt.Errorf("初始化统计服务失败: %w", err)
+		return nil, tempCleanup, fmt.Errorf("初始化统计服务失败: %w", err)
 	}
 	taskBroker := task.NewBroker(uploadSvc, thumbnailSvc, cleanupSvc, articleRepo, commentRepo, emailSvc, cacheSvc, linkCategoryRepo, linkTagRepo, settingSvc, statService)
 	linkSvc := link_service.NewService(linkRepo, linkCategoryRepo, linkTagRepo, txManager, taskBroker, settingSvc)
@@ -392,6 +393,15 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		mw:                   mw,
 		settingSvc:           settingSvc,
 		fileRepo:             fileRepo,
+	}
+
+	// 创建cleanup函数
+	cleanup := func() {
+		log.Println("执行清理操作：关闭数据库和Redis连接...")
+
+		// 关闭数据库和Redis连接
+		sqlDB.Close()
+		redisClient.Close()
 	}
 
 	return app, cleanup, nil

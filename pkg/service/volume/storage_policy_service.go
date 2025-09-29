@@ -2,7 +2,7 @@
  * @Description: 存储策略核心服务，集成策略模式与CacheService
  * @Author: 安知鱼
  * @Date: 2025-06-23 15:23:24
- * @LastEditTime: 2025-08-17 04:09:16
+ * @LastEditTime: 2025-09-29 11:44:17
  * @LastEditors: 安知鱼
  */
 package volume
@@ -236,6 +236,10 @@ func (s *storagePolicyService) CreatePolicy(ctx context.Context, ownerID uint, p
 			s.cacheSvc.Set(ctx, policyPublicCacheKey(publicID), policyBytes, policyCacheTTL)
 		}
 	}
+
+	// --- 清除策略列表缓存，确保新策略立即生效 ---
+	s.cacheSvc.Delete(ctx, "storage_policies_all")
+	log.Printf("[缓存清理] 策略创建后已清除策略列表缓存，新策略将立即生效")
 
 	return nil
 }
@@ -479,18 +483,27 @@ func (s *storagePolicyService) UpdatePolicy(ctx context.Context, policy *model.S
 		}
 	}
 
+	// --- 清除策略列表缓存，确保策略更新立即生效 ---
+	s.cacheSvc.Delete(ctx, "storage_policies_all")
+	log.Printf("[缓存清理] 策略更新后已清除策略列表缓存，更新将立即生效")
+
 	return nil
 }
 
-// DeletePolicy 方法实现了策略的删除逻辑，包括删除关联的挂载点目录
+// DeletePolicy 方法实现了策略的删除逻辑，立即删除策略和挂载点，延迟清理相关数据
 func (s *storagePolicyService) DeletePolicy(ctx context.Context, publicID string) error {
-	// 1. 首先在事务外获取策略信息，以便知道要删除哪个File记录 (NodeID)
+	// 1. 首先在事务外获取策略信息
 	policy, err := s.GetPolicyByID(ctx, publicID)
 	if err != nil {
 		if errors.Is(err, constant.ErrNotFound) {
 			return nil // 尝试删除一个不存在的策略，不是错误，直接成功返回
 		}
 		return err
+	}
+
+	// 2. 【保护逻辑】禁止删除默认策略
+	if policy.ID == 1 {
+		return errors.New("禁止删除默认策略")
 	}
 
 	// 保护逻辑：禁止删除内置的系统策略
@@ -503,35 +516,113 @@ func (s *storagePolicyService) DeletePolicy(ctx context.Context, publicID string
 		return errors.New("无法删除默认的根存储策略")
 	}
 
-	// 2. 使用事务来原子性地删除策略及其关联的File记录
+	// 3. 收集需要延迟清理的数据信息
+	var entityIDs []uint
+	var fileIDs []uint
+	err = s.txManager.Do(ctx, func(repos repository.Repositories) error {
+		entityRepo := repos.Entity
+		fileEntityRepo := repos.FileEntity
+
+		// 查找该策略下的所有实体
+		entities, err := entityRepo.FindByStoragePolicyID(ctx, policy.ID)
+		if err != nil {
+			return fmt.Errorf("查找策略关联的实体记录失败: %w", err)
+		}
+
+		// 收集实体ID和文件ID
+		entityIDs = make([]uint, 0, len(entities))
+		fileIDs = make([]uint, 0)
+
+		if len(entities) > 0 {
+			for _, entity := range entities {
+				entityIDs = append(entityIDs, entity.ID)
+			}
+
+			// 查找这些实体关联的文件记录
+			fileVersions, err := fileEntityRepo.FindByEntityIDs(ctx, entityIDs)
+			if err != nil {
+				return fmt.Errorf("查找实体关联的文件记录失败: %w", err)
+			}
+
+			// 收集文件ID
+			fileIDMap := make(map[uint]bool)
+			for _, version := range fileVersions {
+				if !fileIDMap[version.FileID] {
+					fileIDs = append(fileIDs, version.FileID)
+					fileIDMap[version.FileID] = true
+				}
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return fmt.Errorf("收集清理数据信息时出错: %w", err)
+	}
+
+	// 4. 【立即递归删除】所有关联数据，包括策略记录和挂载点目录
+	var deletedCounts struct {
+		files    int
+		entities int
+	}
+
 	err = s.txManager.Do(ctx, func(repos repository.Repositories) error {
 		policyRepo := repos.StoragePolicy
 		fileRepo := repos.File
+		entityRepo := repos.Entity
+		fileEntityRepo := repos.FileEntity
 
-		// 3. 【核心逻辑】删除策略关联的挂载点目录
-		// 检查策略是否有对应的挂载点 (NodeID)
+		// 4a. 收集所有需要删除的文件ID（递归方式，按正确顺序）
+		var allFileIDs []uint
 		if policy.NodeID != nil && *policy.NodeID > 0 {
-			mountPointFile, findErr := fileRepo.FindByID(ctx, *policy.NodeID)
-
-			// 如果找到对应的File记录
+			mountPointFile, findErr := fileRepo.FindByIDUnscoped(ctx, *policy.NodeID)
 			if findErr == nil && mountPointFile != nil {
-				// 【安全检查】如果目录不为空，则阻止删除
-				if mountPointFile.ChildrenCount > 0 {
-					return fmt.Errorf("无法删除策略 '%s'：其挂载点目录 '%s' 中包含文件或子目录", policy.Name, mountPointFile.Name)
+				log.Printf("[递归收集] 开始收集挂载点目录的所有文件: ID=%d, 名称=%s", mountPointFile.ID, mountPointFile.Name)
+				// 递归收集所有文件ID，按深度优先顺序（叶子节点在前，父目录在后）
+				err := s.collectFilesRecursiveForDeletion(ctx, fileRepo, mountPointFile.ID, &allFileIDs)
+				if err != nil {
+					return fmt.Errorf("收集文件列表失败: %w", err)
 				}
-
-				// 目录为空，可以安全删除
-				if deleteErr := fileRepo.Delete(ctx, mountPointFile.ID); deleteErr != nil {
-					return fmt.Errorf("删除策略的挂载点目录失败: %w", deleteErr)
-				}
+				log.Printf("[递归收集] 完成文件收集，共%d个文件需要删除", len(allFileIDs))
 			} else if !errors.Is(findErr, constant.ErrNotFound) {
-				// 如果查找时发生其他错误，则终止
 				return fmt.Errorf("查找策略的挂载点目录时出错: %w", findErr)
 			}
-			// 如果没找到对应的File记录，说明数据可能已不一致，忽略它，继续删除策略本身
 		}
 
-		// 4. 执行策略自己的删除前置任务 (例如清理云端凭证等)
+		// 4b. 删除文件-实体关联记录
+		if len(entityIDs) > 0 {
+			if err := fileEntityRepo.DeleteByEntityIDs(ctx, entityIDs); err != nil {
+				return fmt.Errorf("删除文件-实体关联失败: %w", err)
+			}
+			log.Printf("[立即删除] 已删除 %d 个文件-实体关联记录", len(entityIDs))
+		}
+
+		// 4c. 删除实体记录
+		if len(entityIDs) > 0 {
+			if err := entityRepo.DeleteByStoragePolicyID(ctx, policy.ID); err != nil {
+				return fmt.Errorf("删除实体记录失败: %w", err)
+			}
+			log.Printf("[立即删除] 已删除 %d 个实体记录", len(entityIDs))
+			deletedCounts.entities = len(entityIDs)
+		}
+
+		// 4d. 按倒序删除文件记录（先删子文件，再删父目录，避免外键约束冲突）
+		deletedFiles := 0
+		for i := len(allFileIDs) - 1; i >= 0; i-- {
+			fileID := allFileIDs[i]
+			if err := fileRepo.HardDelete(ctx, fileID); err != nil {
+				log.Printf("[警告] 删除文件记录失败 FileID=%d: %v", fileID, err)
+			} else {
+				deletedFiles++
+			}
+		}
+		if deletedFiles > 0 {
+			log.Printf("[立即删除] 已删除 %d/%d 个文件记录", deletedFiles, len(allFileIDs))
+			deletedCounts.files = deletedFiles
+		}
+
+		// 4e. 执行策略自己的删除前置任务 (例如清理云端凭证等)
 		strategyInstance, strategyErr := s.strategyManager.Get(policy.Type)
 		if strategyErr != nil {
 			return strategyErr
@@ -540,9 +631,10 @@ func (s *storagePolicyService) DeletePolicy(ctx context.Context, publicID string
 			return fmt.Errorf("执行策略删除前置任务失败: %w", err)
 		}
 
-		// 5. 删除策略记录本身
+		// 4f. 最后删除策略记录
+		log.Printf("[立即删除] 删除策略记录: ID=%d, 名称=%s", policy.ID, policy.Name)
 		if err := policyRepo.Delete(ctx, policy.ID); err != nil {
-			return err
+			return fmt.Errorf("删除策略记录失败: %w", err)
 		}
 
 		return nil // 事务成功
@@ -552,10 +644,86 @@ func (s *storagePolicyService) DeletePolicy(ctx context.Context, publicID string
 		return err
 	}
 
-	// 6. 事务成功后，清理缓存
+	// 5. 清理缓存
 	s.cacheSvc.Delete(ctx, policyCacheKey(policy.ID), policyPublicCacheKey(publicID))
 
+	// 6a. 【OneDrive特殊处理】清理OAuth凭证缓存
+	if policy.Type == constant.PolicyTypeOneDrive {
+		s.cleanupOneDriveCredentials(ctx, policy)
+	}
+
+	// --- 清除策略列表缓存，确保策略删除立即生效 ---
+	s.cacheSvc.Delete(ctx, "storage_policies_all")
+	log.Printf("[缓存清理] 策略删除后已清除策略列表缓存，删除将立即生效")
+
+	log.Printf("[删除完成] 存储策略 ID=%d 名称='%s' 已成功删除，共删除 %d 个文件记录和 %d 个实体记录",
+		policy.ID, policy.Name, deletedCounts.files, deletedCounts.entities)
 	return nil
+}
+
+// cleanupOneDriveCredentials 清理OneDrive策略相关的Redis缓存凭证
+func (s *storagePolicyService) cleanupOneDriveCredentials(ctx context.Context, policy *model.StoragePolicy) {
+	log.Printf("[OneDrive凭证清理] 开始清理策略 ID=%d 的OneDrive缓存凭证", policy.ID)
+
+	// 可能的OneDrive缓存键格式列表
+	possibleCacheKeys := []string{
+		// 策略相关的缓存键
+		fmt.Sprintf("onedrive:policy:%d", policy.ID),
+		fmt.Sprintf("onedrive:policy:%d:token", policy.ID),
+		fmt.Sprintf("onedrive:policy:%d:auth", policy.ID),
+		fmt.Sprintf("onedrive:policy:%d:credential", policy.ID),
+
+		// OAuth相关的缓存键
+		fmt.Sprintf("oauth:onedrive:%d", policy.ID),
+		fmt.Sprintf("oauth:policy:%d", policy.ID),
+		fmt.Sprintf("auth:onedrive:%d", policy.ID),
+
+		// 访问令牌相关的缓存键
+		fmt.Sprintf("access_token:onedrive:%d", policy.ID),
+		fmt.Sprintf("refresh_token:onedrive:%d", policy.ID),
+
+		// Graph API相关的缓存键
+		fmt.Sprintf("graph:policy:%d", policy.ID),
+		fmt.Sprintf("graph:onedrive:%d", policy.ID),
+
+		// 存储提供者相关的缓存键
+		fmt.Sprintf("storage:onedrive:%d", policy.ID),
+		fmt.Sprintf("provider:onedrive:%d", policy.ID),
+	}
+
+	// 逐个尝试删除可能存在的缓存键
+	deletedCount := 0
+	for _, cacheKey := range possibleCacheKeys {
+		// 先检查键是否存在
+		if value, err := s.cacheSvc.Get(ctx, cacheKey); err == nil && value != "" {
+			// 键存在，删除它
+			s.cacheSvc.Delete(ctx, cacheKey)
+			log.Printf("[OneDrive凭证清理] 已删除缓存键: %s", cacheKey)
+			deletedCount++
+		}
+	}
+
+	// 额外清理：基于客户端ID的缓存（如果存在）
+	if policy.BucketName != "" { // OneDrive的client_id存储在BucketName字段
+		clientBasedKeys := []string{
+			fmt.Sprintf("onedrive:client:%s", policy.BucketName),
+			fmt.Sprintf("oauth:client:%s", policy.BucketName),
+		}
+
+		for _, cacheKey := range clientBasedKeys {
+			if value, err := s.cacheSvc.Get(ctx, cacheKey); err == nil && value != "" {
+				s.cacheSvc.Delete(ctx, cacheKey)
+				log.Printf("[OneDrive凭证清理] 已删除客户端相关缓存键: %s", cacheKey)
+				deletedCount++
+			}
+		}
+	}
+
+	if deletedCount > 0 {
+		log.Printf("[OneDrive凭证清理] 策略 ID=%d 共清理了 %d 个OneDrive缓存凭证", policy.ID, deletedCount)
+	} else {
+		log.Printf("[OneDrive凭证清理] 策略 ID=%d 未发现需要清理的OneDrive缓存凭证", policy.ID)
+	}
 }
 
 func (s *storagePolicyService) ListPolicies(ctx context.Context, page, pageSize int) ([]*model.StoragePolicy, int64, error) {
@@ -582,4 +750,35 @@ func (s *storagePolicyService) GenerateAuthURL(ctx context.Context, publicPolicy
 		return "", errors.New("系统未配置站点URL (siteURL), 无法生成回调地址")
 	}
 	return authHandler.GenerateAuthURL(ctx, policy, siteURL)
+}
+
+// collectFilesRecursiveForDeletion 递归收集文件ID，按深度优先顺序（叶子节点在前，父目录在后）
+// 这样可以确保删除时先删子文件，再删父目录，避免外键约束冲突
+func (s *storagePolicyService) collectFilesRecursiveForDeletion(ctx context.Context, fileRepo repository.FileRepository, dirID uint, allFileIDs *[]uint) error {
+	// 获取当前目录的所有子项（包括已软删除的）
+	children, err := fileRepo.ListByParentIDUnscoped(ctx, dirID)
+	if err != nil {
+		return fmt.Errorf("获取目录子项失败 DirID=%d: %w", dirID, err)
+	}
+
+	log.Printf("[递归收集] 目录 ID=%d 包含 %d 个子项", dirID, len(children))
+
+	// 递归处理子目录（深度优先）
+	for _, child := range children {
+		if child.File.Type == model.FileTypeDir {
+			// 递归处理子目录
+			if err := s.collectFilesRecursiveForDeletion(ctx, fileRepo, child.File.ID, allFileIDs); err != nil {
+				log.Printf("[警告] 递归收集子目录失败 DirID=%d: %v", child.File.ID, err)
+				// 继续处理其他子项，不因单个失败而中断
+			}
+		}
+		// 添加子项到删除列表（在父目录之前）
+		*allFileIDs = append(*allFileIDs, child.File.ID)
+	}
+
+	// 最后添加当前目录（确保在所有子项之后删除）
+	*allFileIDs = append(*allFileIDs, dirID)
+
+	log.Printf("[递归收集] 目录 ID=%d 及其所有子项已加入删除队列", dirID)
+	return nil
 }

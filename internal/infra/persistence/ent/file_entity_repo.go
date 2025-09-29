@@ -155,6 +155,44 @@ func (r *entFileEntityRepository) HardDelete(ctx context.Context, id uint) error
 	return r.client.FileEntity.DeleteOneID(id).Exec(ctx)
 }
 
+// FindByEntityIDs 根据实体ID列表查找所有相关的文件实体关联记录。
+func (r *entFileEntityRepository) FindByEntityIDs(ctx context.Context, entityIDs []uint) ([]*model.FileStorageVersion, error) {
+	if len(entityIDs) == 0 {
+		return []*model.FileStorageVersion{}, nil
+	}
+
+	entVersions, err := r.client.FileEntity.Query().
+		Where(
+			fileentity.EntityIDIn(entityIDs...),
+			fileentity.DeletedAtIsNil(),
+		).
+		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("根据实体ID查找文件关联记录失败: %w", err)
+	}
+
+	domainVersions := make([]*model.FileStorageVersion, len(entVersions))
+	for i, v := range entVersions {
+		domainVersions[i] = toDomainFileStorageVersion(v)
+	}
+	return domainVersions, nil
+}
+
+// DeleteByEntityIDs 根据实体ID列表删除所有相关的文件实体关联记录。
+func (r *entFileEntityRepository) DeleteByEntityIDs(ctx context.Context, entityIDs []uint) error {
+	if len(entityIDs) == 0 {
+		return nil
+	}
+
+	_, err := r.client.FileEntity.Delete().
+		Where(fileentity.EntityIDIn(entityIDs...)).
+		Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("根据实体ID删除文件关联记录失败: %w", err)
+	}
+	return nil
+}
+
 // --- 数据转换辅助函数 ---
 
 func toDomainFileStorageVersion(v *ent.FileEntity) *model.FileStorageVersion {

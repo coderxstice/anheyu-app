@@ -32,6 +32,9 @@ type FileRepository interface {
 	Update(ctx context.Context, file *model.File) error
 	Delete(ctx context.Context, id uint) error
 
+	// SoftDelete 软删除文件，设置deleted_at时间戳但不从数据库中物理删除
+	SoftDelete(ctx context.Context, id uint) error
+
 	// FindByID 根据文件的内部数据库 ID 查找文件。
 	// 返回领域模型对象。
 	FindByID(ctx context.Context, id uint) (*model.File, error)

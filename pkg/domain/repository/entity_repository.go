@@ -38,4 +38,16 @@ type EntityRepository interface {
 
 	// HardDelete 永久删除一个物理存储实体。
 	HardDelete(ctx context.Context, id uint) error
+
+	// CountEntityByStoragePolicyID 统计指定存储策略下的实体数量和总大小。
+	CountEntityByStoragePolicyID(ctx context.Context, policyID uint) (count int64, totalSize int64, err error)
+
+	// IsStoragePolicyUsedByEntities 检查指定的存储策略是否被任何实体使用。
+	IsStoragePolicyUsedByEntities(ctx context.Context, policyID uint) (bool, error)
+
+	// FindByStoragePolicyID 查找指定存储策略下的所有实体。
+	FindByStoragePolicyID(ctx context.Context, policyID uint) ([]*model.FileStorageEntity, error)
+
+	// DeleteByStoragePolicyID 删除指定存储策略下的所有实体记录。
+	DeleteByStoragePolicyID(ctx context.Context, policyID uint) error
 }

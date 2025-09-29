@@ -36,4 +36,10 @@ type FileEntityRepository interface {
 
 	// Delete 永久删除指定 ID 的文件实体关联记录。
 	HardDelete(ctx context.Context, id uint) error
+
+	// FindByEntityIDs 根据实体ID列表查找所有相关的文件实体关联记录。
+	FindByEntityIDs(ctx context.Context, entityIDs []uint) ([]*model.FileStorageVersion, error)
+
+	// DeleteByEntityIDs 根据实体ID列表删除所有相关的文件实体关联记录。
+	DeleteByEntityIDs(ctx context.Context, entityIDs []uint) error
 }
