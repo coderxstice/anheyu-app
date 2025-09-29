@@ -35,6 +35,7 @@ type Service interface {
 	DeleteTag(ctx context.Context, id int) error
 	ListLinks(ctx context.Context, req *model.ListLinksRequest) (*model.LinkListResponse, error)
 	AdminListAllTags(ctx context.Context) ([]*model.LinkTagDTO, error)
+	ImportLinks(ctx context.Context, req *model.ImportLinksRequest) (*model.ImportLinksResponse, error)
 }
 
 type service struct {
@@ -252,4 +253,178 @@ func (s *service) ListLinks(ctx context.Context, req *model.ListLinksRequest) (*
 		Page:     req.GetPage(),
 		PageSize: req.GetPageSize(),
 	}, nil
+}
+
+// ImportLinks 批量导入友链，支持重复检查、自动创建分类和标签等功能。
+func (s *service) ImportLinks(ctx context.Context, req *model.ImportLinksRequest) (*model.ImportLinksResponse, error) {
+	response := &model.ImportLinksResponse{
+		Total:       len(req.Links),
+		Success:     0,
+		Failed:      0,
+		Skipped:     0,
+		SuccessList: make([]*model.LinkDTO, 0),
+		FailedList:  make([]model.ImportLinkFailure, 0),
+		SkippedList: make([]model.ImportLinkSkipped, 0),
+	}
+
+	// 创建分类和标签的缓存映射，避免重复查询
+	categoryCache := make(map[string]*model.LinkCategoryDTO)
+	tagCache := make(map[string]*model.LinkTagDTO)
+
+	// 获取默认分类ID，如果没有指定或指定的分类不存在
+	defaultCategoryID := 2 // 系统默认值
+	if req.DefaultCategoryID != nil && *req.DefaultCategoryID > 0 {
+		defaultCategoryID = *req.DefaultCategoryID
+	} else {
+		// 从配置中获取默认分类ID
+		defaultCategoryIDStr := s.settingSvc.Get(constant.KeyFriendLinkDefaultCategory.String())
+		if defaultCategoryIDStr != "" {
+			if id, err := strconv.Atoi(defaultCategoryIDStr); err == nil && id > 0 {
+				defaultCategoryID = id
+			}
+		}
+	}
+
+	// 逐个处理导入的友链
+	for _, linkItem := range req.Links {
+		// 1. 重复检查
+		if req.SkipDuplicates {
+			exists, err := s.linkRepo.ExistsByURL(ctx, linkItem.URL)
+			if err != nil {
+				response.Failed++
+				response.FailedList = append(response.FailedList, model.ImportLinkFailure{
+					Link:   linkItem,
+					Reason: fmt.Errorf("检查重复链接失败: %w", err).Error(),
+				})
+				continue
+			}
+			if exists {
+				response.Skipped++
+				response.SkippedList = append(response.SkippedList, model.ImportLinkSkipped{
+					Link:   linkItem,
+					Reason: "友链URL已存在",
+				})
+				continue
+			}
+		}
+
+		// 2. 处理分类
+		var categoryID int
+		if linkItem.CategoryName != "" {
+			// 先从缓存查找
+			if cachedCategory, exists := categoryCache[linkItem.CategoryName]; exists {
+				categoryID = cachedCategory.ID
+			} else {
+				// 尝试查找现有分类
+				category, err := s.linkCategoryRepo.GetByName(ctx, linkItem.CategoryName)
+				if err != nil {
+					// 分类不存在
+					if req.CreateCategories {
+						// 自动创建分类
+						createReq := &model.CreateLinkCategoryRequest{
+							Name:        linkItem.CategoryName,
+							Style:       "list", // 默认为列表样式
+							Description: fmt.Sprintf("导入时自动创建的分类：%s", linkItem.CategoryName),
+						}
+						newCategory, err := s.linkCategoryRepo.Create(ctx, createReq)
+						if err != nil {
+							response.Failed++
+							response.FailedList = append(response.FailedList, model.ImportLinkFailure{
+								Link:   linkItem,
+								Reason: fmt.Errorf("创建分类失败: %w", err).Error(),
+							})
+							continue
+						}
+						categoryID = newCategory.ID
+						categoryCache[linkItem.CategoryName] = newCategory
+					} else {
+						// 使用默认分类
+						categoryID = defaultCategoryID
+					}
+				} else {
+					categoryID = category.ID
+					categoryCache[linkItem.CategoryName] = category
+				}
+			}
+		} else {
+			// 没有指定分类名称，使用默认分类
+			categoryID = defaultCategoryID
+		}
+
+		// 3. 处理标签（可选）
+		var tagID *int
+		if linkItem.TagName != "" {
+			// 先从缓存查找
+			if cachedTag, exists := tagCache[linkItem.TagName]; exists {
+				tagID = &cachedTag.ID
+			} else {
+				// 尝试查找现有标签
+				tag, err := s.linkTagRepo.GetByName(ctx, linkItem.TagName)
+				if err != nil {
+					// 标签不存在
+					if req.CreateTags {
+						// 自动创建标签
+						createReq := &model.CreateLinkTagRequest{
+							Name:  linkItem.TagName,
+							Color: "#409EFF", // 默认颜色
+						}
+						newTag, err := s.linkTagRepo.Create(ctx, createReq)
+						if err != nil {
+							response.Failed++
+							response.FailedList = append(response.FailedList, model.ImportLinkFailure{
+								Link:   linkItem,
+								Reason: fmt.Errorf("创建标签失败: %w", err).Error(),
+							})
+							continue
+						}
+						tagID = &newTag.ID
+						tagCache[linkItem.TagName] = newTag
+					}
+					// 如果不允许创建标签，就不设置标签（tagID 保持为 nil）
+				} else {
+					tagID = &tag.ID
+					tagCache[linkItem.TagName] = tag
+				}
+			}
+		}
+
+		// 4. 设置默认状态
+		status := linkItem.Status
+		if status == "" {
+			status = "PENDING" // 默认为待审核状态
+		}
+
+		// 5. 创建友链
+		adminCreateReq := &model.AdminCreateLinkRequest{
+			Name:        linkItem.Name,
+			URL:         linkItem.URL,
+			Logo:        linkItem.Logo,
+			Description: linkItem.Description,
+			CategoryID:  categoryID,
+			TagID:       tagID,
+			Status:      status,
+			Siteshot:    linkItem.Siteshot,
+		}
+
+		createdLink, err := s.linkRepo.AdminCreate(ctx, adminCreateReq)
+		if err != nil {
+			response.Failed++
+			response.FailedList = append(response.FailedList, model.ImportLinkFailure{
+				Link:   linkItem,
+				Reason: fmt.Errorf("创建友链失败: %w", err).Error(),
+			})
+			continue
+		}
+
+		// 成功创建
+		response.Success++
+		response.SuccessList = append(response.SuccessList, createdLink)
+	}
+
+	// 如果有成功创建的友链，派发清理任务
+	if response.Success > 0 {
+		s.broker.DispatchLinkCleanup()
+	}
+
+	return response, nil
 }

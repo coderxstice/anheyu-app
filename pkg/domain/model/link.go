@@ -136,3 +136,47 @@ type UpdateLinkTagRequest struct {
 	Name  string `json:"name" binding:"required"`
 	Color string `json:"color"`
 }
+
+// ImportLinkItem 是导入友链时的单个友链数据结构。
+type ImportLinkItem struct {
+	Name         string `json:"name" binding:"required"`
+	URL          string `json:"url" binding:"required,url"`
+	Logo         string `json:"logo"`
+	Description  string `json:"description"`
+	Siteshot     string `json:"siteshot"`
+	CategoryName string `json:"category_name"`                                                      // 分类名称，如果不存在会自动创建
+	TagName      string `json:"tag_name"`                                                           // 标签名称，可选，如果不存在会自动创建
+	Status       string `json:"status" binding:"omitempty,oneof=PENDING APPROVED REJECTED INVALID"` // 默认为 PENDING
+}
+
+// ImportLinksRequest 是批量导入友链的请求结构。
+type ImportLinksRequest struct {
+	Links             []ImportLinkItem `json:"links" binding:"required,dive"`
+	SkipDuplicates    bool             `json:"skip_duplicates"`     // 是否跳过重复的友链（基于URL判断）
+	CreateCategories  bool             `json:"create_categories"`   // 是否自动创建不存在的分类
+	CreateTags        bool             `json:"create_tags"`         // 是否自动创建不存在的标签
+	DefaultCategoryID *int             `json:"default_category_id"` // 如果分类不存在且不允许创建时使用的默认分类ID
+}
+
+// ImportLinksResponse 是批量导入友链的响应结构。
+type ImportLinksResponse struct {
+	Total       int                 `json:"total"`        // 总共尝试导入的数量
+	Success     int                 `json:"success"`      // 成功导入的数量
+	Failed      int                 `json:"failed"`       // 失败的数量
+	Skipped     int                 `json:"skipped"`      // 跳过的数量（重复）
+	SuccessList []*LinkDTO          `json:"success_list"` // 成功导入的友链列表
+	FailedList  []ImportLinkFailure `json:"failed_list"`  // 失败的友链及原因
+	SkippedList []ImportLinkSkipped `json:"skipped_list"` // 跳过的友链及原因
+}
+
+// ImportLinkFailure 表示导入失败的友链信息。
+type ImportLinkFailure struct {
+	Link   ImportLinkItem `json:"link"`
+	Reason string         `json:"reason"`
+}
+
+// ImportLinkSkipped 表示跳过的友链信息。
+type ImportLinkSkipped struct {
+	Link   ImportLinkItem `json:"link"`
+	Reason string         `json:"reason"`
+}

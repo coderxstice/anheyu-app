@@ -118,3 +118,14 @@ func mapEntLinkTagsToDTOs(entTags []*ent.LinkTag) []*model.LinkTagDTO {
 	}
 	return dtos
 }
+
+// GetByName 根据名称获取标签信息
+func (r *linkTagRepo) GetByName(ctx context.Context, name string) (*model.LinkTagDTO, error) {
+	tag, err := r.client.LinkTag.Query().
+		Where(linktag.NameEQ(name)).
+		First(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return mapEntLinkTagToDTO(tag), nil
+}

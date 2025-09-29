@@ -23,4 +23,6 @@ type LinkRepository interface {
 	Delete(ctx context.Context, id int) error
 	AdminCreate(ctx context.Context, req *model.AdminCreateLinkRequest) (*model.LinkDTO, error)
 	GetRandomPublic(ctx context.Context, num int) ([]*model.LinkDTO, error)
+	// 为导入功能添加的方法
+	ExistsByURL(ctx context.Context, url string) (bool, error)
 }

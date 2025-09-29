@@ -22,4 +22,6 @@ type LinkCategoryRepository interface {
 	DeleteAllUnused(ctx context.Context) (int, error)
 	DeleteAllUnusedExcluding(ctx context.Context, excludeIDs []int) (int, error)
 	Update(ctx context.Context, id int, req *model.UpdateLinkCategoryRequest) (*model.LinkCategoryDTO, error)
+	// 为导入功能添加的方法
+	GetByName(ctx context.Context, name string) (*model.LinkCategoryDTO, error)
 }

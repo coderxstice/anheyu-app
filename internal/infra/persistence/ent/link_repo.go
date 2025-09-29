@@ -271,3 +271,11 @@ func mapEntLinksToDTOs(entLinks []*ent.Link) []*model.LinkDTO {
 	}
 	return dtos
 }
+
+// ExistsByURL 检查指定URL的友链是否已存在
+func (r *linkRepo) ExistsByURL(ctx context.Context, url string) (bool, error) {
+	exists, err := r.client.Link.Query().
+		Where(link.URLEQ(url)).
+		Exist(ctx)
+	return exists, err
+}

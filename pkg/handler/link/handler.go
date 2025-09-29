@@ -311,3 +311,34 @@ func (h *Handler) DeleteTag(c *gin.Context) {
 	}
 	response.Success(c, nil, "删除成功")
 }
+
+// ImportLinks 处理后台管理员批量导入友链的请求。
+// @Router /api/links/import [post]
+func (h *Handler) ImportLinks(c *gin.Context) {
+	var req model.ImportLinksRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Fail(c, http.StatusBadRequest, "参数无效: "+err.Error())
+		return
+	}
+
+	// 验证至少提供一个友链
+	if len(req.Links) == 0 {
+		response.Fail(c, http.StatusBadRequest, "至少需要提供一个友链数据")
+		return
+	}
+
+	// 检查数量限制，防止过多数据一次性导入
+	const maxImportCount = 100
+	if len(req.Links) > maxImportCount {
+		response.Fail(c, http.StatusBadRequest, "单次导入友链数量不能超过 "+strconv.Itoa(maxImportCount)+" 个")
+		return
+	}
+
+	result, err := h.linkSvc.ImportLinks(c.Request.Context(), &req)
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, "导入失败: "+err.Error())
+		return
+	}
+
+	response.SuccessWithStatus(c, http.StatusCreated, result, "导入完成")
+}
