@@ -154,3 +154,14 @@ func mapEntLinkCategoriesToDTOs(entCategories []*ent.LinkCategory) []*model.Link
 	}
 	return dtos
 }
+
+// GetByName 根据名称获取分类信息
+func (r *linkCategoryRepo) GetByName(ctx context.Context, name string) (*model.LinkCategoryDTO, error) {
+	category, err := r.client.LinkCategory.Query().
+		Where(linkcategory.NameEQ(name)).
+		First(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return mapEntLinkCategoryToDTO(category), nil
+}

@@ -19,4 +19,6 @@ type LinkTagRepository interface {
 	DeleteIfUnused(ctx context.Context, tagIDs []int) (int64, error)
 	DeleteAllUnused(ctx context.Context) (int, error)
 	Update(ctx context.Context, id int, req *model.UpdateLinkTagRequest) (*model.LinkTagDTO, error)
+	// 为导入功能添加的方法
+	GetByName(ctx context.Context, name string) (*model.LinkTagDTO, error)
 }
