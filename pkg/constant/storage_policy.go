@@ -12,10 +12,11 @@ type StoragePolicyType string
 
 // 定义支持的存储策略类型常量
 const (
-	PolicyTypeLocal    StoragePolicyType = "local"
-	PolicyTypeOneDrive StoragePolicyType = "onedrive"
-	// 如果未来要支持 Amazon S3，可以在这里添加:
-	// PolicyTypeS3 StoragePolicyType = "s3"
+	PolicyTypeLocal      StoragePolicyType = "local"
+	PolicyTypeOneDrive   StoragePolicyType = "onedrive"
+	PolicyTypeTencentCOS StoragePolicyType = "tencent_cos"
+	PolicyTypeAliOSS     StoragePolicyType = "aliyun_oss"
+	PolicyTypeS3         StoragePolicyType = "aws_s3"
 
 	// UploadMethodSettingKey 是存储策略中定义上传方式的键
 	UploadMethodSettingKey = "upload_method"
@@ -47,7 +48,7 @@ const (
 // IsValid 检查给定的类型是否是受支持的存储策略类型
 func (t StoragePolicyType) IsValid() bool {
 	switch t {
-	case PolicyTypeLocal, PolicyTypeOneDrive:
+	case PolicyTypeLocal, PolicyTypeOneDrive, PolicyTypeTencentCOS, PolicyTypeAliOSS, PolicyTypeS3:
 		return true
 	default:
 		return false

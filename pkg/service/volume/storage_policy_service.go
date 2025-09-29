@@ -13,11 +13,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/anzhiyu-c/anheyu-app/internal/infra/storage"
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
@@ -52,12 +54,13 @@ type IStoragePolicyService interface {
 }
 
 type storagePolicyService struct {
-	repo            repository.StoragePolicyRepository
-	fileRepo        repository.FileRepository
-	txManager       repository.TransactionManager
-	strategyManager *strategy.Manager
-	settingSvc      setting.SettingService
-	cacheSvc        utility.CacheService
+	repo             repository.StoragePolicyRepository
+	fileRepo         repository.FileRepository
+	txManager        repository.TransactionManager
+	strategyManager  *strategy.Manager
+	settingSvc       setting.SettingService
+	cacheSvc         utility.CacheService
+	storageProviders map[constant.StoragePolicyType]storage.IStorageProvider
 }
 
 func NewStoragePolicyService(
@@ -67,14 +70,16 @@ func NewStoragePolicyService(
 	strategyManager *strategy.Manager,
 	settingSvc setting.SettingService,
 	cacheSvc utility.CacheService,
+	storageProviders map[constant.StoragePolicyType]storage.IStorageProvider,
 ) IStoragePolicyService {
 	return &storagePolicyService{
-		repo:            repo,
-		fileRepo:        fileRepo,
-		txManager:       txManager,
-		strategyManager: strategyManager,
-		settingSvc:      settingSvc,
-		cacheSvc:        cacheSvc,
+		repo:             repo,
+		fileRepo:         fileRepo,
+		txManager:        txManager,
+		strategyManager:  strategyManager,
+		settingSvc:       settingSvc,
+		cacheSvc:         cacheSvc,
+		storageProviders: storageProviders,
 	}
 }
 
@@ -86,11 +91,25 @@ func (s *storagePolicyService) CreatePolicy(ctx context.Context, ownerID uint, p
 		return constant.ErrInvalidPolicyType
 	}
 
-	// 1b. 特定于类型的顶级字段验证 (例如 OneDrive)
-	if policy.Type == constant.PolicyTypeOneDrive {
+	// 1b. 特定于类型的顶级字段验证
+	switch policy.Type {
+	case constant.PolicyTypeOneDrive:
 		if policy.Server == "" || policy.BucketName == "" || policy.SecretKey == "" {
 			return errors.New("对于OneDrive策略, server (endpoint), bucket_name (client_id), 和 secret_key (client_secret) 是必填项")
 		}
+	case constant.PolicyTypeTencentCOS:
+		if policy.Server == "" || policy.BucketName == "" || policy.AccessKey == "" || policy.SecretKey == "" {
+			return errors.New("对于腾讯云COS策略, server (地域endpoint), bucket_name (存储桶名称), access_key (SecretId), 和 secret_key (SecretKey) 是必填项")
+		}
+	case constant.PolicyTypeAliOSS:
+		if policy.Server == "" || policy.BucketName == "" || policy.AccessKey == "" || policy.SecretKey == "" {
+			return errors.New("对于阿里云OSS策略, server (地域endpoint), bucket_name (存储桶名称), access_key (AccessKeyId), 和 secret_key (AccessKeySecret) 是必填项")
+		}
+	case constant.PolicyTypeS3:
+		if policy.BucketName == "" || policy.AccessKey == "" || policy.SecretKey == "" {
+			return errors.New("对于AWS S3策略, bucket_name (存储桶名称), access_key (AccessKeyId), 和 secret_key (SecretAccessKey) 是必填项")
+		}
+		// AWS S3的endpoint是可选的，如果不提供则使用默认的AWS S3端点
 	}
 
 	// 1c. 委托给策略处理器，验证 settings 内部的字段
@@ -349,8 +368,8 @@ func (s *storagePolicyService) UpdatePolicy(ctx context.Context, policy *model.S
 			}
 			// 如果存在另一个策略拥有此 Flag，则取消它的 Flag
 			if existingFlagHolder != nil && existingFlagHolder.ID != policy.ID {
-				existingFlagHolder.Flag = "" // 清空标志
-				if err := policyRepo.Update(ctx, existingFlagHolder); err != nil {
+				// 直接更新特定字段，避免整个对象更新可能导致的约束冲突
+				if err := policyRepo.ClearFlag(ctx, existingFlagHolder.ID); err != nil {
 					return fmt.Errorf("移除旧策略的标志失败: %w", err)
 				}
 			}
@@ -436,12 +455,30 @@ func (s *storagePolicyService) UpdatePolicy(ctx context.Context, policy *model.S
 	}
 
 	// --- 4. 清理缓存 ---
+	// 确保清理所有相关的缓存键
 	publicID, _ := idgen.GeneratePublicID(policy.ID, idgen.EntityTypeStoragePolicy)
+
+	// 分别清理每个缓存键，确保清理成功
+	s.cacheSvc.Delete(ctx, policyCacheKey(policy.ID))
 	if publicID != "" {
-		s.cacheSvc.Delete(ctx, policyCacheKey(policy.ID), policyPublicCacheKey(publicID))
-	} else {
-		s.cacheSvc.Delete(ctx, policyCacheKey(policy.ID))
+		s.cacheSvc.Delete(ctx, policyPublicCacheKey(publicID))
 	}
+
+	// 添加调试日志，确认缓存清理
+	log.Printf("[缓存清理] 已清理存储策略缓存: ID=%d, PublicID=%s", policy.ID, publicID)
+
+	// --- 5. 强制重新加载策略到缓存 ---
+	// 确保下次访问时能立即获取到最新的策略数据
+	if updatedPolicy, err := s.repo.FindByID(ctx, policy.ID); err == nil && updatedPolicy != nil {
+		if policyBytes, jsonErr := json.Marshal(updatedPolicy); jsonErr == nil {
+			s.cacheSvc.Set(ctx, policyCacheKey(policy.ID), policyBytes, policyCacheTTL)
+			if publicID != "" {
+				s.cacheSvc.Set(ctx, policyPublicCacheKey(publicID), policyBytes, policyCacheTTL)
+			}
+			log.Printf("[缓存预热] 已重新加载策略到缓存: ID=%d, Server=%s", policy.ID, updatedPolicy.Server)
+		}
+	}
+
 	return nil
 }
 

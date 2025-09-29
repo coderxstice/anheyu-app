@@ -360,6 +360,7 @@ func (r *Router) registerFileRoutes(api *gin.RouterGroup) {
 		filesGroup.GET("", r.fileHandler.GetFilesByPath)
 		filesGroup.GET("/:id", r.fileHandler.GetFileInfo)
 		filesGroup.GET("/download/:id", r.fileHandler.DownloadFile)
+		filesGroup.GET("/download-info/:id", r.fileHandler.GetDownloadInfo)
 
 		// POST /api/file/create
 		filesGroup.POST("/create", r.fileHandler.CreateEmptyFile)

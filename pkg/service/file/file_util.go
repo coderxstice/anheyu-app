@@ -256,7 +256,7 @@ func (s *serviceImpl) HardDeleteRecursively(
 					}
 
 					// 调用 provider.Delete
-					if delErr := provider.Delete(ctx, []string{sourceToDelete}); delErr != nil {
+					if delErr := provider.Delete(ctx, policy, []string{sourceToDelete}); delErr != nil {
 						// 物理删除失败只记录日志，不中止整个数据库事务
 						log.Printf("【DELETE ERROR】删除物理目录 '%s' 失败: %v", sourceToDelete, delErr)
 					}
@@ -286,7 +286,7 @@ func (s *serviceImpl) HardDeleteRecursively(
 						// 对于文件，entity.Source.String 已经是正确的路径（本地物理路径或云端虚拟路径）
 						sourceToDelete := entity.Source.String
 						log.Printf("【DELETE INFO】正在删除物理文件: %s", sourceToDelete)
-						if delErr := provider.Delete(ctx, []string{sourceToDelete}); delErr != nil {
+						if delErr := provider.Delete(ctx, policy, []string{sourceToDelete}); delErr != nil {
 							log.Printf("【DELETE ERROR】删除物理文件 '%s' 失败: %v", sourceToDelete, delErr)
 						}
 					}

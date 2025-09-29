@@ -86,7 +86,7 @@ func (s *serviceImpl) UploadFileByPolicyFlag(ctx context.Context, viewerID uint,
 		}
 		if err := txEntityRepo.Create(ctx, newEntity); err != nil {
 			// 如果数据库记录创建失败，尝试删除刚刚上传的物理文件，防止产生孤立文件
-			go provider.Delete(context.Background(), []string{uploadResult.Source})
+			go provider.Delete(context.Background(), policy, []string{uploadResult.Source})
 			return fmt.Errorf("创建文件实体记录失败: %w", err)
 		}
 
@@ -100,7 +100,7 @@ func (s *serviceImpl) UploadFileByPolicyFlag(ctx context.Context, viewerID uint,
 			PrimaryEntityID: types.NullUint64{Uint64: uint64(newEntity.ID), Valid: true},
 		}
 		if err := txFileRepo.Create(ctx, newFile); err != nil {
-			go provider.Delete(context.Background(), []string{uploadResult.Source})
+			go provider.Delete(context.Background(), policy, []string{uploadResult.Source})
 			return fmt.Errorf("创建文件记录失败: %w", err)
 		}
 
@@ -587,7 +587,7 @@ func (s *serviceImpl) UpdateFileContentByIDAndURI(ctx context.Context, viewerPub
 	})
 
 	if err != nil {
-		go provider.Delete(context.Background(), []string{uploadResult.Source})
+		go provider.Delete(context.Background(), policy, []string{uploadResult.Source})
 		return nil, err
 	}
 
