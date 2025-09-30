@@ -376,7 +376,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	}
 	engine.ForwardedByClientIP = true
 	engine.Use(middleware.Cors())
-	router.SetupFrontend(engine, settingSvc, articleSvc, content)
+	router.SetupFrontend(engine, settingSvc, articleSvc, cacheSvc, content)
 	appRouter.Setup(engine)
 
 	// 将所有初始化好的组件装配到 App 实例中

@@ -18,9 +18,12 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/parser"
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/strutil"
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
+	"github.com/anzhiyu-c/anheyu-app/pkg/handler/rss"
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
 	article_service "github.com/anzhiyu-c/anheyu-app/pkg/service/article"
+	rss_service "github.com/anzhiyu-c/anheyu-app/pkg/service/rss"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/utility"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/render"
@@ -404,8 +407,16 @@ func isStaticModeActive() bool {
 }
 
 // SetupFrontend 封装了所有与前端静态资源和模板相关的配置（动态模式）
-func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articleSvc article_service.Service, embeddedFS embed.FS) {
+func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articleSvc article_service.Service, cacheSvc utility.CacheService, embeddedFS embed.FS) {
 	log.Println("正在配置动态前端路由系统...")
+
+	// 配置 RSS feed
+	rssSvc := rss_service.NewService(articleSvc, settingSvc, cacheSvc)
+	rssHandler := rss.NewHandler(rssSvc)
+	engine.GET("/rss.xml", rssHandler.GetRSSFeed)
+	engine.GET("/feed.xml", rssHandler.GetRSSFeed)
+	engine.GET("/atom.xml", rssHandler.GetRSSFeed)
+	log.Println("RSS feed 路由已配置: /rss.xml, /feed.xml 和 /atom.xml")
 
 	engine.GET("/manifest.json", func(c *gin.Context) {
 		type ManifestIcon struct {

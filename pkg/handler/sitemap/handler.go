@@ -40,7 +40,7 @@ func (h *Handler) GetSitemap(c *gin.Context) {
 	}
 
 	// 设置缓存头，站点地图可以缓存较长时间
-	c.Header("Content-Type", "application/xml; charset=utf-8")
+	c.Header("Content-Type", "text/xml; charset=utf-8")
 	c.Header("Cache-Control", "public, max-age=3600") // 1小时缓存
 	c.Header("Last-Modified", time.Now().Format(http.TimeFormat))
 
