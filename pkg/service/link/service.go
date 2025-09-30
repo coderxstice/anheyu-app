@@ -4,14 +4,21 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"strconv"
+	"sync"
+	"time"
 
-	"github.com/anzhiyu-c/anheyu-app/internal/app/task"
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 )
+
+// TaskBroker 定义任务调度器的接口，用于解耦循环依赖。
+type TaskBroker interface {
+	DispatchLinkCleanup()
+}
 
 // Service 定义了友链相关的业务逻辑接口。
 type Service interface {
@@ -36,6 +43,7 @@ type Service interface {
 	ListLinks(ctx context.Context, req *model.ListLinksRequest) (*model.LinkListResponse, error)
 	AdminListAllTags(ctx context.Context) ([]*model.LinkTagDTO, error)
 	ImportLinks(ctx context.Context, req *model.ImportLinksRequest) (*model.ImportLinksResponse, error)
+	CheckLinksHealth(ctx context.Context) (*model.LinkHealthCheckResponse, error)
 }
 
 type service struct {
@@ -44,7 +52,7 @@ type service struct {
 	linkCategoryRepo repository.LinkCategoryRepository
 	linkTagRepo      repository.LinkTagRepository
 	// 用于派发异步任务的 Broker
-	broker *task.Broker
+	broker TaskBroker
 	// 保留事务管理器以备将来使用
 	txManager repository.TransactionManager
 	// 用于获取系统配置
@@ -57,7 +65,7 @@ func NewService(
 	linkCategoryRepo repository.LinkCategoryRepository,
 	linkTagRepo repository.LinkTagRepository,
 	txManager repository.TransactionManager,
-	broker *task.Broker,
+	broker TaskBroker,
 	settingSvc setting.SettingService,
 ) Service {
 	return &service{
@@ -427,4 +435,131 @@ func (s *service) ImportLinks(ctx context.Context, req *model.ImportLinksRequest
 	}
 
 	return response, nil
+}
+
+// CheckLinksHealth 检查所有友链的健康状态，将无法访问的友链标记为 INVALID，将恢复的友链标记为 APPROVED。
+func (s *service) CheckLinksHealth(ctx context.Context) (*model.LinkHealthCheckResponse, error) {
+	// 1. 获取所有已审核通过的友链
+	approvedLinks, err := s.linkRepo.GetAllApprovedLinks(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("获取已审核友链列表失败: %w", err)
+	}
+
+	// 2. 获取所有失联的友链（用于检查是否恢复）
+	invalidLinks, err := s.linkRepo.GetAllInvalidLinks(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("获取失联友链列表失败: %w", err)
+	}
+
+	response := &model.LinkHealthCheckResponse{
+		Total:        len(approvedLinks) + len(invalidLinks),
+		Healthy:      0,
+		Unhealthy:    0,
+		UnhealthyIDs: make([]int, 0),
+	}
+
+	if response.Total == 0 {
+		return response, nil
+	}
+
+	// 3. 创建 HTTP 客户端，设置超时时间
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			// 最多跟随 5 次重定向
+			if len(via) >= 5 {
+				return fmt.Errorf("重定向次数过多")
+			}
+			return nil
+		},
+	}
+
+	// 4. 使用 WaitGroup 和互斥锁来并发检查友链
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	toInvalidIDs := make([]int, 0)  // 需要标记为失联的友链ID
+	toApprovedIDs := make([]int, 0) // 需要恢复的友链ID
+
+	// 创建一个带缓冲的通道来限制并发数
+	semaphore := make(chan struct{}, 10) // 最多同时检查 10 个友链
+
+	// 5. 检查已审核通过的友链
+	for _, link := range approvedLinks {
+		wg.Add(1)
+		go func(l *model.LinkDTO) {
+			defer wg.Done()
+			semaphore <- struct{}{}        // 获取信号量
+			defer func() { <-semaphore }() // 释放信号量
+
+			isHealthy := checkLinkHealth(client, l.URL)
+			mu.Lock()
+			if isHealthy {
+				response.Healthy++
+			} else {
+				response.Unhealthy++
+				toInvalidIDs = append(toInvalidIDs, l.ID)
+			}
+			mu.Unlock()
+		}(link)
+	}
+
+	// 6. 检查失联的友链（检查是否恢复）
+	for _, link := range invalidLinks {
+		wg.Add(1)
+		go func(l *model.LinkDTO) {
+			defer wg.Done()
+			semaphore <- struct{}{}        // 获取信号量
+			defer func() { <-semaphore }() // 释放信号量
+
+			isHealthy := checkLinkHealth(client, l.URL)
+			mu.Lock()
+			if isHealthy {
+				response.Healthy++
+				toApprovedIDs = append(toApprovedIDs, l.ID)
+			} else {
+				response.Unhealthy++
+			}
+			mu.Unlock()
+		}(link)
+	}
+
+	wg.Wait()
+
+	// 7. 批量更新失联友链的状态为 INVALID
+	if len(toInvalidIDs) > 0 {
+		if err := s.linkRepo.BatchUpdateStatus(ctx, toInvalidIDs, "INVALID"); err != nil {
+			return nil, fmt.Errorf("更新失联友链状态失败: %w", err)
+		}
+		response.UnhealthyIDs = append(response.UnhealthyIDs, toInvalidIDs...)
+	}
+
+	// 8. 批量恢复健康友链的状态为 APPROVED
+	if len(toApprovedIDs) > 0 {
+		if err := s.linkRepo.BatchUpdateStatus(ctx, toApprovedIDs, "APPROVED"); err != nil {
+			return nil, fmt.Errorf("恢复友链状态失败: %w", err)
+		}
+		// 恢复的友链也算在健康的友链中，但不放入 UnhealthyIDs
+	}
+
+	return response, nil
+}
+
+// checkLinkHealth 检查单个友链的健康状态。
+func checkLinkHealth(client *http.Client, url string) bool {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return false
+	}
+
+	// 设置 User-Agent 避免被网站屏蔽
+	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; LinkHealthChecker/1.0)")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+
+	// 认为 2xx 和 3xx 状态码为健康
+	return resp.StatusCode >= 200 && resp.StatusCode < 400
 }

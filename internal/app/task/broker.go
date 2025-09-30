@@ -35,6 +35,7 @@ type Broker struct {
 	cacheSvc         utility.CacheService
 	linkCategoryRepo repository.LinkCategoryRepository
 	linkTagRepo      repository.LinkTagRepository
+	linkRepo         repository.LinkRepository
 	settingSvc       setting.SettingService
 	statService      statistics.VisitorStatService
 }
@@ -50,6 +51,7 @@ func NewBroker(
 	cacheSvc utility.CacheService,
 	linkCategoryRepo repository.LinkCategoryRepository,
 	linkTagRepo repository.LinkTagRepository,
+	linkRepo repository.LinkRepository,
 	settingSvc setting.SettingService,
 	statService statistics.VisitorStatService,
 ) *Broker {
@@ -81,6 +83,7 @@ func NewBroker(
 		cacheSvc:         cacheSvc,
 		linkCategoryRepo: linkCategoryRepo,
 		linkTagRepo:      linkTagRepo,
+		linkRepo:         linkRepo,
 		settingSvc:       settingSvc,
 		statService:      statService,
 	}
@@ -160,6 +163,15 @@ func (b *Broker) RegisterCronJobs() {
 	}
 	b.logger.Info("-> Successfully registered 'StatisticsAggregationJob'", "schedule", "every day at 1:00:00 AM")
 
+	// 添加友链健康检查任务
+	linkHealthCheckJob := NewLinkHealthCheckJob(b.linkRepo, b.logger)
+	_, err = b.cron.AddJob("0 0 3 * * *", linkHealthCheckJob) // 每天凌晨3点执行
+	if err != nil {
+		b.logger.Error("Failed to add 'LinkHealthCheckJob'", slog.Any("error", err))
+		os.Exit(1)
+	}
+	b.logger.Info("-> Successfully registered 'LinkHealthCheckJob'", "schedule", "every day at 3:00:00 AM")
+
 	b.logger.Info("All periodic jobs registered.")
 }
 
@@ -195,6 +207,13 @@ func (b *Broker) DispatchLinkCleanup() {
 	job := NewLinkCleanupJob(b.linkCategoryRepo, b.linkTagRepo, b.settingSvc)
 	b.Dispatch(job)
 	b.logger.Info("Successfully queued link cleanup job")
+}
+
+// DispatchLinkHealthCheck 创建一个友链健康检查任务并派发到后台。
+func (b *Broker) DispatchLinkHealthCheck() {
+	job := NewLinkHealthCheckJob(b.linkRepo, b.logger)
+	b.Dispatch(job)
+	b.logger.Info("Successfully queued link health check job")
 }
 
 // CheckAndRunMissedAggregation 在应用启动时检查并追补所有错过的聚合任务

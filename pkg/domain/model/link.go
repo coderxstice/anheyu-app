@@ -180,3 +180,11 @@ type ImportLinkSkipped struct {
 	Link   ImportLinkItem `json:"link"`
 	Reason string         `json:"reason"`
 }
+
+// LinkHealthCheckResponse 是友链健康检查的响应结构。
+type LinkHealthCheckResponse struct {
+	Total        int   `json:"total"`         // 总共检查的友链数量
+	Healthy      int   `json:"healthy"`       // 健康的友链数量
+	Unhealthy    int   `json:"unhealthy"`     // 失联的友链数量
+	UnhealthyIDs []int `json:"unhealthy_ids"` // 失联的友链ID列表
+}

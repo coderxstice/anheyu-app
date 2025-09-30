@@ -445,12 +445,13 @@ func (r *Router) registerLinkRoutes(api *gin.RouterGroup) {
 	linksAdmin := api.Group("/links").Use(r.mw.JWTAuth(), r.mw.AdminAuth())
 	{
 		// 友链管理
-		linksAdmin.POST("", r.linkHandler.AdminCreateLink)       // POST /api/links
-		linksAdmin.GET("", r.linkHandler.ListLinks)              // GET /api/links
-		linksAdmin.PUT("/:id", r.linkHandler.AdminUpdateLink)    // PUT /api/links/:id
-		linksAdmin.DELETE("/:id", r.linkHandler.AdminDeleteLink) // DELETE /api/links/:id
-		linksAdmin.PUT("/:id/review", r.linkHandler.ReviewLink)  // PUT /api/links/:id/review
-		linksAdmin.POST("/import", r.linkHandler.ImportLinks)    // POST /api/links/import
+		linksAdmin.POST("", r.linkHandler.AdminCreateLink)               // POST /api/links
+		linksAdmin.GET("", r.linkHandler.ListLinks)                      // GET /api/links
+		linksAdmin.PUT("/:id", r.linkHandler.AdminUpdateLink)            // PUT /api/links/:id
+		linksAdmin.DELETE("/:id", r.linkHandler.AdminDeleteLink)         // DELETE /api/links/:id
+		linksAdmin.PUT("/:id/review", r.linkHandler.ReviewLink)          // PUT /api/links/:id/review
+		linksAdmin.POST("/import", r.linkHandler.ImportLinks)            // POST /api/links/import
+		linksAdmin.POST("/health-check", r.linkHandler.CheckLinksHealth) // POST /api/links/health-check
 
 		// 分类管理
 		linksAdmin.GET("/categories", r.linkHandler.ListCategories)        // GET /api/links/categories

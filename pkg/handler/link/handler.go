@@ -342,3 +342,15 @@ func (h *Handler) ImportLinks(c *gin.Context) {
 
 	response.SuccessWithStatus(c, http.StatusCreated, result, "导入完成")
 }
+
+// CheckLinksHealth 处理后台管理员手动触发友链健康检查的请求。
+// @Router /api/links/health-check [post]
+func (h *Handler) CheckLinksHealth(c *gin.Context) {
+	result, err := h.linkSvc.CheckLinksHealth(c.Request.Context())
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, "健康检查失败: "+err.Error())
+		return
+	}
+
+	response.Success(c, result, "健康检查完成")
+}

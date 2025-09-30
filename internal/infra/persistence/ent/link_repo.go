@@ -279,3 +279,41 @@ func (r *linkRepo) ExistsByURL(ctx context.Context, url string) (bool, error) {
 		Exist(ctx)
 	return exists, err
 }
+
+// GetAllApprovedLinks 获取所有已审核通过的友链
+func (r *linkRepo) GetAllApprovedLinks(ctx context.Context) ([]*model.LinkDTO, error) {
+	entLinks, err := r.client.Link.Query().
+		WithCategory().
+		WithTags().
+		Where(link.StatusEQ(link.StatusAPPROVED)).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return mapEntLinksToDTOs(entLinks), nil
+}
+
+// GetAllInvalidLinks 获取所有失联状态的友链
+func (r *linkRepo) GetAllInvalidLinks(ctx context.Context) ([]*model.LinkDTO, error) {
+	entLinks, err := r.client.Link.Query().
+		WithCategory().
+		WithTags().
+		Where(link.StatusEQ(link.StatusINVALID)).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return mapEntLinksToDTOs(entLinks), nil
+}
+
+// BatchUpdateStatus 批量更新友链状态
+func (r *linkRepo) BatchUpdateStatus(ctx context.Context, linkIDs []int, status string) error {
+	if len(linkIDs) == 0 {
+		return nil
+	}
+	_, err := r.client.Link.Update().
+		Where(link.IDIn(linkIDs...)).
+		SetStatus(link.Status(status)).
+		Save(ctx)
+	return err
+}
