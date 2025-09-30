@@ -245,7 +245,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	if err != nil {
 		return nil, tempCleanup, fmt.Errorf("初始化统计服务失败: %w", err)
 	}
-	taskBroker := task.NewBroker(uploadSvc, thumbnailSvc, cleanupSvc, articleRepo, commentRepo, emailSvc, cacheSvc, linkCategoryRepo, linkTagRepo, settingSvc, statService)
+	taskBroker := task.NewBroker(uploadSvc, thumbnailSvc, cleanupSvc, articleRepo, commentRepo, emailSvc, cacheSvc, linkCategoryRepo, linkTagRepo, linkRepo, settingSvc, statService)
 	linkSvc := link_service.NewService(linkRepo, linkCategoryRepo, linkTagRepo, txManager, taskBroker, settingSvc)
 	pageSvc := page_service.NewService(pageRepo)
 
