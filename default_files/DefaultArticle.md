@@ -6,6 +6,7 @@
 
 ```markdown
 <font color=#00ffff size=7> color=#00ffff </font>
+
 <p style="text-align: left">我是居中文字</p>
 <font color=#00ffff size=7> color=#00ffff </font>
 <p style="text-align: left">我是居中文字</p>
@@ -27,6 +28,7 @@
 
 ```markdown
 <font color=#00ffff size=7> color=#00ffff </font>
+
 <p style="text-align: left">我是居中文字</p>
 ```
 
@@ -35,23 +37,23 @@
 颜色: color 十六进制值
 大小: size 数字值(number)
 
-p标签支持写 自定义css
+p 标签支持写 自定义 css
 
 == tab 样式预览
 
 <font color=#00ffff size=7> color=#00ffff </font>
+
 <p style="text-align: left">我是居中文字</p>
 
 == tab 示例源码
 
 ```markdown
 <font color=#00ffff size=7> color=#00ffff </font>
+
 <p style="text-align: left">我是居中文字</p>
 ```
 
 :::
-
-
 
 ### 🤖 基本演示
 
@@ -77,11 +79,11 @@ p标签支持写 自定义css
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { MdEditor } from 'md-editor-v3';
-import 'md-editor-v3/lib/style.css';
+import { ref } from "vue";
+import { MdEditor } from "md-editor-v3";
+import "md-editor-v3/lib/style.css";
 
-const text = ref('Hello Editor!');
+const text = ref("Hello Editor!");
 </script>
 ```
 
@@ -134,6 +136,29 @@ gitGraph
 note、abstract、info、tip、success、question、warning、failure、danger、bug、example、quote、hint、caution、error、attention
 
 !!!
+
+## 折叠框
+
+1. 折叠框
+   ::: folding
+   查看详情
+   这是折叠框的内容
+   :::
+2. 默认打开的折叠框
+   ::: folding open
+   查看默认打开的折叠框
+   这是一个默认打开的折叠框。
+   :::
+3. 带十六进制颜色
+   ::: folding #ca1b1b
+   查看红色折叠框
+   这是一个红色主题的折叠框。
+   :::
+4. 带颜色且默认打开
+   ::: folding open #ca1b1b
+   查看默认打开的红色折叠框
+   这是一个默认打开的红色折叠框。
+   :::
 
 ## ☘️ 占个坑@！
 
