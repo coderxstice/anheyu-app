@@ -2,7 +2,7 @@
  * @Description: 站点地图服务
  * @Author: 安知鱼
  * @Date: 2025-09-21 00:00:00
- * @LastEditTime: 2025-09-21 00:00:00
+ * @LastEditTime: 2025-09-30 12:08:23
  * @LastEditors: 安知鱼
  */
 package sitemap
@@ -218,7 +218,7 @@ func (s *service) addLinkPages(ctx context.Context, baseURL string, items *[]Sit
 func (s *service) GenerateRobots(ctx context.Context) (string, error) {
 	baseURL := s.settingSvc.Get(constant.KeySiteURL.String())
 	if baseURL == "" {
-		baseURL = "https://example.com"
+		baseURL = "https://blog.anheyu.com"
 	}
 
 	// 确保baseURL不以斜杠结尾
