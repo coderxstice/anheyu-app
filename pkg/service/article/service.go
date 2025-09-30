@@ -310,6 +310,15 @@ func (s *serviceImpl) getCacheKey(publicID string) string {
 	return fmt.Sprintf("article:html:%s", publicID)
 }
 
+// invalidateRelatedCaches 清除与文章相关的所有缓存
+func (s *serviceImpl) invalidateRelatedCaches(ctx context.Context) {
+	// 清除 RSS feed 缓存
+	if err := s.cacheSvc.Delete(ctx, "rss:feed:latest"); err != nil {
+		log.Printf("[警告] 清除 RSS 缓存失败: %v", err)
+	}
+	// 未来可以在这里添加更多相关缓存的清除
+}
+
 // GetPublicBySlugOrID 为公开浏览，通过 slug 或 ID 获取单篇文章，并处理浏览量。
 func (s *serviceImpl) GetPublicBySlugOrID(ctx context.Context, slugOrID string) (*model.ArticleDetailResponse, error) {
 	article, err := s.repo.GetBySlugOrID(ctx, slugOrID)
@@ -522,6 +531,9 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 	}
 
 	s.updateSiteStatsInBackground()
+
+	// 清除相关缓存（包括 RSS feed）
+	go s.invalidateRelatedCaches(context.Background())
 
 	// 异步更新搜索索引
 	go func() {
@@ -771,6 +783,9 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 
 	s.updateSiteStatsInBackground()
 
+	// 清除相关缓存（包括 RSS feed）
+	go s.invalidateRelatedCaches(context.Background())
+
 	// 异步更新搜索索引
 	go func() {
 		if err := s.searchSvc.IndexArticle(context.Background(), updatedArticle); err != nil {
@@ -827,6 +842,9 @@ func (s *serviceImpl) Delete(ctx context.Context, publicID string) error {
 	}
 
 	s.updateSiteStatsInBackground()
+
+	// 清除相关缓存（包括 RSS feed）
+	go s.invalidateRelatedCaches(context.Background())
 
 	// 异步删除搜索索引
 	go func() {
