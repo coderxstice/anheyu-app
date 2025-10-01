@@ -181,7 +181,8 @@ var AllSettings = []Definition{
 	{Key: constant.KeySidebarArchiveCount, Value: "0", Comment: "侧边栏归档个数", IsPublic: true},
 
 	{Key: constant.KeyFriendLinkApplyCondition, Value: `["我已添加 <b>安知鱼</b> 博客的友情链接","我的链接主体为 <b>个人</b>，网站类型为<b>博客</b>","我的网站现在可以在中国大陆区域正常访问","网站内容符合中国大陆法律法规","我的网站可以在1分钟内加载完成首屏"]`, Comment: "申请友链条件 (JSON数组格式，用于动态生成勾选框)", IsPublic: true},
-	{Key: constant.KeyFriendLinkApplyCustomCode, Value: "", Comment: "申请友链自定义代码", IsPublic: true},
+	{Key: constant.KeyFriendLinkApplyCustomCode, Value: "", Comment: "申请友链自定义 Markdown 内容 (用于后台编辑)", IsPublic: true},
+	{Key: constant.KeyFriendLinkApplyCustomCodeHtml, Value: "", Comment: "申请友链自定义 HTML 内容 (用于前台展示)", IsPublic: true},
 	{Key: constant.KeyFriendLinkDefaultCategory, Value: "2", Comment: "友链默认分类", IsPublic: true},
 
 	// --- 内部或敏感配置 ---

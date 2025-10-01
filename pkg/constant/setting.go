@@ -83,9 +83,10 @@ const (
 	KeyFooterProjectList        SettingKey = "footer.project.list"
 	KeyFooterBarLinkList        SettingKey = "footer.bar.linkList"
 
-	KeyFriendLinkApplyCondition  SettingKey = "FRIEND_LINK_APPLY_CONDITION"
-	KeyFriendLinkApplyCustomCode SettingKey = "FRIEND_LINK_APPLY_CUSTOM_CODE"
-	KeyFriendLinkDefaultCategory SettingKey = "FRIEND_LINK_DEFAULTCATEGORY"
+	KeyFriendLinkApplyCondition      SettingKey = "FRIEND_LINK_APPLY_CONDITION"
+	KeyFriendLinkApplyCustomCode     SettingKey = "FRIEND_LINK_APPLY_CUSTOM_CODE"
+	KeyFriendLinkApplyCustomCodeHtml SettingKey = "FRIEND_LINK_APPLY_CUSTOM_CODE_HTML"
+	KeyFriendLinkDefaultCategory     SettingKey = "FRIEND_LINK_DEFAULTCATEGORY"
 
 	// --- 缩略图生成队列配置 ---
 	KeyQueueThumbConcurrency   SettingKey = "QUEUE_THUMB_CONCURRENCY"
