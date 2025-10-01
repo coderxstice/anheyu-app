@@ -44,6 +44,7 @@ const (
 	KeyCustomFooterHTML          SettingKey = "CUSTOM_FOOTER_HTML"
 	KeyCustomCSS                 SettingKey = "CUSTOM_CSS"
 	KeyCustomJS                  SettingKey = "CUSTOM_JS"
+	KeyCustomSidebar             SettingKey = "CUSTOM_SIDEBAR"
 	KeyHomeTop                   SettingKey = "HOME_TOP"
 	KeyCreativity                SettingKey = "CREATIVITY"
 	KeyUploadAllowedExtensions   SettingKey = "UPLOAD_ALLOWED_EXTENSIONS"
