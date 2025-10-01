@@ -33,6 +33,9 @@ func (Link) Fields() []ent.Field {
 		field.String("siteshot").
 			Comment("网站快照的 URL").
 			Optional(),
+		field.Int("sort_order").
+			Comment("排序权重，数字越小越靠前").
+			Default(0),
 	}
 }
 

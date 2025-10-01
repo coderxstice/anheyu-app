@@ -29,4 +29,6 @@ type LinkRepository interface {
 	GetAllApprovedLinks(ctx context.Context) ([]*model.LinkDTO, error)
 	GetAllInvalidLinks(ctx context.Context) ([]*model.LinkDTO, error)
 	BatchUpdateStatus(ctx context.Context, linkIDs []int, status string) error
+	// 批量更新友链排序
+	BatchUpdateSortOrder(ctx context.Context, items []model.LinkSortItem) error
 }

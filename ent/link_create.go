@@ -91,6 +91,20 @@ func (_c *LinkCreate) SetNillableSiteshot(v *string) *LinkCreate {
 	return _c
 }
 
+// SetSortOrder sets the "sort_order" field.
+func (_c *LinkCreate) SetSortOrder(v int) *LinkCreate {
+	_c.mutation.SetSortOrder(v)
+	return _c
+}
+
+// SetNillableSortOrder sets the "sort_order" field if the given value is not nil.
+func (_c *LinkCreate) SetNillableSortOrder(v *int) *LinkCreate {
+	if v != nil {
+		_c.SetSortOrder(*v)
+	}
+	return _c
+}
+
 // SetCategoryID sets the "category" edge to the LinkCategory entity by ID.
 func (_c *LinkCreate) SetCategoryID(id int) *LinkCreate {
 	_c.mutation.SetCategoryID(id)
@@ -156,6 +170,10 @@ func (_c *LinkCreate) defaults() {
 		v := link.DefaultStatus
 		_c.mutation.SetStatus(v)
 	}
+	if _, ok := _c.mutation.SortOrder(); !ok {
+		v := link.DefaultSortOrder
+		_c.mutation.SetSortOrder(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -183,6 +201,9 @@ func (_c *LinkCreate) check() error {
 		if err := link.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Link.status": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.SortOrder(); !ok {
+		return &ValidationError{Name: "sort_order", err: errors.New(`ent: missing required field "Link.sort_order"`)}
 	}
 	if len(_c.mutation.CategoryIDs()) == 0 {
 		return &ValidationError{Name: "category", err: errors.New(`ent: missing required edge "Link.category"`)}
@@ -237,6 +258,10 @@ func (_c *LinkCreate) createSpec() (*Link, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Siteshot(); ok {
 		_spec.SetField(link.FieldSiteshot, field.TypeString, value)
 		_node.Siteshot = value
+	}
+	if value, ok := _c.mutation.SortOrder(); ok {
+		_spec.SetField(link.FieldSortOrder, field.TypeInt, value)
+		_node.SortOrder = value
 	}
 	if nodes := _c.mutation.CategoryIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -413,6 +438,24 @@ func (u *LinkUpsert) ClearSiteshot() *LinkUpsert {
 	return u
 }
 
+// SetSortOrder sets the "sort_order" field.
+func (u *LinkUpsert) SetSortOrder(v int) *LinkUpsert {
+	u.Set(link.FieldSortOrder, v)
+	return u
+}
+
+// UpdateSortOrder sets the "sort_order" field to the value that was provided on create.
+func (u *LinkUpsert) UpdateSortOrder() *LinkUpsert {
+	u.SetExcluded(link.FieldSortOrder)
+	return u
+}
+
+// AddSortOrder adds v to the "sort_order" field.
+func (u *LinkUpsert) AddSortOrder(v int) *LinkUpsert {
+	u.Add(link.FieldSortOrder, v)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -555,6 +598,27 @@ func (u *LinkUpsertOne) UpdateSiteshot() *LinkUpsertOne {
 func (u *LinkUpsertOne) ClearSiteshot() *LinkUpsertOne {
 	return u.Update(func(s *LinkUpsert) {
 		s.ClearSiteshot()
+	})
+}
+
+// SetSortOrder sets the "sort_order" field.
+func (u *LinkUpsertOne) SetSortOrder(v int) *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.SetSortOrder(v)
+	})
+}
+
+// AddSortOrder adds v to the "sort_order" field.
+func (u *LinkUpsertOne) AddSortOrder(v int) *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.AddSortOrder(v)
+	})
+}
+
+// UpdateSortOrder sets the "sort_order" field to the value that was provided on create.
+func (u *LinkUpsertOne) UpdateSortOrder() *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.UpdateSortOrder()
 	})
 }
 
@@ -864,6 +928,27 @@ func (u *LinkUpsertBulk) UpdateSiteshot() *LinkUpsertBulk {
 func (u *LinkUpsertBulk) ClearSiteshot() *LinkUpsertBulk {
 	return u.Update(func(s *LinkUpsert) {
 		s.ClearSiteshot()
+	})
+}
+
+// SetSortOrder sets the "sort_order" field.
+func (u *LinkUpsertBulk) SetSortOrder(v int) *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.SetSortOrder(v)
+	})
+}
+
+// AddSortOrder adds v to the "sort_order" field.
+func (u *LinkUpsertBulk) AddSortOrder(v int) *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.AddSortOrder(v)
+	})
+}
+
+// UpdateSortOrder sets the "sort_order" field to the value that was provided on create.
+func (u *LinkUpsertBulk) UpdateSortOrder() *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.UpdateSortOrder()
 	})
 }
 

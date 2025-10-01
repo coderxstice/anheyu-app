@@ -29,6 +29,8 @@ type Link struct {
 	Status link.Status `json:"status,omitempty"`
 	// 网站快照的 URL
 	Siteshot string `json:"siteshot,omitempty"`
+	// 排序权重，数字越小越靠前
+	SortOrder int `json:"sort_order,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the LinkQuery when eager-loading is set.
 	Edges               LinkEdges `json:"edges"`
@@ -72,7 +74,7 @@ func (*Link) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case link.FieldID:
+		case link.FieldID, link.FieldSortOrder:
 			values[i] = new(sql.NullInt64)
 		case link.FieldName, link.FieldURL, link.FieldLogo, link.FieldDescription, link.FieldStatus, link.FieldSiteshot:
 			values[i] = new(sql.NullString)
@@ -134,6 +136,12 @@ func (_m *Link) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field siteshot", values[i])
 			} else if value.Valid {
 				_m.Siteshot = value.String
+			}
+		case link.FieldSortOrder:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field sort_order", values[i])
+			} else if value.Valid {
+				_m.SortOrder = int(value.Int64)
 			}
 		case link.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -205,6 +213,9 @@ func (_m *Link) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("siteshot=")
 	builder.WriteString(_m.Siteshot)
+	builder.WriteString(", ")
+	builder.WriteString("sort_order=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SortOrder))
 	builder.WriteByte(')')
 	return builder.String()
 }

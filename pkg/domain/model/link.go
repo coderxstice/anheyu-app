@@ -43,6 +43,7 @@ type LinkDTO struct {
 	Description string           `json:"description"`
 	Status      string           `json:"status"`
 	Siteshot    string           `json:"siteshot,omitempty"`
+	SortOrder   int              `json:"sort_order"`
 	Category    *LinkCategoryDTO `json:"category"`
 	Tag         *LinkTagDTO      `json:"tag"` // 改为单个标签
 }
@@ -81,6 +82,7 @@ type AdminCreateLinkRequest struct {
 	TagID       *int   `json:"tag_id"` // 改为单个标签，可选
 	Status      string `json:"status" binding:"required,oneof=PENDING APPROVED REJECTED INVALID"`
 	Siteshot    string `json:"siteshot"`
+	SortOrder   int    `json:"sort_order"`
 }
 
 // ReviewLinkRequest 是后台管理员审核友链的请求结构。
@@ -122,6 +124,7 @@ type AdminUpdateLinkRequest struct {
 	TagID       *int   `json:"tag_id"` // 改为单个标签，可选
 	Status      string `json:"status" binding:"required,oneof=PENDING APPROVED REJECTED INVALID"`
 	Siteshot    string `json:"siteshot"`
+	SortOrder   int    `json:"sort_order"`
 }
 
 // UpdateLinkCategoryRequest 是后台管理员更新友链分类的请求结构。
@@ -187,4 +190,15 @@ type LinkHealthCheckResponse struct {
 	Healthy      int   `json:"healthy"`       // 健康的友链数量
 	Unhealthy    int   `json:"unhealthy"`     // 失联的友链数量
 	UnhealthyIDs []int `json:"unhealthy_ids"` // 失联的友链ID列表
+}
+
+// LinkSortItem 是单个友链排序项。
+type LinkSortItem struct {
+	ID        int `json:"id" binding:"required"`
+	SortOrder int `json:"sort_order"`
+}
+
+// BatchUpdateLinkSortRequest 是批量更新友链排序的请求结构。
+type BatchUpdateLinkSortRequest struct {
+	Items []LinkSortItem `json:"items" binding:"required,min=1"`
 }

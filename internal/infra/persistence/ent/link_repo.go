@@ -63,9 +63,9 @@ func (r *linkRepo) List(ctx context.Context, req *model.ListLinksRequest) ([]*mo
 	}
 
 	entLinks, err := query.
-		Offset((req.GetPage() - 1) * req.GetPageSize()).
+		Offset((req.GetPage()-1)*req.GetPageSize()).
 		Limit(req.GetPageSize()).
-		Order(ent.Desc(link.FieldID)).
+		Order(ent.Desc(link.FieldSortOrder), ent.Desc(link.FieldID)).
 		All(ctx)
 	if err != nil {
 		return nil, 0, err
@@ -92,7 +92,8 @@ func (r *linkRepo) AdminCreate(ctx context.Context, req *model.AdminCreateLinkRe
 		SetURL(req.URL).
 		SetStatus(link.Status(req.Status)).
 		SetSiteshot(req.Siteshot).
-		SetCategoryID(req.CategoryID)
+		SetCategoryID(req.CategoryID).
+		SetSortOrder(req.SortOrder)
 
 	// 处理单个标签
 	if req.TagID != nil {
@@ -135,6 +136,7 @@ func (r *linkRepo) Update(ctx context.Context, id int, req *model.AdminUpdateLin
 		SetDescription(req.Description).
 		SetStatus(link.Status(req.Status)).
 		SetCategoryID(req.CategoryID).
+		SetSortOrder(req.SortOrder).
 		ClearTags()
 
 	// 处理单个标签
@@ -181,9 +183,9 @@ func (r *linkRepo) ListPublic(ctx context.Context, req *model.ListPublicLinksReq
 	}
 
 	results, err := query.
-		Offset((req.GetPage() - 1) * req.GetPageSize()).
+		Offset((req.GetPage()-1)*req.GetPageSize()).
 		Limit(req.GetPageSize()).
-		Order(ent.Desc(link.FieldID)).
+		Order(ent.Desc(link.FieldSortOrder), ent.Desc(link.FieldID)).
 		All(ctx)
 	if err != nil {
 		return nil, 0, err
@@ -219,6 +221,7 @@ func mapEntLinkToDTO(entLink *ent.Link) *model.LinkDTO {
 		Description: entLink.Description,
 		Status:      string(entLink.Status),
 		Siteshot:    entLink.Siteshot,
+		SortOrder:   entLink.SortOrder,
 	}
 	if entLink.Edges.Category != nil {
 		dto.Category = &model.LinkCategoryDTO{
@@ -304,6 +307,29 @@ func (r *linkRepo) GetAllInvalidLinks(ctx context.Context) ([]*model.LinkDTO, er
 		return nil, err
 	}
 	return mapEntLinksToDTOs(entLinks), nil
+}
+
+// BatchUpdateSortOrder 批量更新友链的排序权重
+func (r *linkRepo) BatchUpdateSortOrder(ctx context.Context, items []model.LinkSortItem) error {
+	// 使用事务确保原子性
+	tx, err := r.client.Tx(ctx)
+	if err != nil {
+		return err
+	}
+
+	for _, item := range items {
+		err := tx.Link.UpdateOneID(item.ID).
+			SetSortOrder(item.SortOrder).
+			Exec(ctx)
+		if err != nil {
+			// 回滚事务
+			_ = tx.Rollback()
+			return err
+		}
+	}
+
+	// 提交事务
+	return tx.Commit()
 }
 
 // BatchUpdateStatus 批量更新友链状态

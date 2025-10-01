@@ -425,3 +425,21 @@ func (h *Handler) GetHealthCheckStatus(c *gin.Context) {
 
 	response.Success(c, status, "获取成功")
 }
+
+// BatchUpdateLinkSort 批量更新友链排序。
+// @Router /api/links/sort [put]
+func (h *Handler) BatchUpdateLinkSort(c *gin.Context) {
+	var req model.BatchUpdateLinkSortRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Fail(c, http.StatusBadRequest, "参数无效: "+err.Error())
+		return
+	}
+
+	err := h.linkSvc.BatchUpdateLinkSort(c.Request.Context(), &req)
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, "更新排序失败: "+err.Error())
+		return
+	}
+
+	response.Success(c, nil, "排序更新成功")
+}
