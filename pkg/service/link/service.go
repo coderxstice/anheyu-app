@@ -44,6 +44,7 @@ type Service interface {
 	AdminListAllTags(ctx context.Context) ([]*model.LinkTagDTO, error)
 	ImportLinks(ctx context.Context, req *model.ImportLinksRequest) (*model.ImportLinksResponse, error)
 	CheckLinksHealth(ctx context.Context) (*model.LinkHealthCheckResponse, error)
+	BatchUpdateLinkSort(ctx context.Context, req *model.BatchUpdateLinkSortRequest) error
 }
 
 type service struct {
@@ -542,6 +543,11 @@ func (s *service) CheckLinksHealth(ctx context.Context) (*model.LinkHealthCheckR
 	}
 
 	return response, nil
+}
+
+// BatchUpdateLinkSort 批量更新友链排序
+func (s *service) BatchUpdateLinkSort(ctx context.Context, req *model.BatchUpdateLinkSortRequest) error {
+	return s.linkRepo.BatchUpdateSortOrder(ctx, req.Items)
 }
 
 // checkLinkHealth 检查单个友链的健康状态。

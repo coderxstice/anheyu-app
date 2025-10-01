@@ -3,7 +3,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-21 17:18:09
- * @LastEditTime: 2025-10-01 20:09:10
+ * @LastEditTime: 2025-10-02 02:00:57
  * @LastEditors: 安知鱼
  */
 package constant
@@ -81,6 +81,7 @@ const (
 	KeyFooterListRandomFriends  SettingKey = "footer.list.randomFriends"
 	KeyFooterBarAuthorLink      SettingKey = "footer.bar.authorLink"
 	KeyFooterBarCCLink          SettingKey = "footer.bar.cc.link"
+	KeyFooterBadgeEnable        SettingKey = "footer.badge.enable"
 	KeyFooterBadgeList          SettingKey = "footer.badge.list"
 	KeyFooterSocialBarLeft      SettingKey = "footer.socialBar.left"
 	KeyFooterSocialBarRight     SettingKey = "footer.socialBar.right"

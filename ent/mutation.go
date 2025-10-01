@@ -10337,24 +10337,27 @@ func (m *FileEntityMutation) ResetEdge(name string) error {
 // LinkMutation represents an operation that mutates the Link nodes in the graph.
 type LinkMutation struct {
 	config
-	op              Op
-	typ             string
-	id              *int
-	name            *string
-	url             *string
-	logo            *string
-	description     *string
-	status          *link.Status
-	siteshot        *string
-	clearedFields   map[string]struct{}
-	category        *int
-	clearedcategory bool
-	tags            map[int]struct{}
-	removedtags     map[int]struct{}
-	clearedtags     bool
-	done            bool
-	oldValue        func(context.Context) (*Link, error)
-	predicates      []predicate.Link
+	op                Op
+	typ               string
+	id                *int
+	name              *string
+	url               *string
+	logo              *string
+	description       *string
+	status            *link.Status
+	siteshot          *string
+	sort_order        *int
+	addsort_order     *int
+	skip_health_check *bool
+	clearedFields     map[string]struct{}
+	category          *int
+	clearedcategory   bool
+	tags              map[int]struct{}
+	removedtags       map[int]struct{}
+	clearedtags       bool
+	done              bool
+	oldValue          func(context.Context) (*Link, error)
+	predicates        []predicate.Link
 }
 
 var _ ent.Mutation = (*LinkMutation)(nil)
@@ -10710,6 +10713,98 @@ func (m *LinkMutation) ResetSiteshot() {
 	delete(m.clearedFields, link.FieldSiteshot)
 }
 
+// SetSortOrder sets the "sort_order" field.
+func (m *LinkMutation) SetSortOrder(i int) {
+	m.sort_order = &i
+	m.addsort_order = nil
+}
+
+// SortOrder returns the value of the "sort_order" field in the mutation.
+func (m *LinkMutation) SortOrder() (r int, exists bool) {
+	v := m.sort_order
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSortOrder returns the old "sort_order" field's value of the Link entity.
+// If the Link object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LinkMutation) OldSortOrder(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSortOrder is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSortOrder requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSortOrder: %w", err)
+	}
+	return oldValue.SortOrder, nil
+}
+
+// AddSortOrder adds i to the "sort_order" field.
+func (m *LinkMutation) AddSortOrder(i int) {
+	if m.addsort_order != nil {
+		*m.addsort_order += i
+	} else {
+		m.addsort_order = &i
+	}
+}
+
+// AddedSortOrder returns the value that was added to the "sort_order" field in this mutation.
+func (m *LinkMutation) AddedSortOrder() (r int, exists bool) {
+	v := m.addsort_order
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSortOrder resets all changes to the "sort_order" field.
+func (m *LinkMutation) ResetSortOrder() {
+	m.sort_order = nil
+	m.addsort_order = nil
+}
+
+// SetSkipHealthCheck sets the "skip_health_check" field.
+func (m *LinkMutation) SetSkipHealthCheck(b bool) {
+	m.skip_health_check = &b
+}
+
+// SkipHealthCheck returns the value of the "skip_health_check" field in the mutation.
+func (m *LinkMutation) SkipHealthCheck() (r bool, exists bool) {
+	v := m.skip_health_check
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSkipHealthCheck returns the old "skip_health_check" field's value of the Link entity.
+// If the Link object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LinkMutation) OldSkipHealthCheck(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSkipHealthCheck is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSkipHealthCheck requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSkipHealthCheck: %w", err)
+	}
+	return oldValue.SkipHealthCheck, nil
+}
+
+// ResetSkipHealthCheck resets all changes to the "skip_health_check" field.
+func (m *LinkMutation) ResetSkipHealthCheck() {
+	m.skip_health_check = nil
+}
+
 // SetCategoryID sets the "category" edge to the LinkCategory entity by id.
 func (m *LinkMutation) SetCategoryID(id int) {
 	m.category = &id
@@ -10837,7 +10932,7 @@ func (m *LinkMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *LinkMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 8)
 	if m.name != nil {
 		fields = append(fields, link.FieldName)
 	}
@@ -10855,6 +10950,12 @@ func (m *LinkMutation) Fields() []string {
 	}
 	if m.siteshot != nil {
 		fields = append(fields, link.FieldSiteshot)
+	}
+	if m.sort_order != nil {
+		fields = append(fields, link.FieldSortOrder)
+	}
+	if m.skip_health_check != nil {
+		fields = append(fields, link.FieldSkipHealthCheck)
 	}
 	return fields
 }
@@ -10876,6 +10977,10 @@ func (m *LinkMutation) Field(name string) (ent.Value, bool) {
 		return m.Status()
 	case link.FieldSiteshot:
 		return m.Siteshot()
+	case link.FieldSortOrder:
+		return m.SortOrder()
+	case link.FieldSkipHealthCheck:
+		return m.SkipHealthCheck()
 	}
 	return nil, false
 }
@@ -10897,6 +11002,10 @@ func (m *LinkMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldStatus(ctx)
 	case link.FieldSiteshot:
 		return m.OldSiteshot(ctx)
+	case link.FieldSortOrder:
+		return m.OldSortOrder(ctx)
+	case link.FieldSkipHealthCheck:
+		return m.OldSkipHealthCheck(ctx)
 	}
 	return nil, fmt.Errorf("unknown Link field %s", name)
 }
@@ -10948,6 +11057,20 @@ func (m *LinkMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetSiteshot(v)
 		return nil
+	case link.FieldSortOrder:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSortOrder(v)
+		return nil
+	case link.FieldSkipHealthCheck:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSkipHealthCheck(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Link field %s", name)
 }
@@ -10955,13 +11078,21 @@ func (m *LinkMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *LinkMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addsort_order != nil {
+		fields = append(fields, link.FieldSortOrder)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *LinkMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case link.FieldSortOrder:
+		return m.AddedSortOrder()
+	}
 	return nil, false
 }
 
@@ -10970,6 +11101,13 @@ func (m *LinkMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *LinkMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case link.FieldSortOrder:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSortOrder(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Link numeric field %s", name)
 }
@@ -11035,6 +11173,12 @@ func (m *LinkMutation) ResetField(name string) error {
 		return nil
 	case link.FieldSiteshot:
 		m.ResetSiteshot()
+		return nil
+	case link.FieldSortOrder:
+		m.ResetSortOrder()
+		return nil
+	case link.FieldSkipHealthCheck:
+		m.ResetSkipHealthCheck()
 		return nil
 	}
 	return fmt.Errorf("unknown Link field %s", name)

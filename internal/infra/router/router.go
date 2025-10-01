@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-15 11:30:55
- * @LastEditTime: 2025-09-25 01:37:44
+ * @LastEditTime: 2025-10-01 23:08:18
  * @LastEditors: 安知鱼
  */
 // anheyu-app/pkg/router/router.go
@@ -445,13 +445,15 @@ func (r *Router) registerLinkRoutes(api *gin.RouterGroup) {
 	linksAdmin := api.Group("/links").Use(r.mw.JWTAuth(), r.mw.AdminAuth())
 	{
 		// 友链管理
-		linksAdmin.POST("", r.linkHandler.AdminCreateLink)               // POST /api/links
-		linksAdmin.GET("", r.linkHandler.ListLinks)                      // GET /api/links
-		linksAdmin.PUT("/:id", r.linkHandler.AdminUpdateLink)            // PUT /api/links/:id
-		linksAdmin.DELETE("/:id", r.linkHandler.AdminDeleteLink)         // DELETE /api/links/:id
-		linksAdmin.PUT("/:id/review", r.linkHandler.ReviewLink)          // PUT /api/links/:id/review
-		linksAdmin.POST("/import", r.linkHandler.ImportLinks)            // POST /api/links/import
-		linksAdmin.POST("/health-check", r.linkHandler.CheckLinksHealth) // POST /api/links/health-check
+		linksAdmin.POST("", r.linkHandler.AdminCreateLink)                         // POST /api/links
+		linksAdmin.GET("", r.linkHandler.ListLinks)                                // GET /api/links
+		linksAdmin.PUT("/:id", r.linkHandler.AdminUpdateLink)                      // PUT /api/links/:id
+		linksAdmin.DELETE("/:id", r.linkHandler.AdminDeleteLink)                   // DELETE /api/links/:id
+		linksAdmin.PUT("/:id/review", r.linkHandler.ReviewLink)                    // PUT /api/links/:id/review
+		linksAdmin.POST("/import", r.linkHandler.ImportLinks)                      // POST /api/links/import
+		linksAdmin.POST("/health-check", r.linkHandler.CheckLinksHealth)           // POST /api/links/health-check
+		linksAdmin.GET("/health-check/status", r.linkHandler.GetHealthCheckStatus) // GET /api/links/health-check/status
+		linksAdmin.PUT("/sort", r.linkHandler.BatchUpdateLinkSort)                 // PUT /api/links/sort
 
 		// 分类管理
 		linksAdmin.GET("/categories", r.linkHandler.ListCategories)        // GET /api/links/categories
