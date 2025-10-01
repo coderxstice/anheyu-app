@@ -710,8 +710,6 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 				"articleModifiedTime":  articleResponse.UpdatedAt.Format(time.RFC3339),
 				"articleAuthor":        articleResponse.CopyrightAuthor,
 				"articleTags":          articleTags,
-				// --- 网站脚本和额外信息 ---
-				"siteScript": template.HTML(settingSvc.Get(constant.KeyFooterCode.String())),
 			}))
 			return
 		}
@@ -774,7 +772,5 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 		"articleModifiedTime":  nil,
 		"articleAuthor":        nil,
 		"articleTags":          nil,
-		// --- 网站脚本和额外信息 ---
-		"siteScript": template.HTML(settingSvc.Get(constant.KeyFooterCode.String())),
 	}))
 }

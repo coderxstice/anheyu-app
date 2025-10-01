@@ -3,7 +3,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-21 17:18:09
- * @LastEditTime: 2025-09-22 16:17:20
+ * @LastEditTime: 2025-10-01 20:09:10
  * @LastEditors: 安知鱼
  */
 package constant
@@ -40,7 +40,10 @@ const (
 	KeyDefaultGravatarType       SettingKey = "DEFAULT_GRAVATAR_TYPE"
 	KeyThemeColor                SettingKey = "THEME_COLOR"
 	KeySiteAnnouncement          SettingKey = "SITE_ANNOUNCEMENT"
-	KeyFooterCode                SettingKey = "FOOTER_CODE"
+	KeyCustomHeaderHTML          SettingKey = "CUSTOM_HEADER_HTML"
+	KeyCustomFooterHTML          SettingKey = "CUSTOM_FOOTER_HTML"
+	KeyCustomCSS                 SettingKey = "CUSTOM_CSS"
+	KeyCustomJS                  SettingKey = "CUSTOM_JS"
 	KeyHomeTop                   SettingKey = "HOME_TOP"
 	KeyCreativity                SettingKey = "CREATIVITY"
 	KeyUploadAllowedExtensions   SettingKey = "UPLOAD_ALLOWED_EXTENSIONS"
