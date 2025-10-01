@@ -1,14 +1,32 @@
 package link
 
 import (
+	"context"
+	"fmt"
 	"net/http"
 	"strconv"
+	"sync"
+	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/link"
 
 	"github.com/gin-gonic/gin"
+)
+
+// HealthCheckStatus 健康检查状态
+type HealthCheckStatus struct {
+	IsRunning bool                           `json:"is_running"`
+	StartTime *time.Time                     `json:"start_time,omitempty"`
+	EndTime   *time.Time                     `json:"end_time,omitempty"`
+	Result    *model.LinkHealthCheckResponse `json:"result,omitempty"`
+	Error     string                         `json:"error,omitempty"`
+}
+
+var (
+	healthCheckStatus = &HealthCheckStatus{IsRunning: false}
+	healthCheckMutex  sync.RWMutex
 )
 
 // Handler 负责处理友链相关的 API 请求。
@@ -328,7 +346,7 @@ func (h *Handler) ImportLinks(c *gin.Context) {
 	}
 
 	// 检查数量限制，防止过多数据一次性导入
-	const maxImportCount = 100
+	const maxImportCount = 1000
 	if len(req.Links) > maxImportCount {
 		response.Fail(c, http.StatusBadRequest, "单次导入友链数量不能超过 "+strconv.Itoa(maxImportCount)+" 个")
 		return
@@ -344,13 +362,66 @@ func (h *Handler) ImportLinks(c *gin.Context) {
 }
 
 // CheckLinksHealth 处理后台管理员手动触发友链健康检查的请求。
+// 该操作为异步执行，不会阻塞请求，立即返回任务已启动的响应。
 // @Router /api/links/health-check [post]
 func (h *Handler) CheckLinksHealth(c *gin.Context) {
-	result, err := h.linkSvc.CheckLinksHealth(c.Request.Context())
-	if err != nil {
-		response.Fail(c, http.StatusInternalServerError, "健康检查失败: "+err.Error())
+	// 检查是否已经在运行
+	healthCheckMutex.RLock()
+	if healthCheckStatus.IsRunning {
+		healthCheckMutex.RUnlock()
+		response.Fail(c, http.StatusConflict, "健康检查任务正在执行中，请稍后再试")
 		return
 	}
+	healthCheckMutex.RUnlock()
 
-	response.Success(c, result, "健康检查完成")
+	// 在后台异步执行健康检查
+	go func() {
+		// 设置开始状态
+		healthCheckMutex.Lock()
+		now := time.Now()
+		healthCheckStatus = &HealthCheckStatus{
+			IsRunning: true,
+			StartTime: &now,
+			EndTime:   nil,
+			Result:    nil,
+			Error:     "",
+		}
+		healthCheckMutex.Unlock()
+
+		// 创建一个新的 context，避免使用已关闭的请求 context
+		ctx := context.Background()
+		result, err := h.linkSvc.CheckLinksHealth(ctx)
+
+		// 更新结束状态
+		healthCheckMutex.Lock()
+		endTime := time.Now()
+		healthCheckStatus.IsRunning = false
+		healthCheckStatus.EndTime = &endTime
+
+		if err != nil {
+			healthCheckStatus.Error = err.Error()
+			fmt.Printf("[友链健康检查] 执行失败: %v\n", err)
+		} else {
+			healthCheckStatus.Result = result
+			fmt.Printf("[友链健康检查] 完成 - 总计: %d, 健康: %d, 失联: %d\n",
+				result.Total, result.Healthy, result.Unhealthy)
+		}
+		healthCheckMutex.Unlock()
+	}()
+
+	// 立即返回响应
+	response.Success(c, gin.H{
+		"message": "友链健康检查任务已启动，将在后台执行",
+		"status":  "started",
+	}, "健康检查任务已启动")
+}
+
+// GetHealthCheckStatus 获取健康检查任务的当前状态。
+// @Router /api/links/health-check/status [get]
+func (h *Handler) GetHealthCheckStatus(c *gin.Context) {
+	healthCheckMutex.RLock()
+	status := *healthCheckStatus
+	healthCheckMutex.RUnlock()
+
+	response.Success(c, status, "获取成功")
 }
