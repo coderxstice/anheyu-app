@@ -50,6 +50,8 @@ var AllSettings = []Definition{
 	{Key: constant.KeyCustomCSS, Value: "", Comment: "自定义CSS样式，无需填写 <style> 标签", IsPublic: true},
 	{Key: constant.KeyCustomJS, Value: "", Comment: "自定义JavaScript代码（如网站统计等），无需填写 <script> 标签", IsPublic: true},
 	{Key: constant.KeyCustomSidebar, Value: "", Comment: "自定义侧边栏HTML代码", IsPublic: true},
+	{Key: constant.KeyCustomPostTopHTML, Value: "", Comment: "自定义文章顶部HTML代码，将插入到文章内容区域顶部", IsPublic: true},
+	{Key: constant.KeyCustomPostBottomHTML, Value: "", Comment: "自定义文章底部HTML代码，将插入到文章内容区域底部", IsPublic: true},
 	{Key: constant.KeyDefaultThumbParam, Value: "", Comment: "默认缩略图处理参数", IsPublic: true},
 	{Key: constant.KeyDefaultBigParam, Value: "", Comment: "默认大图处理参数", IsPublic: true},
 	{Key: constant.KeyGravatarURL, Value: "https://cdn.sep.cc/", Comment: "Gravatar 服务器地址", IsPublic: true},

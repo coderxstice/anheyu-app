@@ -45,6 +45,8 @@ const (
 	KeyCustomCSS                 SettingKey = "CUSTOM_CSS"
 	KeyCustomJS                  SettingKey = "CUSTOM_JS"
 	KeyCustomSidebar             SettingKey = "CUSTOM_SIDEBAR"
+	KeyCustomPostTopHTML         SettingKey = "CUSTOM_POST_TOP_HTML"
+	KeyCustomPostBottomHTML      SettingKey = "CUSTOM_POST_BOTTOM_HTML"
 	KeyHomeTop                   SettingKey = "HOME_TOP"
 	KeyCreativity                SettingKey = "CREATIVITY"
 	KeyUploadAllowedExtensions   SettingKey = "UPLOAD_ALLOWED_EXTENSIONS"
