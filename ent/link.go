@@ -31,6 +31,8 @@ type Link struct {
 	Siteshot string `json:"siteshot,omitempty"`
 	// 排序权重，数字越小越靠前
 	SortOrder int `json:"sort_order,omitempty"`
+	// 是否跳过健康检查
+	SkipHealthCheck bool `json:"skip_health_check,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the LinkQuery when eager-loading is set.
 	Edges               LinkEdges `json:"edges"`
@@ -74,6 +76,8 @@ func (*Link) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case link.FieldSkipHealthCheck:
+			values[i] = new(sql.NullBool)
 		case link.FieldID, link.FieldSortOrder:
 			values[i] = new(sql.NullInt64)
 		case link.FieldName, link.FieldURL, link.FieldLogo, link.FieldDescription, link.FieldStatus, link.FieldSiteshot:
@@ -142,6 +146,12 @@ func (_m *Link) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field sort_order", values[i])
 			} else if value.Valid {
 				_m.SortOrder = int(value.Int64)
+			}
+		case link.FieldSkipHealthCheck:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field skip_health_check", values[i])
+			} else if value.Valid {
+				_m.SkipHealthCheck = value.Bool
 			}
 		case link.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -216,6 +226,9 @@ func (_m *Link) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("sort_order=")
 	builder.WriteString(fmt.Sprintf("%v", _m.SortOrder))
+	builder.WriteString(", ")
+	builder.WriteString("skip_health_check=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SkipHealthCheck))
 	builder.WriteByte(')')
 	return builder.String()
 }

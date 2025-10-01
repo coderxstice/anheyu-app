@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-08-18 15:05:27
- * @LastEditTime: 2025-08-18 17:25:41
+ * @LastEditTime: 2025-10-02 00:39:21
  * @LastEditors: 安知鱼
  */
 // ent/schema/link.go
@@ -36,6 +36,9 @@ func (Link) Fields() []ent.Field {
 		field.Int("sort_order").
 			Comment("排序权重，数字越小越靠前").
 			Default(0),
+		field.Bool("skip_health_check").
+			Comment("是否跳过健康检查").
+			Default(false),
 	}
 }
 

@@ -10337,26 +10337,27 @@ func (m *FileEntityMutation) ResetEdge(name string) error {
 // LinkMutation represents an operation that mutates the Link nodes in the graph.
 type LinkMutation struct {
 	config
-	op              Op
-	typ             string
-	id              *int
-	name            *string
-	url             *string
-	logo            *string
-	description     *string
-	status          *link.Status
-	siteshot        *string
-	sort_order      *int
-	addsort_order   *int
-	clearedFields   map[string]struct{}
-	category        *int
-	clearedcategory bool
-	tags            map[int]struct{}
-	removedtags     map[int]struct{}
-	clearedtags     bool
-	done            bool
-	oldValue        func(context.Context) (*Link, error)
-	predicates      []predicate.Link
+	op                Op
+	typ               string
+	id                *int
+	name              *string
+	url               *string
+	logo              *string
+	description       *string
+	status            *link.Status
+	siteshot          *string
+	sort_order        *int
+	addsort_order     *int
+	skip_health_check *bool
+	clearedFields     map[string]struct{}
+	category          *int
+	clearedcategory   bool
+	tags              map[int]struct{}
+	removedtags       map[int]struct{}
+	clearedtags       bool
+	done              bool
+	oldValue          func(context.Context) (*Link, error)
+	predicates        []predicate.Link
 }
 
 var _ ent.Mutation = (*LinkMutation)(nil)
@@ -10768,6 +10769,42 @@ func (m *LinkMutation) ResetSortOrder() {
 	m.addsort_order = nil
 }
 
+// SetSkipHealthCheck sets the "skip_health_check" field.
+func (m *LinkMutation) SetSkipHealthCheck(b bool) {
+	m.skip_health_check = &b
+}
+
+// SkipHealthCheck returns the value of the "skip_health_check" field in the mutation.
+func (m *LinkMutation) SkipHealthCheck() (r bool, exists bool) {
+	v := m.skip_health_check
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSkipHealthCheck returns the old "skip_health_check" field's value of the Link entity.
+// If the Link object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LinkMutation) OldSkipHealthCheck(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSkipHealthCheck is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSkipHealthCheck requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSkipHealthCheck: %w", err)
+	}
+	return oldValue.SkipHealthCheck, nil
+}
+
+// ResetSkipHealthCheck resets all changes to the "skip_health_check" field.
+func (m *LinkMutation) ResetSkipHealthCheck() {
+	m.skip_health_check = nil
+}
+
 // SetCategoryID sets the "category" edge to the LinkCategory entity by id.
 func (m *LinkMutation) SetCategoryID(id int) {
 	m.category = &id
@@ -10895,7 +10932,7 @@ func (m *LinkMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *LinkMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.name != nil {
 		fields = append(fields, link.FieldName)
 	}
@@ -10916,6 +10953,9 @@ func (m *LinkMutation) Fields() []string {
 	}
 	if m.sort_order != nil {
 		fields = append(fields, link.FieldSortOrder)
+	}
+	if m.skip_health_check != nil {
+		fields = append(fields, link.FieldSkipHealthCheck)
 	}
 	return fields
 }
@@ -10939,6 +10979,8 @@ func (m *LinkMutation) Field(name string) (ent.Value, bool) {
 		return m.Siteshot()
 	case link.FieldSortOrder:
 		return m.SortOrder()
+	case link.FieldSkipHealthCheck:
+		return m.SkipHealthCheck()
 	}
 	return nil, false
 }
@@ -10962,6 +11004,8 @@ func (m *LinkMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldSiteshot(ctx)
 	case link.FieldSortOrder:
 		return m.OldSortOrder(ctx)
+	case link.FieldSkipHealthCheck:
+		return m.OldSkipHealthCheck(ctx)
 	}
 	return nil, fmt.Errorf("unknown Link field %s", name)
 }
@@ -11019,6 +11063,13 @@ func (m *LinkMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetSortOrder(v)
+		return nil
+	case link.FieldSkipHealthCheck:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSkipHealthCheck(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Link field %s", name)
@@ -11125,6 +11176,9 @@ func (m *LinkMutation) ResetField(name string) error {
 		return nil
 	case link.FieldSortOrder:
 		m.ResetSortOrder()
+		return nil
+	case link.FieldSkipHealthCheck:
+		m.ResetSkipHealthCheck()
 		return nil
 	}
 	return fmt.Errorf("unknown Link field %s", name)

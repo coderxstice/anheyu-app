@@ -28,6 +28,8 @@ const (
 	FieldSiteshot = "siteshot"
 	// FieldSortOrder holds the string denoting the sort_order field in the database.
 	FieldSortOrder = "sort_order"
+	// FieldSkipHealthCheck holds the string denoting the skip_health_check field in the database.
+	FieldSkipHealthCheck = "skip_health_check"
 	// EdgeCategory holds the string denoting the category edge name in mutations.
 	EdgeCategory = "category"
 	// EdgeTags holds the string denoting the tags edge name in mutations.
@@ -58,6 +60,7 @@ var Columns = []string{
 	FieldStatus,
 	FieldSiteshot,
 	FieldSortOrder,
+	FieldSkipHealthCheck,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "links"
@@ -94,6 +97,8 @@ var (
 	URLValidator func(string) error
 	// DefaultSortOrder holds the default value on creation for the "sort_order" field.
 	DefaultSortOrder int
+	// DefaultSkipHealthCheck holds the default value on creation for the "skip_health_check" field.
+	DefaultSkipHealthCheck bool
 )
 
 // Status defines the type for the "status" enum field.
@@ -165,6 +170,11 @@ func BySiteshot(opts ...sql.OrderTermOption) OrderOption {
 // BySortOrder orders the results by the sort_order field.
 func BySortOrder(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSortOrder, opts...).ToFunc()
+}
+
+// BySkipHealthCheck orders the results by the skip_health_check field.
+func BySkipHealthCheck(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSkipHealthCheck, opts...).ToFunc()
 }
 
 // ByCategoryField orders the results by category field.

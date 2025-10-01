@@ -83,6 +83,11 @@ func SortOrder(v int) predicate.Link {
 	return predicate.Link(sql.FieldEQ(FieldSortOrder, v))
 }
 
+// SkipHealthCheck applies equality check predicate on the "skip_health_check" field. It's identical to SkipHealthCheckEQ.
+func SkipHealthCheck(v bool) predicate.Link {
+	return predicate.Link(sql.FieldEQ(FieldSkipHealthCheck, v))
+}
+
 // NameEQ applies the EQ predicate on the "name" field.
 func NameEQ(v string) predicate.Link {
 	return predicate.Link(sql.FieldEQ(FieldName, v))
@@ -496,6 +501,16 @@ func SortOrderLT(v int) predicate.Link {
 // SortOrderLTE applies the LTE predicate on the "sort_order" field.
 func SortOrderLTE(v int) predicate.Link {
 	return predicate.Link(sql.FieldLTE(FieldSortOrder, v))
+}
+
+// SkipHealthCheckEQ applies the EQ predicate on the "skip_health_check" field.
+func SkipHealthCheckEQ(v bool) predicate.Link {
+	return predicate.Link(sql.FieldEQ(FieldSkipHealthCheck, v))
+}
+
+// SkipHealthCheckNEQ applies the NEQ predicate on the "skip_health_check" field.
+func SkipHealthCheckNEQ(v bool) predicate.Link {
+	return predicate.Link(sql.FieldNEQ(FieldSkipHealthCheck, v))
 }
 
 // HasCategory applies the HasEdge predicate on the "category" edge.

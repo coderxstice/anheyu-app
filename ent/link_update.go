@@ -153,6 +153,20 @@ func (_u *LinkUpdate) AddSortOrder(v int) *LinkUpdate {
 	return _u
 }
 
+// SetSkipHealthCheck sets the "skip_health_check" field.
+func (_u *LinkUpdate) SetSkipHealthCheck(v bool) *LinkUpdate {
+	_u.mutation.SetSkipHealthCheck(v)
+	return _u
+}
+
+// SetNillableSkipHealthCheck sets the "skip_health_check" field if the given value is not nil.
+func (_u *LinkUpdate) SetNillableSkipHealthCheck(v *bool) *LinkUpdate {
+	if v != nil {
+		_u.SetSkipHealthCheck(*v)
+	}
+	return _u
+}
+
 // SetCategoryID sets the "category" edge to the LinkCategory entity by ID.
 func (_u *LinkUpdate) SetCategoryID(id int) *LinkUpdate {
 	_u.mutation.SetCategoryID(id)
@@ -311,6 +325,9 @@ func (_u *LinkUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.AddedSortOrder(); ok {
 		_spec.AddField(link.FieldSortOrder, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.SkipHealthCheck(); ok {
+		_spec.SetField(link.FieldSkipHealthCheck, field.TypeBool, value)
 	}
 	if _u.mutation.CategoryCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -531,6 +548,20 @@ func (_u *LinkUpdateOne) AddSortOrder(v int) *LinkUpdateOne {
 	return _u
 }
 
+// SetSkipHealthCheck sets the "skip_health_check" field.
+func (_u *LinkUpdateOne) SetSkipHealthCheck(v bool) *LinkUpdateOne {
+	_u.mutation.SetSkipHealthCheck(v)
+	return _u
+}
+
+// SetNillableSkipHealthCheck sets the "skip_health_check" field if the given value is not nil.
+func (_u *LinkUpdateOne) SetNillableSkipHealthCheck(v *bool) *LinkUpdateOne {
+	if v != nil {
+		_u.SetSkipHealthCheck(*v)
+	}
+	return _u
+}
+
 // SetCategoryID sets the "category" edge to the LinkCategory entity by ID.
 func (_u *LinkUpdateOne) SetCategoryID(id int) *LinkUpdateOne {
 	_u.mutation.SetCategoryID(id)
@@ -719,6 +750,9 @@ func (_u *LinkUpdateOne) sqlSave(ctx context.Context) (_node *Link, err error) {
 	}
 	if value, ok := _u.mutation.AddedSortOrder(); ok {
 		_spec.AddField(link.FieldSortOrder, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.SkipHealthCheck(); ok {
+		_spec.SetField(link.FieldSkipHealthCheck, field.TypeBool, value)
 	}
 	if _u.mutation.CategoryCleared() {
 		edge := &sqlgraph.EdgeSpec{

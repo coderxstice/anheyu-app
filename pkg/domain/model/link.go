@@ -36,16 +36,17 @@ type LinkTagDTO struct {
 }
 
 type LinkDTO struct {
-	ID          int              `json:"id"`
-	Name        string           `json:"name"`
-	URL         string           `json:"url"`
-	Logo        string           `json:"logo"`
-	Description string           `json:"description"`
-	Status      string           `json:"status"`
-	Siteshot    string           `json:"siteshot,omitempty"`
-	SortOrder   int              `json:"sort_order"`
-	Category    *LinkCategoryDTO `json:"category"`
-	Tag         *LinkTagDTO      `json:"tag"` // 改为单个标签
+	ID              int              `json:"id"`
+	Name            string           `json:"name"`
+	URL             string           `json:"url"`
+	Logo            string           `json:"logo"`
+	Description     string           `json:"description"`
+	Status          string           `json:"status"`
+	Siteshot        string           `json:"siteshot,omitempty"`
+	SortOrder       int              `json:"sort_order"`
+	SkipHealthCheck bool             `json:"skip_health_check"`
+	Category        *LinkCategoryDTO `json:"category"`
+	Tag             *LinkTagDTO      `json:"tag"` // 改为单个标签
 }
 
 // --- API 请求/响应 DTO ---
@@ -74,15 +75,16 @@ type CreateLinkTagRequest struct {
 
 // AdminCreateLinkRequest 是后台管理员直接创建友链的请求结构。
 type AdminCreateLinkRequest struct {
-	Name        string `json:"name" binding:"required"`
-	URL         string `json:"url" binding:"required,url"`
-	Logo        string `json:"logo"`
-	Description string `json:"description"`
-	CategoryID  int    `json:"category_id" binding:"required"`
-	TagID       *int   `json:"tag_id"` // 改为单个标签，可选
-	Status      string `json:"status" binding:"required,oneof=PENDING APPROVED REJECTED INVALID"`
-	Siteshot    string `json:"siteshot"`
-	SortOrder   int    `json:"sort_order"`
+	Name            string `json:"name" binding:"required"`
+	URL             string `json:"url" binding:"required,url"`
+	Logo            string `json:"logo"`
+	Description     string `json:"description"`
+	CategoryID      int    `json:"category_id" binding:"required"`
+	TagID           *int   `json:"tag_id"` // 改为单个标签，可选
+	Status          string `json:"status" binding:"required,oneof=PENDING APPROVED REJECTED INVALID"`
+	Siteshot        string `json:"siteshot"`
+	SortOrder       int    `json:"sort_order"`
+	SkipHealthCheck bool   `json:"skip_health_check"`
 }
 
 // ReviewLinkRequest 是后台管理员审核友链的请求结构。
@@ -116,15 +118,16 @@ type LinkListResponse struct {
 
 // AdminUpdateLinkRequest 是后台管理员更新友链的请求结构。
 type AdminUpdateLinkRequest struct {
-	Name        string `json:"name" binding:"required"`
-	URL         string `json:"url" binding:"required,url"`
-	Logo        string `json:"logo"`
-	Description string `json:"description"`
-	CategoryID  int    `json:"category_id" binding:"required"`
-	TagID       *int   `json:"tag_id"` // 改为单个标签，可选
-	Status      string `json:"status" binding:"required,oneof=PENDING APPROVED REJECTED INVALID"`
-	Siteshot    string `json:"siteshot"`
-	SortOrder   int    `json:"sort_order"`
+	Name            string `json:"name" binding:"required"`
+	URL             string `json:"url" binding:"required,url"`
+	Logo            string `json:"logo"`
+	Description     string `json:"description"`
+	CategoryID      int    `json:"category_id" binding:"required"`
+	TagID           *int   `json:"tag_id"` // 改为单个标签，可选
+	Status          string `json:"status" binding:"required,oneof=PENDING APPROVED REJECTED INVALID"`
+	Siteshot        string `json:"siteshot"`
+	SortOrder       int    `json:"sort_order"`
+	SkipHealthCheck bool   `json:"skip_health_check"`
 }
 
 // UpdateLinkCategoryRequest 是后台管理员更新友链分类的请求结构。

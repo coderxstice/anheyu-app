@@ -105,6 +105,20 @@ func (_c *LinkCreate) SetNillableSortOrder(v *int) *LinkCreate {
 	return _c
 }
 
+// SetSkipHealthCheck sets the "skip_health_check" field.
+func (_c *LinkCreate) SetSkipHealthCheck(v bool) *LinkCreate {
+	_c.mutation.SetSkipHealthCheck(v)
+	return _c
+}
+
+// SetNillableSkipHealthCheck sets the "skip_health_check" field if the given value is not nil.
+func (_c *LinkCreate) SetNillableSkipHealthCheck(v *bool) *LinkCreate {
+	if v != nil {
+		_c.SetSkipHealthCheck(*v)
+	}
+	return _c
+}
+
 // SetCategoryID sets the "category" edge to the LinkCategory entity by ID.
 func (_c *LinkCreate) SetCategoryID(id int) *LinkCreate {
 	_c.mutation.SetCategoryID(id)
@@ -174,6 +188,10 @@ func (_c *LinkCreate) defaults() {
 		v := link.DefaultSortOrder
 		_c.mutation.SetSortOrder(v)
 	}
+	if _, ok := _c.mutation.SkipHealthCheck(); !ok {
+		v := link.DefaultSkipHealthCheck
+		_c.mutation.SetSkipHealthCheck(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -204,6 +222,9 @@ func (_c *LinkCreate) check() error {
 	}
 	if _, ok := _c.mutation.SortOrder(); !ok {
 		return &ValidationError{Name: "sort_order", err: errors.New(`ent: missing required field "Link.sort_order"`)}
+	}
+	if _, ok := _c.mutation.SkipHealthCheck(); !ok {
+		return &ValidationError{Name: "skip_health_check", err: errors.New(`ent: missing required field "Link.skip_health_check"`)}
 	}
 	if len(_c.mutation.CategoryIDs()) == 0 {
 		return &ValidationError{Name: "category", err: errors.New(`ent: missing required edge "Link.category"`)}
@@ -262,6 +283,10 @@ func (_c *LinkCreate) createSpec() (*Link, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.SortOrder(); ok {
 		_spec.SetField(link.FieldSortOrder, field.TypeInt, value)
 		_node.SortOrder = value
+	}
+	if value, ok := _c.mutation.SkipHealthCheck(); ok {
+		_spec.SetField(link.FieldSkipHealthCheck, field.TypeBool, value)
+		_node.SkipHealthCheck = value
 	}
 	if nodes := _c.mutation.CategoryIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -456,6 +481,18 @@ func (u *LinkUpsert) AddSortOrder(v int) *LinkUpsert {
 	return u
 }
 
+// SetSkipHealthCheck sets the "skip_health_check" field.
+func (u *LinkUpsert) SetSkipHealthCheck(v bool) *LinkUpsert {
+	u.Set(link.FieldSkipHealthCheck, v)
+	return u
+}
+
+// UpdateSkipHealthCheck sets the "skip_health_check" field to the value that was provided on create.
+func (u *LinkUpsert) UpdateSkipHealthCheck() *LinkUpsert {
+	u.SetExcluded(link.FieldSkipHealthCheck)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -619,6 +656,20 @@ func (u *LinkUpsertOne) AddSortOrder(v int) *LinkUpsertOne {
 func (u *LinkUpsertOne) UpdateSortOrder() *LinkUpsertOne {
 	return u.Update(func(s *LinkUpsert) {
 		s.UpdateSortOrder()
+	})
+}
+
+// SetSkipHealthCheck sets the "skip_health_check" field.
+func (u *LinkUpsertOne) SetSkipHealthCheck(v bool) *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.SetSkipHealthCheck(v)
+	})
+}
+
+// UpdateSkipHealthCheck sets the "skip_health_check" field to the value that was provided on create.
+func (u *LinkUpsertOne) UpdateSkipHealthCheck() *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.UpdateSkipHealthCheck()
 	})
 }
 
@@ -949,6 +1000,20 @@ func (u *LinkUpsertBulk) AddSortOrder(v int) *LinkUpsertBulk {
 func (u *LinkUpsertBulk) UpdateSortOrder() *LinkUpsertBulk {
 	return u.Update(func(s *LinkUpsert) {
 		s.UpdateSortOrder()
+	})
+}
+
+// SetSkipHealthCheck sets the "skip_health_check" field.
+func (u *LinkUpsertBulk) SetSkipHealthCheck(v bool) *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.SetSkipHealthCheck(v)
+	})
+}
+
+// UpdateSkipHealthCheck sets the "skip_health_check" field to the value that was provided on create.
+func (u *LinkUpsertBulk) UpdateSkipHealthCheck() *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.UpdateSkipHealthCheck()
 	})
 }
 

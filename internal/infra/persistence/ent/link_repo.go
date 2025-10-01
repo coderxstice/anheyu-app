@@ -93,7 +93,8 @@ func (r *linkRepo) AdminCreate(ctx context.Context, req *model.AdminCreateLinkRe
 		SetStatus(link.Status(req.Status)).
 		SetSiteshot(req.Siteshot).
 		SetCategoryID(req.CategoryID).
-		SetSortOrder(req.SortOrder)
+		SetSortOrder(req.SortOrder).
+		SetSkipHealthCheck(req.SkipHealthCheck)
 
 	// 处理单个标签
 	if req.TagID != nil {
@@ -137,6 +138,7 @@ func (r *linkRepo) Update(ctx context.Context, id int, req *model.AdminUpdateLin
 		SetStatus(link.Status(req.Status)).
 		SetCategoryID(req.CategoryID).
 		SetSortOrder(req.SortOrder).
+		SetSkipHealthCheck(req.SkipHealthCheck).
 		ClearTags()
 
 	// 处理单个标签
@@ -214,14 +216,15 @@ func mapEntLinkToDTO(entLink *ent.Link) *model.LinkDTO {
 		return nil
 	}
 	dto := &model.LinkDTO{
-		ID:          entLink.ID,
-		Name:        entLink.Name,
-		URL:         entLink.URL,
-		Logo:        entLink.Logo,
-		Description: entLink.Description,
-		Status:      string(entLink.Status),
-		Siteshot:    entLink.Siteshot,
-		SortOrder:   entLink.SortOrder,
+		ID:              entLink.ID,
+		Name:            entLink.Name,
+		URL:             entLink.URL,
+		Logo:            entLink.Logo,
+		Description:     entLink.Description,
+		Status:          string(entLink.Status),
+		Siteshot:        entLink.Siteshot,
+		SortOrder:       entLink.SortOrder,
+		SkipHealthCheck: entLink.SkipHealthCheck,
 	}
 	if entLink.Edges.Category != nil {
 		dto.Category = &model.LinkCategoryDTO{
@@ -288,7 +291,10 @@ func (r *linkRepo) GetAllApprovedLinks(ctx context.Context) ([]*model.LinkDTO, e
 	entLinks, err := r.client.Link.Query().
 		WithCategory().
 		WithTags().
-		Where(link.StatusEQ(link.StatusAPPROVED)).
+		Where(
+			link.StatusEQ(link.StatusAPPROVED),
+			link.SkipHealthCheckEQ(false), // 排除跳过健康检查的友链
+		).
 		All(ctx)
 	if err != nil {
 		return nil, err
@@ -301,7 +307,10 @@ func (r *linkRepo) GetAllInvalidLinks(ctx context.Context) ([]*model.LinkDTO, er
 	entLinks, err := r.client.Link.Query().
 		WithCategory().
 		WithTags().
-		Where(link.StatusEQ(link.StatusINVALID)).
+		Where(
+			link.StatusEQ(link.StatusINVALID),
+			link.SkipHealthCheckEQ(false), // 排除跳过健康检查的友链
+		).
 		All(ctx)
 	if err != nil {
 		return nil, err
