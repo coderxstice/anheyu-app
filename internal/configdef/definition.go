@@ -45,7 +45,11 @@ var AllSettings = []Definition{
 	{Key: constant.KeySiteDescription, Value: "新一代博客，就这么搭，Vue渲染颜值，Go守护性能，SSR打破加载瓶颈。", Comment: "站点描述", IsPublic: true},
 	{Key: constant.KeyThemeColor, Value: "#163bf2", Comment: "应用主题颜色", IsPublic: true},
 	{Key: constant.KeySiteAnnouncement, Value: "", Comment: "站点公告，用于在特定页面展示", IsPublic: true},
-	{Key: constant.KeyFooterCode, Value: "", Comment: "页脚自定义HTML代码", IsPublic: true},
+	{Key: constant.KeyCustomHeaderHTML, Value: "", Comment: "自定义头部HTML代码，将插入到 <head> 标签内", IsPublic: true},
+	{Key: constant.KeyCustomFooterHTML, Value: "", Comment: "自定义底部HTML代码，将插入到 </body> 标签前", IsPublic: true},
+	{Key: constant.KeyCustomCSS, Value: "", Comment: "自定义CSS样式，无需填写 <style> 标签", IsPublic: true},
+	{Key: constant.KeyCustomJS, Value: "", Comment: "自定义JavaScript代码（如网站统计等），无需填写 <script> 标签", IsPublic: true},
+	{Key: constant.KeyCustomSidebar, Value: "", Comment: "自定义侧边栏HTML代码", IsPublic: true},
 	{Key: constant.KeyDefaultThumbParam, Value: "", Comment: "默认缩略图处理参数", IsPublic: true},
 	{Key: constant.KeyDefaultBigParam, Value: "", Comment: "默认大图处理参数", IsPublic: true},
 	{Key: constant.KeyGravatarURL, Value: "https://cdn.sep.cc/", Comment: "Gravatar 服务器地址", IsPublic: true},
@@ -181,7 +185,107 @@ var AllSettings = []Definition{
 	{Key: constant.KeySidebarArchiveCount, Value: "0", Comment: "侧边栏归档个数", IsPublic: true},
 
 	{Key: constant.KeyFriendLinkApplyCondition, Value: `["我已添加 <b>安知鱼</b> 博客的友情链接","我的链接主体为 <b>个人</b>，网站类型为<b>博客</b>","我的网站现在可以在中国大陆区域正常访问","网站内容符合中国大陆法律法规","我的网站可以在1分钟内加载完成首屏"]`, Comment: "申请友链条件 (JSON数组格式，用于动态生成勾选框)", IsPublic: true},
-	{Key: constant.KeyFriendLinkApplyCustomCode, Value: "", Comment: "申请友链自定义代码", IsPublic: true},
+	{Key: constant.KeyFriendLinkApplyCustomCode, Value: `::: folding
+友情链接页免责声明
+
+## 免责声明
+
+本博客遵守中华人民共和国相关法律。本页内容仅作为方便学习而产生的快速链接的链接方式，对与友情链接中存在的链接、好文推荐链接等均为其他网站。我本人能力有限无法逐个甄别每篇文章的每个字，并无法获知是否在收录后原作者是否对链接增加了违反法律甚至其他破坏用户计算机等行为。因为部分友链网站甚至没有做备案、域名并未做实名认证等，所以友链网站均可能存在风险，请你须知。
+
+所以在我力所能及的情况下，我会包括但不限于：
+
+- 针对收录的博客中的绝大多数内容通过标题来鉴别是否存在有风险的内容
+- 在收录的友链好文推荐中检查是否存在风险内容
+
+但是你在访问的时候，仍然无法避免，包括但不限于：
+
+- 作者更换了超链接的指向，替换成了其他内容
+- 作者的服务器被恶意攻击、劫持、被注入恶意内容
+- 作者的域名到期，被不法分子用作他用
+- 作者修改了文章内容，增加钓鱼网站、广告等无效信息
+- 不完善的隐私保护对用户的隐私造成了侵害、泄漏
+
+最新文章部分为机器抓取，本站作者未经过任何审核和筛选，本着友链信任原则添加的。如果你发现其中包含违反中华人民共和国法律的内容，请即使联系和举报。该友链会被拉黑。
+
+如果因为从本页跳转给你造成了损失，深表歉意，并且建议用户如果发现存在问题在本页面进行回复。通常会很快处理。如果长时间无法得到处理，` + "`me@anheyu.com`" + `。
+
+:::
+
+## 友情链接申请
+
+很高兴能和非常多的朋友们交流，如果你也想加入友链，可以在下方留言，我会在不忙的时候统一添加。**（从历史经验上看，90%的友链在3个工作日内被添加）**
+
+::: folding open
+✅ 友链相关须知
+
+## 你提交的信息有可能被修改
+
+1. 为了友链相关页面和组件的统一性和美观性，可能会对你的昵称进行缩短处理，例如昵称包含` + "`博客`" + `、` + "`XX的XX`" + `等内容或形式将被简化。
+2. 为了图片加载速度和内容安全性考虑，头像实际展示图片均使用博客自己图床，所以无法收到贵站自己的头像更新，如果有迫切的更改信息需求，请在本页的评论中添加。
+
+## 友情链接曝光
+本站注重每一个友情链接的曝光，如果你在意本站给贵站提供的曝光资源，那么你可能在以下地方看到贵站。
+
+1. 页脚每次刷新会随机展示3个友情链接（高曝光）
+页脚「更多」链接跳转到友链页面
+2. 导航栏「友链」分组中跳转到「友链鱼塘」查看所有3. 友链最新的文章（使用友链朋友圈项目）
+3. 导航栏「友链」分组中跳转到「友情链接」查看所有友情链接
+4. 导航栏「友链」分组中跳转到「宝藏博主」随机跳转到一个友情链接
+5. [友情链接](/link)页面日UV平均在20左右。
+
+## 关于推荐分类
+
+推荐分类包含参与本站开发、提供设计灵感、捐助本站的优秀博主。
+
+
+:::`, Comment: "申请友链自定义 Markdown 内容 (用于后台编辑)", IsPublic: true},
+	{Key: constant.KeyFriendLinkApplyCustomCodeHtml, Value: `<details class="folding-tag">
+  <summary> 友情链接页免责声明 </summary>
+  <div class="content">
+<h2 data-line="0" id="免责声明">免责声明</h2>
+<p data-line="2">本博客遵守中华人民共和国相关法律。本页内容仅作为方便学习而产生的快速链接的链接方式，对与友情链接中存在的链接、好文推荐链接等均为其他网站。我本人能力有限无法逐个甄别每篇文章的每个字，并无法获知是否在收录后原作者是否对链接增加了违反法律甚至其他破坏用户计算机等行为。因为部分友链网站甚至没有做备案、域名并未做实名认证等，所以友链网站均可能存在风险，请你须知。</p>
+<p data-line="4">所以在我力所能及的情况下，我会包括但不限于：</p>
+<ul data-line="6">
+<li data-line="6">针对收录的博客中的绝大多数内容通过标题来鉴别是否存在有风险的内容</li>
+<li data-line="7">在收录的友链好文推荐中检查是否存在风险内容</li>
+</ul>
+<p data-line="9">但是你在访问的时候，仍然无法避免，包括但不限于：</p>
+<ul data-line="11">
+<li data-line="11">作者更换了超链接的指向，替换成了其他内容</li>
+<li data-line="12">作者的服务器被恶意攻击、劫持、被注入恶意内容</li>
+<li data-line="13">作者的域名到期，被不法分子用作他用</li>
+<li data-line="14">作者修改了文章内容，增加钓鱼网站、广告等无效信息</li>
+<li data-line="15">不完善的隐私保护对用户的隐私造成了侵害、泄漏</li>
+</ul>
+<p data-line="17">最新文章部分为机器抓取，本站作者未经过任何审核和筛选，本着友链信任原则添加的。如果你发现其中包含违反中华人民共和国法律的内容，请即使联系和举报。该友链会被拉黑。</p>
+<p data-line="19">如果因为从本页跳转给你造成了损失，深表歉意，并且建议用户如果发现存在问题在本页面进行回复。通常会很快处理。如果长时间无法得到处理，<code>me@anheyu.com</code>。</p>
+
+  </div>
+</details><h2 data-line="26" id="友情链接申请">友情链接申请</h2>
+<p data-line="28">很高兴能和非常多的朋友们交流，如果你也想加入友链，可以在下方留言，我会在不忙的时候统一添加。<strong>（从历史经验上看，90%的友链在3个工作日内被添加）</strong></p>
+<details class="folding-tag" open="">
+  <summary> ✅ 友链相关须知 </summary>
+  <div class="content">
+<h2 data-line="0" id="你提交的信息有可能被修改">你提交的信息有可能被修改</h2>
+<ol data-line="2">
+<li data-line="2">为了友链相关页面和组件的统一性和美观性，可能会对你的昵称进行缩短处理，例如昵称包含<code>博客</code>、<code>XX的XX</code>等内容或形式将被简化。</li>
+<li data-line="3">为了图片加载速度和内容安全性考虑，头像实际展示图片均使用博客自己图床，所以无法收到贵站自己的头像更新，如果有迫切的更改信息需求，请在本页的评论中添加。</li>
+</ol>
+<h2 data-line="5" id="友情链接曝光">友情链接曝光</h2>
+<p data-line="6">本站注重每一个友情链接的曝光，如果你在意本站给贵站提供的曝光资源，那么你可能在以下地方看到贵站。</p>
+<ol data-line="8">
+<li data-line="8">页脚每次刷新会随机展示3个友情链接（高曝光）<br>
+页脚「更多」链接跳转到友链页面</li>
+<li data-line="10">导航栏「友链」分组中跳转到「友链鱼塘」查看所有3. 友链最新的文章（使用友链朋友圈项目）</li>
+<li data-line="11">导航栏「友链」分组中跳转到「友情链接」查看所有友情链接</li>
+<li data-line="12">导航栏「友链」分组中跳转到「宝藏博主」随机跳转到一个友情链接</li>
+<li data-line="13"><a href="/link">友情链接</a>页面日UV平均在20左右。</li>
+</ol>
+<h2 data-line="15" id="关于推荐分类">关于推荐分类</h2>
+<p data-line="17">推荐分类包含参与本站开发、提供设计灵感、捐助本站的优秀博主。</p>
+
+  </div>
+</details>`, Comment: "申请友链自定义 HTML 内容 (用于前台展示)", IsPublic: true},
 	{Key: constant.KeyFriendLinkDefaultCategory, Value: "2", Comment: "友链默认分类", IsPublic: true},
 
 	// --- 内部或敏感配置 ---
