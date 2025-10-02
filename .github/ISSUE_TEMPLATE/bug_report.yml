@@ -30,6 +30,32 @@ body:
       required: true
 
   - type: dropdown
+    id: DeploymentMethod
+    attributes:
+      label: 部署方式 || What Deployment Method are you using?
+      options:
+        - Docker/Docker Compose
+        - 二进制(Binary)
+        - 开发环境(Development)
+        - 其他(Other)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: architecture
+    attributes:
+      label: 系统架构 || What system architecture are you using?
+      options:
+        - Linux amd64
+        - Linux arm64
+        - macOS amd64 (Intel)
+        - macOS arm64 (Apple Silicon)
+        - Windows amd64
+        - 其他(Other)
+    validations:
+      required: true
+
+  - type: dropdown
     id: modify
     attributes:
       label: 是否修改自定义前端文件？ || Has the FrontEnd files been modified?
