@@ -383,15 +383,21 @@ func (s *serviceImpl) GetPublicBySlugOrID(ctx context.Context, slugOrID string) 
 		log.Printf("[警告] 获取相关文章失败: %v", relatedErr)
 	}
 
-	var finalPrevArticle, finalNextArticle *model.Article
+	// 同时返回上一篇和下一篇（如果存在）
+	// chronoPrev: 数据库查询得到的创建时间更早的文章
+	// chronoNext: 数据库查询得到的创建时间更晚的文章
+	//
+	// 按照用户阅读习惯（从新到旧浏览）：
+	// - "上一篇"应该带用户往更新的文章走 → chronoNext（创建时间更晚）
+	// - "下一篇"应该带用户往更早的文章走 → chronoPrev（创建时间更早）
+	finalPrevArticle := chronoNext // 上一篇 = 创建时间更晚的文章
+	finalNextArticle := chronoPrev // 下一篇 = 创建时间更早的文章
+
 	if chronoPrev == nil {
-		log.Printf("[信息] GetPublicBySlugOrID: 当前是最早文章 (ID: %s)。规则：'上一篇'显示时间上的下一篇, '下一篇'为null。", article.ID)
-		finalPrevArticle = chronoNext
-		finalNextArticle = nil
-	} else {
-		log.Printf("[信息] GetPublicBySlugOrID: 当前不是最早文章 (ID: %s)。规则：'下一篇'显示时间上的上一篇, '上一篇'为null。", article.ID)
-		finalNextArticle = chronoPrev
-		finalPrevArticle = nil
+		log.Printf("[信息] GetPublicBySlugOrID: 当前是最早文章 (ID: %s)，没有更早的文章（没有下一篇）。", article.ID)
+	}
+	if chronoNext == nil {
+		log.Printf("[信息] GetPublicBySlugOrID: 当前是最新文章 (ID: %s)，没有更晚的文章（没有上一篇）。", article.ID)
 	}
 
 	mainArticleResponse := s.ToAPIResponse(article, true, true)
