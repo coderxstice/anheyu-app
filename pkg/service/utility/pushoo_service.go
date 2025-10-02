@@ -30,6 +30,7 @@ import (
 // PushooService 定义了即时消息推送的接口
 type PushooService interface {
 	SendCommentNotification(ctx context.Context, newComment *model.Comment, parentComment *model.Comment) error
+	SendLinkApplicationNotification(ctx context.Context, link *model.LinkDTO) error
 }
 
 // pushooService 是 PushooService 接口的实现
@@ -390,4 +391,188 @@ func getString(v interface{}) string {
 		return s
 	}
 	return fmt.Sprintf("%v", v)
+}
+
+// SendLinkApplicationNotification 发送友链申请通知推送
+func (s *pushooService) SendLinkApplicationNotification(ctx context.Context, link *model.LinkDTO) error {
+	log.Printf("[DEBUG] PushooService.SendLinkApplicationNotification 开始执行")
+
+	channel := strings.TrimSpace(s.settingSvc.Get(constant.KeyFriendLinkPushooChannel.String()))
+	pushURL := strings.TrimSpace(s.settingSvc.Get(constant.KeyFriendLinkPushooURL.String()))
+
+	log.Printf("[DEBUG] 友链通知配置获取:")
+	log.Printf("[DEBUG]   - channel: '%s'", channel)
+	log.Printf("[DEBUG]   - pushURL: '%s'", pushURL)
+
+	if channel == "" || pushURL == "" {
+		log.Printf("[DEBUG] channel 或 pushURL 为空，静默返回")
+		return nil // 未配置，静默返回
+	}
+
+	log.Printf("[DEBUG] 配置检查通过，开始准备模板数据")
+
+	// 准备模板数据
+	data, err := s.prepareLinkTemplateData(link)
+	if err != nil {
+		log.Printf("[ERROR] 准备友链推送模板数据失败: %v", err)
+		return fmt.Errorf("准备友链推送模板数据失败: %w", err)
+	}
+	log.Printf("[DEBUG] 模板数据准备完成，数据项数量: %d", len(data))
+
+	// 根据不同通道发送推送
+	log.Printf("[DEBUG] 开始根据渠道发送推送，渠道: %s", channel)
+	switch strings.ToLower(channel) {
+	case "bark":
+		log.Printf("[DEBUG] 使用 Bark 渠道发送推送")
+		return s.sendBarkPush(ctx, pushURL, data)
+	case "webhook":
+		log.Printf("[DEBUG] 使用 Webhook 渠道发送推送")
+		return s.sendLinkWebhookPush(ctx, pushURL, data)
+	default:
+		log.Printf("[ERROR] 不支持的推送渠道: %s", channel)
+		return fmt.Errorf("不支持的推送通道: %s", channel)
+	}
+}
+
+// prepareLinkTemplateData 准备友链申请推送所需的模板数据
+func (s *pushooService) prepareLinkTemplateData(link *model.LinkDTO) (map[string]interface{}, error) {
+	siteName := s.settingSvc.Get(constant.KeyAppName.String())
+	siteURL := s.settingSvc.Get(constant.KeySiteURL.String())
+
+	title := fmt.Sprintf("「%s」收到了新的友链申请", siteName)
+	body := fmt.Sprintf("%s 申请了友链", link.Name)
+
+	// 构建友链管理页面URL
+	adminURL := fmt.Sprintf("%s/admin/link", siteURL)
+
+	data := map[string]interface{}{
+		"SITE_NAME": siteName,
+		"SITE_URL":  siteURL,
+		"ADMIN_URL": adminURL,
+		"TITLE":     title,
+		"BODY":      body,
+		"LINK_NAME": link.Name,
+		"LINK_URL":  link.URL,
+		"LINK_LOGO": link.Logo,
+		"LINK_DESC": link.Description,
+		"TIME":      time.Now().Format("2006-01-02 15:04:05"),
+	}
+	return data, nil
+}
+
+// sendLinkWebhookPush 发送友链申请的Webhook推送
+func (s *pushooService) sendLinkWebhookPush(ctx context.Context, webhookURL string, data map[string]interface{}) error {
+	log.Printf("[DEBUG] sendLinkWebhookPush 开始执行，URL: %s", webhookURL)
+
+	// 获取自定义配置
+	requestBodyTpl := strings.TrimSpace(s.settingSvc.Get(constant.KeyFriendLinkWebhookRequestBody.String()))
+	customHeaders := strings.TrimSpace(s.settingSvc.Get(constant.KeyFriendLinkWebhookHeaders.String()))
+
+	// 处理URL模板
+	finalURL, err := s.replaceLinkWebhookParameters(webhookURL, data)
+	if err != nil {
+		log.Printf("[ERROR] 处理友链Webhook URL模板失败: %v", err)
+		return fmt.Errorf("处理友链webhook URL模板失败: %w", err)
+	}
+
+	// 确定请求方法和内容
+	method := "GET"
+	var requestBody string
+	var contentType string
+
+	if requestBodyTpl != "" {
+		method = "POST"
+		requestBody, err = s.replaceLinkWebhookParameters(requestBodyTpl, data)
+		if err != nil {
+			log.Printf("[ERROR] 处理友链Webhook请求体模板失败: %v", err)
+			return fmt.Errorf("处理友链webhook请求体模板失败: %w", err)
+		}
+
+		// 自动检测Content-Type
+		if s.hasJSONPrefix(requestBody) {
+			if json.Valid([]byte(requestBody)) {
+				contentType = "application/json"
+			} else {
+				log.Printf("[WARN] 友链Webhook请求体JSON格式无效，但具有JSON前缀")
+				contentType = "application/json"
+			}
+		} else {
+			contentType = "application/x-www-form-urlencoded"
+		}
+	}
+
+	log.Printf("[DEBUG] 友链Webhook请求配置: 方法=%s, URL=%s, Content-Type=%s", method, finalURL, contentType)
+
+	// 创建独立的context
+	reqCtx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
+	defer cancel()
+
+	// 创建请求
+	var reqBody io.Reader
+	if requestBody != "" {
+		reqBody = strings.NewReader(requestBody)
+		log.Printf("[DEBUG] 友链Webhook请求体长度: %d bytes", len(requestBody))
+	}
+
+	req, err := http.NewRequestWithContext(reqCtx, method, finalURL, reqBody)
+	if err != nil {
+		log.Printf("[ERROR] 创建友链Webhook请求失败: %v", err)
+		return fmt.Errorf("创建友链webhook请求失败: %w", err)
+	}
+
+	// 设置自定义请求头
+	if customHeaders != "" {
+		headers := s.extractWebhookHeaders(customHeaders)
+		for key, value := range headers {
+			req.Header.Set(key, value)
+		}
+	}
+
+	// 设置Content-Type
+	if contentType != "" {
+		req.Header.Set("Content-Type", contentType)
+	}
+
+	log.Printf("[DEBUG] 开始发送友链Webhook HTTP请求")
+	resp, err := s.httpClient.Do(req)
+	if err != nil {
+		log.Printf("[ERROR] 发送友链Webhook推送失败: %v", err)
+		return fmt.Errorf("发送友链webhook推送失败: %w", err)
+	}
+	defer resp.Body.Close()
+
+	log.Printf("[DEBUG] 友链Webhook推送响应状态码: %d", resp.StatusCode)
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		log.Printf("[ERROR] 友链Webhook推送返回错误状态码: %d", resp.StatusCode)
+		return fmt.Errorf("友链webhook推送返回错误状态码: %d", resp.StatusCode)
+	}
+
+	log.Printf("[INFO] 友链Webhook推送发送成功")
+	return nil
+}
+
+// replaceLinkWebhookParameters 替换友链webhook参数，使用#{parameter}格式
+func (s *pushooService) replaceLinkWebhookParameters(template string, data map[string]interface{}) (string, error) {
+	result := template
+
+	// 创建参数替换映射
+	replacements := map[string]string{
+		"#{SITE_NAME}": getString(data["SITE_NAME"]),
+		"#{SITE_URL}":  getString(data["SITE_URL"]),
+		"#{ADMIN_URL}": getString(data["ADMIN_URL"]),
+		"#{TITLE}":     getString(data["TITLE"]),
+		"#{BODY}":      getString(data["BODY"]),
+		"#{LINK_NAME}": getString(data["LINK_NAME"]),
+		"#{LINK_URL}":  getString(data["LINK_URL"]),
+		"#{LINK_LOGO}": getString(data["LINK_LOGO"]),
+		"#{LINK_DESC}": getString(data["LINK_DESC"]),
+		"#{TIME}":      getString(data["TIME"]),
+	}
+
+	// 执行替换
+	for placeholder, value := range replacements {
+		result = strings.ReplaceAll(result, placeholder, value)
+	}
+
+	return result, nil
 }

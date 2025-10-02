@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"sync"
@@ -13,6 +14,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/utility"
 )
 
 // TaskBroker 定义任务调度器的接口，用于解耦循环依赖。
@@ -58,6 +60,8 @@ type service struct {
 	txManager repository.TransactionManager
 	// 用于获取系统配置
 	settingSvc setting.SettingService
+	// 用于发送即时通知
+	pushooSvc utility.PushooService
 }
 
 // NewService 是 service 的构造函数，注入所有依赖。
@@ -68,6 +72,7 @@ func NewService(
 	txManager repository.TransactionManager,
 	broker TaskBroker,
 	settingSvc setting.SettingService,
+	pushooSvc utility.PushooService,
 ) Service {
 	return &service{
 		linkRepo:         linkRepo,
@@ -76,6 +81,7 @@ func NewService(
 		txManager:        txManager,
 		broker:           broker,
 		settingSvc:       settingSvc,
+		pushooSvc:        pushooSvc,
 	}
 }
 
@@ -127,7 +133,41 @@ func (s *service) ApplyLink(ctx context.Context, req *model.ApplyLinkRequest) (*
 		return nil, errors.New("卡片样式的友链申请时必须提供网站快照(siteshot)")
 	}
 
-	return s.linkRepo.Create(ctx, req, defaultCategoryID)
+	newLink, err := s.linkRepo.Create(ctx, req, defaultCategoryID)
+	if err != nil {
+		return nil, err
+	}
+
+	// 发送友链申请通知
+	log.Printf("[DEBUG] 友链申请成功，开始处理通知逻辑，友链名称: %s", newLink.Name)
+
+	// 发送即时通知
+	if s.pushooSvc != nil {
+		go func() {
+			log.Printf("[DEBUG] 开始处理友链申请即时通知逻辑")
+			pushChannel := s.settingSvc.Get(constant.KeyFriendLinkPushooChannel.String())
+			notifyAdmin := s.settingSvc.GetBool(constant.KeyFriendLinkNotifyAdmin.String())
+
+			log.Printf("[DEBUG] 友链通知配置检查:")
+			log.Printf("[DEBUG]   - pushChannel: '%s'", pushChannel)
+			log.Printf("[DEBUG]   - notifyAdmin: %t", notifyAdmin)
+
+			if pushChannel != "" && notifyAdmin {
+				log.Printf("[DEBUG] 满足通知条件，开始发送友链申请即时通知")
+				if err := s.pushooSvc.SendLinkApplicationNotification(ctx, newLink); err != nil {
+					log.Printf("[ERROR] 发送友链申请即时通知失败: %v", err)
+				} else {
+					log.Printf("[DEBUG] 友链申请即时通知发送成功")
+				}
+			} else {
+				log.Printf("[DEBUG] 不满足通知条件，跳过友链申请即时通知")
+			}
+		}()
+	} else {
+		log.Printf("[DEBUG] pushooSvc 为 nil，跳过友链申请即时通知")
+	}
+
+	return newLink, nil
 }
 
 // ListPublicLinks 获取公开的友链列表。

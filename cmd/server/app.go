@@ -246,7 +246,6 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		return nil, tempCleanup, fmt.Errorf("初始化统计服务失败: %w", err)
 	}
 	taskBroker := task.NewBroker(uploadSvc, thumbnailSvc, cleanupSvc, articleRepo, commentRepo, emailSvc, cacheSvc, linkCategoryRepo, linkTagRepo, linkRepo, settingSvc, statService)
-	linkSvc := link_service.NewService(linkRepo, linkCategoryRepo, linkTagRepo, txManager, taskBroker, settingSvc)
 	pageSvc := page_service.NewService(pageRepo)
 
 	// 初始化搜索服务
@@ -295,6 +294,11 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	log.Printf("[DEBUG] 正在初始化 PushooService...")
 	pushooSvc := utility.NewPushooService(settingSvc)
 	log.Printf("[DEBUG] PushooService 初始化完成")
+
+	log.Printf("[DEBUG] 正在初始化 LinkService，将注入 PushooService...")
+	linkSvc := link_service.NewService(linkRepo, linkCategoryRepo, linkTagRepo, txManager, taskBroker, settingSvc, pushooSvc)
+	log.Printf("[DEBUG] LinkService 初始化完成，PushooService 已注入")
+
 	authSvc := auth.NewAuthService(userRepo, settingSvc, tokenSvc, emailSvc, txManager, articleSvc)
 	log.Printf("[DEBUG] 正在初始化 CommentService，将注入 PushooService...")
 	commentSvc := comment_service.NewService(commentRepo, userRepo, txManager, geoSvc, settingSvc, cacheSvc, taskBroker, fileSvc, parserSvc, pushooSvc)

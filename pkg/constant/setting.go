@@ -94,6 +94,14 @@ const (
 	KeyFriendLinkApplyCustomCode     SettingKey = "FRIEND_LINK_APPLY_CUSTOM_CODE"
 	KeyFriendLinkApplyCustomCodeHtml SettingKey = "FRIEND_LINK_APPLY_CUSTOM_CODE_HTML"
 	KeyFriendLinkDefaultCategory     SettingKey = "FRIEND_LINK_DEFAULTCATEGORY"
+	KeyFriendLinkNotifyAdmin         SettingKey = "friend_link.notify_admin"
+	KeyFriendLinkPushooChannel       SettingKey = "friend_link.pushoo.channel"
+	KeyFriendLinkPushooURL           SettingKey = "friend_link.pushoo.url"
+	KeyFriendLinkWebhookRequestBody  SettingKey = "friend_link.webhook.request_body"
+	KeyFriendLinkWebhookHeaders      SettingKey = "friend_link.webhook.headers"
+	KeyFriendLinkMailSubjectAdmin    SettingKey = "friend_link.mail_subject_admin"
+	KeyFriendLinkMailTemplateAdmin   SettingKey = "friend_link.mail_template_admin"
+	KeyFriendLinkScMailNotify        SettingKey = "friend_link.sc_mail_notify"
 
 	// --- 缩略图生成队列配置 ---
 	KeyQueueThumbConcurrency   SettingKey = "QUEUE_THUMB_CONCURRENCY"
