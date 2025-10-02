@@ -90,10 +90,10 @@ snapshot:
 # 更新日志配置
 changelog:
   sort: asc
-  use: git
+  use: github
 
-  # 使用模板格式控制 commit hash 显示
-  format: "{{.Message}} ({{.ShortHash}})"
+  # 控制 commit hash 的显示长度
+  abbrev: 7
 
   filters:
     exclude:
