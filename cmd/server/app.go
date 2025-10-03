@@ -222,7 +222,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	postTagSvc := post_tag_service.NewService(postTagRepo)
 	postCategorySvc := post_category_service.NewService(postCategoryRepo, articleRepo)
 	cleanupSvc := cleanup_service.NewCleanupService(cleanupRepo)
-	userSvc := user.NewUserService(userRepo)
+	userSvc := user.NewUserService(userRepo, userGroupRepo)
 	storagePolicySvc := volume.NewStoragePolicyService(storagePolicyRepo, fileRepo, txManager, strategyManager, settingSvc, cacheSvc, storageProviders)
 	thumbnailSvc := thumbnail.NewThumbnailService(metadataSvc, fileRepo, entityRepo, storagePolicySvc, settingSvc, storageProviders)
 	if err != nil {

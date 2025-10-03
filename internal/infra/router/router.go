@@ -313,11 +313,36 @@ func (r *Router) registerSettingRoutes(api *gin.RouterGroup) {
 
 // registerUserRoutes 注册用户相关的路由
 func (r *Router) registerUserRoutes(api *gin.RouterGroup) {
+	// 普通用户路由（需要登录）
 	user := api.Group("/user").Use(r.mw.JWTAuth())
 	{
 		user.GET("/info", r.userHandler.GetUserInfo)
 		user.POST("/update-password", r.userHandler.UpdateUserPassword)
 		user.PUT("/profile", r.userHandler.UpdateUserProfile)
+	}
+
+	// 管理员用户管理路由（需要登录且为管理员）
+	adminUsers := api.Group("/admin/users").Use(r.mw.JWTAuth(), r.mw.AdminAuth())
+	{
+		// 用户列表
+		adminUsers.GET("", r.userHandler.AdminListUsers)
+		// 创建用户
+		adminUsers.POST("", r.userHandler.AdminCreateUser)
+		// 更新用户
+		adminUsers.PUT("/:id", r.userHandler.AdminUpdateUser)
+		// 删除用户
+		adminUsers.DELETE("/:id", r.userHandler.AdminDeleteUser)
+		// 重置密码
+		adminUsers.POST("/:id/reset-password", r.userHandler.AdminResetPassword)
+		// 更新用户状态
+		adminUsers.PUT("/:id/status", r.userHandler.AdminUpdateUserStatus)
+	}
+
+	// 用户组管理路由（需要登录且为管理员）
+	adminUserGroups := api.Group("/admin/user-groups").Use(r.mw.JWTAuth(), r.mw.AdminAuth())
+	{
+		// 获取用户组列表
+		adminUserGroups.GET("", r.userHandler.GetUserGroups)
 	}
 }
 

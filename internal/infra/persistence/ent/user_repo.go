@@ -227,6 +227,60 @@ func (r *entUserRepository) Delete(ctx context.Context, id uint) error {
 	return err
 }
 
+// List 分页查询用户列表，支持搜索关键词、用户组筛选和状态筛选
+func (r *entUserRepository) List(ctx context.Context, page, pageSize int, keyword string, groupID *uint, status *int) ([]*model.User, int64, error) {
+	// 构建基础查询
+	query := r.client.User.Query().Where(user.DeletedAtIsNil())
+
+	// 搜索关键词（用户名、昵称、邮箱）
+	if keyword != "" {
+		query = query.Where(
+			user.Or(
+				user.UsernameContains(keyword),
+				user.NicknameContains(keyword),
+				user.EmailContains(keyword),
+			),
+		)
+	}
+
+	// 用户组筛选
+	if groupID != nil {
+		query = query.Where(user.HasUserGroupWith(usergroup.ID(*groupID)))
+	}
+
+	// 状态筛选
+	if status != nil {
+		query = query.Where(user.Status(*status))
+	}
+
+	// 统计总数
+	total, err := query.Count(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// 分页查询
+	offset := (page - 1) * pageSize
+	entUsers, err := query.
+		WithUserGroup().
+		Offset(offset).
+		Limit(pageSize).
+		Order(ent.Desc(user.FieldCreatedAt)).
+		All(ctx)
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// 转换为领域模型
+	domainUsers := make([]*model.User, len(entUsers))
+	for i, u := range entUsers {
+		domainUsers[i] = toDomainUser(u)
+	}
+
+	return domainUsers, int64(total), nil
+}
+
 // --- 数据转换辅助函数 ---
 
 func toDomainUser(u *ent.User) *model.User {

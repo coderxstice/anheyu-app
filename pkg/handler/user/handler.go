@@ -255,3 +255,437 @@ func (h *UserHandler) UpdateUserProfile(c *gin.Context) {
 	// 5. 返回成功响应
 	response.Success(c, nil, "用户信息更新成功")
 }
+
+// ========== 管理员用户管理接口 ==========
+
+// AdminListUsersRequest 管理员查询用户列表的请求参数
+type AdminListUsersRequest struct {
+	Page     int    `form:"page" binding:"omitempty,min=1"`
+	PageSize int    `form:"pageSize" binding:"omitempty,min=1,max=100"`
+	Keyword  string `form:"keyword"`
+	GroupID  *uint  `form:"groupID"`
+	Status   *int   `form:"status" binding:"omitempty,min=1,max=3"`
+}
+
+// AdminListUsersResponse 管理员查询用户列表的响应
+type AdminListUsersResponse struct {
+	Users []AdminUserDTO `json:"users"`
+	Total int64          `json:"total"`
+	Page  int            `json:"page"`
+	Size  int            `json:"size"`
+}
+
+// AdminUserDTO 管理员用户列表的用户DTO
+type AdminUserDTO struct {
+	ID          string    `json:"id"`
+	CreatedAt   string    `json:"created_at"`
+	UpdatedAt   string    `json:"updated_at"`
+	Username    string    `json:"username"`
+	Nickname    string    `json:"nickname"`
+	Avatar      string    `json:"avatar"`
+	Email       string    `json:"email"`
+	Website     string    `json:"website"`
+	LastLoginAt *string   `json:"lastLoginAt"`
+	UserGroupID string    `json:"userGroupID"`
+	UserGroup   UserGroup `json:"userGroup"`
+	Status      int       `json:"status"`
+}
+
+// AdminListUsers 管理员获取用户列表
+// @Summary      管理员获取用户列表
+// @Description  管理员分页查询用户列表，支持搜索和筛选
+// @Tags         管理员-用户管理
+// @Security     BearerAuth
+// @Produce      json
+// @Param        page      query     int     false  "页码，默认1"
+// @Param        pageSize  query     int     false  "每页数量，默认10"
+// @Param        keyword   query     string  false  "搜索关键词（用户名、昵称、邮箱）"
+// @Param        groupID   query     int     false  "用户组ID筛选"
+// @Param        status    query     int     false  "用户状态筛选（1:正常 2:未激活 3:已封禁）"
+// @Success      200  {object}  response.Response{data=AdminListUsersResponse}  "查询成功"
+// @Failure      400  {object}  response.Response  "参数错误"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Router       /admin/users [get]
+func (h *UserHandler) AdminListUsers(c *gin.Context) {
+	// 1. 解析参数
+	var req AdminListUsersRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		response.Fail(c, http.StatusBadRequest, "参数错误")
+		return
+	}
+
+	// 设置默认值
+	if req.Page < 1 {
+		req.Page = 1
+	}
+	if req.PageSize < 1 {
+		req.PageSize = 10
+	}
+
+	// 2. 调用服务层
+	users, total, err := h.userSvc.AdminListUsers(
+		c.Request.Context(),
+		req.Page,
+		req.PageSize,
+		req.Keyword,
+		req.GroupID,
+		req.Status,
+	)
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	// 3. 转换为 DTO
+	gravatarBaseURL := h.settingSvc.Get(constant.KeyGravatarURL.String())
+	userDTOs := make([]AdminUserDTO, len(users))
+	for i, user := range users {
+		publicUserID, _ := idgen.GeneratePublicID(user.ID, idgen.EntityTypeUser)
+		publicGroupID, _ := idgen.GeneratePublicID(user.UserGroup.ID, idgen.EntityTypeUserGroup)
+
+		var lastLoginAtStr *string
+		if user.LastLoginAt != nil {
+			t := user.LastLoginAt.Format("2006-01-02 15:04:05")
+			lastLoginAtStr = &t
+		}
+
+		userDTOs[i] = AdminUserDTO{
+			ID:          publicUserID,
+			CreatedAt:   user.CreatedAt.Format("2006-01-02 15:04:05"),
+			UpdatedAt:   user.UpdatedAt.Format("2006-01-02 15:04:05"),
+			Username:    user.Username,
+			Nickname:    user.Nickname,
+			Avatar:      gravatarBaseURL + user.Avatar,
+			Email:       user.Email,
+			Website:     user.Website,
+			LastLoginAt: lastLoginAtStr,
+			UserGroupID: publicGroupID,
+			UserGroup: UserGroup{
+				ID:          publicGroupID,
+				Name:        user.UserGroup.Name,
+				Description: user.UserGroup.Description,
+			},
+			Status: user.Status,
+		}
+	}
+
+	// 4. 返回响应
+	response.Success(c, AdminListUsersResponse{
+		Users: userDTOs,
+		Total: total,
+		Page:  req.Page,
+		Size:  req.PageSize,
+	}, "查询成功")
+}
+
+// AdminCreateUserRequest 管理员创建用户的请求体
+type AdminCreateUserRequest struct {
+	Username    string `json:"username" binding:"required,min=3,max=50"`
+	Password    string `json:"password" binding:"required,min=6"`
+	Email       string `json:"email" binding:"required,email"`
+	Nickname    string `json:"nickname" binding:"omitempty,max=50"`
+	UserGroupID string `json:"userGroupID" binding:"required"`
+}
+
+// AdminCreateUser 管理员创建新用户
+// @Summary      管理员创建用户
+// @Description  管理员创建新用户
+// @Tags         管理员-用户管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        body  body      AdminCreateUserRequest  true  "用户信息"
+// @Success      200   {object}  response.Response{data=AdminUserDTO}  "创建成功"
+// @Failure      400   {object}  response.Response  "参数错误"
+// @Failure      401   {object}  response.Response  "未授权"
+// @Router       /admin/users [post]
+func (h *UserHandler) AdminCreateUser(c *gin.Context) {
+	// 1. 解析参数
+	var req AdminCreateUserRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Fail(c, http.StatusBadRequest, "参数错误")
+		return
+	}
+
+	// 2. 解码用户组ID
+	userGroupID, entityType, err := idgen.DecodePublicID(req.UserGroupID)
+	if err != nil || entityType != idgen.EntityTypeUserGroup {
+		response.Fail(c, http.StatusBadRequest, "用户组ID无效")
+		return
+	}
+
+	// 3. 调用服务层创建用户
+	user, err := h.userSvc.AdminCreateUser(
+		c.Request.Context(),
+		req.Username,
+		req.Password,
+		req.Email,
+		req.Nickname,
+		userGroupID,
+	)
+	if err != nil {
+		response.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// 4. 转换为 DTO
+	publicUserID, _ := idgen.GeneratePublicID(user.ID, idgen.EntityTypeUser)
+	publicGroupID, _ := idgen.GeneratePublicID(user.UserGroup.ID, idgen.EntityTypeUserGroup)
+	gravatarBaseURL := h.settingSvc.Get(constant.KeyGravatarURL.String())
+
+	var lastLoginAtStr *string
+	if user.LastLoginAt != nil {
+		t := user.LastLoginAt.Format("2006-01-02 15:04:05")
+		lastLoginAtStr = &t
+	}
+
+	userDTO := AdminUserDTO{
+		ID:          publicUserID,
+		CreatedAt:   user.CreatedAt.Format("2006-01-02 15:04:05"),
+		UpdatedAt:   user.UpdatedAt.Format("2006-01-02 15:04:05"),
+		Username:    user.Username,
+		Nickname:    user.Nickname,
+		Avatar:      gravatarBaseURL + user.Avatar,
+		Email:       user.Email,
+		Website:     user.Website,
+		LastLoginAt: lastLoginAtStr,
+		UserGroupID: publicGroupID,
+		UserGroup: UserGroup{
+			ID:          publicGroupID,
+			Name:        user.UserGroup.Name,
+			Description: user.UserGroup.Description,
+		},
+		Status: user.Status,
+	}
+
+	// 5. 返回响应
+	response.Success(c, userDTO, "用户创建成功")
+}
+
+// AdminUpdateUserRequest 管理员更新用户的请求体
+type AdminUpdateUserRequest struct {
+	Username    *string `json:"username" binding:"omitempty,min=3,max=50"`
+	Email       *string `json:"email" binding:"omitempty,email"`
+	Nickname    *string `json:"nickname" binding:"omitempty,max=50"`
+	UserGroupID *string `json:"userGroupID"`
+	Status      *int    `json:"status" binding:"omitempty,min=1,max=3"`
+}
+
+// AdminUpdateUser 管理员更新用户信息
+// @Summary      管理员更新用户
+// @Description  管理员更新用户信息
+// @Tags         管理员-用户管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        id    path      string                  true  "用户ID"
+// @Param        body  body      AdminUpdateUserRequest  true  "用户信息"
+// @Success      200   {object}  response.Response  "更新成功"
+// @Failure      400   {object}  response.Response  "参数错误"
+// @Failure      401   {object}  response.Response  "未授权"
+// @Router       /admin/users/:id [put]
+func (h *UserHandler) AdminUpdateUser(c *gin.Context) {
+	// 1. 获取用户ID
+	publicUserID := c.Param("id")
+	userID, entityType, err := idgen.DecodePublicID(publicUserID)
+	if err != nil || entityType != idgen.EntityTypeUser {
+		response.Fail(c, http.StatusBadRequest, "用户ID无效")
+		return
+	}
+
+	// 2. 解析参数
+	var req AdminUpdateUserRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Fail(c, http.StatusBadRequest, "参数错误")
+		return
+	}
+
+	// 3. 解码用户组ID（如果提供）
+	var userGroupID *uint
+	if req.UserGroupID != nil {
+		gid, entityType, err := idgen.DecodePublicID(*req.UserGroupID)
+		if err != nil || entityType != idgen.EntityTypeUserGroup {
+			response.Fail(c, http.StatusBadRequest, "用户组ID无效")
+			return
+		}
+		userGroupID = &gid
+	}
+
+	// 4. 调用服务层更新用户
+	err = h.userSvc.AdminUpdateUser(
+		c.Request.Context(),
+		userID,
+		req.Username,
+		req.Email,
+		req.Nickname,
+		userGroupID,
+		req.Status,
+	)
+	if err != nil {
+		response.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// 5. 返回响应
+	response.Success(c, nil, "用户信息更新成功")
+}
+
+// AdminDeleteUser 管理员删除用户
+// @Summary      管理员删除用户
+// @Description  管理员删除用户（软删除）
+// @Tags         管理员-用户管理
+// @Security     BearerAuth
+// @Produce      json
+// @Param        id    path      string  true  "用户ID"
+// @Success      200   {object}  response.Response  "删除成功"
+// @Failure      400   {object}  response.Response  "参数错误"
+// @Failure      401   {object}  response.Response  "未授权"
+// @Router       /admin/users/:id [delete]
+func (h *UserHandler) AdminDeleteUser(c *gin.Context) {
+	// 1. 获取用户ID
+	publicUserID := c.Param("id")
+	userID, entityType, err := idgen.DecodePublicID(publicUserID)
+	if err != nil || entityType != idgen.EntityTypeUser {
+		response.Fail(c, http.StatusBadRequest, "用户ID无效")
+		return
+	}
+
+	// 2. 调用服务层删除用户
+	err = h.userSvc.AdminDeleteUser(c.Request.Context(), userID)
+	if err != nil {
+		response.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// 3. 返回响应
+	response.Success(c, nil, "用户删除成功")
+}
+
+// AdminResetPasswordRequest 管理员重置用户密码的请求体
+type AdminResetPasswordRequest struct {
+	NewPassword string `json:"newPassword" binding:"required,min=6"`
+}
+
+// AdminResetPassword 管理员重置用户密码
+// @Summary      管理员重置用户密码
+// @Description  管理员重置指定用户的密码
+// @Tags         管理员-用户管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        id    path      string                     true  "用户ID"
+// @Param        body  body      AdminResetPasswordRequest  true  "新密码"
+// @Success      200   {object}  response.Response  "重置成功"
+// @Failure      400   {object}  response.Response  "参数错误"
+// @Failure      401   {object}  response.Response  "未授权"
+// @Router       /admin/users/:id/reset-password [post]
+func (h *UserHandler) AdminResetPassword(c *gin.Context) {
+	// 1. 获取用户ID
+	publicUserID := c.Param("id")
+	userID, entityType, err := idgen.DecodePublicID(publicUserID)
+	if err != nil || entityType != idgen.EntityTypeUser {
+		response.Fail(c, http.StatusBadRequest, "用户ID无效")
+		return
+	}
+
+	// 2. 解析参数
+	var req AdminResetPasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Fail(c, http.StatusBadRequest, "参数错误：新密码不能为空且至少6位")
+		return
+	}
+
+	// 3. 调用服务层重置密码
+	err = h.userSvc.AdminResetPassword(c.Request.Context(), userID, req.NewPassword)
+	if err != nil {
+		response.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// 4. 返回响应
+	response.Success(c, nil, "密码重置成功")
+}
+
+// AdminUpdateUserStatusRequest 管理员更新用户状态的请求体
+type AdminUpdateUserStatusRequest struct {
+	Status int `json:"status" binding:"required,min=1,max=3"`
+}
+
+// AdminUpdateUserStatus 管理员更新用户状态
+// @Summary      管理员更新用户状态
+// @Description  管理员更新指定用户的状态（1:正常 2:未激活 3:已封禁）
+// @Tags         管理员-用户管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        id    path      string                        true  "用户ID"
+// @Param        body  body      AdminUpdateUserStatusRequest  true  "用户状态"
+// @Success      200   {object}  response.Response  "更新成功"
+// @Failure      400   {object}  response.Response  "参数错误"
+// @Failure      401   {object}  response.Response  "未授权"
+// @Router       /admin/users/:id/status [put]
+func (h *UserHandler) AdminUpdateUserStatus(c *gin.Context) {
+	// 1. 获取用户ID
+	publicUserID := c.Param("id")
+	userID, entityType, err := idgen.DecodePublicID(publicUserID)
+	if err != nil || entityType != idgen.EntityTypeUser {
+		response.Fail(c, http.StatusBadRequest, "用户ID无效")
+		return
+	}
+
+	// 2. 解析参数
+	var req AdminUpdateUserStatusRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Fail(c, http.StatusBadRequest, "参数错误：状态值必须为1-3之间")
+		return
+	}
+
+	// 3. 调用服务层更新状态
+	err = h.userSvc.AdminUpdateUserStatus(c.Request.Context(), userID, req.Status)
+	if err != nil {
+		response.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// 4. 返回响应
+	response.Success(c, nil, "用户状态更新成功")
+}
+
+// UserGroupDTO 用户组数据传输对象
+type UserGroupDTO struct {
+	ID          string `json:"id"`          // 用户组公共ID
+	Name        string `json:"name"`        // 用户组名称
+	Description string `json:"description"` // 用户组描述
+}
+
+// GetUserGroups 获取所有用户组列表
+// @Summary      获取用户组列表
+// @Description  获取系统中所有用户组
+// @Tags         管理员-用户管理
+// @Security     BearerAuth
+// @Produce      json
+// @Success      200  {object}  response.Response{data=[]UserGroupDTO}  "获取成功"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Router       /admin/user-groups [get]
+func (h *UserHandler) GetUserGroups(c *gin.Context) {
+	// 1. 调用服务层获取用户组列表
+	groups, err := h.userSvc.ListUserGroups(c.Request.Context())
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	// 2. 转换为 DTO（包含公共ID）
+	groupDTOs := make([]UserGroupDTO, len(groups))
+	for i, group := range groups {
+		publicGroupID, _ := idgen.GeneratePublicID(group.ID, idgen.EntityTypeUserGroup)
+		groupDTOs[i] = UserGroupDTO{
+			ID:          publicGroupID,
+			Name:        group.Name,
+			Description: group.Description,
+		}
+	}
+
+	// 3. 返回响应
+	response.Success(c, groupDTOs, "获取用户组列表成功")
+}
