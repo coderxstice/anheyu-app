@@ -30,6 +30,9 @@ type UserRepository interface {
 	// FindByGroupID 根据用户组ID查找用户列表
 	FindByGroupID(ctx context.Context, groupID uint) ([]*model.User, error)
 
+	// List 分页查询用户列表，支持搜索关键词、用户组筛选和状态筛选
+	List(ctx context.Context, page, pageSize int, keyword string, groupID *uint, status *int) ([]*model.User, int64, error)
+
 	// Count 统计用户总数
 	Count(ctx context.Context) (int64, error)
 
@@ -41,4 +44,7 @@ type UserRepository interface {
 type UserGroupRepository interface {
 	// FindByID 根据ID查找用户组
 	FindByID(ctx context.Context, id uint) (*model.UserGroup, error)
+
+	// FindAll 获取所有用户组
+	FindAll(ctx context.Context) ([]*model.UserGroup, error)
 }
