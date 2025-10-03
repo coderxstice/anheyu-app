@@ -28,6 +28,17 @@ func NewHandler(searchService *search.SearchService) *Handler {
 }
 
 // Search 搜索接口
+// @Summary      搜索
+// @Description  全站搜索文章、页面等内容
+// @Tags         全站搜索
+// @Produce      json
+// @Param        q     query  string  true   "搜索关键词"
+// @Param        page  query  int     false  "页码"  default(1)
+// @Param        size  query  int     false  "每页数量"  default(10)
+// @Success      200  {object}  response.Response  "搜索成功"
+// @Failure      400  {object}  response.Response  "搜索关键词不能为空"
+// @Failure      500  {object}  response.Response  "搜索失败"
+// @Router       /public/search [get]
 func (h *Handler) Search(c *gin.Context) {
 	// 获取查询参数
 	query := c.Query("q")

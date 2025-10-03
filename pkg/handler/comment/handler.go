@@ -30,7 +30,7 @@ func NewHandler(svc *comment.Service) *Handler {
 // ListChildren
 // @Summary      获取指定评论的子评论列表（分页）
 // @Description  分页获取指定根评论下的所有回复评论
-// @Tags         Comment Public
+// @Tags         公开评论
 // @Produce      json
 // @Param        id path string true "父评论的公共ID"
 // @Param        page query int false "页码" default(1)
@@ -67,12 +67,14 @@ func (h *Handler) ListChildren(c *gin.Context) {
 // UploadCommentImage
 // @Summary      上传评论图片
 // @Description  上传一张图片，用于插入到评论中。返回图片的内部URI。
-// @Tags         Comment Public
+// @Tags         公开评论
+// @Security     BearerAuth
 // @Accept       multipart/form-data
 // @Produce      json
 // @Param        file formData file true "图片文件"
 // @Success      200 {object} response.Response{data=dto.UploadImageResponse} "成功响应，返回文件信息"
 // @Failure      400 {object} response.Response "请求错误，例如没有上传文件"
+// @Failure      401 {object} response.Response "未授权"
 // @Failure      500 {object} response.Response "服务器内部错误"
 // @Router       /public/comments/upload [post]
 func (h *Handler) UploadCommentImage(c *gin.Context) {
@@ -112,7 +114,7 @@ func (h *Handler) UploadCommentImage(c *gin.Context) {
 // ListLatest
 // @Summary      公开获取最新评论列表
 // @Description  分页获取全站所有最新的已发布评论
-// @Tags         Comment Public
+// @Tags         公开评论
 // @Produce      json
 // @Param        page query int false "页码" default(1)
 // @Param        pageSize query int false "每页数量" default(10)
@@ -141,13 +143,15 @@ func (h *Handler) ListLatest(c *gin.Context) {
 // SetPin
 // @Summary      管理员置顶或取消置顶评论
 // @Description  设置或取消指定ID评论的置顶状态
-// @Tags         Comment Admin
+// @Tags         评论管理
+// @Security     BearerAuth
 // @Accept       json
 // @Produce      json
 // @Param        id path string true "评论的公共ID"
 // @Param        pin_request body dto.SetPinRequest true "置顶请求"
 // @Success      200 {object} response.Response{data=dto.Response} "成功响应，返回更新后的评论对象"
 // @Failure      400 {object} response.Response "请求参数错误"
+// @Failure      401 {object} response.Response "未授权"
 // @Failure      404 {object} response.Response "评论不存在"
 // @Failure      500 {object} response.Response "服务器内部错误"
 // @Router       /comments/{id}/pin [put]
@@ -180,13 +184,15 @@ func (h *Handler) SetPin(c *gin.Context) {
 // UpdateStatus
 // @Summary      管理员更新评论状态
 // @Description  更新指定ID的评论的状态（例如，通过审核发布或设为待审核）
-// @Tags         Comment Admin
+// @Tags         评论管理
+// @Security     BearerAuth
 // @Accept       json
 // @Produce      json
 // @Param        id path string true "评论的公共ID"
 // @Param        status_request body dto.UpdateStatusRequest true "新的状态 (1: 已发布, 2: 待审核)"
 // @Success      200 {object} response.Response{data=dto.Response} "成功响应，返回更新后的评论对象"
 // @Failure      400 {object} response.Response "请求参数错误"
+// @Failure      401 {object} response.Response "未授权"
 // @Failure      404 {object} response.Response "评论不存在"
 // @Failure      500 {object} response.Response "服务器内部错误"
 // @Router       /comments/{id}/status [put]
@@ -219,7 +225,7 @@ func (h *Handler) UpdateStatus(c *gin.Context) {
 // Create
 // @Summary      创建新评论
 // @Description  为指定路径的页面创建一条新评论，可以是根评论或回复
-// @Tags         Comment Public
+// @Tags         公开评论
 // @Accept       json
 // @Produce      json
 // @Param        comment_request body dto.CreateRequest true "创建评论的请求体"
@@ -275,7 +281,7 @@ func (h *Handler) Create(c *gin.Context) {
 // ListByPath
 // @Summary      获取指定路径的评论列表（分页）
 // @Description  分页获取指定路径下的根评论，并附带其所有子评论
-// @Tags         Comment Public
+// @Tags         公开评论
 // @Produce      json
 // @Param        target_path query string true "目标路径 (例如 /posts/some-slug)"
 // @Param        page query int false "页码" default(1)
@@ -312,7 +318,7 @@ func (h *Handler) ListByPath(c *gin.Context) {
 // LikeComment
 // @Summary      点赞评论
 // @Description  为指定ID的评论增加一次点赞
-// @Tags         Comment Public
+// @Tags         公开评论
 // @Produce      json
 // @Param        id path string true "评论的公共ID"
 // @Success      200 {object} response.Response{data=integer} "成功响应，返回最新的点赞数"
@@ -338,7 +344,7 @@ func (h *Handler) LikeComment(c *gin.Context) {
 // UnlikeComment
 // @Summary      取消点赞评论
 // @Description  为指定ID的评论减少一次点赞
-// @Tags         Comment Public
+// @Tags         公开评论
 // @Produce      json
 // @Param        id path string true "评论的公共ID"
 // @Success      200 {object} response.Response{data=integer} "成功响应，返回最新的点赞数"
@@ -366,12 +372,14 @@ func (h *Handler) UnlikeComment(c *gin.Context) {
 // AdminList
 // @Summary      管理员查询评论列表
 // @Description  根据多种条件分页查询评论
-// @Tags         Comment Admin
+// @Tags         评论管理
+// @Security     BearerAuth
 // @Accept       json
 // @Produce      json
 // @Param        query query dto.AdminListRequest true "查询参数"
 // @Success      200 {object} response.Response{data=dto.ListResponse} "成功响应"
 // @Failure      400 {object} response.Response "请求参数错误"
+// @Failure      401 {object} response.Response "未授权"
 // @Failure      500 {object} response.Response "服务器内部错误"
 // @Router       /comments [get]
 func (h *Handler) AdminList(c *gin.Context) {
@@ -393,12 +401,14 @@ func (h *Handler) AdminList(c *gin.Context) {
 // Delete
 // @Summary      管理员批量删除评论
 // @Description  根据评论的公共ID批量删除评论
-// @Tags         Comment Admin
+// @Tags         评论管理
+// @Security     BearerAuth
 // @Accept       json
 // @Produce      json
 // @Param        delete_request body dto.DeleteRequest true "删除请求，包含ID列表"
 // @Success      200 {object} response.Response{data=integer} "成功响应，返回删除的数量"
 // @Failure      400 {object} response.Response "请求参数错误"
+// @Failure      401 {object} response.Response "未授权"
 // @Failure      500 {object} response.Response "服务器内部错误"
 // @Router       /comments [delete]
 func (h *Handler) Delete(c *gin.Context) {

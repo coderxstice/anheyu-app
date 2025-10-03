@@ -27,15 +27,14 @@ func NewMusicHandler(musicSvc music.MusicService) *MusicHandler {
 }
 
 // GetPlaylist 获取播放列表
-// @Summary 获取音乐播放列表
-// @Description 获取配置的音乐播放列表，支持缓存参数防止缓存
-// @Tags 音乐
-// @Accept json
-// @Produce json
-// @Param r query string false "随机参数，用于防止缓存"
-// @Success 200 {object} response.Response{data=[]music.Song} "成功"
-// @Failure 500 {object} response.Response "服务器错误"
-// @Router /api/public/music/playlist [get]
+// @Summary      获取音乐播放列表
+// @Description  获取配置的音乐播放列表，支持缓存参数防止缓存
+// @Tags         音乐播放
+// @Produce      json
+// @Param        r  query  string  false  "随机参数，用于防止缓存"
+// @Success      200  {object}  response.Response{data=object{songs=[]music.Song,total=int}}  "获取成功"
+// @Failure      500  {object}  response.Response  "服务器错误"
+// @Router       /public/music/playlist [get]
 func (h *MusicHandler) GetPlaylist(c *gin.Context) {
 	// 获取播放列表
 	songs, err := h.musicSvc.FetchPlaylist(c.Request.Context())
@@ -52,16 +51,16 @@ func (h *MusicHandler) GetPlaylist(c *gin.Context) {
 }
 
 // GetSongResources 获取歌曲资源（音频和歌词）
-// @Summary 获取歌曲资源
-// @Description 根据网易云歌曲ID获取音频URL和歌词内容，自动尝试高质量资源
-// @Tags 音乐
-// @Accept json
-// @Produce json
-// @Param body body GetSongResourcesRequest true "网易云歌曲ID"
-// @Success 200 {object} response.Response{data=music.SongResourceResponse} "成功"
-// @Failure 400 {object} response.Response "请求参数错误"
-// @Failure 500 {object} response.Response "服务器错误"
-// @Router /api/public/music/song-resources [post]
+// @Summary      获取歌曲资源
+// @Description  根据网易云歌曲ID获取音频URL和歌词内容，自动尝试高质量资源
+// @Tags         音乐播放
+// @Accept       json
+// @Produce      json
+// @Param        body  body  GetSongResourcesRequest  true  "网易云歌曲ID"
+// @Success      200  {object}  response.Response{data=music.SongResourceResponse}  "获取成功"
+// @Failure      400  {object}  response.Response  "请求参数错误"
+// @Failure      500  {object}  response.Response  "服务器错误"
+// @Router       /public/music/song-resources [post]
 func (h *MusicHandler) GetSongResources(c *gin.Context) {
 	var req GetSongResourcesRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

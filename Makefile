@@ -136,6 +136,30 @@ check-tools:
 	@command -v goreleaser >/dev/null 2>&1 || { echo "GoReleaser is not installed, run 'make install-goreleaser'"; exit 1; }
 	@echo "✅ All tools are available"
 
+# Swagger 文档生成
+.PHONY: swagger
+swagger:
+	@echo "🔄 Generating Swagger documentation files..."
+	@command -v swag >/dev/null 2>&1 || { echo "❌ swag is not installed. Run: make install-swag"; exit 1; }
+	swag init --parseDependency --parseInternal
+	@echo "✅ Swagger documentation files generated successfully!"
+	@echo "📄 Generated files:"
+	@echo "   - docs/swagger.json  (OpenAPI JSON format)"
+	@echo "   - docs/swagger.yaml  (OpenAPI YAML format)"
+	@echo "   - docs/docs.go       (Go embedded docs)"
+	@echo ""
+	@echo "💡 Import swagger.json or swagger.yaml to your API management tool"
+
+# 安装 Swagger 工具
+.PHONY: install-swag
+install-swag:
+	@echo "📦 Installing swag CLI tool..."
+	@echo "ℹ️  swag is used to generate Swagger documentation files from Go annotations"
+	go install github.com/swaggo/swag/cmd/swag@latest
+	@echo "✅ swag installed successfully!"
+	@echo ""
+	@echo "Usage: make swagger"
+
 # 帮助信息
 .PHONY: help
 help:
@@ -156,7 +180,11 @@ help:
 	@echo ""
 	@echo "🔧 Tools:"
 	@echo "  install-goreleaser - Install GoReleaser"
+	@echo "  install-swag       - Install Swagger CLI tool"
 	@echo "  check-tools        - Check if required tools are installed"
+	@echo ""
+	@echo "📚 Documentation:"
+	@echo "  swagger            - Generate Swagger documentation files (JSON/YAML)"
 	@echo ""
 	@echo "🧪 Development:"
 	@echo "  test               - Run tests"

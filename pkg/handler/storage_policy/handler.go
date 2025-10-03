@@ -64,6 +64,18 @@ func NewStoragePolicyHandler(svc volume.IStoragePolicyService) *StoragePolicyHan
 }
 
 // Create 处理创建存储策略的请求
+// @Summary      创建存储策略
+// @Description  创建新的存储策略
+// @Tags         存储策略
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        body  body  CreatePolicyRequest  true  "存储策略信息"
+// @Success      200  {object}  response.Response  "创建成功"
+// @Failure      400  {object}  response.Response  "参数无效"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      500  {object}  response.Response  "创建失败"
+// @Router       /storage-policies [post]
 func (h *StoragePolicyHandler) Create(c *gin.Context) {
 	var req CreatePolicyRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -117,6 +129,17 @@ func (h *StoragePolicyHandler) Create(c *gin.Context) {
 }
 
 // Get 处理获取存储策略的请求
+// @Summary      获取存储策略
+// @Description  根据ID获取存储策略详情
+// @Tags         存储策略
+// @Security     BearerAuth
+// @Produce      json
+// @Param        id  path  string  true  "策略公共ID"
+// @Success      200  {object}  response.Response  "获取成功"
+// @Failure      400  {object}  response.Response  "ID不能为空"
+// @Failure      404  {object}  response.Response  "策略未找到"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /storage-policies/{id} [get]
 func (h *StoragePolicyHandler) Get(c *gin.Context) {
 	publicID := c.Param("id")
 	if publicID == "" {
@@ -143,6 +166,17 @@ func (h *StoragePolicyHandler) Get(c *gin.Context) {
 }
 
 // List 处理获取存储策略列表的请求
+// @Summary      获取存储策略列表
+// @Description  获取存储策略列表，支持分页
+// @Tags         存储策略
+// @Security     BearerAuth
+// @Produce      json
+// @Param        page      query  int  false  "页码"  default(1)
+// @Param        pageSize  query  int  false  "每页数量"  default(10)
+// @Success      200  {object}  response.Response{data=PolicyListResponse}  "获取成功"
+// @Failure      400  {object}  response.Response  "分页参数错误"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /storage-policies [get]
 func (h *StoragePolicyHandler) List(c *gin.Context) {
 	const (
 		defaultPageSize = 10
@@ -188,6 +222,15 @@ func (h *StoragePolicyHandler) List(c *gin.Context) {
 }
 
 // Delete 处理删除存储策略的请求
+// @Summary      删除存储策略
+// @Description  根据ID删除存储策略
+// @Tags         存储策略
+// @Security     BearerAuth
+// @Param        id  path  string  true  "策略公共ID"
+// @Success      200  {object}  response.Response  "删除成功"
+// @Failure      400  {object}  response.Response  "ID不能为空"
+// @Failure      500  {object}  response.Response  "删除失败"
+// @Router       /storage-policies/{id} [delete]
 func (h *StoragePolicyHandler) Delete(c *gin.Context) {
 	publicID := c.Param("id")
 	if publicID == "" {
@@ -203,6 +246,18 @@ func (h *StoragePolicyHandler) Delete(c *gin.Context) {
 }
 
 // Update 处理更新存储策略的请求
+// @Summary      更新存储策略
+// @Description  更新存储策略信息
+// @Tags         存储策略
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        id    path  string                true  "策略公共ID"
+// @Param        body  body  UpdatePolicyRequest  true  "策略信息"
+// @Success      200  {object}  response.Response  "更新成功"
+// @Failure      400  {object}  response.Response  "参数无效或ID格式错误"
+// @Failure      500  {object}  response.Response  "更新失败"
+// @Router       /storage-policies/{id} [put]
 func (h *StoragePolicyHandler) Update(c *gin.Context) {
 	publicID := c.Param("id")
 	if publicID == "" {
@@ -259,6 +314,17 @@ func (h *StoragePolicyHandler) Update(c *gin.Context) {
 }
 
 // ConnectOneDrive 获取 OneDrive 授权链接
+// @Summary      获取OneDrive授权链接
+// @Description  生成OneDrive OAuth授权链接
+// @Tags         存储策略
+// @Security     BearerAuth
+// @Produce      json
+// @Param        id  path  string  true  "策略公共ID"
+// @Success      200  {object}  response.Response{data=object{url=string}}  "获取成功"
+// @Failure      400  {object}  response.Response  "策略不支持授权"
+// @Failure      404  {object}  response.Response  "策略未找到"
+// @Failure      500  {object}  response.Response  "生成失败"
+// @Router       /storage-policies/{id}/onedrive/connect [get]
 func (h *StoragePolicyHandler) ConnectOneDrive(c *gin.Context) {
 	publicID := c.Param("id")
 	authURL, err := h.svc.GenerateAuthURL(c.Request.Context(), publicID)
@@ -284,6 +350,17 @@ type AuthorizeRequest struct {
 }
 
 // AuthorizeOneDrive 完成 OneDrive 授权
+// @Summary      完成OneDrive授权
+// @Description  使用授权码完成OneDrive OAuth流程
+// @Tags         存储策略
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        body  body  AuthorizeRequest  true  "授权信息"
+// @Success      200  {object}  response.Response  "授权成功"
+// @Failure      400  {object}  response.Response  "请求参数无效"
+// @Failure      500  {object}  response.Response  "授权处理失败"
+// @Router       /storage-policies/onedrive/authorize [post]
 func (h *StoragePolicyHandler) AuthorizeOneDrive(c *gin.Context) {
 	var req AuthorizeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

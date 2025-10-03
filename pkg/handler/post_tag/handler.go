@@ -24,12 +24,14 @@ func NewHandler(svc *post_tag_service.Service) *Handler {
 // Create
 // @Summary      创建新文章标签
 // @Description  根据提供的请求体创建一个新文章标签
-// @Tags         PostTag
+// @Tags         文章标签
+// @Security     BearerAuth
 // @Accept       json
 // @Produce      json
 // @Param        tag body model.CreatePostTagRequest true "创建文章标签的请求体"
 // @Success      200 {object} response.Response{data=model.PostTagResponse} "成功响应"
 // @Failure      400 {object} response.Response "请求参数错误"
+// @Failure      401 {object} response.Response "未授权"
 // @Failure      500 {object} response.Response "服务器内部错误"
 // @Router       /post-tags [post]
 func (h *Handler) Create(c *gin.Context) {
@@ -51,7 +53,7 @@ func (h *Handler) Create(c *gin.Context) {
 // List
 // @Summary      获取文章标签列表
 // @Description  获取所有文章标签
-// @Tags         PostTag
+// @Tags         文章标签
 // @Param        sort query string false "排序方式，支持 'count' 或 'name'，默认为 'count'"
 // @Produce      json
 // @Success      200 {object} response.Response{data=[]model.PostTagResponse} "成功响应"
@@ -82,13 +84,15 @@ func (h *Handler) List(c *gin.Context) {
 // Update
 // @Summary      更新文章标签
 // @Description  根据文章标签ID和请求体更新信息
-// @Tags         PostTag
+// @Tags         文章标签
+// @Security     BearerAuth
 // @Accept       json
 // @Produce      json
 // @Param        id path string true "文章标签ID"
 // @Param        tag body model.UpdatePostTagRequest true "更新文章标签的请求体"
 // @Success      200 {object} response.Response{data=model.PostTagResponse} "成功响应"
 // @Failure      400 {object} response.Response "请求参数错误"
+// @Failure      401 {object} response.Response "未授权"
 // @Failure      500 {object} response.Response "服务器内部错误"
 // @Router       /post-tags/{id} [put]
 func (h *Handler) Update(c *gin.Context) {
@@ -116,11 +120,13 @@ func (h *Handler) Update(c *gin.Context) {
 // Delete
 // @Summary      删除文章标签
 // @Description  根据文章标签ID删除
-// @Tags         PostTag
+// @Tags         文章标签
+// @Security     BearerAuth
 // @Produce      json
 // @Param        id path string true "文章标签ID"
 // @Success      200 {object} response.Response "成功响应"
 // @Failure      400 {object} response.Response "标签ID不能为空"
+// @Failure      401 {object} response.Response "未授权"
 // @Failure      500 {object} response.Response "服务器内部错误"
 // @Router       /post-tags/{id} [delete]
 func (h *Handler) Delete(c *gin.Context) {

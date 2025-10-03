@@ -28,6 +28,16 @@ func NewHandler() *ProxyHandler {
 }
 
 // HandleDownload 处理外部文件下载代理
+// @Summary      代理下载
+// @Description  代理下载外部资源（主要用于图片）
+// @Tags         代理服务
+// @Produce      octet-stream
+// @Param        url  query  string  true  "目标URL"
+// @Success      200  {file}    file  "文件内容"
+// @Failure      400  {object}  object{error=string}  "参数错误"
+// @Failure      502  {object}  object{error=string}  "目标服务器错误"
+// @Failure      500  {object}  object{error=string}  "代理失败"
+// @Router       /proxy/download [get]
 func (h *ProxyHandler) HandleDownload(c *gin.Context) {
 	// 获取要下载的URL
 	targetURL := c.Query("url")
@@ -118,6 +128,12 @@ func (h *ProxyHandler) HandleDownload(c *gin.Context) {
 }
 
 // HandleTest 测试代理下载功能
+// @Summary      测试代理服务
+// @Description  测试代理下载服务是否正常运行
+// @Tags         代理服务
+// @Produce      json
+// @Success      200  {object}  object{message=string,timestamp=int,status=string}  "服务正常"
+// @Router       /proxy/test [get]
 func (h *ProxyHandler) HandleTest(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message":   "代理下载服务正常运行",

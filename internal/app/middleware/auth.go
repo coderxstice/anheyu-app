@@ -102,7 +102,9 @@ func (m *Middleware) AdminAuth() gin.HandlerFunc {
 			log.Printf("[AdminAuth] 可用的上下文键: %v", func() []string {
 				keys := make([]string, 0, len(c.Keys))
 				for k := range c.Keys {
-					keys = append(keys, k)
+					if key, ok := k.(string); ok {
+						keys = append(keys, key)
+					}
 				}
 				return keys
 			}())

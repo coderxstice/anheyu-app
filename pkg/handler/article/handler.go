@@ -29,6 +29,18 @@ func NewHandler(svc articleSvc.Service) *Handler {
 }
 
 // UploadImage 处理文章图片的上传请求。
+// @Summary      上传文章图片
+// @Description  上传文章中使用的图片文件
+// @Tags         文章管理
+// @Security     BearerAuth
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        file  formData  file  true  "图片文件"
+// @Success      200   {object}  response.Response{data=object{url=string,file_id=string}}  "上传成功"
+// @Failure      400   {object}  response.Response  "无效的文件上传请求"
+// @Failure      401   {object}  response.Response  "未授权"
+// @Failure      500   {object}  response.Response  "图片上传失败"
+// @Router       /articles/upload [post]
 func (h *Handler) UploadImage(c *gin.Context) {
 	log.Printf("[Handler.UploadImage] 开始处理图片上传请求")
 	log.Printf("[Handler.UploadImage] 请求方法: %s, 路径: %s", c.Request.Method, c.Request.URL.Path)
@@ -89,7 +101,7 @@ func (h *Handler) UploadImage(c *gin.Context) {
 // ListPublic
 // @Summary      获取前台文章列表
 // @Description  获取公开的、分页的文章列表。结果按置顶优先级和创建时间排序。
-// @Tags         Article Public
+// @Tags         公开文章
 // @Produce      json
 // @Param        page query int false "页码" default(1)
 // @Param        pageSize query int false "每页数量" default(10)
@@ -127,7 +139,7 @@ func (h *Handler) ListPublic(c *gin.Context) {
 // ListArchives
 // @Summary      获取文章归档摘要
 // @Description  获取按年月分组的文章统计信息，用于侧边栏展示。
-// @Tags         Article Public
+// @Tags         公开文章
 // @Produce      json
 // @Success      200 {object} response.Response{data=model.ArchiveSummaryResponse} "成功响应"
 // @Failure      500 {object} response.Response "服务器内部错误"
@@ -144,7 +156,7 @@ func (h *Handler) ListArchives(c *gin.Context) {
 // GetRandom
 // @Summary      随机获取一篇文章
 // @Description  随机获取一篇已发布的文章的详细信息，用于“随便看看”等功能。
-// @Tags         Article Public
+// @Tags         公开文章
 // @Produce      json
 // @Success      200 {object} response.Response{data=model.ArticleResponse} "成功响应"
 // @Failure      404 {object} response.Response "没有找到已发布的文章"
@@ -168,7 +180,7 @@ func (h *Handler) GetRandom(c *gin.Context) {
 // Create
 // @Summary      创建新文章
 // @Description  根据提供的请求体创建一个新文章。总字数、阅读时长和IP属地由后端自动计算。
-// @Tags         Article
+// @Tags         文章管理
 // @Accept       json
 // @Produce      json
 // @Param        article body model.CreateArticleRequest true "创建文章的请求体"
@@ -199,7 +211,7 @@ func (h *Handler) Create(c *gin.Context) {
 // ListHome
 // @Summary      获取首页推荐文章
 // @Description  获取配置为在首页卡片中展示的文章列表 (按 home_sort 排序, 最多6篇)
-// @Tags         Article Public
+// @Tags         公开文章
 // @Produce      json
 // @Success      200 {object} response.Response{data=[]model.ArticleResponse} "成功响应"
 // @Failure      500 {object} response.Response "服务器内部错误"
@@ -216,7 +228,7 @@ func (h *Handler) ListHome(c *gin.Context) {
 // GetPublic
 // @Summary      获取单篇公开文章及其上下文
 // @Description  根据文章的公共ID或Abbrlink获取详细信息，同时返回上一篇、下一篇和相关文章。
-// @Tags         Article Public
+// @Tags         公开文章
 // @Produce      json
 // @Param        id path string true "文章的公共ID或Abbrlink"
 // @Success      200 {object} response.Response{data=model.ArticleDetailResponse} "成功响应"
@@ -245,7 +257,7 @@ func (h *Handler) GetPublic(c *gin.Context) {
 // Get
 // @Summary      获取单篇文章
 // @Description  根据文章的公共ID获取详细信息
-// @Tags         Article
+// @Tags         文章管理
 // @Produce      json
 // @Param        id path string true "文章的公共ID"
 // @Success      200 {object} response.Response{data=model.ArticleResponse} "成功响应"
@@ -271,7 +283,7 @@ func (h *Handler) Get(c *gin.Context) {
 // Update
 // @Summary      更新文章
 // @Description  根据文章ID和请求体更新文章信息。如果内容更新，总字数和阅读时长会自动重新计算。如果IP属地留空，则由后端自动获取。
-// @Tags         Article
+// @Tags         文章管理
 // @Accept       json
 // @Produce      json
 // @Param        id path string true "文章的公共ID"
@@ -310,7 +322,7 @@ func (h *Handler) Update(c *gin.Context) {
 // Delete
 // @Summary      删除文章
 // @Description  根据文章的公共ID删除文章 (软删除)
-// @Tags         Article
+// @Tags         文章管理
 // @Produce      json
 // @Param        id path string true "文章的公共ID"
 // @Success      200 {object} response.Response "成功响应"
@@ -335,7 +347,7 @@ func (h *Handler) Delete(c *gin.Context) {
 // List
 // @Summary      获取文章列表
 // @Description  根据查询参数获取分页的文章列表
-// @Tags         Article
+// @Tags         文章管理
 // @Produce      json
 // @Param        page query int false "页码" default(1)
 // @Param        pageSize query int false "每页数量" default(10)

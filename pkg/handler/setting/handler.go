@@ -42,7 +42,7 @@ func NewSettingHandler(
 // TestEmail
 // @Summary      发送测试邮件
 // @Description  根据当前配置发送一封测试邮件到指定地址，用于验证邮件服务是否可用。
-// @Tags         Setting Admin
+// @Tags         设置管理
 // @Accept       json
 // @Produce      json
 // @Param        body body dto.TestEmailRequest true "测试邮件请求"
@@ -68,6 +68,12 @@ func (h *SettingHandler) TestEmail(c *gin.Context) {
 }
 
 // GetSiteConfig 处理获取公开的站点配置的请求
+// @Summary      获取站点配置
+// @Description  获取公开的站点配置信息（无需认证）
+// @Tags         站点设置
+// @Produce      json
+// @Success      200  {object}  response.Response  "获取成功"
+// @Router       /public/site-config [get]
 func (h *SettingHandler) GetSiteConfig(c *gin.Context) {
 	siteConfig := h.settingSvc.GetSiteConfig()
 	response.Success(c, siteConfig, "获取站点配置成功")
@@ -79,6 +85,16 @@ type GetSettingsByKeysReq struct {
 }
 
 // GetSettingsByKeys 处理根据一组键名批量获取配置的请求
+// @Summary      批量获取配置
+// @Description  根据键名列表批量获取配置项（需要管理员权限）
+// @Tags         站点设置
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        body  body      GetSettingsByKeysReq  true  "配置键名列表"
+// @Success      200   {object}  response.Response  "获取成功"
+// @Failure      400   {object}  response.Response  "参数错误"
+// @Router       /settings/get-by-keys [post]
 func (h *SettingHandler) GetSettingsByKeys(c *gin.Context) {
 	var req GetSettingsByKeysReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -91,6 +107,17 @@ func (h *SettingHandler) GetSettingsByKeys(c *gin.Context) {
 }
 
 // UpdateSettings 处理批量更新配置项的请求
+// @Summary      批量更新配置
+// @Description  批量更新站点配置项（需要管理员权限）
+// @Tags         站点设置
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        body  body      map[string]string  true  "配置项键值对"
+// @Success      200   {object}  response.Response  "更新成功"
+// @Failure      400   {object}  response.Response  "参数错误"
+// @Failure      500   {object}  response.Response  "更新失败"
+// @Router       /settings/update [post]
 func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 	var settingsToUpdate map[string]string
 	if err := c.ShouldBindJSON(&settingsToUpdate); err != nil {

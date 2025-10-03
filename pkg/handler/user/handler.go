@@ -57,6 +57,15 @@ type GetUserInfoResponse struct {
 }
 
 // GetUserInfo 获取当前登录用户的信息
+// @Summary      获取当前用户信息
+// @Description  获取当前登录用户的详细信息，包括用户组信息
+// @Tags         用户管理
+// @Security     BearerAuth
+// @Produce      json
+// @Success      200  {object}  response.Response{data=GetUserInfoResponse}  "获取成功"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      404  {object}  response.Response  "用户未找到"
+// @Router       /user/info [get]
 func (h *UserHandler) GetUserInfo(c *gin.Context) {
 	// 1. 从 Gin 上下文获取用户名 (由 JWT 中间件注入)
 	username := c.GetString("username")
@@ -124,6 +133,17 @@ type UpdateUserPasswordRequest struct {
 }
 
 // UpdateUserPassword 用于已登录用户修改自身密码
+// @Summary      修改用户密码
+// @Description  当前登录用户修改自己的密码
+// @Tags         用户管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        body  body      UpdateUserPasswordRequest  true  "密码修改信息"
+// @Success      200   {object}  response.Response  "修改成功"
+// @Failure      400   {object}  response.Response  "参数错误"
+// @Failure      401   {object}  response.Response  "旧密码错误或未授权"
+// @Router       /user/update-password [post]
 func (h *UserHandler) UpdateUserPassword(c *gin.Context) {
 	// 1. 解析参数
 	var req UpdateUserPasswordRequest

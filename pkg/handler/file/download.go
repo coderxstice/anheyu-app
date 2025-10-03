@@ -21,6 +21,17 @@ import (
 )
 
 // HandleUniversalSignedDownload 处理所有带签名的下载请求 (e.g., GET /api/download/:public_id?sign=...)
+// @Summary      下载文件（带签名）
+// @Description  通过签名链接下载文件，无需认证
+// @Tags         文件管理
+// @Produce      octet-stream
+// @Param        public_id  path   string  true   "文件公共ID"
+// @Param        sign       query  string  true   "签名"
+// @Success      200  {file}    file  "文件内容"
+// @Failure      403  {object}  response.Response  "签名无效或已过期"
+// @Failure      404  {object}  response.Response  "文件不存在"
+// @Failure      500  {object}  response.Response  "下载失败"
+// @Router       /needcache/download/{public_id} [get]
 func (h *FileHandler) HandleUniversalSignedDownload(c *gin.Context) {
 	publicFileID := c.Param("public_id")
 
@@ -41,6 +52,19 @@ func (h *FileHandler) HandleUniversalSignedDownload(c *gin.Context) {
 }
 
 // DownloadFile 处理需要JWT认证的文件下载请求 (e.g., GET /api/file/download/:id)
+// @Summary      下载文件（需认证）
+// @Description  通过JWT认证下载文件
+// @Tags         文件管理
+// @Security     BearerAuth
+// @Produce      octet-stream
+// @Param        id  path  string  true  "文件公共ID"
+// @Success      200  {file}    file  "文件内容"
+// @Failure      400  {object}  response.Response  "文件ID不能为空"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      403  {object}  response.Response  "无权下载此文件"
+// @Failure      404  {object}  response.Response  "文件不存在"
+// @Failure      500  {object}  response.Response  "下载失败"
+// @Router       /file/download/{id} [get]
 func (h *FileHandler) DownloadFile(c *gin.Context) {
 	publicFileID := c.Param("id")
 	if publicFileID == "" {
@@ -85,6 +109,19 @@ func (h *FileHandler) DownloadFile(c *gin.Context) {
 }
 
 // GetDownloadInfo 获取文件下载信息 (e.g., GET /api/file/download-info/:id)
+// @Summary      获取文件下载信息
+// @Description  获取文件的下载URL和元数据信息
+// @Tags         文件管理
+// @Security     BearerAuth
+// @Produce      json
+// @Param        id  path  string  true  "文件公共ID"
+// @Success      200  {object}  response.Response  "获取成功"
+// @Failure      400  {object}  response.Response  "文件ID不能为空"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      403  {object}  response.Response  "无权访问此文件"
+// @Failure      404  {object}  response.Response  "文件不存在"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /file/download-info/{id} [get]
 func (h *FileHandler) GetDownloadInfo(c *gin.Context) {
 	publicFileID := c.Param("id")
 	if publicFileID == "" {

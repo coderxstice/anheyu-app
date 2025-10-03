@@ -24,12 +24,14 @@ func NewHandler(svc *post_category_service.Service) *Handler {
 // Create
 // @Summary      创建新文章分类
 // @Description  根据提供的请求体创建一个新文章分类
-// @Tags         PostCategory
+// @Tags         文章分类
+// @Security     BearerAuth
 // @Accept       json
 // @Produce      json
 // @Param        category body model.CreatePostCategoryRequest true "创建文章分类的请求体"
 // @Success      200 {object} response.Response{data=model.PostCategoryResponse} "成功响应"
 // @Failure      400 {object} response.Response "请求参数错误"
+// @Failure      401 {object} response.Response "未授权"
 // @Failure      500 {object} response.Response "服务器内部错误"
 // @Router       /post-categories [post]
 func (h *Handler) Create(c *gin.Context) {
@@ -51,7 +53,7 @@ func (h *Handler) Create(c *gin.Context) {
 // List
 // @Summary      获取文章分类列表
 // @Description  获取所有文章分类
-// @Tags         PostCategory
+// @Tags         文章分类
 // @Produce      json
 // @Success      200 {object} response.Response{data=[]model.PostCategoryResponse} "成功响应"
 // @Failure      500 {object} response.Response "服务器内部错误"
@@ -69,13 +71,15 @@ func (h *Handler) List(c *gin.Context) {
 // Update
 // @Summary      更新文章分类
 // @Description  根据文章分类ID和请求体更新信息
-// @Tags         PostCategory
+// @Tags         文章分类
+// @Security     BearerAuth
 // @Accept       json
 // @Produce      json
 // @Param        id path string true "文章分类ID"
 // @Param        category body model.UpdatePostCategoryRequest true "更新文章分类的请求体"
 // @Success      200 {object} response.Response{data=model.PostCategoryResponse} "成功响应"
 // @Failure      400 {object} response.Response "请求参数错误"
+// @Failure      401 {object} response.Response "未授权"
 // @Failure      500 {object} response.Response "服务器内部错误"
 // @Router       /post-categories/{id} [put]
 func (h *Handler) Update(c *gin.Context) {
@@ -103,11 +107,13 @@ func (h *Handler) Update(c *gin.Context) {
 // Delete
 // @Summary      删除文章分类
 // @Description  根据文章分类ID删除
-// @Tags         PostCategory
+// @Tags         文章分类
+// @Security     BearerAuth
 // @Produce      json
 // @Param        id path string true "文章分类ID"
 // @Success      200 {object} response.Response "成功响应"
 // @Failure      400 {object} response.Response "分类ID不能为空"
+// @Failure      401 {object} response.Response "未授权"
 // @Failure      500 {object} response.Response "服务器内部错误"
 // @Router       /post-categories/{id} [delete]
 func (h *Handler) Delete(c *gin.Context) {

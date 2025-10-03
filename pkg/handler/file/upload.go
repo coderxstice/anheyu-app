@@ -14,6 +14,20 @@ import (
 )
 
 // CreateUploadSession 处理创建上传会话的请求 (PUT /api/file/upload)
+// @Summary      创建上传会话
+// @Description  创建文件上传会话，用于分片上传
+// @Tags         文件管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.CreateUploadRequest  true  "上传会话请求"
+// @Success      200  {object}  response.Response  "创建成功"
+// @Failure      400  {object}  response.Response  "请求参数无效"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      404  {object}  response.Response  "目标路径不存在"
+// @Failure      409  {object}  response.Response  "文件已存在"
+// @Failure      500  {object}  response.Response  "创建失败"
+// @Router       /file/upload [put]
 func (h *FileHandler) CreateUploadSession(c *gin.Context) {
 	var req model.CreateUploadRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -46,6 +60,19 @@ func (h *FileHandler) CreateUploadSession(c *gin.Context) {
 }
 
 // GetUploadSessionStatus 处理获取上传会话状态的请求 (GET /api/file/upload/session/:sessionId)
+// @Summary      获取上传会话状态
+// @Description  获取指定上传会话的状态信息
+// @Tags         文件管理
+// @Security     BearerAuth
+// @Produce      json
+// @Param        sessionId  path  string  true  "会话ID"
+// @Success      200  {object}  response.Response  "会话有效"
+// @Failure      400  {object}  response.Response  "缺少sessionId"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      403  {object}  response.Response  "无权访问此上传会话"
+// @Failure      404  {object}  response.Response  "上传会话不存在或已过期"
+// @Failure      500  {object}  response.Response  "服务器内部错误"
+// @Router       /file/upload/session/{sessionId} [get]
 func (h *FileHandler) GetUploadSessionStatus(c *gin.Context) {
 	sessionId := c.Param("sessionId")
 	if sessionId == "" {
@@ -90,6 +117,19 @@ func (h *FileHandler) GetUploadSessionStatus(c *gin.Context) {
 }
 
 // UploadChunk 处理上传文件分片的请求 (POST /api/file/upload/:sessionId/:index)
+// @Summary      上传文件分片
+// @Description  上传文件的某个分片
+// @Tags         文件管理
+// @Security     BearerAuth
+// @Accept       octet-stream
+// @Produce      json
+// @Param        sessionId  path  string  true  "会话ID"
+// @Param        index      path  int     true  "分片索引（从0开始）"
+// @Param        chunk      body  string  true  "分片数据"
+// @Success      200  {object}  response.Response  "文件块上传成功"
+// @Failure      400  {object}  response.Response  "无效的分块索引"
+// @Failure      500  {object}  response.Response  "文件块上传失败"
+// @Router       /file/upload/{sessionId}/{index} [post]
 func (h *FileHandler) UploadChunk(c *gin.Context) {
 	sessionID := c.Param("sessionId")
 	indexStr := c.Param("index")
@@ -107,6 +147,19 @@ func (h *FileHandler) UploadChunk(c *gin.Context) {
 }
 
 // DeleteUploadSession 处理删除/取消上传会话的请求 (DELETE /api/file/upload)
+// @Summary      删除上传会话
+// @Description  取消并删除指定的上传会话
+// @Tags         文件管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.DeleteUploadRequest  true  "删除会话请求"
+// @Success      200  {object}  response.Response  "上传会话已删除"
+// @Failure      400  {object}  response.Response  "请求参数无效"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      403  {object}  response.Response  "删除失败"
+// @Failure      500  {object}  response.Response  "删除上传会话失败"
+// @Router       /file/upload [delete]
 func (h *FileHandler) DeleteUploadSession(c *gin.Context) {
 	var req model.DeleteUploadRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
