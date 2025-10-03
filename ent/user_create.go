@@ -122,6 +122,20 @@ func (_c *UserCreate) SetNillableEmail(v *string) *UserCreate {
 	return _c
 }
 
+// SetWebsite sets the "website" field.
+func (_c *UserCreate) SetWebsite(v string) *UserCreate {
+	_c.mutation.SetWebsite(v)
+	return _c
+}
+
+// SetNillableWebsite sets the "website" field if the given value is not nil.
+func (_c *UserCreate) SetNillableWebsite(v *string) *UserCreate {
+	if v != nil {
+		_c.SetWebsite(*v)
+	}
+	return _c
+}
+
 // SetLastLoginAt sets the "last_login_at" field.
 func (_c *UserCreate) SetLastLoginAt(v time.Time) *UserCreate {
 	_c.mutation.SetLastLoginAt(v)
@@ -309,6 +323,11 @@ func (_c *UserCreate) check() error {
 			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "User.email": %w`, err)}
 		}
 	}
+	if v, ok := _c.mutation.Website(); ok {
+		if err := user.WebsiteValidator(v); err != nil {
+			return &ValidationError{Name: "website", err: fmt.Errorf(`ent: validator failed for field "User.website": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "User.status"`)}
 	}
@@ -379,6 +398,10 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)
 		_node.Email = value
+	}
+	if value, ok := _c.mutation.Website(); ok {
+		_spec.SetField(user.FieldWebsite, field.TypeString, value)
+		_node.Website = value
 	}
 	if value, ok := _c.mutation.LastLoginAt(); ok {
 		_spec.SetField(user.FieldLastLoginAt, field.TypeTime, value)
@@ -613,6 +636,24 @@ func (u *UserUpsert) ClearEmail() *UserUpsert {
 	return u
 }
 
+// SetWebsite sets the "website" field.
+func (u *UserUpsert) SetWebsite(v string) *UserUpsert {
+	u.Set(user.FieldWebsite, v)
+	return u
+}
+
+// UpdateWebsite sets the "website" field to the value that was provided on create.
+func (u *UserUpsert) UpdateWebsite() *UserUpsert {
+	u.SetExcluded(user.FieldWebsite)
+	return u
+}
+
+// ClearWebsite clears the value of the "website" field.
+func (u *UserUpsert) ClearWebsite() *UserUpsert {
+	u.SetNull(user.FieldWebsite)
+	return u
+}
+
 // SetLastLoginAt sets the "last_login_at" field.
 func (u *UserUpsert) SetLastLoginAt(v time.Time) *UserUpsert {
 	u.Set(user.FieldLastLoginAt, v)
@@ -823,6 +864,27 @@ func (u *UserUpsertOne) UpdateEmail() *UserUpsertOne {
 func (u *UserUpsertOne) ClearEmail() *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
 		s.ClearEmail()
+	})
+}
+
+// SetWebsite sets the "website" field.
+func (u *UserUpsertOne) SetWebsite(v string) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.SetWebsite(v)
+	})
+}
+
+// UpdateWebsite sets the "website" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateWebsite() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateWebsite()
+	})
+}
+
+// ClearWebsite clears the value of the "website" field.
+func (u *UserUpsertOne) ClearWebsite() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearWebsite()
 	})
 }
 
@@ -1208,6 +1270,27 @@ func (u *UserUpsertBulk) UpdateEmail() *UserUpsertBulk {
 func (u *UserUpsertBulk) ClearEmail() *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
 		s.ClearEmail()
+	})
+}
+
+// SetWebsite sets the "website" field.
+func (u *UserUpsertBulk) SetWebsite(v string) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.SetWebsite(v)
+	})
+}
+
+// UpdateWebsite sets the "website" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateWebsite() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateWebsite()
+	})
+}
+
+// ClearWebsite clears the value of the "website" field.
+func (u *UserUpsertBulk) ClearWebsite() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearWebsite()
 	})
 }
 

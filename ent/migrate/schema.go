@@ -85,6 +85,7 @@ var (
 		{Name: "content_html", Type: field.TypeString, Size: 2147483647},
 		{Name: "status", Type: field.TypeInt, Default: 2},
 		{Name: "is_admin_comment", Type: field.TypeBool, Default: false},
+		{Name: "is_anonymous", Type: field.TypeBool, Default: false},
 		{Name: "allow_notification", Type: field.TypeBool, Default: true},
 		{Name: "user_agent", Type: field.TypeString, Nullable: true, Size: 512},
 		{Name: "ip_address", Type: field.TypeString, Size: 45},
@@ -103,19 +104,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "comments_articles_comments",
-				Columns:    []*schema.Column{CommentsColumns[20]},
+				Columns:    []*schema.Column{CommentsColumns[21]},
 				RefColumns: []*schema.Column{ArticlesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "comments_comments_parent",
-				Columns:    []*schema.Column{CommentsColumns[21]},
+				Columns:    []*schema.Column{CommentsColumns[22]},
 				RefColumns: []*schema.Column{CommentsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "comments_users_comments",
-				Columns:    []*schema.Column{CommentsColumns[22]},
+				Columns:    []*schema.Column{CommentsColumns[23]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -129,12 +130,12 @@ var (
 			{
 				Name:    "comment_parent_id",
 				Unique:  false,
-				Columns: []*schema.Column{CommentsColumns[21]},
+				Columns: []*schema.Column{CommentsColumns[22]},
 			},
 			{
 				Name:    "comment_user_id",
 				Unique:  false,
-				Columns: []*schema.Column{CommentsColumns[22]},
+				Columns: []*schema.Column{CommentsColumns[23]},
 			},
 			{
 				Name:    "comment_email",
@@ -508,6 +509,7 @@ var (
 		{Name: "nickname", Type: field.TypeString, Nullable: true, Size: 50},
 		{Name: "avatar", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "email", Type: field.TypeString, Unique: true, Nullable: true, Size: 100},
+		{Name: "website", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "last_login_at", Type: field.TypeTime, Nullable: true},
 		{Name: "status", Type: field.TypeInt, Default: 2},
 		{Name: "user_group_id", Type: field.TypeUint},
@@ -520,7 +522,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_user_groups_users",
-				Columns:    []*schema.Column{UsersColumns[11]},
+				Columns:    []*schema.Column{UsersColumns[12]},
 				RefColumns: []*schema.Column{UserGroupsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

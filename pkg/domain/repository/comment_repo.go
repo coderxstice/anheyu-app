@@ -31,6 +31,7 @@ type CreateCommentParams struct {
 	IPLocation        string
 	Status            int
 	IsAdminComment    bool
+	IsAnonymous       bool
 	AllowNotification bool
 }
 type AdminListParams struct {

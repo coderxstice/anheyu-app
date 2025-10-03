@@ -38,6 +38,7 @@ type User struct {
 	Nickname     string     `json:"nickname"`
 	Avatar       string     `json:"avatar"`
 	Email        string     `json:"email"`
+	Website      string     `json:"website"`
 	LastLoginAt  *time.Time `json:"lastLoginAt"`
 	UserGroupID  uint       `json:"userGroupID"`
 	UserGroup    UserGroup  `json:"userGroup"`

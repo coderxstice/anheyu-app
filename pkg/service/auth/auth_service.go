@@ -296,8 +296,10 @@ func (s *authService) Register(ctx context.Context, email, password string) (boo
 		return false, err
 	}
 
-	// 异步为该用户创建一篇默认文章
-	go s.createDefaultArticle(context.Background())
+	// 异步为第一个用户（管理员）创建一篇默认文章
+	if isFirstUser {
+		go s.createDefaultArticle(context.Background())
+	}
 
 	// --- 步骤4：事务成功后，发送激活邮件 ---
 	if activationEnabled {

@@ -92,6 +92,9 @@ func (Comment) Fields() []ent.Field {
 		field.Bool("is_admin_comment").
 			Default(false).
 			Comment("是否为博主/管理员的评论"),
+		field.Bool("is_anonymous").
+			Default(false).
+			Comment("是否为匿名评论（使用匿名邮箱发表的评论）"),
 		field.Bool("allow_notification").
 			Default(true).
 			Comment("用户是否同意接收回复邮件通知"),

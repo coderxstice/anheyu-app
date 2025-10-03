@@ -42,6 +42,7 @@ type Comment struct {
 	// --- 元数据 ---
 	Status            Status
 	IsAdminAuthor     bool
+	IsAnonymous       bool
 	AllowNotification bool
 	CreatedAt         time.Time
 	UpdatedAt         time.Time

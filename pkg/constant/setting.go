@@ -154,12 +154,14 @@ const (
 	KeyRecentCommentsBannerTip         SettingKey = "recent_comments.banner.tip"
 
 	// 评论配置
+	KeyCommentEnable            SettingKey = "comment.enable"
 	KeyCommentLoginRequired     SettingKey = "comment.login_required"
 	KeyCommentPageSize          SettingKey = "comment.page_size"
 	KeyCommentMasterTag         SettingKey = "comment.master_tag"
 	KeyCommentPlaceholder       SettingKey = "comment.placeholder"
 	KeyCommentEmojiCDN          SettingKey = "comment.emoji_cdn"
 	KeyCommentBloggerEmail      SettingKey = "comment.blogger_email"
+	KeyCommentAnonymousEmail    SettingKey = "comment.anonymous_email"
 	KeyCommentShowUA            SettingKey = "comment.show_ua"
 	KeyCommentShowRegion        SettingKey = "comment.show_region"
 	KeyCommentLimitPerMinute    SettingKey = "comment.limit_per_minute"

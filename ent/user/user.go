@@ -31,6 +31,8 @@ const (
 	FieldAvatar = "avatar"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
+	// FieldWebsite holds the string denoting the website field in the database.
+	FieldWebsite = "website"
 	// FieldLastLoginAt holds the string denoting the last_login_at field in the database.
 	FieldLastLoginAt = "last_login_at"
 	// FieldStatus holds the string denoting the status field in the database.
@@ -86,6 +88,7 @@ var Columns = []string{
 	FieldNickname,
 	FieldAvatar,
 	FieldEmail,
+	FieldWebsite,
 	FieldLastLoginAt,
 	FieldStatus,
 }
@@ -134,6 +137,8 @@ var (
 	AvatarValidator func(string) error
 	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	EmailValidator func(string) error
+	// WebsiteValidator is a validator for the "website" field. It is called by the builders before save.
+	WebsiteValidator func(string) error
 	// DefaultStatus holds the default value on creation for the "status" field.
 	DefaultStatus int
 )
@@ -184,6 +189,11 @@ func ByAvatar(opts ...sql.OrderTermOption) OrderOption {
 // ByEmail orders the results by the email field.
 func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEmail, opts...).ToFunc()
+}
+
+// ByWebsite orders the results by the website field.
+func ByWebsite(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldWebsite, opts...).ToFunc()
 }
 
 // ByLastLoginAt orders the results by the last_login_at field.

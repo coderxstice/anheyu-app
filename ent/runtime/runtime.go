@@ -243,24 +243,28 @@ func init() {
 	commentDescIsAdminComment := commentFields[14].Descriptor()
 	// comment.DefaultIsAdminComment holds the default value on creation for the is_admin_comment field.
 	comment.DefaultIsAdminComment = commentDescIsAdminComment.Default.(bool)
+	// commentDescIsAnonymous is the schema descriptor for is_anonymous field.
+	commentDescIsAnonymous := commentFields[15].Descriptor()
+	// comment.DefaultIsAnonymous holds the default value on creation for the is_anonymous field.
+	comment.DefaultIsAnonymous = commentDescIsAnonymous.Default.(bool)
 	// commentDescAllowNotification is the schema descriptor for allow_notification field.
-	commentDescAllowNotification := commentFields[15].Descriptor()
+	commentDescAllowNotification := commentFields[16].Descriptor()
 	// comment.DefaultAllowNotification holds the default value on creation for the allow_notification field.
 	comment.DefaultAllowNotification = commentDescAllowNotification.Default.(bool)
 	// commentDescUserAgent is the schema descriptor for user_agent field.
-	commentDescUserAgent := commentFields[16].Descriptor()
+	commentDescUserAgent := commentFields[17].Descriptor()
 	// comment.UserAgentValidator is a validator for the "user_agent" field. It is called by the builders before save.
 	comment.UserAgentValidator = commentDescUserAgent.Validators[0].(func(string) error)
 	// commentDescIPAddress is the schema descriptor for ip_address field.
-	commentDescIPAddress := commentFields[17].Descriptor()
+	commentDescIPAddress := commentFields[18].Descriptor()
 	// comment.IPAddressValidator is a validator for the "ip_address" field. It is called by the builders before save.
 	comment.IPAddressValidator = commentDescIPAddress.Validators[0].(func(string) error)
 	// commentDescIPLocation is the schema descriptor for ip_location field.
-	commentDescIPLocation := commentFields[18].Descriptor()
+	commentDescIPLocation := commentFields[19].Descriptor()
 	// comment.IPLocationValidator is a validator for the "ip_location" field. It is called by the builders before save.
 	comment.IPLocationValidator = commentDescIPLocation.Validators[0].(func(string) error)
 	// commentDescLikeCount is the schema descriptor for like_count field.
-	commentDescLikeCount := commentFields[19].Descriptor()
+	commentDescLikeCount := commentFields[20].Descriptor()
 	// comment.DefaultLikeCount holds the default value on creation for the like_count field.
 	comment.DefaultLikeCount = commentDescLikeCount.Default.(int)
 	// comment.LikeCountValidator is a validator for the "like_count" field. It is called by the builders before save.
@@ -808,8 +812,12 @@ func init() {
 	userDescEmail := userFields[7].Descriptor()
 	// user.EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	user.EmailValidator = userDescEmail.Validators[0].(func(string) error)
+	// userDescWebsite is the schema descriptor for website field.
+	userDescWebsite := userFields[8].Descriptor()
+	// user.WebsiteValidator is a validator for the "website" field. It is called by the builders before save.
+	user.WebsiteValidator = userDescWebsite.Validators[0].(func(string) error)
 	// userDescStatus is the schema descriptor for status field.
-	userDescStatus := userFields[9].Descriptor()
+	userDescStatus := userFields[10].Descriptor()
 	// user.DefaultStatus holds the default value on creation for the status field.
 	user.DefaultStatus = userDescStatus.Default.(int)
 	usergroupMixin := schema.UserGroup{}.Mixin()

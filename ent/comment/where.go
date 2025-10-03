@@ -130,6 +130,11 @@ func IsAdminComment(v bool) predicate.Comment {
 	return predicate.Comment(sql.FieldEQ(FieldIsAdminComment, v))
 }
 
+// IsAnonymous applies equality check predicate on the "is_anonymous" field. It's identical to IsAnonymousEQ.
+func IsAnonymous(v bool) predicate.Comment {
+	return predicate.Comment(sql.FieldEQ(FieldIsAnonymous, v))
+}
+
 // AllowNotification applies equality check predicate on the "allow_notification" field. It's identical to AllowNotificationEQ.
 func AllowNotification(v bool) predicate.Comment {
 	return predicate.Comment(sql.FieldEQ(FieldAllowNotification, v))
@@ -948,6 +953,16 @@ func IsAdminCommentEQ(v bool) predicate.Comment {
 // IsAdminCommentNEQ applies the NEQ predicate on the "is_admin_comment" field.
 func IsAdminCommentNEQ(v bool) predicate.Comment {
 	return predicate.Comment(sql.FieldNEQ(FieldIsAdminComment, v))
+}
+
+// IsAnonymousEQ applies the EQ predicate on the "is_anonymous" field.
+func IsAnonymousEQ(v bool) predicate.Comment {
+	return predicate.Comment(sql.FieldEQ(FieldIsAnonymous, v))
+}
+
+// IsAnonymousNEQ applies the NEQ predicate on the "is_anonymous" field.
+func IsAnonymousNEQ(v bool) predicate.Comment {
+	return predicate.Comment(sql.FieldNEQ(FieldIsAnonymous, v))
 }
 
 // AllowNotificationEQ applies the EQ predicate on the "allow_notification" field.
