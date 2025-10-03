@@ -25,6 +25,20 @@ func NewAlbumHandler(albumSvc album.AlbumService) *AlbumHandler {
 }
 
 // GetAlbums 处理获取图片列表的请求
+// @Summary      获取相册图片列表
+// @Description  获取相册图片列表，支持分页、标签筛选、时间筛选和排序
+// @Tags         相册管理
+// @Security     BearerAuth
+// @Produce      json
+// @Param        page          query  int     false  "页码"  default(1)
+// @Param        pageSize      query  int     false  "每页数量"  default(10)
+// @Param        tag           query  string  false  "标签筛选"
+// @Param        createdAt[0]  query  string  false  "开始时间 (2006/01/02 15:04:05)"
+// @Param        createdAt[1]  query  string  false  "结束时间 (2006/01/02 15:04:05)"
+// @Param        sort          query  string  false  "排序方式"  default(display_order_asc)
+// @Success      200  {object}  response.Response  "获取成功"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /albums [get]
 func (h *AlbumHandler) GetAlbums(c *gin.Context) {
 	// 1. 解析参数
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -113,6 +127,17 @@ func (h *AlbumHandler) GetAlbums(c *gin.Context) {
 }
 
 // AddAlbum 处理新增图片的请求
+// @Summary      新增相册图片
+// @Description  新增图片到相册
+// @Tags         相册管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        body  body  object{imageUrl=string,bigImageUrl=string,downloadUrl=string,thumbParam=string,bigParam=string,tags=[]string,width=int,height=int,fileSize=int,format=string,fileHash=string,displayOrder=int}  true  "图片信息"
+// @Success      200  {object}  response.Response  "添加成功"
+// @Failure      400  {object}  response.Response  "参数错误"
+// @Failure      500  {object}  response.Response  "添加失败"
+// @Router       /albums [post]
 func (h *AlbumHandler) AddAlbum(c *gin.Context) {
 	var req struct {
 		ImageUrl     string   `json:"imageUrl" binding:"required"`
@@ -159,6 +184,15 @@ func (h *AlbumHandler) AddAlbum(c *gin.Context) {
 }
 
 // DeleteAlbum 处理删除图片的请求
+// @Summary      删除相册图片
+// @Description  根据ID删除相册中的图片
+// @Tags         相册管理
+// @Security     BearerAuth
+// @Param        id  path  int  true  "图片ID"
+// @Success      200  {object}  response.Response  "删除成功"
+// @Failure      400  {object}  response.Response  "ID非法"
+// @Failure      500  {object}  response.Response  "删除失败"
+// @Router       /albums/{id} [delete]
 func (h *AlbumHandler) DeleteAlbum(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -175,6 +209,18 @@ func (h *AlbumHandler) DeleteAlbum(c *gin.Context) {
 }
 
 // UpdateAlbum 处理更新图片的请求
+// @Summary      更新相册图片
+// @Description  更新相册中图片的信息
+// @Tags         相册管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        id    path  int     true  "图片ID"
+// @Param        body  body  object{imageUrl=string,bigImageUrl=string,downloadUrl=string,thumbParam=string,bigParam=string,tags=[]string,displayOrder=int}  true  "图片信息"
+// @Success      200  {object}  response.Response  "更新成功"
+// @Failure      400  {object}  response.Response  "参数错误或ID非法"
+// @Failure      500  {object}  response.Response  "更新失败"
+// @Router       /albums/{id} [put]
 func (h *AlbumHandler) UpdateAlbum(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {

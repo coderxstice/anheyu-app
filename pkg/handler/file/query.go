@@ -25,6 +25,19 @@ import (
 //
 // 注意：此 Handler 不再关心`order`或`direction`等业务参数，这些已由Service层内部处理。
 // 它只负责透传必要的上下文参数。
+//
+// @Summary      获取文件列表
+// @Description  通过虚拟路径获取文件和文件夹列表，支持分页
+// @Tags         文件管理
+// @Security     BearerAuth
+// @Produce      json
+// @Param        uri         query  string  false  "虚拟路径URI"  default(anzhiyu://my/)
+// @Param        next_token  query  string  false  "分页令牌"
+// @Success      200  {object}  response.Response  "获取成功"
+// @Failure      400  {object}  response.Response  "URI格式无效"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /files [get]
 func (h *FileHandler) GetFilesByPath(c *gin.Context) {
 	// 1. 解析基础的URI字符串
 	uriStr := c.DefaultQuery("uri", "anzhiyu://my/")
@@ -69,6 +82,19 @@ func (h *FileHandler) GetFilesByPath(c *gin.Context) {
 }
 
 // GetFileInfo 处理获取单个文件或文件夹详细信息的请求 (GET /api/file/:id)
+// @Summary      获取文件信息
+// @Description  获取单个文件或文件夹的详细信息
+// @Tags         文件管理
+// @Security     BearerAuth
+// @Produce      json
+// @Param        id  path  string  true  "文件公共ID"
+// @Success      200  {object}  response.Response  "获取成功"
+// @Failure      400  {object}  response.Response  "文件ID不能为空"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      403  {object}  response.Response  "无权访问此文件"
+// @Failure      404  {object}  response.Response  "文件不存在"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /file/{id} [get]
 func (h *FileHandler) GetFileInfo(c *gin.Context) {
 	publicFileID := c.Param("id")
 	if publicFileID == "" {
@@ -103,6 +129,19 @@ func (h *FileHandler) GetFileInfo(c *gin.Context) {
 }
 
 // GetFolderSize 处理计算文件夹大小的请求。
+// @Summary      计算文件夹大小
+// @Description  递归计算文件夹内所有文件的总大小
+// @Tags         文件管理
+// @Security     BearerAuth
+// @Produce      json
+// @Param        id  path  string  true  "文件夹公共ID"
+// @Success      200  {object}  response.Response  "计算成功"
+// @Failure      400  {object}  response.Response  "文件夹ID不能为空"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      403  {object}  response.Response  "无权访问此文件夹"
+// @Failure      404  {object}  response.Response  "文件夹未找到"
+// @Failure      500  {object}  response.Response  "计算失败"
+// @Router       /file/folder-size/{id} [get]
 func (h *FileHandler) GetFolderSize(c *gin.Context) {
 	publicFolderID := c.Param("id")
 	if publicFolderID == "" {
@@ -137,6 +176,19 @@ func (h *FileHandler) GetFolderSize(c *gin.Context) {
 }
 
 // GetFolderTree 为浏览器端打包准备文件夹内的所有文件列表
+// @Summary      获取文件夹树
+// @Description  获取文件夹内的所有文件和子文件夹列表（用于打包下载）
+// @Tags         文件管理
+// @Security     BearerAuth
+// @Produce      json
+// @Param        id  path  string  true  "文件夹公共ID"
+// @Success      200  {object}  response.Response  "获取成功"
+// @Failure      400  {object}  response.Response  "文件夹ID不能为空"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      403  {object}  response.Response  "无权访问此文件夹"
+// @Failure      404  {object}  response.Response  "文件夹不存在"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /file/folder-tree/{id} [get]
 func (h *FileHandler) GetFolderTree(c *gin.Context) {
 	publicFolderID := c.Param("id")
 	if publicFolderID == "" {
@@ -214,6 +266,19 @@ func (h *FileHandler) resolveMyFSTarget(c *gin.Context, claims *auth.CustomClaim
 }
 
 // GetPreviewURLs 处理获取文件预览URL列表的请求
+// @Summary      获取文件预览URL列表
+// @Description  获取文件所在文件夹的所有可预览文件的URL列表
+// @Tags         文件管理
+// @Security     BearerAuth
+// @Produce      json
+// @Param        id  query  string  true  "文件公共ID"
+// @Success      200  {object}  response.Response{data=object{urls=[]string,initialIndex=int}}  "获取成功"
+// @Failure      400  {object}  response.Response  "缺少id参数"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      403  {object}  response.Response  "访问被拒绝"
+// @Failure      404  {object}  response.Response  "文件或目录未找到"
+// @Failure      500  {object}  response.Response  "生成预览列表失败"
+// @Router       /file/preview-urls [get]
 func (h *FileHandler) GetPreviewURLs(c *gin.Context) {
 	publicID := c.Query("id")
 	if publicID == "" {
@@ -249,6 +314,17 @@ func (h *FileHandler) GetPreviewURLs(c *gin.Context) {
 }
 
 // ServeSignedContent 处理带签名的内容服务请求
+// @Summary      提供签名内容
+// @Description  通过签名令牌访问文件内容（用于预览）
+// @Tags         文件管理
+// @Produce      octet-stream
+// @Param        sign  query  string  true  "签名令牌"
+// @Success      200  {file}    file  "文件内容"
+// @Failure      400  {object}  response.Response  "缺少sign参数"
+// @Failure      403  {object}  response.Response  "签名无效或已过期"
+// @Failure      404  {object}  response.Response  "资源未找到"
+// @Failure      500  {object}  response.Response  "提供内容失败"
+// @Router       /file/serve-content [get]
 func (h *FileHandler) ServeSignedContent(c *gin.Context) {
 	// 从查询参数 ?sign=... 获取 token
 	signedToken := c.Query("sign")

@@ -34,13 +34,13 @@ func NewStatisticsHandler(statService statistics.VisitorStatService) *Statistics
 }
 
 // GetBasicStatistics 获取基础统计数据（前台接口）
-// @Summary 获取基础统计数据
-// @Description 获取今日、昨日、月、年访问统计数据
-// @Tags 统计
-// @Accept json
-// @Produce json
-// @Success 200 {object} response.Response{data=model.VisitorStatistics}
-// @Router /api/public/statistics/basic [get]
+// @Summary      获取基础统计数据
+// @Description  获取今日、昨日、月、年访问统计数据
+// @Tags         访问统计
+// @Produce      json
+// @Success      200  {object}  response.Response{data=model.VisitorStatistics}  "获取成功"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /public/statistics/basic [get]
 func (h *StatisticsHandler) GetBasicStatistics(c *gin.Context) {
 	stats, err := h.statService.GetBasicStatistics(c.Request.Context())
 	if err != nil {
@@ -52,14 +52,16 @@ func (h *StatisticsHandler) GetBasicStatistics(c *gin.Context) {
 }
 
 // RecordVisit 记录访问（前台接口）
-// @Summary 记录访问
-// @Description 记录用户访问行为
-// @Tags 统计
-// @Accept json
-// @Produce json
-// @Param request body model.VisitorLogRequest true "访问记录请求"
-// @Success 200 {object} response.Response
-// @Router /api/public/statistics/visit [post]
+// @Summary      记录访问
+// @Description  记录用户访问行为
+// @Tags         访问统计
+// @Accept       json
+// @Produce      json
+// @Param        request  body  model.VisitorLogRequest  true  "访问记录请求"
+// @Success      200  {object}  response.Response  "记录成功"
+// @Failure      400  {object}  response.Response  "请求参数错误"
+// @Failure      500  {object}  response.Response  "记录失败"
+// @Router       /public/statistics/visit [post]
 func (h *StatisticsHandler) RecordVisit(c *gin.Context) {
 	var req model.VisitorLogRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -98,16 +100,17 @@ func (h *StatisticsHandler) RecordVisit(c *gin.Context) {
 }
 
 // GetVisitorAnalytics 获取访客分析数据（后台接口）
-// @Summary 获取访客分析数据
-// @Description 获取指定时间范围内的访客分析数据
-// @Tags 统计管理
-// @Accept json
-// @Produce json
-// @Param start_date query string false "开始日期 (YYYY-MM-DD)"
-// @Param end_date query string false "结束日期 (YYYY-MM-DD)"
-// @Success 200 {object} response.Response{data=model.VisitorAnalytics}
-// @Security BearerAuth
-// @Router /api/statistics/analytics [get]
+// @Summary      获取访客分析数据
+// @Description  获取指定时间范围内的访客分析数据（默认最近7天）
+// @Tags         统计管理
+// @Security     BearerAuth
+// @Produce      json
+// @Param        start_date  query  string  false  "开始日期 (YYYY-MM-DD)"
+// @Param        end_date    query  string  false  "结束日期 (YYYY-MM-DD)"
+// @Success      200  {object}  response.Response{data=model.VisitorAnalytics}  "获取成功"
+// @Failure      400  {object}  response.Response  "日期格式错误"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /statistics/analytics [get]
 func (h *StatisticsHandler) GetVisitorAnalytics(c *gin.Context) {
 	startDateStr := c.Query("start_date")
 	endDateStr := c.Query("end_date")
@@ -143,15 +146,15 @@ func (h *StatisticsHandler) GetVisitorAnalytics(c *gin.Context) {
 }
 
 // GetTopPages 获取热门页面（后台接口）
-// @Summary 获取热门页面
-// @Description 获取访问量最高的页面列表
-// @Tags 统计管理
-// @Accept json
-// @Produce json
-// @Param limit query int false "返回数量限制" default(10)
-// @Success 200 {object} response.Response{data=[]model.URLStatistics}
-// @Security BearerAuth
-// @Router /api/statistics/top-pages [get]
+// @Summary      获取热门页面
+// @Description  获取访问量最高的页面列表（最多100个）
+// @Tags         统计管理
+// @Security     BearerAuth
+// @Produce      json
+// @Param        limit  query  int  false  "返回数量限制"  default(10)
+// @Success      200  {object}  response.Response{data=[]model.URLStatistics}  "获取成功"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /statistics/top-pages [get]
 func (h *StatisticsHandler) GetTopPages(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "10")
 	limit, err := strconv.Atoi(limitStr)
@@ -173,16 +176,16 @@ func (h *StatisticsHandler) GetTopPages(c *gin.Context) {
 }
 
 // GetVisitorTrend 获取访客趋势数据（后台接口）
-// @Summary 获取访客趋势数据
-// @Description 获取指定时间段的访客趋势数据
-// @Tags 统计管理
-// @Accept json
-// @Produce json
-// @Param period query string false "时间周期 (daily/weekly/monthly)" default(daily)
-// @Param days query int false "查询天数" default(30)
-// @Success 200 {object} response.Response{data=model.VisitorTrendData}
-// @Security BearerAuth
-// @Router /api/statistics/trend [get]
+// @Summary      获取访客趋势数据
+// @Description  获取指定时间段的访客趋势数据（最多365天）
+// @Tags         统计管理
+// @Security     BearerAuth
+// @Produce      json
+// @Param        period  query  string  false  "时间周期 (daily/weekly/monthly)"  default(daily)
+// @Param        days    query  int     false  "查询天数"  default(30)
+// @Success      200  {object}  response.Response{data=model.VisitorTrendData}  "获取成功"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /statistics/trend [get]
 func (h *StatisticsHandler) GetVisitorTrend(c *gin.Context) {
 	period := c.DefaultQuery("period", "daily")
 	daysStr := c.DefaultQuery("days", "30")
@@ -206,14 +209,14 @@ func (h *StatisticsHandler) GetVisitorTrend(c *gin.Context) {
 }
 
 // GetStatisticsSummary 获取统计概览（后台接口）
-// @Summary 获取统计概览
-// @Description 获取完整的统计概览数据，包括基础统计、热门页面、访客分析等
-// @Tags 统计管理
-// @Accept json
-// @Produce json
-// @Success 200 {object} response.Response{data=StatisticsSummary}
-// @Security BearerAuth
-// @Router /api/statistics/summary [get]
+// @Summary      获取统计概览
+// @Description  获取完整的统计概览数据，包括基础统计、热门页面、访客分析、趋势数据等
+// @Tags         统计管理
+// @Security     BearerAuth
+// @Produce      json
+// @Success      200  {object}  response.Response{data=StatisticsSummary}  "获取成功"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /statistics/summary [get]
 func (h *StatisticsHandler) GetStatisticsSummary(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -258,18 +261,19 @@ func (h *StatisticsHandler) GetStatisticsSummary(c *gin.Context) {
 }
 
 // GetVisitorLogs 获取访客访问日志（后台接口）
-// @Summary 获取访客访问日志
-// @Description 获取指定时间范围内的访客访问日志，支持简单分页
-// @Tags 统计管理
-// @Accept json
-// @Produce json
-// @Param start_date query string false "开始日期 (YYYY-MM-DD)"
-// @Param end_date query string false "结束日期 (YYYY-MM-DD)"
-// @Param page query int false "页码，从1开始" default(1)
-// @Param page_size query int false "每页数量" default(20)
-// @Success 200 {object} response.Response
-// @Security BearerAuth
-// @Router /api/statistics/visitor-logs [get]
+// @Summary      获取访客访问日志
+// @Description  获取指定时间范围内的访客访问日志，支持分页（默认最近7天，每页最多200条）
+// @Tags         统计管理
+// @Security     BearerAuth
+// @Produce      json
+// @Param        start_date  query  string  false  "开始日期 (YYYY-MM-DD)"
+// @Param        end_date    query  string  false  "结束日期 (YYYY-MM-DD)"
+// @Param        page        query  int     false  "页码，从1开始"  default(1)
+// @Param        page_size   query  int     false  "每页数量"  default(20)
+// @Success      200  {object}  response.Response{data=object{list=[]object{user_agent=string,ip_address=string,city=string,url_path=string,duration=int,created_at=string},total=int,page=int,page_size=int}}  "获取成功"
+// @Failure      400  {object}  response.Response  "日期格式错误"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /statistics/visitor-logs [get]
 func (h *StatisticsHandler) GetVisitorLogs(c *gin.Context) {
 	startDateStr := c.Query("start_date")
 	endDateStr := c.Query("end_date")

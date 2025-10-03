@@ -29,6 +29,13 @@ func NewHandler(sitemapService sitemap.Service) *Handler {
 }
 
 // GetSitemap 获取站点地图
+// @Summary      获取站点地图
+// @Description  获取XML格式的站点地图
+// @Tags         辅助工具
+// @Produce      xml
+// @Success      200  {string}  string  "XML格式的站点地图"
+// @Failure      500  {string}  string  "生成失败"
+// @Router       /sitemap.xml [get]
 func (h *Handler) GetSitemap(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -57,6 +64,13 @@ func (h *Handler) GetSitemap(c *gin.Context) {
 }
 
 // GetRobots 获取robots.txt
+// @Summary      获取robots.txt
+// @Description  获取搜索引擎爬虫规则文件
+// @Tags         辅助工具
+// @Produce      plain
+// @Success      200  {string}  string  "robots.txt内容"
+// @Failure      500  {string}  string  "生成失败"
+// @Router       /robots.txt [get]
 func (h *Handler) GetRobots(c *gin.Context) {
 	ctx := c.Request.Context()
 

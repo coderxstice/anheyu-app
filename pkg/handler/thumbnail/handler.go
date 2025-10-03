@@ -58,6 +58,20 @@ func NewThumbnailHandler(
 }
 
 // RegenerateThumbnail 处理手动重新生成缩略图的请求
+// @Summary      重新生成缩略图
+// @Description  手动触发单个文件的缩略图重新生成
+// @Tags         缩略管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        body  body  object{id=string}  true  "文件公共ID"
+// @Success      202  {object}  response.Response  "任务已启动"
+// @Failure      400  {object}  response.Response  "请求参数无效"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      403  {object}  response.Response  "访问被拒绝"
+// @Failure      404  {object}  response.Response  "文件未找到"
+// @Failure      500  {object}  response.Response  "重置失败"
+// @Router       /thumbnail/regenerate [post]
 func (h *ThumbnailHandler) RegenerateThumbnail(c *gin.Context) {
 	// 1. 解析请求体
 	var req struct {
@@ -112,6 +126,19 @@ func (h *ThumbnailHandler) RegenerateThumbnail(c *gin.Context) {
 }
 
 // RegenerateThumbnailsForDirectory 处理按目录批量重新生成缩略图的请求
+// @Summary      批量重新生成缩略图
+// @Description  为指定目录下的所有文件重新生成缩略图
+// @Tags         缩略管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        body  body  object{directoryId=string}  true  "目录公共ID"
+// @Success      202  {object}  response.Response  "批量任务已启动"
+// @Failure      400  {object}  response.Response  "请求参数无效或目标不是文件夹"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      404  {object}  response.Response  "目录未找到"
+// @Failure      500  {object}  response.Response  "获取文件列表失败"
+// @Router       /thumbnail/regenerate-directory [post]
 func (h *ThumbnailHandler) RegenerateThumbnailsForDirectory(c *gin.Context) {
 	// 1. 解析请求体
 	var req struct {
@@ -184,6 +211,20 @@ func (h *ThumbnailHandler) RegenerateThumbnailsForDirectory(c *gin.Context) {
 
 // GetThumbnailSign 统一处理所有可提供内容的文件的签名请求。
 // GET /api/thumbnail/sign/:publicID
+// @Summary      获取缩略图签名
+// @Description  获取文件缩略图的访问签名，如果缩略图未就绪会触发生成
+// @Tags         缩略管理
+// @Security     BearerAuth
+// @Produce      json
+// @Param        publicID  path  string  true  "文件公共ID"
+// @Success      200  {object}  response.Response{data=object{sign=string,expires=string,obfuscated=bool}}  "签名获取成功"
+// @Success      202  {object}  response.Response{data=object{status=string}}  "缩略图生成中"
+// @Failure      400  {object}  response.Response  "无效的文件ID"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      403  {object}  response.Response  "访问被拒绝"
+// @Failure      404  {object}  response.Response  "文件未找到"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /thumbnail/sign/{publicID} [get]
 func (h *ThumbnailHandler) GetThumbnailSign(c *gin.Context) {
 	publicID := c.Param("publicID")
 	fileID, entityType, err := idgen.DecodePublicID(publicID)
@@ -268,6 +309,16 @@ func (h *ThumbnailHandler) GetThumbnailSign(c *gin.Context) {
 
 // HandleThumbnailContent 处理带签名的、不透明的统一访问令牌请求。
 // GET /t/:signedToken
+// @Summary      访问缩略图内容
+// @Description  通过签名令牌访问缩略图文件内容
+// @Tags         缩略管理
+// @Produce      octet-stream
+// @Param        signedToken  path  string  true  "签名令牌"
+// @Success      200  {file}    file  "缩略图内容"
+// @Failure      403  {object}  response.Response  "签名无效或已过期"
+// @Failure      404  {object}  response.Response  "资源未找到"
+// @Failure      500  {object}  response.Response  "提供内容失败"
+// @Router       /t/{signedToken} [get]
 func (h *ThumbnailHandler) HandleThumbnailContent(c *gin.Context) {
 	signedToken := c.Param("signedToken")
 

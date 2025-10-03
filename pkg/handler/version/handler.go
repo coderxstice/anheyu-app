@@ -23,6 +23,12 @@ func NewHandler() *Handler {
 }
 
 // GetVersion 获取版本信息
+// @Summary      获取版本信息
+// @Description  获取应用的详细版本信息
+// @Tags         辅助工具
+// @Produce      json
+// @Success      200  {object}  object{code=int,message=string,data=object}  "版本信息"
+// @Router       /public/version [get]
 func (h *Handler) GetVersion(c *gin.Context) {
 	buildInfo := version.GetBuildInfo()
 
@@ -34,6 +40,12 @@ func (h *Handler) GetVersion(c *gin.Context) {
 }
 
 // GetVersionString 获取版本字符串
+// @Summary      获取版本字符串
+// @Description  获取应用的版本号字符串
+// @Tags         辅助工具
+// @Produce      json
+// @Success      200  {object}  object{version=string}  "版本字符串"
+// @Router       /public/version/string [get]
 func (h *Handler) GetVersionString(c *gin.Context) {
 	versionString := version.GetVersionString()
 

@@ -25,6 +25,17 @@ func NewHandler(pageService page.Service) *Handler {
 }
 
 // Create 创建页面
+// @Summary      创建页面
+// @Description  创建新的页面
+// @Tags         页面管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        body  body  object{title=string,path=string,content=string,description=string,is_published=bool,sort=int}  true  "页面信息"
+// @Success      200  {object}  response.Response{data=model.Page}  "创建成功"
+// @Failure      400  {object}  response.Response  "请求参数错误"
+// @Failure      500  {object}  response.Response  "创建失败"
+// @Router       /pages [post]
 func (h *Handler) Create(c *gin.Context) {
 	var req struct {
 		Title       string `json:"title" binding:"required"`
@@ -59,6 +70,16 @@ func (h *Handler) Create(c *gin.Context) {
 }
 
 // GetByID 根据ID获取页面
+// @Summary      获取页面（通过ID）
+// @Description  根据ID获取页面详情
+// @Tags         页面管理
+// @Security     BearerAuth
+// @Produce      json
+// @Param        id  path  string  true  "页面ID"
+// @Success      200  {object}  response.Response{data=model.Page}  "获取成功"
+// @Failure      400  {object}  response.Response  "页面ID不能为空"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /pages/{id} [get]
 func (h *Handler) GetByID(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -76,6 +97,16 @@ func (h *Handler) GetByID(c *gin.Context) {
 }
 
 // GetByPath 根据路径获取页面
+// @Summary      获取页面（通过路径）
+// @Description  根据路径获取已发布的页面详情
+// @Tags         公开页面
+// @Produce      json
+// @Param        path  path  string  true  "页面路径"
+// @Success      200  {object}  response.Response{data=model.Page}  "获取成功"
+// @Failure      400  {object}  response.Response  "页面路径不能为空"
+// @Failure      404  {object}  response.Response  "页面不存在"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /public/pages/{path} [get]
 func (h *Handler) GetByPath(c *gin.Context) {
 	path := c.Param("path")
 	if path == "" {
@@ -98,6 +129,18 @@ func (h *Handler) GetByPath(c *gin.Context) {
 }
 
 // List 列出页面
+// @Summary      获取页面列表
+// @Description  获取页面列表，支持分页和搜索
+// @Tags         页面管理
+// @Security     BearerAuth
+// @Produce      json
+// @Param        page          query  int     false  "页码"  default(1)
+// @Param        page_size     query  int     false  "每页数量"  default(10)
+// @Param        search        query  string  false  "搜索关键词"
+// @Param        is_published  query  bool    false  "是否已发布"
+// @Success      200  {object}  response.Response{data=object{pages=[]model.Page,total=int,page=int,size=int}}  "获取成功"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /pages [get]
 func (h *Handler) List(c *gin.Context) {
 	pageStr := c.DefaultQuery("page", "1")
 	pageSizeStr := c.DefaultQuery("page_size", "10")
@@ -144,6 +187,18 @@ func (h *Handler) List(c *gin.Context) {
 }
 
 // Update 更新页面
+// @Summary      更新页面
+// @Description  更新指定页面的信息
+// @Tags         页面管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        id    path  string  true  "页面ID"
+// @Param        body  body  object{title=string,path=string,content=string,description=string,is_published=bool,sort=int}  true  "页面信息（所有字段可选）"
+// @Success      200  {object}  response.Response{data=model.Page}  "更新成功"
+// @Failure      400  {object}  response.Response  "请求参数错误"
+// @Failure      500  {object}  response.Response  "更新失败"
+// @Router       /pages/{id} [put]
 func (h *Handler) Update(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -184,6 +239,15 @@ func (h *Handler) Update(c *gin.Context) {
 }
 
 // Delete 删除页面
+// @Summary      删除页面
+// @Description  删除指定页面
+// @Tags         页面管理
+// @Security     BearerAuth
+// @Param        id  path  string  true  "页面ID"
+// @Success      200  {object}  response.Response  "删除成功"
+// @Failure      400  {object}  response.Response  "页面ID不能为空"
+// @Failure      500  {object}  response.Response  "删除失败"
+// @Router       /pages/{id} [delete]
 func (h *Handler) Delete(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -201,6 +265,14 @@ func (h *Handler) Delete(c *gin.Context) {
 }
 
 // InitializeDefaultPages 初始化默认页面
+// @Summary      初始化默认页面
+// @Description  初始化系统默认页面（如关于、友链等）
+// @Tags         页面管理
+// @Security     BearerAuth
+// @Produce      json
+// @Success      200  {object}  response.Response  "初始化成功"
+// @Failure      500  {object}  response.Response  "初始化失败"
+// @Router       /pages/initialize [post]
 func (h *Handler) InitializeDefaultPages(c *gin.Context) {
 	err := h.pageService.InitializeDefaultPages(c.Request.Context())
 	if err != nil {

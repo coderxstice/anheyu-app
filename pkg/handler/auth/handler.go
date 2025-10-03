@@ -92,6 +92,17 @@ type LoginUserInfoResponse struct {
 }
 
 // Login 处理用户登录请求
+// @Summary      用户登录
+// @Description  用户通过邮箱和密码进行登录
+// @Tags         用户认证
+// @Accept       json
+// @Produce      json
+// @Param        body  body      LoginRequest  true  "登录信息"
+// @Success      200   {object}  response.Response{data=object{userInfo=LoginUserInfoResponse,roles=[]string,accessToken=string,refreshToken=string,expires=string}}  "登录成功"
+// @Failure      400   {object}  response.Response  "邮箱或密码格式不正确"
+// @Failure      401   {object}  response.Response  "认证失败"
+// @Failure      500   {object}  response.Response  "内部错误"
+// @Router       /auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -164,6 +175,16 @@ func (h *AuthHandler) Login(c *gin.Context) {
 }
 
 // Register 处理用户注册请求
+// @Summary      用户注册
+// @Description  创建新用户账号
+// @Tags         用户认证
+// @Accept       json
+// @Produce      json
+// @Param        body  body      RegisterRequest  true  "注册信息"
+// @Success      200   {object}  response.Response  "注册成功"
+// @Failure      400   {object}  response.Response  "参数错误"
+// @Failure      500   {object}  response.Response  "内部错误"
+// @Router       /auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -189,6 +210,16 @@ func (h *AuthHandler) Register(c *gin.Context) {
 }
 
 // RefreshToken 刷新访问 Token
+// @Summary      刷新访问令牌
+// @Description  使用刷新令牌获取新的访问令牌
+// @Tags         用户认证
+// @Accept       json
+// @Produce      json
+// @Param        Authorization  header  string  false  "Bearer {refresh_token}"
+// @Param        body           body    object{refreshToken=string}  false  "刷新令牌（可选，优先使用Header）"
+// @Success      200  {object}  response.Response{data=object{accessToken=string,expires=string}}  "刷新成功"
+// @Failure      401  {object}  response.Response  "未提供RefreshToken或令牌无效"
+// @Router       /auth/refresh [post]
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	// 优先从 Header 获取
 	refreshToken := strings.TrimPrefix(c.GetHeader("Authorization"), "Bearer ")
@@ -220,6 +251,16 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 }
 
 // ActivateUser 处理用户激活请求
+// @Summary      激活用户账号
+// @Description  通过激活链接激活用户账号
+// @Tags         用户认证
+// @Accept       json
+// @Produce      json
+// @Param        body  body  object{publicUserId=string,sign=string}  true  "激活信息"
+// @Success      200  {object}  response.Response  "账户已成功激活"
+// @Failure      400  {object}  response.Response  "参数错误或激活链接无效"
+// @Failure      401  {object}  response.Response  "激活失败"
+// @Router       /auth/activate [post]
 func (h *AuthHandler) ActivateUser(c *gin.Context) {
 	var req ActivateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -247,6 +288,15 @@ func (h *AuthHandler) ActivateUser(c *gin.Context) {
 }
 
 // ForgotPasswordRequest 处理发送密码重置邮件的请求
+// @Summary      忘记密码
+// @Description  请求发送密码重置邮件
+// @Tags         用户认证
+// @Accept       json
+// @Produce      json
+// @Param        body  body  object{email=string}  true  "邮箱地址"
+// @Success      200  {object}  response.Response  "如果该邮箱已注册，将收到重置邮件"
+// @Failure      400  {object}  response.Response  "邮箱格式不正确"
+// @Router       /auth/forgot-password [post]
 func (h *AuthHandler) ForgotPasswordRequest(c *gin.Context) {
 	var req ForgotPasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -259,6 +309,16 @@ func (h *AuthHandler) ForgotPasswordRequest(c *gin.Context) {
 }
 
 // ResetPassword 执行密码重置
+// @Summary      重置密码
+// @Description  通过重置链接设置新密码
+// @Tags         用户认证
+// @Accept       json
+// @Produce      json
+// @Param        body  body  object{publicUserId=string,sign=string,password=string,repeatPassword=string}  true  "重置信息"
+// @Success      200  {object}  response.Response  "密码重置成功"
+// @Failure      400  {object}  response.Response  "参数错误、链接无效或两次密码不一致"
+// @Failure      401  {object}  response.Response  "重置失败"
+// @Router       /auth/reset-password [post]
 func (h *AuthHandler) ResetPassword(c *gin.Context) {
 	var req ResetPasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -290,6 +350,15 @@ func (h *AuthHandler) ResetPassword(c *gin.Context) {
 }
 
 // CheckEmail 检查邮箱是否已被注册
+// @Summary      检查邮箱
+// @Description  检查邮箱是否已被注册
+// @Tags         用户认证
+// @Produce      json
+// @Param        email  query  string  true  "邮箱地址"
+// @Success      200  {object}  response.Response{data=object{exists=bool}}  "查询成功"
+// @Failure      400  {object}  response.Response  "缺少email参数"
+// @Failure      500  {object}  response.Response  "查询失败"
+// @Router       /auth/check-email [get]
 func (h *AuthHandler) CheckEmail(c *gin.Context) {
 	email := c.Query("email")
 	if email == "" {

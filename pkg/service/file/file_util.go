@@ -165,16 +165,18 @@ func (s *serviceImpl) GetFullVirtualPathWithRepo(ctx context.Context, file *mode
 //
 // 此函数必须在数据库事务中运行。
 //
-// @param ctx - 上下文
-// @param ownerID - 操作发起者的用户ID，用于权限校验
-// @param fileID - 要删除的文件或目录的数据库ID
-// @param txFileRepo - 事务性的 FileRepository
-// @param txEntityRepo - 事务性的 EntityRepository
-// @param txFileEntityRepo - 事务性的 FileEntityRepository
-// @param txMetadataRepo - 事务性的 MetadataRepository
-// @param txPolicyRepo - 事务性的 StoragePolicyRepository
-// @param txDirectLinkRepo - 事务性的 DirectLinkRepository
-// @return error - 如果操作过程中出现任何错误，则返回错误
+// 参数:
+//   - ctx: 上下文
+//   - ownerID: 操作发起者的用户ID，用于权限校验
+//   - fileID: 要删除的文件或目录的数据库ID
+//   - txFileRepo: 事务性的 FileRepository
+//   - txEntityRepo: 事务性的 EntityRepository
+//   - txFileEntityRepo: 事务性的 FileEntityRepository
+//   - txMetadataRepo: 事务性的 MetadataRepository
+//   - txPolicyRepo: 事务性的 StoragePolicyRepository
+//   - txDirectLinkRepo: 事务性的 DirectLinkRepository
+//
+// 返回: error - 如果操作过程中出现任何错误，则返回错误
 func (s *serviceImpl) HardDeleteRecursively(
 	ctx context.Context,
 	ownerID uint,

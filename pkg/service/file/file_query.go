@@ -33,11 +33,13 @@ import (
 //     才会合并正在上传的文件，并将其置于列表顶部，以提供最佳用户体验。
 //   - **优雅的响应**: 当没有更多数据时，`next_token`字段会在JSON响应中被完全省略。
 //
-// @param ctx - 请求上下文。
-// @param ownerID - 文件夹所有者的用户ID。
-// @param viewerID - 当前查看者的用户ID，用于判断文件所有权等。
-// @param parsedURI - 已解析的URI对象，包含路径和分页令牌`next_token`。
-// @return (*model.FileListResponse, error) - 包含文件列表及元数据的完整响应对象，或在发生错误时返回error。
+// 参数:
+//   - ctx: 请求上下文
+//   - ownerID: 文件夹所有者的用户ID
+//   - viewerID: 当前查看者的用户ID，用于判断文件所有权等
+//   - parsedURI: 已解析的URI对象，包含路径和分页令牌`next_token`
+//
+// 返回: (*model.FileListResponse, error) - 包含文件列表及元数据的完整响应对象，或在发生错误时返回error
 func (s *serviceImpl) QueryByURI(ctx context.Context, ownerID, viewerID uint, parsedURI *uri.ParsedURI) (*model.FileListResponse, error) {
 	// --- 1. 初始化和参数确定 ---
 	policy, err := s.vfsSvc.FindPolicyForPath(ctx, parsedURI.Path)

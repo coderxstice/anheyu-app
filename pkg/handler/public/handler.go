@@ -33,6 +33,19 @@ func NewPublicHandler(albumSvc album.AlbumService) *PublicHandler {
 }
 
 // GetPublicAlbums 获取公开的相册列表
+// @Summary      获取公开相册列表
+// @Description  获取公开的相册图片列表，支持分页和筛选
+// @Tags         公共接口
+// @Produce      json
+// @Param        page          query  int     false  "页码"  default(1)
+// @Param        pageSize      query  int     false  "每页数量"  default(12)
+// @Param        tag           query  string  false  "标签筛选"
+// @Param        createdAt[0]  query  string  false  "开始时间"
+// @Param        createdAt[1]  query  string  false  "结束时间"
+// @Param        sort          query  string  false  "排序方式"  default(display_order_asc)
+// @Success      200  {object}  response.Response  "获取成功"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /public/albums [get]
 func (h *PublicHandler) GetPublicAlbums(c *gin.Context) {
 	// 1. 解析参数
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -75,6 +88,15 @@ func (h *PublicHandler) GetPublicAlbums(c *gin.Context) {
 }
 
 // UpdateAlbumStat 更新访问量或下载量
+// @Summary      更新相册统计
+// @Description  更新相册图片的访问量或下载量
+// @Tags         公共接口
+// @Param        id    path   int     true  "图片ID"
+// @Param        type  query  string  true  "统计类型: view 或 download"
+// @Success      200  {object}  response.Response  "更新成功"
+// @Failure      400  {object}  response.Response  "无效的ID或统计类型"
+// @Failure      500  {object}  response.Response  "更新失败"
+// @Router       /public/albums/{id}/stat [post]
 func (h *PublicHandler) UpdateAlbumStat(c *gin.Context) {
 	// 1. 解析参数
 	idStr := c.Param("id")

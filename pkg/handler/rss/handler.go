@@ -31,6 +31,13 @@ func NewHandler(rssService rss.Service) *Handler {
 }
 
 // GetRSSFeed 获取 RSS feed
+// @Summary      获取RSS订阅源
+// @Description  获取网站的RSS订阅源（XML格式）
+// @Tags         辅助工具
+// @Produce      xml
+// @Success      200  {string}  string  "RSS XML内容"
+// @Failure      500  {object}  response.Response  "生成RSS feed失败"
+// @Router       /rss.xml [get]
 func (h *Handler) GetRSSFeed(c *gin.Context) {
 	ctx := c.Request.Context()
 

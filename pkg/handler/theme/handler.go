@@ -101,16 +101,16 @@ func (h *Handler) handleError(c *gin.Context, err error, message string, statusC
 }
 
 // GetCurrentTheme 获取当前使用的主题
-// @Summary 获取当前主题
-// @Description 获取用户当前使用的主题信息
-// @Tags 主题管理
-// @Accept json
-// @Produce json
-// @Success 200 {object} response.Response{data=theme.ThemeInfo}
-// @Failure 400 {object} response.Response
-// @Failure 401 {object} response.Response
-// @Failure 500 {object} response.Response
-// @Router /api/theme/current [get]
+// @Summary      获取当前主题
+// @Description  获取用户当前使用的主题信息
+// @Tags         主题管理
+// @Security     BearerAuth
+// @Produce      json
+// @Success      200  {object}  response.Response{data=theme.ThemeInfo}  "获取成功"
+// @Failure      400  {object}  response.Response  "参数错误"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /theme/current [get]
 func (h *Handler) GetCurrentTheme(c *gin.Context) {
 	// 提取用户ID
 	userID, err := h.extractUserID(c)
@@ -135,15 +135,15 @@ func (h *Handler) GetCurrentTheme(c *gin.Context) {
 }
 
 // GetInstalledThemes 获取已安装的主题列表
-// @Summary 获取已安装主题列表
-// @Description 获取用户已安装的所有主题
-// @Tags 主题管理
-// @Accept json
-// @Produce json
-// @Success 200 {object} response.Response{data=[]theme.ThemeInfo}
-// @Failure 400 {object} response.Response
-// @Failure 500 {object} response.Response
-// @Router /api/theme/installed [get]
+// @Summary      获取已安装主题列表
+// @Description  获取用户已安装的所有主题
+// @Tags         主题管理
+// @Security     BearerAuth
+// @Produce      json
+// @Success      200  {object}  response.Response{data=[]theme.ThemeInfo}  "获取成功"
+// @Failure      400  {object}  response.Response  "参数错误"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /theme/installed [get]
 func (h *Handler) GetInstalledThemes(c *gin.Context) {
 	// 提取用户ID
 	userID, err := h.extractUserID(c)
@@ -166,16 +166,17 @@ func (h *Handler) GetInstalledThemes(c *gin.Context) {
 }
 
 // InstallTheme 安装主题
-// @Summary 安装主题
-// @Description 从指定URL下载并安装主题
-// @Tags 主题管理
-// @Accept json
-// @Produce json
-// @Param request body theme.ThemeInstallRequest true "主题安装请求"
-// @Success 200 {object} response.Response
-// @Failure 400 {object} response.Response
-// @Failure 500 {object} response.Response
-// @Router /api/theme/install [post]
+// @Summary      安装主题
+// @Description  从指定URL下载并安装主题（主题名必须以theme-开头）
+// @Tags         主题管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        request  body  theme.ThemeInstallRequest  true  "主题安装请求"
+// @Success      200  {object}  response.Response  "安装成功"
+// @Failure      400  {object}  response.Response  "参数错误"
+// @Failure      500  {object}  response.Response  "安装失败"
+// @Router       /theme/install [post]
 func (h *Handler) InstallTheme(c *gin.Context) {
 	// 提取用户ID
 	userID, err := h.extractUserID(c)
@@ -221,16 +222,17 @@ func (h *Handler) InstallTheme(c *gin.Context) {
 }
 
 // SwitchTheme 切换主题
-// @Summary 切换主题
-// @Description 切换到指定的已安装主题或官方主题
-// @Tags 主题管理
-// @Accept json
-// @Produce json
-// @Param request body SwitchThemeRequest true "切换主题请求"
-// @Success 200 {object} response.Response
-// @Failure 400 {object} response.Response
-// @Failure 500 {object} response.Response
-// @Router /api/theme/switch [post]
+// @Summary      切换主题
+// @Description  切换到指定的已安装主题或官方主题
+// @Tags         主题管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        request  body  SwitchThemeRequest  true  "切换主题请求"
+// @Success      200  {object}  response.Response  "切换成功"
+// @Failure      400  {object}  response.Response  "参数错误"
+// @Failure      500  {object}  response.Response  "切换失败"
+// @Router       /theme/switch [post]
 func (h *Handler) SwitchTheme(c *gin.Context) {
 	// 提取用户ID
 	userID, err := h.extractUserID(c)
@@ -269,15 +271,15 @@ func (h *Handler) SwitchTheme(c *gin.Context) {
 }
 
 // SwitchToOfficial 切换到官方主题
-// @Summary 切换到官方主题
-// @Description 切换到官方内嵌主题
-// @Tags 主题管理
-// @Accept json
-// @Produce json
-// @Success 200 {object} response.Response
-// @Failure 400 {object} response.Response
-// @Failure 500 {object} response.Response
-// @Router /api/theme/official [post]
+// @Summary      切换到官方主题
+// @Description  切换到官方内嵌主题
+// @Tags         主题管理
+// @Security     BearerAuth
+// @Produce      json
+// @Success      200  {object}  response.Response  "切换成功"
+// @Failure      400  {object}  response.Response  "参数错误"
+// @Failure      500  {object}  response.Response  "切换失败"
+// @Router       /theme/official [post]
 func (h *Handler) SwitchToOfficial(c *gin.Context) {
 	// 提取用户ID
 	userID, err := h.extractUserID(c)
@@ -305,16 +307,17 @@ func (h *Handler) SwitchToOfficial(c *gin.Context) {
 }
 
 // UninstallTheme 卸载主题
-// @Summary 卸载主题
-// @Description 卸载指定的主题（不能卸载当前使用的主题）
-// @Tags 主题管理
-// @Accept json
-// @Produce json
-// @Param request body UninstallThemeRequest true "卸载主题请求"
-// @Success 200 {object} response.Response
-// @Failure 400 {object} response.Response
-// @Failure 500 {object} response.Response
-// @Router /api/theme/uninstall [post]
+// @Summary      卸载主题
+// @Description  卸载指定的主题（不能卸载当前使用的主题）
+// @Tags         主题管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        request  body  UninstallThemeRequest  true  "卸载主题请求"
+// @Success      200  {object}  response.Response  "卸载成功"
+// @Failure      400  {object}  response.Response  "参数错误"
+// @Failure      500  {object}  response.Response  "卸载失败"
+// @Router       /theme/uninstall [post]
 func (h *Handler) UninstallTheme(c *gin.Context) {
 	// 提取用户ID
 	userID, err := h.extractUserID(c)
@@ -354,14 +357,13 @@ type ThemeMarketListResponse struct {
 }
 
 // GetThemeMarket 获取主题商城列表
-// @Summary 获取主题商城列表
-// @Description 获取主题商城中的所有可用主题
-// @Tags 主题管理
-// @Accept json
-// @Produce json
-// @Success 200 {object} response.Response{data=ThemeMarketListResponse}
-// @Failure 500 {object} response.Response
-// @Router /api/public/theme/market [get]
+// @Summary      获取主题商城列表
+// @Description  获取主题商城中的所有可用主题
+// @Tags         主题商城
+// @Produce      json
+// @Success      200  {object}  response.Response{data=ThemeMarketListResponse}  "获取成功"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /public/theme/market [get]
 func (h *Handler) GetThemeMarket(c *gin.Context) {
 	themes, err := h.themeService.GetThemeMarketList(c.Request.Context())
 	if err != nil {
@@ -379,13 +381,13 @@ func (h *Handler) GetThemeMarket(c *gin.Context) {
 }
 
 // CheckStaticMode 检查是否处于静态模式
-// @Summary 检查静态模式
-// @Description 检查当前是否处于静态主题模式（是否存在static目录）
-// @Tags 主题管理
-// @Accept json
-// @Produce json
-// @Success 200 {object} response.Response{data=StaticModeResponse}
-// @Router /api/theme/static-mode [get]
+// @Summary      检查静态模式
+// @Description  检查当前是否处于静态主题模式（是否存在static目录）
+// @Tags         主题管理
+// @Security     BearerAuth
+// @Produce      json
+// @Success      200  {object}  response.Response{data=StaticModeResponse}  "获取成功"
+// @Router       /theme/static-mode [get]
 func (h *Handler) CheckStaticMode(c *gin.Context) {
 	isActive := h.themeService.IsStaticModeActive()
 
@@ -410,17 +412,19 @@ type StaticModeResponse struct {
 }
 
 // UploadTheme 上传主题压缩包
-// @Summary 上传主题压缩包
-// @Description 上传主题压缩包文件，系统会自动解析theme.json并安装主题
-// @Tags 主题管理
-// @Accept multipart/form-data
-// @Produce json
-// @Param file formData file true "主题压缩包文件"
-// @Success 200 {object} response.Response{data=ThemeUploadResponse}
-// @Failure 400 {object} response.Response
-// @Failure 401 {object} response.Response
-// @Failure 500 {object} response.Response
-// @Router /api/theme/upload [post]
+// @Summary      上传主题压缩包
+// @Description  上传主题压缩包文件（ZIP格式，最大50MB），系统会自动解析theme.json并安装主题
+// @Tags         主题管理
+// @Security     BearerAuth
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        file          formData  file    true   "主题压缩包文件"
+// @Param        force_update  formData  string  false  "是否强制更新"
+// @Success      200  {object}  response.Response{data=ThemeUploadResponse}  "上传成功"
+// @Failure      400  {object}  response.Response  "参数错误"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      500  {object}  response.Response  "上传失败"
+// @Router       /theme/upload [post]
 func (h *Handler) UploadTheme(c *gin.Context) {
 	// 提取用户ID
 	userID, err := h.extractUserID(c)
@@ -477,6 +481,17 @@ func (h *Handler) UploadTheme(c *gin.Context) {
 }
 
 // ValidateTheme 验证主题压缩包
+// @Summary      验证主题压缩包
+// @Description  验证主题压缩包的格式和内容是否符合规范
+// @Tags         主题管理
+// @Security     BearerAuth
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        file  formData  file  true  "主题压缩包文件"
+// @Success      200  {object}  response.Response  "验证成功"
+// @Failure      400  {object}  response.Response  "验证失败"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Router       /theme/validate [post]
 func (h *Handler) ValidateTheme(c *gin.Context) {
 	// 提取用户ID
 	userID, err := h.extractUserID(c)
@@ -508,16 +523,16 @@ func (h *Handler) ValidateTheme(c *gin.Context) {
 }
 
 // FixThemeStatus 修复主题状态数据一致性
-// @Summary 修复主题状态
-// @Description 修复用户主题的当前状态数据一致性，解决多个主题同时标记为当前使用的问题
-// @Tags 主题管理
-// @Accept json
-// @Produce json
-// @Success 200 {object} response.Response
-// @Failure 400 {object} response.Response
-// @Failure 401 {object} response.Response
-// @Failure 500 {object} response.Response
-// @Router /api/theme/fix-status [post]
+// @Summary      修复主题状态
+// @Description  修复用户主题的当前状态数据一致性，解决多个主题同时标记为当前使用的问题
+// @Tags         主题管理
+// @Security     BearerAuth
+// @Produce      json
+// @Success      200  {object}  response.Response  "修复成功"
+// @Failure      400  {object}  response.Response  "参数错误"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      500  {object}  response.Response  "修复失败"
+// @Router       /theme/fix-status [post]
 func (h *Handler) FixThemeStatus(c *gin.Context) {
 	// 提取用户ID
 	userID, err := h.extractUserID(c)

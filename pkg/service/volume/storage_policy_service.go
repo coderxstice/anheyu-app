@@ -333,13 +333,15 @@ func (s *storagePolicyService) GetPolicyByID(ctx context.Context, publicID strin
 //   - 对 OneDrive 类型的策略，会强制校验 `server`, `bucket_name`, `secret_key` 等关键字段不能为空。
 //   - 路径冲突验证: 如果策略的 `VirtualPath` 发生改变，会检查新的路径是否已被系统中的其他策略占用。
 //   - 文件系统同步:
-//   - 当 `VirtualPath` 改变时，此方法会自动在文件系统中“移动”或“重命名”对应的挂载点目录。
+//   - 当 `VirtualPath` 改变时，此方法会自动在文件系统中"移动"或"重命名"对应的挂载点目录。
 //   - 【安全特性】如果挂载点目录中已包含文件或子目录，为了防止数据结构混乱，更新操作将被阻止。
 //   - 缓存管理: 在更新成功后，会自动清理相关的缓存条目。
 //
-// @param ctx - 请求上下文。
-// @param policy - 包含待更新数据的存储策略模型，其 ID 必须有效。
-// @return error - 如果更新过程中发生任何验证失败或数据库错误，则返回 error。
+// 参数:
+//   - ctx: 请求上下文
+//   - policy: 包含待更新数据的存储策略模型，其 ID 必须有效
+//
+// 返回: error - 如果更新过程中发生任何验证失败或数据库错误，则返回 error
 func (s *storagePolicyService) UpdatePolicy(ctx context.Context, policy *model.StoragePolicy) error {
 	// --- 1. 在事务外获取策略的原始状态 ---
 	target, err := s.repo.FindByID(ctx, policy.ID)

@@ -48,6 +48,17 @@ type DirectLinkResponseItem struct {
 }
 
 // GetOrCreateDirectLinks 获取或创建文件直链
+// @Summary      获取或创建文件直链
+// @Description  为一个或多个文件生成公开的直接下载链接
+// @Tags         直链管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        body  body  CreateDirectLinksRequest  true  "文件ID列表"
+// @Success      200  {object}  response.Response{data=[]DirectLinkResponseItem}  "获取成功"
+// @Failure      400  {object}  response.Response  "请求参数无效"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /direct-links [post]
 func (h *DirectLinkHandler) GetOrCreateDirectLinks(c *gin.Context) {
 	var req CreateDirectLinksRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -96,6 +107,17 @@ func (h *DirectLinkHandler) GetOrCreateDirectLinks(c *gin.Context) {
 }
 
 // HandleDirectDownload 处理公开的直链下载请求。
+// @Summary      直链下载
+// @Description  通过直链ID下载文件（无需认证）
+// @Tags         直链管理
+// @Produce      octet-stream
+// @Param        publicID  path  string  true   "直链公共ID"
+// @Param        filename  path  string  false  "文件名（可选）"
+// @Success      200  {file}    file  "文件内容"
+// @Success      302  {string}  string  "重定向到云存储下载链接"
+// @Failure      404  {object}  response.Response  "直链未找到"
+// @Failure      500  {object}  response.Response  "下载失败"
+// @Router       /f/{publicID}/{filename} [get]
 func (h *DirectLinkHandler) HandleDirectDownload(c *gin.Context) {
 	publicID := c.Param("publicID")
 
