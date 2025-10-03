@@ -48,6 +48,8 @@ type Comment struct {
 	Status int `json:"status,omitempty"`
 	// 是否为博主/管理员的评论
 	IsAdminComment bool `json:"is_admin_comment,omitempty"`
+	// 是否为匿名评论（使用匿名邮箱发表的评论）
+	IsAnonymous bool `json:"is_anonymous,omitempty"`
 	// 用户是否同意接收回复邮件通知
 	AllowNotification bool `json:"allow_notification,omitempty"`
 	// 评论者的 User Agent 信息
@@ -116,7 +118,7 @@ func (*Comment) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case comment.FieldIsAdminComment, comment.FieldAllowNotification:
+		case comment.FieldIsAdminComment, comment.FieldIsAnonymous, comment.FieldAllowNotification:
 			values[i] = new(sql.NullBool)
 		case comment.FieldID, comment.FieldUserID, comment.FieldParentID, comment.FieldStatus, comment.FieldLikeCount:
 			values[i] = new(sql.NullInt64)
@@ -242,6 +244,12 @@ func (_m *Comment) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field is_admin_comment", values[i])
 			} else if value.Valid {
 				_m.IsAdminComment = value.Bool
+			}
+		case comment.FieldIsAnonymous:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_anonymous", values[i])
+			} else if value.Valid {
+				_m.IsAnonymous = value.Bool
 			}
 		case comment.FieldAllowNotification:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -396,6 +404,9 @@ func (_m *Comment) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("is_admin_comment=")
 	builder.WriteString(fmt.Sprintf("%v", _m.IsAdminComment))
+	builder.WriteString(", ")
+	builder.WriteString("is_anonymous=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IsAnonymous))
 	builder.WriteString(", ")
 	builder.WriteString("allow_notification=")
 	builder.WriteString(fmt.Sprintf("%v", _m.AllowNotification))

@@ -3953,6 +3953,7 @@ type CommentMutation struct {
 	status             *int
 	addstatus          *int
 	is_admin_comment   *bool
+	is_anonymous       *bool
 	allow_notification *bool
 	user_agent         *string
 	ip_address         *string
@@ -4715,6 +4716,42 @@ func (m *CommentMutation) ResetIsAdminComment() {
 	m.is_admin_comment = nil
 }
 
+// SetIsAnonymous sets the "is_anonymous" field.
+func (m *CommentMutation) SetIsAnonymous(b bool) {
+	m.is_anonymous = &b
+}
+
+// IsAnonymous returns the value of the "is_anonymous" field in the mutation.
+func (m *CommentMutation) IsAnonymous() (r bool, exists bool) {
+	v := m.is_anonymous
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsAnonymous returns the old "is_anonymous" field's value of the Comment entity.
+// If the Comment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CommentMutation) OldIsAnonymous(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsAnonymous is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsAnonymous requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsAnonymous: %w", err)
+	}
+	return oldValue.IsAnonymous, nil
+}
+
+// ResetIsAnonymous resets all changes to the "is_anonymous" field.
+func (m *CommentMutation) ResetIsAnonymous() {
+	m.is_anonymous = nil
+}
+
 // SetAllowNotification sets the "allow_notification" field.
 func (m *CommentMutation) SetAllowNotification(b bool) {
 	m.allow_notification = &b
@@ -5145,7 +5182,7 @@ func (m *CommentMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CommentMutation) Fields() []string {
-	fields := make([]string, 0, 21)
+	fields := make([]string, 0, 22)
 	if m.deleted_at != nil {
 		fields = append(fields, comment.FieldDeletedAt)
 	}
@@ -5190,6 +5227,9 @@ func (m *CommentMutation) Fields() []string {
 	}
 	if m.is_admin_comment != nil {
 		fields = append(fields, comment.FieldIsAdminComment)
+	}
+	if m.is_anonymous != nil {
+		fields = append(fields, comment.FieldIsAnonymous)
 	}
 	if m.allow_notification != nil {
 		fields = append(fields, comment.FieldAllowNotification)
@@ -5247,6 +5287,8 @@ func (m *CommentMutation) Field(name string) (ent.Value, bool) {
 		return m.Status()
 	case comment.FieldIsAdminComment:
 		return m.IsAdminComment()
+	case comment.FieldIsAnonymous:
+		return m.IsAnonymous()
 	case comment.FieldAllowNotification:
 		return m.AllowNotification()
 	case comment.FieldUserAgent:
@@ -5298,6 +5340,8 @@ func (m *CommentMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldStatus(ctx)
 	case comment.FieldIsAdminComment:
 		return m.OldIsAdminComment(ctx)
+	case comment.FieldIsAnonymous:
+		return m.OldIsAnonymous(ctx)
 	case comment.FieldAllowNotification:
 		return m.OldAllowNotification(ctx)
 	case comment.FieldUserAgent:
@@ -5423,6 +5467,13 @@ func (m *CommentMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetIsAdminComment(v)
+		return nil
+	case comment.FieldIsAnonymous:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsAnonymous(v)
 		return nil
 	case comment.FieldAllowNotification:
 		v, ok := value.(bool)
@@ -5643,6 +5694,9 @@ func (m *CommentMutation) ResetField(name string) error {
 		return nil
 	case comment.FieldIsAdminComment:
 		m.ResetIsAdminComment()
+		return nil
+	case comment.FieldIsAnonymous:
+		m.ResetIsAnonymous()
 		return nil
 	case comment.FieldAllowNotification:
 		m.ResetAllowNotification()

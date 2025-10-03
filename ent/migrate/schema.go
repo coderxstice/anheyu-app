@@ -85,6 +85,7 @@ var (
 		{Name: "content_html", Type: field.TypeString, Size: 2147483647},
 		{Name: "status", Type: field.TypeInt, Default: 2},
 		{Name: "is_admin_comment", Type: field.TypeBool, Default: false},
+		{Name: "is_anonymous", Type: field.TypeBool, Default: false},
 		{Name: "allow_notification", Type: field.TypeBool, Default: true},
 		{Name: "user_agent", Type: field.TypeString, Nullable: true, Size: 512},
 		{Name: "ip_address", Type: field.TypeString, Size: 45},
@@ -103,19 +104,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "comments_articles_comments",
-				Columns:    []*schema.Column{CommentsColumns[20]},
+				Columns:    []*schema.Column{CommentsColumns[21]},
 				RefColumns: []*schema.Column{ArticlesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "comments_comments_parent",
-				Columns:    []*schema.Column{CommentsColumns[21]},
+				Columns:    []*schema.Column{CommentsColumns[22]},
 				RefColumns: []*schema.Column{CommentsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "comments_users_comments",
-				Columns:    []*schema.Column{CommentsColumns[22]},
+				Columns:    []*schema.Column{CommentsColumns[23]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -129,12 +130,12 @@ var (
 			{
 				Name:    "comment_parent_id",
 				Unique:  false,
-				Columns: []*schema.Column{CommentsColumns[21]},
+				Columns: []*schema.Column{CommentsColumns[22]},
 			},
 			{
 				Name:    "comment_user_id",
 				Unique:  false,
-				Columns: []*schema.Column{CommentsColumns[22]},
+				Columns: []*schema.Column{CommentsColumns[23]},
 			},
 			{
 				Name:    "comment_email",
