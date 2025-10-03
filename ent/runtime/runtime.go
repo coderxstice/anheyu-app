@@ -808,8 +808,12 @@ func init() {
 	userDescEmail := userFields[7].Descriptor()
 	// user.EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	user.EmailValidator = userDescEmail.Validators[0].(func(string) error)
+	// userDescWebsite is the schema descriptor for website field.
+	userDescWebsite := userFields[8].Descriptor()
+	// user.WebsiteValidator is a validator for the "website" field. It is called by the builders before save.
+	user.WebsiteValidator = userDescWebsite.Validators[0].(func(string) error)
 	// userDescStatus is the schema descriptor for status field.
-	userDescStatus := userFields[9].Descriptor()
+	userDescStatus := userFields[10].Descriptor()
 	// user.DefaultStatus holds the default value on creation for the status field.
 	user.DefaultStatus = userDescStatus.Default.(int)
 	usergroupMixin := schema.UserGroup{}.Mixin()

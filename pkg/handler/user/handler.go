@@ -10,6 +10,7 @@ package user_handler
 import (
 	"net/http"
 
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/auth"
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
 	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
@@ -50,6 +51,7 @@ type GetUserInfoResponse struct {
 	Nickname    string    `json:"nickname"`    // 昵称
 	Avatar      string    `json:"avatar"`      // 头像URL
 	Email       string    `json:"email"`       // 邮箱
+	Website     string    `json:"website"`     // 个人网站
 	LastLoginAt *string   `json:"lastLoginAt"` // 最后登录时间
 	UserGroupID uint      `json:"userGroupID"` // 原始用户组ID (数字类型)，根据需求决定是否暴露
 	UserGroup   UserGroup `json:"userGroup"`   // 用户的用户组信息 (嵌套 DTO)
@@ -67,15 +69,28 @@ type GetUserInfoResponse struct {
 // @Failure      404  {object}  response.Response  "用户未找到"
 // @Router       /user/info [get]
 func (h *UserHandler) GetUserInfo(c *gin.Context) {
-	// 1. 从 Gin 上下文获取用户名 (由 JWT 中间件注入)
-	username := c.GetString("username")
-	if username == "" {
+	// 1. 从 Gin 上下文获取 claims (由 JWT 中间件注入)
+	claimsValue, exists := c.Get(auth.ClaimsKey)
+	if !exists {
 		response.Fail(c, http.StatusUnauthorized, "未登录或无法获取当前用户信息")
 		return
 	}
 
-	// 2. 调用 Service
-	user, err := h.userSvc.GetUserInfoByUsername(c.Request.Context(), username)
+	claims, ok := claimsValue.(*auth.CustomClaims)
+	if !ok {
+		response.Fail(c, http.StatusUnauthorized, "用户信息格式不正确")
+		return
+	}
+
+	// 2. 解码公共 UserID 为内部 ID
+	internalUserID, entityType, err := idgen.DecodePublicID(claims.UserID)
+	if err != nil || entityType != idgen.EntityTypeUser {
+		response.Fail(c, http.StatusUnauthorized, "用户ID无效")
+		return
+	}
+
+	// 3. 调用 Service（需要添加 GetUserInfoByID 方法）
+	user, err := h.userSvc.GetUserInfoByID(c.Request.Context(), internalUserID)
 	if err != nil {
 		response.Fail(c, http.StatusNotFound, err.Error())
 		return
@@ -113,6 +128,7 @@ func (h *UserHandler) GetUserInfo(c *gin.Context) {
 		Nickname:    user.Nickname,
 		Avatar:      avatar,
 		Email:       user.Email,
+		Website:     user.Website,
 		LastLoginAt: lastLoginAtStr,
 		UserGroupID: user.UserGroupID, // 保留原始 UserGroupID (数字类型)
 		UserGroup: UserGroup{
@@ -152,19 +168,90 @@ func (h *UserHandler) UpdateUserPassword(c *gin.Context) {
 		return
 	}
 
-	username := c.GetString("username")
-	if username == "" {
+	// 2. 从上下文获取 claims
+	claimsValue, exists := c.Get(auth.ClaimsKey)
+	if !exists {
 		response.Fail(c, http.StatusUnauthorized, "未登录或无法获取当前用户信息")
 		return
 	}
 
-	// 2. 调用 Service
-	err := h.userSvc.UpdateUserPassword(c.Request.Context(), username, req.OldPassword, req.NewPassword)
-	if err != nil {
-		response.Fail(c, http.StatusUnauthorized, err.Error()) // 根据错误类型判断返回状态码
+	claims, ok := claimsValue.(*auth.CustomClaims)
+	if !ok {
+		response.Fail(c, http.StatusUnauthorized, "用户信息格式不正确")
 		return
 	}
 
-	// 3. 返回成功响应
+	// 3. 解码公共 UserID 为内部 ID
+	internalUserID, entityType, err := idgen.DecodePublicID(claims.UserID)
+	if err != nil || entityType != idgen.EntityTypeUser {
+		response.Fail(c, http.StatusUnauthorized, "用户ID无效")
+		return
+	}
+
+	// 4. 调用 Service
+	err = h.userSvc.UpdateUserPasswordByID(c.Request.Context(), internalUserID, req.OldPassword, req.NewPassword)
+	if err != nil {
+		response.Fail(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	// 5. 返回成功响应
 	response.Success(c, nil, "密码修改成功")
+}
+
+// UpdateUserProfileRequest 更新用户基本信息的请求体
+type UpdateUserProfileRequest struct {
+	Nickname *string `json:"nickname" binding:"omitempty,min=2,max=50"`
+	Website  *string `json:"website" binding:"omitempty,url"`
+}
+
+// UpdateUserProfile 用于已登录用户修改自己的基本信息
+// @Summary      更新用户信息
+// @Description  当前登录用户更新自己的基本信息（昵称、网站等）
+// @Tags         用户管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        body  body      UpdateUserProfileRequest  true  "用户信息"
+// @Success      200   {object}  response.Response  "更新成功"
+// @Failure      400   {object}  response.Response  "参数错误"
+// @Failure      401   {object}  response.Response  "未授权"
+// @Router       /user/profile [put]
+func (h *UserHandler) UpdateUserProfile(c *gin.Context) {
+	// 1. 解析参数
+	var req UpdateUserProfileRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Fail(c, http.StatusBadRequest, "参数错误：昵称长度需在2-50个字符，网站需为有效URL")
+		return
+	}
+
+	// 2. 从上下文获取 claims
+	claimsValue, exists := c.Get(auth.ClaimsKey)
+	if !exists {
+		response.Fail(c, http.StatusUnauthorized, "未登录或无法获取当前用户信息")
+		return
+	}
+
+	claims, ok := claimsValue.(*auth.CustomClaims)
+	if !ok {
+		response.Fail(c, http.StatusUnauthorized, "用户信息格式不正确")
+		return
+	}
+
+	// 3. 解码公共 UserID 为内部 ID
+	internalUserID, entityType, err := idgen.DecodePublicID(claims.UserID)
+	if err != nil || entityType != idgen.EntityTypeUser {
+		response.Fail(c, http.StatusUnauthorized, "用户ID无效")
+		return
+	}
+
+	// 4. 调用 Service
+	err = h.userSvc.UpdateUserProfileByID(c.Request.Context(), internalUserID, req.Nickname, req.Website)
+	if err != nil {
+		response.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// 5. 返回成功响应
+	response.Success(c, nil, "用户信息更新成功")
 }

@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-07-13 23:40:12
- * @LastEditTime: 2025-08-10 21:58:17
+ * @LastEditTime: 2025-10-03 21:11:02
  * @LastEditors: 安知鱼
  */
 package schema
@@ -61,6 +61,10 @@ func (User) Fields() []ent.Field {
 			Unique().
 			Optional().
 			Comment("用户邮箱"),
+		field.String("website").
+			MaxLen(255).
+			Optional().
+			Comment("用户个人网站"),
 		field.Time("last_login_at").
 			Optional().
 			Nillable(),

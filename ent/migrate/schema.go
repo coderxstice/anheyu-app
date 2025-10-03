@@ -508,6 +508,7 @@ var (
 		{Name: "nickname", Type: field.TypeString, Nullable: true, Size: 50},
 		{Name: "avatar", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "email", Type: field.TypeString, Unique: true, Nullable: true, Size: 100},
+		{Name: "website", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "last_login_at", Type: field.TypeTime, Nullable: true},
 		{Name: "status", Type: field.TypeInt, Default: 2},
 		{Name: "user_group_id", Type: field.TypeUint},
@@ -520,7 +521,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_user_groups_users",
-				Columns:    []*schema.Column{UsersColumns[11]},
+				Columns:    []*schema.Column{UsersColumns[12]},
 				RefColumns: []*schema.Column{UserGroupsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
