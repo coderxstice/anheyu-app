@@ -154,6 +154,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyCommentPlaceholder, Value: "欢迎留下宝贵的建议啦～", Comment: "评论框占位文字", IsPublic: true},
 	{Key: constant.KeyCommentEmojiCDN, Value: "https://npm.elemecdn.com/anzhiyu-theme-static@1.1.3/twikoo/twikoo.json", Comment: "评论表情 cdn链接", IsPublic: true},
 	{Key: constant.KeyCommentBloggerEmail, Value: "me@anheyu.com", Comment: "博主邮箱，用于博主标识", IsPublic: true},
+	{Key: constant.KeyCommentAnonymousEmail, Value: "", Comment: "收取匿名评论邮箱，为空时使用前台网站拥有者邮箱", IsPublic: true},
 	{Key: constant.KeyCommentShowUA, Value: "true", Comment: "是否显示评论者操作系统和浏览器信息", IsPublic: true},
 	{Key: constant.KeyCommentShowRegion, Value: "true", Comment: "是否显示评论者IP归属地", IsPublic: true},
 	{Key: constant.KeyCommentLimitPerMinute, Value: "5", Comment: "单个IP每分钟允许提交的评论数", IsPublic: false},

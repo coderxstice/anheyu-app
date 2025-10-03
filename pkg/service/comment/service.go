@@ -235,6 +235,21 @@ func (s *Service) Create(ctx context.Context, req *dto.CreateRequest, ip, ua str
 		}
 	}
 
+	// 使用前端传递的匿名标识，并在后端进行双重验证
+	isAnonymous := req.IsAnonymous
+
+	// 如果前端标记为匿名评论，且配置了匿名邮箱，则验证邮箱是否匹配
+	if isAnonymous {
+		anonymousEmail := s.settingSvc.Get(constant.KeyCommentAnonymousEmail.String())
+		if anonymousEmail != "" {
+			// 如果配置了匿名邮箱，但用户邮箱不匹配，拒绝请求
+			if req.Email == nil || *req.Email != anonymousEmail {
+				log.Printf("警告：前端标记为匿名评论，但邮箱不匹配。前端邮箱: %v, 配置的匿名邮箱: %s", req.Email, anonymousEmail)
+				return nil, fmt.Errorf("匿名评论邮箱验证失败")
+			}
+		}
+	}
+
 	params := &repository.CreateCommentParams{
 		TargetPath:        req.TargetPath,
 		TargetTitle:       req.TargetTitle,
@@ -251,6 +266,7 @@ func (s *Service) Create(ctx context.Context, req *dto.CreateRequest, ip, ua str
 		IPLocation:        ipLocation,
 		Status:            int(status),
 		IsAdminComment:    isAdmin,
+		IsAnonymous:       isAnonymous,
 		AllowNotification: req.AllowNotification,
 	}
 

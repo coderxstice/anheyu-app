@@ -160,6 +160,7 @@ const (
 	KeyCommentPlaceholder       SettingKey = "comment.placeholder"
 	KeyCommentEmojiCDN          SettingKey = "comment.emoji_cdn"
 	KeyCommentBloggerEmail      SettingKey = "comment.blogger_email"
+	KeyCommentAnonymousEmail    SettingKey = "comment.anonymous_email"
 	KeyCommentShowUA            SettingKey = "comment.show_ua"
 	KeyCommentShowRegion        SettingKey = "comment.show_region"
 	KeyCommentLimitPerMinute    SettingKey = "comment.limit_per_minute"

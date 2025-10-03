@@ -29,6 +29,9 @@ type CreateRequest struct {
 
 	// 是否允许接收邮件通知。
 	AllowNotification bool `json:"allow_notification"`
+
+	// 是否为匿名评论（前端明确标识）。
+	IsAnonymous bool `json:"is_anonymous"`
 }
 
 // AdminListRequest 定义了管理员在后台查询评论列表时使用的参数。
@@ -81,6 +84,7 @@ type Response struct {
 	Website        *string     `json:"website,omitempty"`
 	ContentHTML    string      `json:"content_html"`
 	IsAdminComment bool        `json:"is_admin_comment"`
+	IsAnonymous    bool        `json:"is_anonymous"`
 	IPLocation     string      `json:"ip_location,omitempty"`
 	UserAgent      *string     `json:"user_agent,omitempty"`
 	TargetPath     string      `json:"target_path"`            // 返回评论所属的路径
