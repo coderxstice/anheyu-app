@@ -88,7 +88,10 @@ func (s *emailService) SendCommentNotification(newComment *model.Comment, parent
 	// 3. 如果配置了即时通知但没有开启双重通知，则不发送邮件
 	shouldSendEmail := notifyAdmin && (pushChannel == "" || scMailNotify)
 
-	if adminEmail != "" && shouldSendEmail {
+	// 检查新评论者是否是管理员本人，如果是则不需要通知管理员
+	isAdminComment := newCommenterEmail != "" && newCommenterEmail == adminEmail
+
+	if adminEmail != "" && shouldSendEmail && !isAdminComment {
 		adminSubjectTpl := s.settingSvc.Get(constant.KeyCommentMailSubjectAdmin.String())
 		adminBodyTpl := s.settingSvc.Get(constant.KeyCommentMailTemplateAdmin.String())
 
