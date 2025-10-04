@@ -54,6 +54,10 @@ func (Page) Fields() []ent.Field {
 			Default(true).
 			Comment("是否发布"),
 
+		field.Bool("show_comment").
+			Default(false).
+			Comment("是否显示评论"),
+
 		field.Int("sort").
 			Default(0).
 			Comment("排序"),

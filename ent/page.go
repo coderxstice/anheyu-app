@@ -29,6 +29,8 @@ type Page struct {
 	Description string `json:"description,omitempty"`
 	// 是否发布
 	IsPublished bool `json:"is_published,omitempty"`
+	// 是否显示评论
+	ShowComment bool `json:"show_comment,omitempty"`
 	// 排序
 	Sort int `json:"sort,omitempty"`
 	// 创建时间
@@ -43,7 +45,7 @@ func (*Page) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case page.FieldIsPublished:
+		case page.FieldIsPublished, page.FieldShowComment:
 			values[i] = new(sql.NullBool)
 		case page.FieldID, page.FieldSort:
 			values[i] = new(sql.NullInt64)
@@ -108,6 +110,12 @@ func (_m *Page) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field is_published", values[i])
 			} else if value.Valid {
 				_m.IsPublished = value.Bool
+			}
+		case page.FieldShowComment:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field show_comment", values[i])
+			} else if value.Valid {
+				_m.ShowComment = value.Bool
 			}
 		case page.FieldSort:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -182,6 +190,9 @@ func (_m *Page) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("is_published=")
 	builder.WriteString(fmt.Sprintf("%v", _m.IsPublished))
+	builder.WriteString(", ")
+	builder.WriteString("show_comment=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ShowComment))
 	builder.WriteString(", ")
 	builder.WriteString("sort=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Sort))

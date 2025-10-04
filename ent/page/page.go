@@ -26,6 +26,8 @@ const (
 	FieldDescription = "description"
 	// FieldIsPublished holds the string denoting the is_published field in the database.
 	FieldIsPublished = "is_published"
+	// FieldShowComment holds the string denoting the show_comment field in the database.
+	FieldShowComment = "show_comment"
 	// FieldSort holds the string denoting the sort field in the database.
 	FieldSort = "sort"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -45,6 +47,7 @@ var Columns = []string{
 	FieldContent,
 	FieldDescription,
 	FieldIsPublished,
+	FieldShowComment,
 	FieldSort,
 	FieldCreatedAt,
 	FieldUpdatedAt,
@@ -75,6 +78,8 @@ var (
 	DescriptionValidator func(string) error
 	// DefaultIsPublished holds the default value on creation for the "is_published" field.
 	DefaultIsPublished bool
+	// DefaultShowComment holds the default value on creation for the "show_comment" field.
+	DefaultShowComment bool
 	// DefaultSort holds the default value on creation for the "sort" field.
 	DefaultSort int
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
@@ -121,6 +126,11 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 // ByIsPublished orders the results by the is_published field.
 func ByIsPublished(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsPublished, opts...).ToFunc()
+}
+
+// ByShowComment orders the results by the show_comment field.
+func ByShowComment(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldShowComment, opts...).ToFunc()
 }
 
 // BySort orders the results by the sort field.

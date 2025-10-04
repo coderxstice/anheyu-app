@@ -32,6 +32,7 @@ func (r *EntPageRepository) Create(ctx context.Context, options *model.CreatePag
 		SetContent(options.Content).
 		SetNillableDescription(&options.Description).
 		SetIsPublished(options.IsPublished).
+		SetShowComment(options.ShowComment).
 		SetSort(options.Sort).
 		Save(ctx)
 
@@ -159,6 +160,10 @@ func (r *EntPageRepository) Update(ctx context.Context, id string, options *mode
 		update.SetIsPublished(*options.IsPublished)
 	}
 
+	if options.ShowComment != nil {
+		update.SetShowComment(*options.ShowComment)
+	}
+
 	if options.Sort != nil {
 		update.SetSort(*options.Sort)
 	}
@@ -217,6 +222,7 @@ func (r *EntPageRepository) entToModel(entPage *ent.Page) *model.Page {
 		Content:     entPage.Content,
 		Description: entPage.Description,
 		IsPublished: entPage.IsPublished,
+		ShowComment: entPage.ShowComment,
 		Sort:        entPage.Sort,
 		CreatedAt:   entPage.CreatedAt,
 		UpdatedAt:   entPage.UpdatedAt,

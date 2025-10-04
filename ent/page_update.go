@@ -125,6 +125,20 @@ func (_u *PageUpdate) SetNillableIsPublished(v *bool) *PageUpdate {
 	return _u
 }
 
+// SetShowComment sets the "show_comment" field.
+func (_u *PageUpdate) SetShowComment(v bool) *PageUpdate {
+	_u.mutation.SetShowComment(v)
+	return _u
+}
+
+// SetNillableShowComment sets the "show_comment" field if the given value is not nil.
+func (_u *PageUpdate) SetNillableShowComment(v *bool) *PageUpdate {
+	if v != nil {
+		_u.SetShowComment(*v)
+	}
+	return _u
+}
+
 // SetSort sets the "sort" field.
 func (_u *PageUpdate) SetSort(v int) *PageUpdate {
 	_u.mutation.ResetSort()
@@ -261,6 +275,9 @@ func (_u *PageUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.IsPublished(); ok {
 		_spec.SetField(page.FieldIsPublished, field.TypeBool, value)
 	}
+	if value, ok := _u.mutation.ShowComment(); ok {
+		_spec.SetField(page.FieldShowComment, field.TypeBool, value)
+	}
 	if value, ok := _u.mutation.Sort(); ok {
 		_spec.SetField(page.FieldSort, field.TypeInt, value)
 	}
@@ -384,6 +401,20 @@ func (_u *PageUpdateOne) SetIsPublished(v bool) *PageUpdateOne {
 func (_u *PageUpdateOne) SetNillableIsPublished(v *bool) *PageUpdateOne {
 	if v != nil {
 		_u.SetIsPublished(*v)
+	}
+	return _u
+}
+
+// SetShowComment sets the "show_comment" field.
+func (_u *PageUpdateOne) SetShowComment(v bool) *PageUpdateOne {
+	_u.mutation.SetShowComment(v)
+	return _u
+}
+
+// SetNillableShowComment sets the "show_comment" field if the given value is not nil.
+func (_u *PageUpdateOne) SetNillableShowComment(v *bool) *PageUpdateOne {
+	if v != nil {
+		_u.SetShowComment(*v)
 	}
 	return _u
 }
@@ -553,6 +584,9 @@ func (_u *PageUpdateOne) sqlSave(ctx context.Context) (_node *Page, err error) {
 	}
 	if value, ok := _u.mutation.IsPublished(); ok {
 		_spec.SetField(page.FieldIsPublished, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.ShowComment(); ok {
+		_spec.SetField(page.FieldShowComment, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.Sort(); ok {
 		_spec.SetField(page.FieldSort, field.TypeInt, value)

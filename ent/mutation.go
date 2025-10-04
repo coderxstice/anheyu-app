@@ -13074,6 +13074,7 @@ type PageMutation struct {
 	content       *string
 	description   *string
 	is_published  *bool
+	show_comment  *bool
 	sort          *int
 	addsort       *int
 	created_at    *time.Time
@@ -13430,6 +13431,42 @@ func (m *PageMutation) ResetIsPublished() {
 	m.is_published = nil
 }
 
+// SetShowComment sets the "show_comment" field.
+func (m *PageMutation) SetShowComment(b bool) {
+	m.show_comment = &b
+}
+
+// ShowComment returns the value of the "show_comment" field in the mutation.
+func (m *PageMutation) ShowComment() (r bool, exists bool) {
+	v := m.show_comment
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldShowComment returns the old "show_comment" field's value of the Page entity.
+// If the Page object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PageMutation) OldShowComment(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldShowComment is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldShowComment requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldShowComment: %w", err)
+	}
+	return oldValue.ShowComment, nil
+}
+
+// ResetShowComment resets all changes to the "show_comment" field.
+func (m *PageMutation) ResetShowComment() {
+	m.show_comment = nil
+}
+
 // SetSort sets the "sort" field.
 func (m *PageMutation) SetSort(i int) {
 	m.sort = &i
@@ -13592,7 +13629,7 @@ func (m *PageMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PageMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 10)
 	if m.deleted_at != nil {
 		fields = append(fields, page.FieldDeletedAt)
 	}
@@ -13610,6 +13647,9 @@ func (m *PageMutation) Fields() []string {
 	}
 	if m.is_published != nil {
 		fields = append(fields, page.FieldIsPublished)
+	}
+	if m.show_comment != nil {
+		fields = append(fields, page.FieldShowComment)
 	}
 	if m.sort != nil {
 		fields = append(fields, page.FieldSort)
@@ -13640,6 +13680,8 @@ func (m *PageMutation) Field(name string) (ent.Value, bool) {
 		return m.Description()
 	case page.FieldIsPublished:
 		return m.IsPublished()
+	case page.FieldShowComment:
+		return m.ShowComment()
 	case page.FieldSort:
 		return m.Sort()
 	case page.FieldCreatedAt:
@@ -13667,6 +13709,8 @@ func (m *PageMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldDescription(ctx)
 	case page.FieldIsPublished:
 		return m.OldIsPublished(ctx)
+	case page.FieldShowComment:
+		return m.OldShowComment(ctx)
 	case page.FieldSort:
 		return m.OldSort(ctx)
 	case page.FieldCreatedAt:
@@ -13723,6 +13767,13 @@ func (m *PageMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetIsPublished(v)
+		return nil
+	case page.FieldShowComment:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetShowComment(v)
 		return nil
 	case page.FieldSort:
 		v, ok := value.(int)
@@ -13841,6 +13892,9 @@ func (m *PageMutation) ResetField(name string) error {
 		return nil
 	case page.FieldIsPublished:
 		m.ResetIsPublished()
+		return nil
+	case page.FieldShowComment:
+		m.ResetShowComment()
 		return nil
 	case page.FieldSort:
 		m.ResetSort()

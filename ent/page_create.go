@@ -82,6 +82,20 @@ func (_c *PageCreate) SetNillableIsPublished(v *bool) *PageCreate {
 	return _c
 }
 
+// SetShowComment sets the "show_comment" field.
+func (_c *PageCreate) SetShowComment(v bool) *PageCreate {
+	_c.mutation.SetShowComment(v)
+	return _c
+}
+
+// SetNillableShowComment sets the "show_comment" field if the given value is not nil.
+func (_c *PageCreate) SetNillableShowComment(v *bool) *PageCreate {
+	if v != nil {
+		_c.SetShowComment(*v)
+	}
+	return _c
+}
+
 // SetSort sets the "sort" field.
 func (_c *PageCreate) SetSort(v int) *PageCreate {
 	_c.mutation.SetSort(v)
@@ -171,6 +185,10 @@ func (_c *PageCreate) defaults() error {
 		v := page.DefaultIsPublished
 		_c.mutation.SetIsPublished(v)
 	}
+	if _, ok := _c.mutation.ShowComment(); !ok {
+		v := page.DefaultShowComment
+		_c.mutation.SetShowComment(v)
+	}
 	if _, ok := _c.mutation.Sort(); !ok {
 		v := page.DefaultSort
 		_c.mutation.SetSort(v)
@@ -220,6 +238,9 @@ func (_c *PageCreate) check() error {
 	}
 	if _, ok := _c.mutation.IsPublished(); !ok {
 		return &ValidationError{Name: "is_published", err: errors.New(`ent: missing required field "Page.is_published"`)}
+	}
+	if _, ok := _c.mutation.ShowComment(); !ok {
+		return &ValidationError{Name: "show_comment", err: errors.New(`ent: missing required field "Page.show_comment"`)}
 	}
 	if _, ok := _c.mutation.Sort(); !ok {
 		return &ValidationError{Name: "sort", err: errors.New(`ent: missing required field "Page.sort"`)}
@@ -286,6 +307,10 @@ func (_c *PageCreate) createSpec() (*Page, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.IsPublished(); ok {
 		_spec.SetField(page.FieldIsPublished, field.TypeBool, value)
 		_node.IsPublished = value
+	}
+	if value, ok := _c.mutation.ShowComment(); ok {
+		_spec.SetField(page.FieldShowComment, field.TypeBool, value)
+		_node.ShowComment = value
 	}
 	if value, ok := _c.mutation.Sort(); ok {
 		_spec.SetField(page.FieldSort, field.TypeInt, value)
@@ -432,6 +457,18 @@ func (u *PageUpsert) SetIsPublished(v bool) *PageUpsert {
 // UpdateIsPublished sets the "is_published" field to the value that was provided on create.
 func (u *PageUpsert) UpdateIsPublished() *PageUpsert {
 	u.SetExcluded(page.FieldIsPublished)
+	return u
+}
+
+// SetShowComment sets the "show_comment" field.
+func (u *PageUpsert) SetShowComment(v bool) *PageUpsert {
+	u.Set(page.FieldShowComment, v)
+	return u
+}
+
+// UpdateShowComment sets the "show_comment" field to the value that was provided on create.
+func (u *PageUpsert) UpdateShowComment() *PageUpsert {
+	u.SetExcluded(page.FieldShowComment)
 	return u
 }
 
@@ -611,6 +648,20 @@ func (u *PageUpsertOne) SetIsPublished(v bool) *PageUpsertOne {
 func (u *PageUpsertOne) UpdateIsPublished() *PageUpsertOne {
 	return u.Update(func(s *PageUpsert) {
 		s.UpdateIsPublished()
+	})
+}
+
+// SetShowComment sets the "show_comment" field.
+func (u *PageUpsertOne) SetShowComment(v bool) *PageUpsertOne {
+	return u.Update(func(s *PageUpsert) {
+		s.SetShowComment(v)
+	})
+}
+
+// UpdateShowComment sets the "show_comment" field to the value that was provided on create.
+func (u *PageUpsertOne) UpdateShowComment() *PageUpsertOne {
+	return u.Update(func(s *PageUpsert) {
+		s.UpdateShowComment()
 	})
 }
 
@@ -961,6 +1012,20 @@ func (u *PageUpsertBulk) SetIsPublished(v bool) *PageUpsertBulk {
 func (u *PageUpsertBulk) UpdateIsPublished() *PageUpsertBulk {
 	return u.Update(func(s *PageUpsert) {
 		s.UpdateIsPublished()
+	})
+}
+
+// SetShowComment sets the "show_comment" field.
+func (u *PageUpsertBulk) SetShowComment(v bool) *PageUpsertBulk {
+	return u.Update(func(s *PageUpsert) {
+		s.SetShowComment(v)
+	})
+}
+
+// UpdateShowComment sets the "show_comment" field to the value that was provided on create.
+func (u *PageUpsertBulk) UpdateShowComment() *PageUpsertBulk {
+	return u.Update(func(s *PageUpsert) {
+		s.UpdateShowComment()
 	})
 }
 

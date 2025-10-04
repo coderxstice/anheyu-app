@@ -84,6 +84,11 @@ func IsPublished(v bool) predicate.Page {
 	return predicate.Page(sql.FieldEQ(FieldIsPublished, v))
 }
 
+// ShowComment applies equality check predicate on the "show_comment" field. It's identical to ShowCommentEQ.
+func ShowComment(v bool) predicate.Page {
+	return predicate.Page(sql.FieldEQ(FieldShowComment, v))
+}
+
 // Sort applies equality check predicate on the "sort" field. It's identical to SortEQ.
 func Sort(v int) predicate.Page {
 	return predicate.Page(sql.FieldEQ(FieldSort, v))
@@ -427,6 +432,16 @@ func IsPublishedEQ(v bool) predicate.Page {
 // IsPublishedNEQ applies the NEQ predicate on the "is_published" field.
 func IsPublishedNEQ(v bool) predicate.Page {
 	return predicate.Page(sql.FieldNEQ(FieldIsPublished, v))
+}
+
+// ShowCommentEQ applies the EQ predicate on the "show_comment" field.
+func ShowCommentEQ(v bool) predicate.Page {
+	return predicate.Page(sql.FieldEQ(FieldShowComment, v))
+}
+
+// ShowCommentNEQ applies the NEQ predicate on the "show_comment" field.
+func ShowCommentNEQ(v bool) predicate.Page {
+	return predicate.Page(sql.FieldNEQ(FieldShowComment, v))
 }
 
 // SortEQ applies the EQ predicate on the "sort" field.
