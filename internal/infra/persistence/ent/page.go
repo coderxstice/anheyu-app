@@ -30,6 +30,7 @@ func (r *EntPageRepository) Create(ctx context.Context, options *model.CreatePag
 		SetTitle(options.Title).
 		SetPath(options.Path).
 		SetContent(options.Content).
+		SetMarkdownContent(options.MarkdownContent).
 		SetNillableDescription(&options.Description).
 		SetIsPublished(options.IsPublished).
 		SetShowComment(options.ShowComment).
@@ -152,6 +153,10 @@ func (r *EntPageRepository) Update(ctx context.Context, id string, options *mode
 		update.SetContent(*options.Content)
 	}
 
+	if options.MarkdownContent != nil {
+		update.SetMarkdownContent(*options.MarkdownContent)
+	}
+
 	if options.Description != nil {
 		update.SetNillableDescription(options.Description)
 	}
@@ -216,15 +221,16 @@ func (r *EntPageRepository) ExistsByPath(ctx context.Context, path string, exclu
 // entToModel 将ent实体转换为模型
 func (r *EntPageRepository) entToModel(entPage *ent.Page) *model.Page {
 	return &model.Page{
-		ID:          entPage.ID,
-		Title:       entPage.Title,
-		Path:        entPage.Path,
-		Content:     entPage.Content,
-		Description: entPage.Description,
-		IsPublished: entPage.IsPublished,
-		ShowComment: entPage.ShowComment,
-		Sort:        entPage.Sort,
-		CreatedAt:   entPage.CreatedAt,
-		UpdatedAt:   entPage.UpdatedAt,
+		ID:              entPage.ID,
+		Title:           entPage.Title,
+		Path:            entPage.Path,
+		Content:         entPage.Content,
+		MarkdownContent: entPage.MarkdownContent,
+		Description:     entPage.Description,
+		IsPublished:     entPage.IsPublished,
+		ShowComment:     entPage.ShowComment,
+		Sort:            entPage.Sort,
+		CreatedAt:       entPage.CreatedAt,
+		UpdatedAt:       entPage.UpdatedAt,
 	}
 }

@@ -22,6 +22,8 @@ const (
 	FieldPath = "path"
 	// FieldContent holds the string denoting the content field in the database.
 	FieldContent = "content"
+	// FieldMarkdownContent holds the string denoting the markdown_content field in the database.
+	FieldMarkdownContent = "markdown_content"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
 	// FieldIsPublished holds the string denoting the is_published field in the database.
@@ -45,6 +47,7 @@ var Columns = []string{
 	FieldTitle,
 	FieldPath,
 	FieldContent,
+	FieldMarkdownContent,
 	FieldDescription,
 	FieldIsPublished,
 	FieldShowComment,
@@ -74,6 +77,8 @@ var (
 	TitleValidator func(string) error
 	// PathValidator is a validator for the "path" field. It is called by the builders before save.
 	PathValidator func(string) error
+	// DefaultMarkdownContent holds the default value on creation for the "markdown_content" field.
+	DefaultMarkdownContent string
 	// DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	DescriptionValidator func(string) error
 	// DefaultIsPublished holds the default value on creation for the "is_published" field.
@@ -116,6 +121,11 @@ func ByPath(opts ...sql.OrderTermOption) OrderOption {
 // ByContent orders the results by the content field.
 func ByContent(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldContent, opts...).ToFunc()
+}
+
+// ByMarkdownContent orders the results by the markdown_content field.
+func ByMarkdownContent(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMarkdownContent, opts...).ToFunc()
 }
 
 // ByDescription orders the results by the description field.

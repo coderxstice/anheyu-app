@@ -496,28 +496,32 @@ func init() {
 			return nil
 		}
 	}()
+	// pageDescMarkdownContent is the schema descriptor for markdown_content field.
+	pageDescMarkdownContent := pageFields[4].Descriptor()
+	// page.DefaultMarkdownContent holds the default value on creation for the markdown_content field.
+	page.DefaultMarkdownContent = pageDescMarkdownContent.Default.(string)
 	// pageDescDescription is the schema descriptor for description field.
-	pageDescDescription := pageFields[4].Descriptor()
+	pageDescDescription := pageFields[5].Descriptor()
 	// page.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	page.DescriptionValidator = pageDescDescription.Validators[0].(func(string) error)
 	// pageDescIsPublished is the schema descriptor for is_published field.
-	pageDescIsPublished := pageFields[5].Descriptor()
+	pageDescIsPublished := pageFields[6].Descriptor()
 	// page.DefaultIsPublished holds the default value on creation for the is_published field.
 	page.DefaultIsPublished = pageDescIsPublished.Default.(bool)
 	// pageDescShowComment is the schema descriptor for show_comment field.
-	pageDescShowComment := pageFields[6].Descriptor()
+	pageDescShowComment := pageFields[7].Descriptor()
 	// page.DefaultShowComment holds the default value on creation for the show_comment field.
 	page.DefaultShowComment = pageDescShowComment.Default.(bool)
 	// pageDescSort is the schema descriptor for sort field.
-	pageDescSort := pageFields[7].Descriptor()
+	pageDescSort := pageFields[8].Descriptor()
 	// page.DefaultSort holds the default value on creation for the sort field.
 	page.DefaultSort = pageDescSort.Default.(int)
 	// pageDescCreatedAt is the schema descriptor for created_at field.
-	pageDescCreatedAt := pageFields[8].Descriptor()
+	pageDescCreatedAt := pageFields[9].Descriptor()
 	// page.DefaultCreatedAt holds the default value on creation for the created_at field.
 	page.DefaultCreatedAt = pageDescCreatedAt.Default.(func() time.Time)
 	// pageDescUpdatedAt is the schema descriptor for updated_at field.
-	pageDescUpdatedAt := pageFields[9].Descriptor()
+	pageDescUpdatedAt := pageFields[10].Descriptor()
 	// page.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	page.DefaultUpdatedAt = pageDescUpdatedAt.Default.(func() time.Time)
 	// page.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

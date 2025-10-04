@@ -54,6 +54,20 @@ func (_c *PageCreate) SetContent(v string) *PageCreate {
 	return _c
 }
 
+// SetMarkdownContent sets the "markdown_content" field.
+func (_c *PageCreate) SetMarkdownContent(v string) *PageCreate {
+	_c.mutation.SetMarkdownContent(v)
+	return _c
+}
+
+// SetNillableMarkdownContent sets the "markdown_content" field if the given value is not nil.
+func (_c *PageCreate) SetNillableMarkdownContent(v *string) *PageCreate {
+	if v != nil {
+		_c.SetMarkdownContent(*v)
+	}
+	return _c
+}
+
 // SetDescription sets the "description" field.
 func (_c *PageCreate) SetDescription(v string) *PageCreate {
 	_c.mutation.SetDescription(v)
@@ -181,6 +195,10 @@ func (_c *PageCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *PageCreate) defaults() error {
+	if _, ok := _c.mutation.MarkdownContent(); !ok {
+		v := page.DefaultMarkdownContent
+		_c.mutation.SetMarkdownContent(v)
+	}
 	if _, ok := _c.mutation.IsPublished(); !ok {
 		v := page.DefaultIsPublished
 		_c.mutation.SetIsPublished(v)
@@ -230,6 +248,9 @@ func (_c *PageCreate) check() error {
 	}
 	if _, ok := _c.mutation.Content(); !ok {
 		return &ValidationError{Name: "content", err: errors.New(`ent: missing required field "Page.content"`)}
+	}
+	if _, ok := _c.mutation.MarkdownContent(); !ok {
+		return &ValidationError{Name: "markdown_content", err: errors.New(`ent: missing required field "Page.markdown_content"`)}
 	}
 	if v, ok := _c.mutation.Description(); ok {
 		if err := page.DescriptionValidator(v); err != nil {
@@ -299,6 +320,10 @@ func (_c *PageCreate) createSpec() (*Page, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Content(); ok {
 		_spec.SetField(page.FieldContent, field.TypeString, value)
 		_node.Content = value
+	}
+	if value, ok := _c.mutation.MarkdownContent(); ok {
+		_spec.SetField(page.FieldMarkdownContent, field.TypeString, value)
+		_node.MarkdownContent = value
 	}
 	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(page.FieldDescription, field.TypeString, value)
@@ -427,6 +452,18 @@ func (u *PageUpsert) SetContent(v string) *PageUpsert {
 // UpdateContent sets the "content" field to the value that was provided on create.
 func (u *PageUpsert) UpdateContent() *PageUpsert {
 	u.SetExcluded(page.FieldContent)
+	return u
+}
+
+// SetMarkdownContent sets the "markdown_content" field.
+func (u *PageUpsert) SetMarkdownContent(v string) *PageUpsert {
+	u.Set(page.FieldMarkdownContent, v)
+	return u
+}
+
+// UpdateMarkdownContent sets the "markdown_content" field to the value that was provided on create.
+func (u *PageUpsert) UpdateMarkdownContent() *PageUpsert {
+	u.SetExcluded(page.FieldMarkdownContent)
 	return u
 }
 
@@ -613,6 +650,20 @@ func (u *PageUpsertOne) SetContent(v string) *PageUpsertOne {
 func (u *PageUpsertOne) UpdateContent() *PageUpsertOne {
 	return u.Update(func(s *PageUpsert) {
 		s.UpdateContent()
+	})
+}
+
+// SetMarkdownContent sets the "markdown_content" field.
+func (u *PageUpsertOne) SetMarkdownContent(v string) *PageUpsertOne {
+	return u.Update(func(s *PageUpsert) {
+		s.SetMarkdownContent(v)
+	})
+}
+
+// UpdateMarkdownContent sets the "markdown_content" field to the value that was provided on create.
+func (u *PageUpsertOne) UpdateMarkdownContent() *PageUpsertOne {
+	return u.Update(func(s *PageUpsert) {
+		s.UpdateMarkdownContent()
 	})
 }
 
@@ -977,6 +1028,20 @@ func (u *PageUpsertBulk) SetContent(v string) *PageUpsertBulk {
 func (u *PageUpsertBulk) UpdateContent() *PageUpsertBulk {
 	return u.Update(func(s *PageUpsert) {
 		s.UpdateContent()
+	})
+}
+
+// SetMarkdownContent sets the "markdown_content" field.
+func (u *PageUpsertBulk) SetMarkdownContent(v string) *PageUpsertBulk {
+	return u.Update(func(s *PageUpsert) {
+		s.SetMarkdownContent(v)
+	})
+}
+
+// UpdateMarkdownContent sets the "markdown_content" field to the value that was provided on create.
+func (u *PageUpsertBulk) UpdateMarkdownContent() *PageUpsertBulk {
+	return u.Update(func(s *PageUpsert) {
+		s.UpdateMarkdownContent()
 	})
 }
 
