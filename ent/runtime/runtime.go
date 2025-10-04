@@ -504,16 +504,20 @@ func init() {
 	pageDescIsPublished := pageFields[5].Descriptor()
 	// page.DefaultIsPublished holds the default value on creation for the is_published field.
 	page.DefaultIsPublished = pageDescIsPublished.Default.(bool)
+	// pageDescShowComment is the schema descriptor for show_comment field.
+	pageDescShowComment := pageFields[6].Descriptor()
+	// page.DefaultShowComment holds the default value on creation for the show_comment field.
+	page.DefaultShowComment = pageDescShowComment.Default.(bool)
 	// pageDescSort is the schema descriptor for sort field.
-	pageDescSort := pageFields[6].Descriptor()
+	pageDescSort := pageFields[7].Descriptor()
 	// page.DefaultSort holds the default value on creation for the sort field.
 	page.DefaultSort = pageDescSort.Default.(int)
 	// pageDescCreatedAt is the schema descriptor for created_at field.
-	pageDescCreatedAt := pageFields[7].Descriptor()
+	pageDescCreatedAt := pageFields[8].Descriptor()
 	// page.DefaultCreatedAt holds the default value on creation for the created_at field.
 	page.DefaultCreatedAt = pageDescCreatedAt.Default.(func() time.Time)
 	// pageDescUpdatedAt is the schema descriptor for updated_at field.
-	pageDescUpdatedAt := pageFields[8].Descriptor()
+	pageDescUpdatedAt := pageFields[9].Descriptor()
 	// page.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	page.DefaultUpdatedAt = pageDescUpdatedAt.Default.(func() time.Time)
 	// page.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

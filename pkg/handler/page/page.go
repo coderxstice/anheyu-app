@@ -43,6 +43,7 @@ func (h *Handler) Create(c *gin.Context) {
 		Content     string `json:"content" binding:"required"`
 		Description string `json:"description"`
 		IsPublished bool   `json:"is_published"`
+		ShowComment bool   `json:"show_comment"`
 		Sort        int    `json:"sort"`
 	}
 
@@ -57,6 +58,7 @@ func (h *Handler) Create(c *gin.Context) {
 		Content:     req.Content,
 		Description: req.Description,
 		IsPublished: req.IsPublished,
+		ShowComment: req.ShowComment,
 		Sort:        req.Sort,
 	}
 
@@ -212,6 +214,7 @@ func (h *Handler) Update(c *gin.Context) {
 		Content     *string `json:"content"`
 		Description *string `json:"description"`
 		IsPublished *bool   `json:"is_published"`
+		ShowComment *bool   `json:"show_comment"`
 		Sort        *int    `json:"sort"`
 	}
 
@@ -226,6 +229,7 @@ func (h *Handler) Update(c *gin.Context) {
 		Content:     req.Content,
 		Description: req.Description,
 		IsPublished: req.IsPublished,
+		ShowComment: req.ShowComment,
 		Sort:        req.Sort,
 	}
 

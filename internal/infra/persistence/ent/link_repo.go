@@ -253,14 +253,29 @@ func (r *linkRepo) GetRandomPublic(ctx context.Context, num int) ([]*model.LinkD
 		randomFunc = "RANDOM()"
 	}
 
-	entLinks, err := r.client.Link.Query().
-		WithCategory().
-		WithTags().
+	// 第一步：只查询 ID，使用随机排序
+	ids, err := r.client.Link.Query().
 		Where(link.StatusEQ(link.StatusAPPROVED)).
 		Modify(func(s *sql.Selector) {
+			// 使用原始 SQL ORDER BY
 			s.OrderExpr(sql.Expr(randomFunc))
 		}).
 		Limit(num).
+		IDs(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(ids) == 0 {
+		return []*model.LinkDTO{}, nil
+	}
+
+	// 第二步：根据 ID 查询完整的数据（包括关联数据）
+	entLinks, err := r.client.Link.Query().
+		Where(link.IDIn(ids...)).
+		WithCategory().
+		WithTags().
 		All(ctx)
 
 	if err != nil {

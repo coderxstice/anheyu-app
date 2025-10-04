@@ -12,6 +12,7 @@ type Page struct {
 	Content     string    `json:"content"`      // HTML内容
 	Description string    `json:"description"`  // 页面描述
 	IsPublished bool      `json:"is_published"` // 是否发布
+	ShowComment bool      `json:"show_comment"` // 是否显示评论
 	Sort        int       `json:"sort"`         // 排序
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
@@ -24,6 +25,7 @@ type CreatePageOptions struct {
 	Content     string `json:"content"`
 	Description string `json:"description"`
 	IsPublished bool   `json:"is_published"`
+	ShowComment bool   `json:"show_comment"`
 	Sort        int    `json:"sort"`
 }
 
@@ -34,6 +36,7 @@ type UpdatePageOptions struct {
 	Content     *string `json:"content,omitempty"`
 	Description *string `json:"description,omitempty"`
 	IsPublished *bool   `json:"is_published,omitempty"`
+	ShowComment *bool   `json:"show_comment,omitempty"`
 	Sort        *int    `json:"sort,omitempty"`
 }
 

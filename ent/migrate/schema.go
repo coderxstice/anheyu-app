@@ -364,6 +364,7 @@ var (
 		{Name: "content", Type: field.TypeString, Size: 2147483647},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 500},
 		{Name: "is_published", Type: field.TypeBool, Default: true},
+		{Name: "show_comment", Type: field.TypeBool, Default: false},
 		{Name: "sort", Type: field.TypeInt, Default: 0},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
