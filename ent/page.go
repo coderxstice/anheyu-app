@@ -25,6 +25,8 @@ type Page struct {
 	Path string `json:"path,omitempty"`
 	// HTML内容
 	Content string `json:"content,omitempty"`
+	// Markdown原始内容
+	MarkdownContent string `json:"markdown_content,omitempty"`
 	// 页面描述
 	Description string `json:"description,omitempty"`
 	// 是否发布
@@ -49,7 +51,7 @@ func (*Page) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case page.FieldID, page.FieldSort:
 			values[i] = new(sql.NullInt64)
-		case page.FieldTitle, page.FieldPath, page.FieldContent, page.FieldDescription:
+		case page.FieldTitle, page.FieldPath, page.FieldContent, page.FieldMarkdownContent, page.FieldDescription:
 			values[i] = new(sql.NullString)
 		case page.FieldDeletedAt, page.FieldCreatedAt, page.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -98,6 +100,12 @@ func (_m *Page) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field content", values[i])
 			} else if value.Valid {
 				_m.Content = value.String
+			}
+		case page.FieldMarkdownContent:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field markdown_content", values[i])
+			} else if value.Valid {
+				_m.MarkdownContent = value.String
 			}
 		case page.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -184,6 +192,9 @@ func (_m *Page) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("content=")
 	builder.WriteString(_m.Content)
+	builder.WriteString(", ")
+	builder.WriteString("markdown_content=")
+	builder.WriteString(_m.MarkdownContent)
 	builder.WriteString(", ")
 	builder.WriteString("description=")
 	builder.WriteString(_m.Description)

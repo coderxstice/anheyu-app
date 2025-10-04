@@ -74,6 +74,11 @@ func Content(v string) predicate.Page {
 	return predicate.Page(sql.FieldEQ(FieldContent, v))
 }
 
+// MarkdownContent applies equality check predicate on the "markdown_content" field. It's identical to MarkdownContentEQ.
+func MarkdownContent(v string) predicate.Page {
+	return predicate.Page(sql.FieldEQ(FieldMarkdownContent, v))
+}
+
 // Description applies equality check predicate on the "description" field. It's identical to DescriptionEQ.
 func Description(v string) predicate.Page {
 	return predicate.Page(sql.FieldEQ(FieldDescription, v))
@@ -347,6 +352,71 @@ func ContentEqualFold(v string) predicate.Page {
 // ContentContainsFold applies the ContainsFold predicate on the "content" field.
 func ContentContainsFold(v string) predicate.Page {
 	return predicate.Page(sql.FieldContainsFold(FieldContent, v))
+}
+
+// MarkdownContentEQ applies the EQ predicate on the "markdown_content" field.
+func MarkdownContentEQ(v string) predicate.Page {
+	return predicate.Page(sql.FieldEQ(FieldMarkdownContent, v))
+}
+
+// MarkdownContentNEQ applies the NEQ predicate on the "markdown_content" field.
+func MarkdownContentNEQ(v string) predicate.Page {
+	return predicate.Page(sql.FieldNEQ(FieldMarkdownContent, v))
+}
+
+// MarkdownContentIn applies the In predicate on the "markdown_content" field.
+func MarkdownContentIn(vs ...string) predicate.Page {
+	return predicate.Page(sql.FieldIn(FieldMarkdownContent, vs...))
+}
+
+// MarkdownContentNotIn applies the NotIn predicate on the "markdown_content" field.
+func MarkdownContentNotIn(vs ...string) predicate.Page {
+	return predicate.Page(sql.FieldNotIn(FieldMarkdownContent, vs...))
+}
+
+// MarkdownContentGT applies the GT predicate on the "markdown_content" field.
+func MarkdownContentGT(v string) predicate.Page {
+	return predicate.Page(sql.FieldGT(FieldMarkdownContent, v))
+}
+
+// MarkdownContentGTE applies the GTE predicate on the "markdown_content" field.
+func MarkdownContentGTE(v string) predicate.Page {
+	return predicate.Page(sql.FieldGTE(FieldMarkdownContent, v))
+}
+
+// MarkdownContentLT applies the LT predicate on the "markdown_content" field.
+func MarkdownContentLT(v string) predicate.Page {
+	return predicate.Page(sql.FieldLT(FieldMarkdownContent, v))
+}
+
+// MarkdownContentLTE applies the LTE predicate on the "markdown_content" field.
+func MarkdownContentLTE(v string) predicate.Page {
+	return predicate.Page(sql.FieldLTE(FieldMarkdownContent, v))
+}
+
+// MarkdownContentContains applies the Contains predicate on the "markdown_content" field.
+func MarkdownContentContains(v string) predicate.Page {
+	return predicate.Page(sql.FieldContains(FieldMarkdownContent, v))
+}
+
+// MarkdownContentHasPrefix applies the HasPrefix predicate on the "markdown_content" field.
+func MarkdownContentHasPrefix(v string) predicate.Page {
+	return predicate.Page(sql.FieldHasPrefix(FieldMarkdownContent, v))
+}
+
+// MarkdownContentHasSuffix applies the HasSuffix predicate on the "markdown_content" field.
+func MarkdownContentHasSuffix(v string) predicate.Page {
+	return predicate.Page(sql.FieldHasSuffix(FieldMarkdownContent, v))
+}
+
+// MarkdownContentEqualFold applies the EqualFold predicate on the "markdown_content" field.
+func MarkdownContentEqualFold(v string) predicate.Page {
+	return predicate.Page(sql.FieldEqualFold(FieldMarkdownContent, v))
+}
+
+// MarkdownContentContainsFold applies the ContainsFold predicate on the "markdown_content" field.
+func MarkdownContentContainsFold(v string) predicate.Page {
+	return predicate.Page(sql.FieldContainsFold(FieldMarkdownContent, v))
 }
 
 // DescriptionEQ applies the EQ predicate on the "description" field.

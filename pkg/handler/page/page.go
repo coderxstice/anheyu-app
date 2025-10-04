@@ -31,20 +31,21 @@ func NewHandler(pageService page.Service) *Handler {
 // @Security     BearerAuth
 // @Accept       json
 // @Produce      json
-// @Param        body  body  object{title=string,path=string,content=string,description=string,is_published=bool,sort=int}  true  "页面信息"
+// @Param        body  body  object{title=string,path=string,content=string,markdown_content=string,description=string,is_published=bool,sort=int}  true  "页面信息"
 // @Success      200  {object}  response.Response{data=model.Page}  "创建成功"
 // @Failure      400  {object}  response.Response  "请求参数错误"
 // @Failure      500  {object}  response.Response  "创建失败"
 // @Router       /pages [post]
 func (h *Handler) Create(c *gin.Context) {
 	var req struct {
-		Title       string `json:"title" binding:"required"`
-		Path        string `json:"path" binding:"required"`
-		Content     string `json:"content" binding:"required"`
-		Description string `json:"description"`
-		IsPublished bool   `json:"is_published"`
-		ShowComment bool   `json:"show_comment"`
-		Sort        int    `json:"sort"`
+		Title           string `json:"title" binding:"required"`
+		Path            string `json:"path" binding:"required"`
+		Content         string `json:"content" binding:"required"`
+		MarkdownContent string `json:"markdown_content"`
+		Description     string `json:"description"`
+		IsPublished     bool   `json:"is_published"`
+		ShowComment     bool   `json:"show_comment"`
+		Sort            int    `json:"sort"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -53,13 +54,14 @@ func (h *Handler) Create(c *gin.Context) {
 	}
 
 	options := &model.CreatePageOptions{
-		Title:       req.Title,
-		Path:        req.Path,
-		Content:     req.Content,
-		Description: req.Description,
-		IsPublished: req.IsPublished,
-		ShowComment: req.ShowComment,
-		Sort:        req.Sort,
+		Title:           req.Title,
+		Path:            req.Path,
+		Content:         req.Content,
+		MarkdownContent: req.MarkdownContent,
+		Description:     req.Description,
+		IsPublished:     req.IsPublished,
+		ShowComment:     req.ShowComment,
+		Sort:            req.Sort,
 	}
 
 	page, err := h.pageService.Create(c.Request.Context(), options)
@@ -196,7 +198,7 @@ func (h *Handler) List(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        id    path  string  true  "页面ID"
-// @Param        body  body  object{title=string,path=string,content=string,description=string,is_published=bool,sort=int}  true  "页面信息（所有字段可选）"
+// @Param        body  body  object{title=string,path=string,content=string,markdown_content=string,description=string,is_published=bool,sort=int}  true  "页面信息（所有字段可选）"
 // @Success      200  {object}  response.Response{data=model.Page}  "更新成功"
 // @Failure      400  {object}  response.Response  "请求参数错误"
 // @Failure      500  {object}  response.Response  "更新失败"
@@ -209,13 +211,14 @@ func (h *Handler) Update(c *gin.Context) {
 	}
 
 	var req struct {
-		Title       *string `json:"title"`
-		Path        *string `json:"path"`
-		Content     *string `json:"content"`
-		Description *string `json:"description"`
-		IsPublished *bool   `json:"is_published"`
-		ShowComment *bool   `json:"show_comment"`
-		Sort        *int    `json:"sort"`
+		Title           *string `json:"title"`
+		Path            *string `json:"path"`
+		Content         *string `json:"content"`
+		MarkdownContent *string `json:"markdown_content"`
+		Description     *string `json:"description"`
+		IsPublished     *bool   `json:"is_published"`
+		ShowComment     *bool   `json:"show_comment"`
+		Sort            *int    `json:"sort"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -224,13 +227,14 @@ func (h *Handler) Update(c *gin.Context) {
 	}
 
 	options := &model.UpdatePageOptions{
-		Title:       req.Title,
-		Path:        req.Path,
-		Content:     req.Content,
-		Description: req.Description,
-		IsPublished: req.IsPublished,
-		ShowComment: req.ShowComment,
-		Sort:        req.Sort,
+		Title:           req.Title,
+		Path:            req.Path,
+		Content:         req.Content,
+		MarkdownContent: req.MarkdownContent,
+		Description:     req.Description,
+		IsPublished:     req.IsPublished,
+		ShowComment:     req.ShowComment,
+		Sort:            req.Sort,
 	}
 
 	page, err := h.pageService.Update(c.Request.Context(), id, options)

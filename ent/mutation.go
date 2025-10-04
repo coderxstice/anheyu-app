@@ -13065,24 +13065,25 @@ func (m *MetadataMutation) ResetEdge(name string) error {
 // PageMutation represents an operation that mutates the Page nodes in the graph.
 type PageMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *uint
-	deleted_at    *time.Time
-	title         *string
-	_path         *string
-	content       *string
-	description   *string
-	is_published  *bool
-	show_comment  *bool
-	sort          *int
-	addsort       *int
-	created_at    *time.Time
-	updated_at    *time.Time
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*Page, error)
-	predicates    []predicate.Page
+	op               Op
+	typ              string
+	id               *uint
+	deleted_at       *time.Time
+	title            *string
+	_path            *string
+	content          *string
+	markdown_content *string
+	description      *string
+	is_published     *bool
+	show_comment     *bool
+	sort             *int
+	addsort          *int
+	created_at       *time.Time
+	updated_at       *time.Time
+	clearedFields    map[string]struct{}
+	done             bool
+	oldValue         func(context.Context) (*Page, error)
+	predicates       []predicate.Page
 }
 
 var _ ent.Mutation = (*PageMutation)(nil)
@@ -13344,6 +13345,42 @@ func (m *PageMutation) OldContent(ctx context.Context) (v string, err error) {
 // ResetContent resets all changes to the "content" field.
 func (m *PageMutation) ResetContent() {
 	m.content = nil
+}
+
+// SetMarkdownContent sets the "markdown_content" field.
+func (m *PageMutation) SetMarkdownContent(s string) {
+	m.markdown_content = &s
+}
+
+// MarkdownContent returns the value of the "markdown_content" field in the mutation.
+func (m *PageMutation) MarkdownContent() (r string, exists bool) {
+	v := m.markdown_content
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMarkdownContent returns the old "markdown_content" field's value of the Page entity.
+// If the Page object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PageMutation) OldMarkdownContent(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMarkdownContent is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMarkdownContent requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMarkdownContent: %w", err)
+	}
+	return oldValue.MarkdownContent, nil
+}
+
+// ResetMarkdownContent resets all changes to the "markdown_content" field.
+func (m *PageMutation) ResetMarkdownContent() {
+	m.markdown_content = nil
 }
 
 // SetDescription sets the "description" field.
@@ -13629,7 +13666,7 @@ func (m *PageMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PageMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.deleted_at != nil {
 		fields = append(fields, page.FieldDeletedAt)
 	}
@@ -13641,6 +13678,9 @@ func (m *PageMutation) Fields() []string {
 	}
 	if m.content != nil {
 		fields = append(fields, page.FieldContent)
+	}
+	if m.markdown_content != nil {
+		fields = append(fields, page.FieldMarkdownContent)
 	}
 	if m.description != nil {
 		fields = append(fields, page.FieldDescription)
@@ -13676,6 +13716,8 @@ func (m *PageMutation) Field(name string) (ent.Value, bool) {
 		return m.Path()
 	case page.FieldContent:
 		return m.Content()
+	case page.FieldMarkdownContent:
+		return m.MarkdownContent()
 	case page.FieldDescription:
 		return m.Description()
 	case page.FieldIsPublished:
@@ -13705,6 +13747,8 @@ func (m *PageMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldPath(ctx)
 	case page.FieldContent:
 		return m.OldContent(ctx)
+	case page.FieldMarkdownContent:
+		return m.OldMarkdownContent(ctx)
 	case page.FieldDescription:
 		return m.OldDescription(ctx)
 	case page.FieldIsPublished:
@@ -13753,6 +13797,13 @@ func (m *PageMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetContent(v)
+		return nil
+	case page.FieldMarkdownContent:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMarkdownContent(v)
 		return nil
 	case page.FieldDescription:
 		v, ok := value.(string)
@@ -13886,6 +13937,9 @@ func (m *PageMutation) ResetField(name string) error {
 		return nil
 	case page.FieldContent:
 		m.ResetContent()
+		return nil
+	case page.FieldMarkdownContent:
+		m.ResetMarkdownContent()
 		return nil
 	case page.FieldDescription:
 		m.ResetDescription()

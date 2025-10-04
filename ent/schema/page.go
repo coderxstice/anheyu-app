@@ -45,6 +45,10 @@ func (Page) Fields() []ent.Field {
 		field.Text("content").
 			Comment("HTML内容"),
 
+		field.Text("markdown_content").
+			Default("").
+			Comment("Markdown原始内容"),
+
 		field.String("description").
 			MaxLen(500).
 			Optional().

@@ -362,6 +362,7 @@ var (
 		{Name: "title", Type: field.TypeString, Size: 255},
 		{Name: "path", Type: field.TypeString, Unique: true, Size: 255},
 		{Name: "content", Type: field.TypeString, Size: 2147483647},
+		{Name: "markdown_content", Type: field.TypeString, Size: 2147483647, Default: ""},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 500},
 		{Name: "is_published", Type: field.TypeBool, Default: true},
 		{Name: "show_comment", Type: field.TypeBool, Default: false},
