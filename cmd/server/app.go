@@ -139,16 +139,22 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		sqlDB.Close()
 		return nil, nil, err
 	}
+
+	// 尝试连接 Redis（如果失败，将自动降级到内存缓存）
 	redisClient, err := database.NewRedisClient(context.Background(), cfg)
 	if err != nil {
 		sqlDB.Close()
-		return nil, nil, fmt.Errorf("连接 Redis 失败: %w", err)
+		return nil, nil, fmt.Errorf("Redis 初始化失败: %w", err)
 	}
+
 	// 临时cleanup函数，后面会被增强版本替换
 	tempCleanup := func() {
-		log.Println("执行清理操作：关闭数据库和Redis连接...")
+		log.Println("执行清理操作：关闭数据库连接...")
 		sqlDB.Close()
-		redisClient.Close()
+		if redisClient != nil {
+			log.Println("关闭 Redis 连接...")
+			redisClient.Close()
+		}
 	}
 	if err := idgen.InitSqidsEncoder(); err != nil {
 		return nil, tempCleanup, fmt.Errorf("初始化 ID 编码器失败: %w", err)
@@ -203,7 +209,10 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	strategyManager.Register(constant.PolicyTypeAliOSS, strategy.NewAliyunOSSStrategy())
 	strategyManager.Register(constant.PolicyTypeS3, strategy.NewAWSS3Strategy())
 	emailSvc := utility.NewEmailService(settingSvc)
-	cacheSvc := utility.NewCacheService(redisClient)
+
+	// 使用智能缓存工厂，自动选择 Redis 或内存缓存
+	cacheSvc := utility.NewCacheServiceWithFallback(redisClient)
+
 	tokenSvc := auth.NewTokenService(userRepo, settingSvc, cacheSvc)
 	geoSvc, err := utility.NewGeoIPService(settingSvc)
 	if err != nil {
@@ -401,11 +410,16 @@ func NewApp(content embed.FS) (*App, func(), error) {
 
 	// 创建cleanup函数
 	cleanup := func() {
-		log.Println("执行清理操作：关闭数据库和Redis连接...")
+		log.Println("执行清理操作：关闭数据库连接...")
 
-		// 关闭数据库和Redis连接
+		// 关闭数据库连接
 		sqlDB.Close()
-		redisClient.Close()
+
+		// 关闭 Redis 连接（如果存在）
+		if redisClient != nil {
+			log.Println("关闭 Redis 连接...")
+			redisClient.Close()
+		}
 	}
 
 	return app, cleanup, nil
