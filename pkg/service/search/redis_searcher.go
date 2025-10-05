@@ -52,11 +52,14 @@ type RedisSearcher struct {
 	settingSvc setting.SettingService
 }
 
-// NewRedisSearcher 创建新的 Redis 搜索器
+// NewRedisSearcher 创建新的 Redis 搜索器（支持自动降级）
+// 如果 redisClient 为 nil 或连接失败，返回 nil 以便上层降级
 func NewRedisSearcher(settingSvc setting.SettingService) (*RedisSearcher, error) {
 	redisAddr := os.Getenv("ANHEYU_REDIS_ADDR")
 	if redisAddr == "" {
-		redisAddr = DefaultRedisAddr
+		// Redis 地址未配置，返回 nil 以便降级
+		log.Println("⚠️  Redis 地址未配置，搜索功能将降级到数据库模式")
+		return nil, nil
 	}
 
 	rdb := redis.NewClient(&redis.Options{
@@ -69,11 +72,33 @@ func NewRedisSearcher(settingSvc setting.SettingService) (*RedisSearcher, error)
 	defer cancel()
 
 	if err := rdb.Ping(ctx).Err(); err != nil {
-		return nil, fmt.Errorf("Redis 连接失败: %w", err)
+		log.Printf("⚠️  Redis 连接失败: %v，搜索功能将降级到数据库模式", err)
+		rdb.Close()
+		return nil, nil
 	}
 
 	return &RedisSearcher{
 		client:     rdb,
+		settingSvc: settingSvc,
+	}, nil
+}
+
+// NewRedisSearcherWithClient 使用已有的 Redis 客户端创建搜索器
+func NewRedisSearcherWithClient(redisClient *redis.Client, settingSvc setting.SettingService) (*RedisSearcher, error) {
+	if redisClient == nil {
+		return nil, nil
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), RedisConnectionTimeout)
+	defer cancel()
+
+	if err := redisClient.Ping(ctx).Err(); err != nil {
+		log.Printf("⚠️  Redis 不可用: %v，搜索功能将降级到数据库模式", err)
+		return nil, nil
+	}
+
+	return &RedisSearcher{
+		client:     redisClient,
 		settingSvc: settingSvc,
 	}, nil
 }

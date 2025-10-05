@@ -9,7 +9,6 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"strconv"
 
@@ -18,7 +17,8 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// NewRedisClient 是一个新的构造函数，它接收配置并返回 Redis 客户端或错误
+// NewRedisClient 是一个新的构造函数，它接收配置并返回 Redis 客户端或 nil（用于自动降级）
+// 如果 Redis 未配置或连接失败，返回 nil 而不是 error，让上层决定是否降级到内存缓存
 func NewRedisClient(ctx context.Context, cfg *config.Config) (*redis.Client, error) {
 	// 1. 从注入的 cfg 对象获取配置
 	redisAddr := cfg.GetString(config.KeyRedisAddr)
@@ -29,8 +29,10 @@ func NewRedisClient(ctx context.Context, cfg *config.Config) (*redis.Client, err
 		redisDBStr = cfg.GetString(config.KeyRedisDB)
 	}
 
+	// 如果 Redis 地址未配置，返回 nil（这不是错误，只是没有配置）
 	if redisAddr == "" {
-		return nil, fmt.Errorf("REDIS_ADDR 未在配置中设置")
+		log.Println("⚠️  Redis 地址未配置，将使用内存缓存")
+		return nil, nil
 	}
 
 	var redisDB int
@@ -38,9 +40,10 @@ func NewRedisClient(ctx context.Context, cfg *config.Config) (*redis.Client, err
 		var err error
 		redisDB, err = strconv.Atoi(redisDBStr)
 		if err != nil {
-			return nil, fmt.Errorf("无效的 REDIS_DB 值 '%s': %w", redisDBStr, err)
+			log.Printf("⚠️  无效的 REDIS_DB 值 '%s': %v，将使用内存缓存", redisDBStr, err)
+			return nil, nil
 		}
-	} // 如果为空，redisDB 默认为 10，符合预期
+	}
 
 	// 2. 创建 Redis 客户端实例
 	rdb := redis.NewClient(&redis.Options{
@@ -49,12 +52,13 @@ func NewRedisClient(ctx context.Context, cfg *config.Config) (*redis.Client, err
 		DB:       redisDB,
 	})
 
-	// 3. 检查连接，并返回 error 而不是 Fatal
+	// 3. 检查连接
 	if err := rdb.Ping(ctx).Err(); err != nil {
-		return nil, fmt.Errorf("连接 Redis (%s, DB %d) 失败: %w", redisAddr, redisDB, err)
+		log.Printf("⚠️  连接 Redis (%s, DB %d) 失败: %v，将使用内存缓存", redisAddr, redisDB, err)
+		rdb.Close()
+		return nil, nil
 	}
 
-	log.Printf("成功连接到 Redis (%s, DB %d)", redisAddr, redisDB)
-	// 4. 返回创建的客户端实例和 nil 错误
+	log.Printf("✅ 成功连接到 Redis (%s, DB %d)", redisAddr, redisDB)
 	return rdb, nil
 }

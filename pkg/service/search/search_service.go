@@ -84,16 +84,24 @@ func (s *SearchService) clearAllIndexes(ctx context.Context) error {
 		return fmt.Errorf("搜索引擎未初始化")
 	}
 
+	// 检查搜索器类型
+	redisSearcher, ok := s.searcher.(*RedisSearcher)
+	if !ok {
+		// 如果不是 Redis 搜索器，跳过清理操作（Simple 搜索器不需要清理）
+		log.Println("当前使用简单搜索模式，无需清理索引")
+		return nil
+	}
+
 	// 获取所有以 "search:" 开头的键
 	pattern := "search:*"
-	keys, err := s.searcher.(*RedisSearcher).client.Keys(ctx, pattern).Result()
+	keys, err := redisSearcher.client.Keys(ctx, pattern).Result()
 	if err != nil {
 		return fmt.Errorf("获取搜索索引键失败: %w", err)
 	}
 
 	if len(keys) > 0 {
 		// 批量删除所有搜索相关的键
-		pipe := s.searcher.(*RedisSearcher).client.Pipeline()
+		pipe := redisSearcher.client.Pipeline()
 		for _, key := range keys {
 			pipe.Del(ctx, key)
 		}
@@ -108,15 +116,24 @@ func (s *SearchService) clearAllIndexes(ctx context.Context) error {
 	return nil
 }
 
-// InitializeSearchEngine 初始化搜索引擎
+// InitializeSearchEngine 初始化搜索引擎（支持自动降级）
 func InitializeSearchEngine(settingSvc setting.SettingService) error {
-	// 使用 Redis 搜索模式
+	// 尝试使用 Redis 搜索模式
 	redisSearcher, err := NewRedisSearcher(settingSvc)
 	if err != nil {
 		return fmt.Errorf("Redis 搜索初始化失败: %w", err)
 	}
 
-	AppSearcher = redisSearcher
-	log.Println("✅ Redis 搜索模式已启用")
+	if redisSearcher != nil {
+		// Redis 可用，使用 Redis 搜索
+		AppSearcher = redisSearcher
+		log.Println("✅ Redis 搜索模式已启用")
+		return nil
+	}
+
+	// Redis 不可用，降级到简单搜索模式
+	simpleSearcher := NewSimpleSearcher(settingSvc)
+	AppSearcher = simpleSearcher
+	log.Println("✅ 简单搜索模式已启用（降级方案）")
 	return nil
 }
