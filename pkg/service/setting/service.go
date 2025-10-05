@@ -31,6 +31,7 @@ type SettingService interface {
 	GetByKeys(keys []string) map[string]interface{}
 	GetSiteConfig() map[string]interface{}
 	UpdateSettings(ctx context.Context, settingsToUpdate map[string]string) error
+	RegisterPublicSettings(keys []string) // 动态注册公开配置
 }
 
 // settingService 是 SettingService 接口的实现
@@ -154,6 +155,17 @@ func (s *settingService) GetSiteConfig() map[string]interface{} {
 func (s *settingService) isPublicSetting(key string) bool {
 	_, ok := s.publicSetting[key]
 	return ok
+}
+
+// RegisterPublicSettings 动态注册公开配置键
+// PRO 版本可以调用此方法将额外的配置标记为公开
+func (s *settingService) RegisterPublicSettings(keys []string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for _, key := range keys {
+		s.publicSetting[key] = true
+	}
+	log.Printf("已注册 %d 个公开配置项", len(keys))
 }
 
 func unflatten(flatConfig map[string]string) map[string]interface{} {
