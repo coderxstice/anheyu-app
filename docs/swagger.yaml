@@ -103,6 +103,9 @@ definitions:
       email:
         description: 评论者的邮箱，用于接收回复通知。
         type: string
+      is_anonymous:
+        description: 是否为匿名评论（前端明确标识）。
+        type: boolean
       nickname:
         description: 评论者的昵称。
         maxLength: 50
@@ -174,6 +177,8 @@ definitions:
       ip_location:
         type: string
       is_admin_comment:
+        type: boolean
+      is_anonymous:
         type: boolean
       like_count:
         type: integer
@@ -945,9 +950,15 @@ definitions:
       is_published:
         description: 是否发布
         type: boolean
+      markdown_content:
+        description: Markdown原始内容
+        type: string
       path:
         description: 页面路径，如 /privacy
         type: string
+      show_comment:
+        description: 是否显示评论
+        type: boolean
       sort:
         description: 排序
         type: integer
@@ -1584,6 +1595,103 @@ definitions:
     required:
     - theme_name
     type: object
+  user_handler.AdminCreateUserRequest:
+    properties:
+      email:
+        type: string
+      nickname:
+        maxLength: 50
+        type: string
+      password:
+        minLength: 6
+        type: string
+      userGroupID:
+        type: string
+      username:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - email
+    - password
+    - userGroupID
+    - username
+    type: object
+  user_handler.AdminListUsersResponse:
+    properties:
+      page:
+        type: integer
+      size:
+        type: integer
+      total:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/user_handler.AdminUserDTO'
+        type: array
+    type: object
+  user_handler.AdminResetPasswordRequest:
+    properties:
+      newPassword:
+        minLength: 6
+        type: string
+    required:
+    - newPassword
+    type: object
+  user_handler.AdminUpdateUserRequest:
+    properties:
+      email:
+        type: string
+      nickname:
+        maxLength: 50
+        type: string
+      status:
+        maximum: 3
+        minimum: 1
+        type: integer
+      userGroupID:
+        type: string
+      username:
+        maxLength: 50
+        minLength: 3
+        type: string
+    type: object
+  user_handler.AdminUpdateUserStatusRequest:
+    properties:
+      status:
+        maximum: 3
+        minimum: 1
+        type: integer
+    required:
+    - status
+    type: object
+  user_handler.AdminUserDTO:
+    properties:
+      avatar:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      lastLoginAt:
+        type: string
+      nickname:
+        type: string
+      status:
+        type: integer
+      updated_at:
+        type: string
+      userGroup:
+        $ref: '#/definitions/user_handler.UserGroup'
+      userGroupID:
+        type: string
+      username:
+        type: string
+      website:
+        type: string
+    type: object
   user_handler.GetUserInfoResponse:
     properties:
       avatar:
@@ -1620,6 +1728,9 @@ definitions:
       username:
         description: 用户名
         type: string
+      website:
+        description: 个人网站
+        type: string
     type: object
   user_handler.UpdateUserPasswordRequest:
     properties:
@@ -1632,6 +1743,15 @@ definitions:
     - newPassword
     - oldPassword
     type: object
+  user_handler.UpdateUserProfileRequest:
+    properties:
+      nickname:
+        maxLength: 50
+        minLength: 2
+        type: string
+      website:
+        type: string
+    type: object
   user_handler.UserGroup:
     properties:
       description:
@@ -1639,6 +1759,18 @@ definitions:
         type: string
       id:
         description: 用户组的公共ID，改为 string 类型
+        type: string
+      name:
+        description: 用户组名称
+        type: string
+    type: object
+  user_handler.UserGroupDTO:
+    properties:
+      description:
+        description: 用户组描述
+        type: string
+      id:
+        description: 用户组公共ID
         type: string
       name:
         description: 用户组名称
@@ -1661,6 +1793,256 @@ info:
   title: Anheyu App API
   version: "1.0"
 paths:
+  /admin/user-groups:
+    get:
+      description: 获取系统中所有用户组
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/user_handler.UserGroupDTO'
+                  type: array
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取用户组列表
+      tags:
+      - 管理员-用户管理
+  /admin/users:
+    get:
+      description: 管理员分页查询用户列表，支持搜索和筛选
+      parameters:
+      - description: 页码，默认1
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量，默认10
+        in: query
+        name: pageSize
+        type: integer
+      - description: 搜索关键词（用户名、昵称、邮箱）
+        in: query
+        name: keyword
+        type: string
+      - description: 用户组ID筛选
+        in: query
+        name: groupID
+        type: integer
+      - description: 用户状态筛选（1:正常 2:未激活 3:已封禁）
+        in: query
+        name: status
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 查询成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/user_handler.AdminListUsersResponse'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 管理员获取用户列表
+      tags:
+      - 管理员-用户管理
+    post:
+      consumes:
+      - application/json
+      description: 管理员创建新用户
+      parameters:
+      - description: 用户信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/user_handler.AdminCreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/user_handler.AdminUserDTO'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 管理员创建用户
+      tags:
+      - 管理员-用户管理
+  /admin/users/:id:
+    delete:
+      description: 管理员删除用户（软删除）
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 管理员删除用户
+      tags:
+      - 管理员-用户管理
+    put:
+      consumes:
+      - application/json
+      description: 管理员更新用户信息
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 用户信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/user_handler.AdminUpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 管理员更新用户
+      tags:
+      - 管理员-用户管理
+  /admin/users/:id/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: 管理员重置指定用户的密码
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 新密码
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/user_handler.AdminResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 重置成功
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 管理员重置用户密码
+      tags:
+      - 管理员-用户管理
+  /admin/users/:id/status:
+    put:
+      consumes:
+      - application/json
+      description: 管理员更新指定用户的状态（1:正常 2:未激活 3:已封禁）
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 用户状态
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/user_handler.AdminUpdateUserStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 管理员更新用户状态
+      tags:
+      - 管理员-用户管理
   /albums:
     get:
       description: 获取相册图片列表，支持分页、标签筛选、时间筛选和排序
@@ -4083,6 +4465,8 @@ paths:
               type: string
             is_published:
               type: boolean
+            markdown_content:
+              type: string
             path:
               type: string
             sort:
@@ -4197,6 +4581,8 @@ paths:
               type: string
             is_published:
               type: boolean
+            markdown_content:
+              type: string
             path:
               type: string
             sort:
@@ -6562,6 +6948,38 @@ paths:
       security:
       - BearerAuth: []
       summary: 获取当前用户信息
+      tags:
+      - 用户管理
+  /user/profile:
+    put:
+      consumes:
+      - application/json
+      description: 当前登录用户更新自己的基本信息（昵称、网站等）
+      parameters:
+      - description: 用户信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/user_handler.UpdateUserProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新用户信息
       tags:
       - 用户管理
   /user/update-password:

@@ -125,7 +125,7 @@ changelog:
 
 # Docker 镜像配置 - 多架构支持 (AMD64 + ARM64)
 dockers:
-  # AMD64 镜像
+  # AMD64 镜像 - 基础版本标签
   - id: anheyu-app-docker-amd64
     goos: linux
     goarch: amd64
@@ -133,10 +133,6 @@ dockers:
     image_templates:
       - "anheyu/anheyu-backend:{{ .Version }}-amd64"
       - "anheyu/anheyu-backend:latest-amd64"
-      # Beta版本标签策略
-      - '{{ if contains .Version "beta" }}anheyu/anheyu-backend:beta-amd64{{ end }}'
-      - '{{ if contains .Version "alpha" }}anheyu/anheyu-backend:alpha-amd64{{ end }}'
-      - '{{ if contains .Version "rc" }}anheyu/anheyu-backend:rc-amd64{{ end }}'
 
     dockerfile: Dockerfile
     use: buildx
@@ -157,7 +153,7 @@ dockers:
       - entrypoint.sh
       - default_files/
 
-  # ARM64 镜像
+  # ARM64 镜像 - 基础版本标签
   - id: anheyu-app-docker-arm64
     goos: linux
     goarch: arm64
@@ -165,10 +161,6 @@ dockers:
     image_templates:
       - "anheyu/anheyu-backend:{{ .Version }}-arm64"
       - "anheyu/anheyu-backend:latest-arm64"
-      # Beta版本标签策略
-      - '{{ if contains .Version "beta" }}anheyu/anheyu-backend:beta-arm64{{ end }}'
-      - '{{ if contains .Version "alpha" }}anheyu/anheyu-backend:alpha-arm64{{ end }}'
-      - '{{ if contains .Version "rc" }}anheyu/anheyu-backend:rc-arm64{{ end }}'
 
     dockerfile: Dockerfile
     use: buildx
@@ -182,6 +174,156 @@ dockers:
       - "--label=org.opencontainers.image.source={{ .GitURL }}"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - "--label=org.opencontainers.image.created={{ .Date }}"
+
+    extra_files:
+      - README.md
+      - LICENSE
+      - entrypoint.sh
+      - default_files/
+
+  # AMD64 镜像 - Beta标签（仅在beta版本时构建）
+  - id: anheyu-app-docker-amd64-beta
+    goos: linux
+    goarch: amd64
+    skip_push: '{{ not (contains .Version "beta") }}'
+
+    image_templates:
+      - "anheyu/anheyu-backend:beta-amd64"
+
+    dockerfile: Dockerfile
+    use: buildx
+
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--pull"
+      - "--build-arg=VERSION={{ .Version }}"
+      - "--build-arg=COMMIT={{ .ShortCommit }}"
+      - "--build-arg=BUILD_DATE={{ .Date }}"
+
+    extra_files:
+      - README.md
+      - LICENSE
+      - entrypoint.sh
+      - default_files/
+
+  # ARM64 镜像 - Beta标签（仅在beta版本时构建）
+  - id: anheyu-app-docker-arm64-beta
+    goos: linux
+    goarch: arm64
+    skip_push: '{{ not (contains .Version "beta") }}'
+
+    image_templates:
+      - "anheyu/anheyu-backend:beta-arm64"
+
+    dockerfile: Dockerfile
+    use: buildx
+
+    build_flag_templates:
+      - "--platform=linux/arm64"
+      - "--pull"
+      - "--build-arg=VERSION={{ .Version }}"
+      - "--build-arg=COMMIT={{ .ShortCommit }}"
+      - "--build-arg=BUILD_DATE={{ .Date }}"
+
+    extra_files:
+      - README.md
+      - LICENSE
+      - entrypoint.sh
+      - default_files/
+
+  # AMD64 镜像 - Alpha标签（仅在alpha版本时构建）
+  - id: anheyu-app-docker-amd64-alpha
+    goos: linux
+    goarch: amd64
+    skip_push: '{{ not (contains .Version "alpha") }}'
+
+    image_templates:
+      - "anheyu/anheyu-backend:alpha-amd64"
+
+    dockerfile: Dockerfile
+    use: buildx
+
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--pull"
+      - "--build-arg=VERSION={{ .Version }}"
+      - "--build-arg=COMMIT={{ .ShortCommit }}"
+      - "--build-arg=BUILD_DATE={{ .Date }}"
+
+    extra_files:
+      - README.md
+      - LICENSE
+      - entrypoint.sh
+      - default_files/
+
+  # ARM64 镜像 - Alpha标签（仅在alpha版本时构建）
+  - id: anheyu-app-docker-arm64-alpha
+    goos: linux
+    goarch: arm64
+    skip_push: '{{ not (contains .Version "alpha") }}'
+
+    image_templates:
+      - "anheyu/anheyu-backend:alpha-arm64"
+
+    dockerfile: Dockerfile
+    use: buildx
+
+    build_flag_templates:
+      - "--platform=linux/arm64"
+      - "--pull"
+      - "--build-arg=VERSION={{ .Version }}"
+      - "--build-arg=COMMIT={{ .ShortCommit }}"
+      - "--build-arg=BUILD_DATE={{ .Date }}"
+
+    extra_files:
+      - README.md
+      - LICENSE
+      - entrypoint.sh
+      - default_files/
+
+  # AMD64 镜像 - RC标签（仅在rc版本时构建）
+  - id: anheyu-app-docker-amd64-rc
+    goos: linux
+    goarch: amd64
+    skip_push: '{{ not (contains .Version "rc") }}'
+
+    image_templates:
+      - "anheyu/anheyu-backend:rc-amd64"
+
+    dockerfile: Dockerfile
+    use: buildx
+
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--pull"
+      - "--build-arg=VERSION={{ .Version }}"
+      - "--build-arg=COMMIT={{ .ShortCommit }}"
+      - "--build-arg=BUILD_DATE={{ .Date }}"
+
+    extra_files:
+      - README.md
+      - LICENSE
+      - entrypoint.sh
+      - default_files/
+
+  # ARM64 镜像 - RC标签（仅在rc版本时构建）
+  - id: anheyu-app-docker-arm64-rc
+    goos: linux
+    goarch: arm64
+    skip_push: '{{ not (contains .Version "rc") }}'
+
+    image_templates:
+      - "anheyu/anheyu-backend:rc-arm64"
+
+    dockerfile: Dockerfile
+    use: buildx
+
+    build_flag_templates:
+      - "--platform=linux/arm64"
+      - "--pull"
+      - "--build-arg=VERSION={{ .Version }}"
+      - "--build-arg=COMMIT={{ .ShortCommit }}"
+      - "--build-arg=BUILD_DATE={{ .Date }}"
 
     extra_files:
       - README.md
@@ -204,22 +346,25 @@ docker_manifests:
       - "anheyu/anheyu-backend:latest-arm64"
 
   # Beta版本的多架构 manifest
-  - name_template: '{{ if contains .Version "beta" }}anheyu/anheyu-backend:beta{{ end }}'
+  - name_template: "anheyu/anheyu-backend:beta"
+    skip_push: '{{ not (contains .Version "beta") }}'
     image_templates:
-      - '{{ if contains .Version "beta" }}anheyu/anheyu-backend:beta-amd64{{ end }}'
-      - '{{ if contains .Version "beta" }}anheyu/anheyu-backend:beta-arm64{{ end }}'
+      - "anheyu/anheyu-backend:beta-amd64"
+      - "anheyu/anheyu-backend:beta-arm64"
 
   # Alpha版本的多架构 manifest
-  - name_template: '{{ if contains .Version "alpha" }}anheyu/anheyu-backend:alpha{{ end }}'
+  - name_template: "anheyu/anheyu-backend:alpha"
+    skip_push: '{{ not (contains .Version "alpha") }}'
     image_templates:
-      - '{{ if contains .Version "alpha" }}anheyu/anheyu-backend:alpha-amd64{{ end }}'
-      - '{{ if contains .Version "alpha" }}anheyu/anheyu-backend:alpha-arm64{{ end }}'
+      - "anheyu/anheyu-backend:alpha-amd64"
+      - "anheyu/anheyu-backend:alpha-arm64"
 
   # RC版本的多架构 manifest
-  - name_template: '{{ if contains .Version "rc" }}anheyu/anheyu-backend:rc{{ end }}'
+  - name_template: "anheyu/anheyu-backend:rc"
+    skip_push: '{{ not (contains .Version "rc") }}'
     image_templates:
-      - '{{ if contains .Version "rc" }}anheyu/anheyu-backend:rc-amd64{{ end }}'
-      - '{{ if contains .Version "rc" }}anheyu/anheyu-backend:rc-arm64{{ end }}'
+      - "anheyu/anheyu-backend:rc-amd64"
+      - "anheyu/anheyu-backend:rc-arm64"
 
 # GitHub Release 配置
 release:
