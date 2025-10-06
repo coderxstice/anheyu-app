@@ -9,9 +9,11 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"net"
 	"net/smtp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/parser"
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
@@ -241,9 +243,17 @@ func (s *emailService) send(to, subject, body string) error {
 			return err
 		}
 	} else {
-		c, err := smtp.Dial(addr)
+		// 使用带超时的拨号（15秒超时）
+		conn, err := net.DialTimeout("tcp", addr, 15*time.Second)
 		if err != nil {
 			log.Printf("错误: [STARTTLS] Dialing failed: %v", err)
+			return err
+		}
+
+		c, err := smtp.NewClient(conn, host)
+		if err != nil {
+			conn.Close()
+			log.Printf("错误: [STARTTLS] 创建SMTP客户端失败: %v", err)
 			return err
 		}
 		defer c.Close()
@@ -315,7 +325,12 @@ func sendMailSSL(addr string, auth smtp.Auth, from string, to []string, message 
 		InsecureSkipVerify: true,
 		ServerName:         host,
 	}
-	conn, err := tls.Dial("tcp", addr, tlsConfig)
+
+	// 设置15秒超时
+	dialer := &net.Dialer{
+		Timeout: 15 * time.Second,
+	}
+	conn, err := tls.DialWithDialer(dialer, "tcp", addr, tlsConfig)
 	if err != nil {
 		return fmt.Errorf("TLS拨号失败: %w", err)
 	}
