@@ -64,24 +64,28 @@ func (m *Middleware) JWTAuth() gin.HandlerFunc {
 }
 
 // JWTAuthOptional 是一个可选的JWT认证中间件
+// 如果没有Token，允许游客访问；如果有Token但过期，返回401触发自动刷新
 func (m *Middleware) JWTAuthOptional() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.Request.Header.Get("Authorization")
 		if authHeader == "" {
-			c.Next() // 没有Token，直接放行
+			c.Next() // 没有Token，直接放行（游客）
 			return
 		}
 
 		parts := strings.SplitN(authHeader, " ", 2)
 		if !(len(parts) == 2 && parts[0] == "Bearer") {
-			c.Next() // Token格式不正确，直接放行
+			c.Next() // Token格式不正确，直接放行（游客）
 			return
 		}
 
 		tokenString := parts[1]
 		claims, err := m.tokenSvc.ParseAccessToken(c.Request.Context(), tokenString)
 		if err != nil {
-			c.Next() // Token无效或过期，直接放行
+			// Token无效或过期，返回401触发前端自动刷新token
+			log.Printf("[JWTAuthOptional] Token解析失败: %v, 返回401触发自动刷新", err)
+			response.Fail(c, http.StatusUnauthorized, "Token已过期")
+			c.Abort()
 			return
 		}
 
