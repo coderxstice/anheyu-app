@@ -328,15 +328,13 @@ func isStaticFileRequest(filePath string) bool {
 func shouldReturnIndexHTML(path string) bool {
 	// 明确排除的路径（这些不应该由前端处理）
 	excludedPrefixes := []string{
-		"/api/",          // API 接口
-		"/f/",            // 文件服务
-		"/needcache/",    // 缓存服务
-		"/static/",       // 静态资源
-		"/manifest.json", // PWA manifest
-		"/sw.js",         // Service Worker
-		"/robots.txt",    // 搜索引擎爬虫文件
-		"/sitemap.xml",   // 网站地图
-		"/favicon.ico",   // 网站图标
+		"/api/",        // API 接口
+		"/f/",          // 文件服务
+		"/needcache/",  // 缓存服务
+		"/static/",     // 静态资源
+		"/robots.txt",  // 搜索引擎爬虫文件
+		"/sitemap.xml", // 网站地图
+		"/favicon.ico", // 网站图标
 	}
 
 	// 检查是否是被排除的路径
@@ -417,42 +415,6 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 	engine.GET("/feed.xml", rssHandler.GetRSSFeed)
 	engine.GET("/atom.xml", rssHandler.GetRSSFeed)
 	log.Println("RSS feed 路由已配置: /rss.xml, /feed.xml 和 /atom.xml")
-
-	engine.GET("/manifest.json", func(c *gin.Context) {
-		type ManifestIcon struct {
-			Src   string `json:"src"`
-			Sizes string `json:"sizes"`
-			Type  string `json:"type"`
-		}
-		type WebAppManifest struct {
-			Name            string         `json:"name"`
-			ShortName       string         `json:"short_name"`
-			Description     string         `json:"description"`
-			ThemeColor      string         `json:"theme_color"`
-			BackgroundColor string         `json:"background_color"`
-			Display         string         `json:"display"`
-			StartURL        string         `json:"start_url"`
-			Icons           []ManifestIcon `json:"icons"`
-		}
-
-		manifest := WebAppManifest{
-			Name:            settingSvc.Get(constant.KeyAppName.String()),
-			ShortName:       settingSvc.Get(constant.KeyAppName.String()),
-			Description:     settingSvc.Get(constant.KeySiteDescription.String()),
-			ThemeColor:      settingSvc.Get(constant.KeyThemeColor.String()),
-			BackgroundColor: "#ffffff",
-			Display:         "standalone",
-			StartURL:        "/",
-			Icons: []ManifestIcon{
-				{Src: settingSvc.Get(constant.KeyLogoURL192.String()), Sizes: "192x192", Type: "image/png"},
-				{Src: settingSvc.Get(constant.KeyLogoURL512.String()), Sizes: "512x512", Type: "image/png"},
-			},
-		}
-		if manifest.ThemeColor == "" {
-			manifest.ThemeColor = "#ffffff"
-		}
-		c.JSON(http.StatusOK, manifest)
-	})
 
 	// 准备一个通用的模板函数映射
 	funcMap := template.FuncMap{

@@ -247,6 +247,7 @@ func (s *authService) Register(ctx context.Context, email, password string) (boo
 			log.Printf("VFS 目录 '/comment_images' 创建成功。")
 
 			// 2. 再创建策略，并关联 NodeID
+			maxSize := int64(10 * 1024 * 1024) // 10MB 限制
 			commentPolicy := &model.StoragePolicy{
 				Name:        constant.DefaultCommentPolicyName,
 				Type:        constant.PolicyTypeLocal,
@@ -254,6 +255,7 @@ func (s *authService) Register(ctx context.Context, email, password string) (boo
 				BasePath:    commentAbsPath,
 				VirtualPath: "/" + constant.PolicyFlagCommentImage,
 				NodeID:      &commentDir.ID,
+				MaxSize:     maxSize,
 			}
 			if err := policyRepo.Create(ctx, commentPolicy); err != nil {
 				return fmt.Errorf("创建评论图片存储策略失败: %w", err)

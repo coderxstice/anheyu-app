@@ -46,6 +46,12 @@ func (s *serviceImpl) UploadFileByPolicyFlag(ctx context.Context, viewerID uint,
 		return nil, fmt.Errorf("读取上传文件流失败: %w", err)
 	}
 
+	// 检查文件大小是否超过策略限制
+	fileSize := int64(len(content))
+	if policy.MaxSize > 0 && fileSize > policy.MaxSize {
+		return nil, fmt.Errorf("文件大小 (%d 字节) 超出策略限制 (%d 字节)", fileSize, policy.MaxSize)
+	}
+
 	// 3. 在单个数据库事务中完成所有文件和实体的创建
 	err = s.txManager.Do(ctx, func(repos repository.Repositories) error {
 		txFileRepo := repos.File
