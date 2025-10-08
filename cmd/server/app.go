@@ -91,6 +91,7 @@ type App struct {
 	mw                   *middleware.Middleware
 	settingSvc           setting.SettingService
 	fileRepo             repository.FileRepository
+	cacheSvc             utility.CacheService
 }
 
 func (a *App) PrintBanner() {
@@ -406,6 +407,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		mw:                   mw,
 		settingSvc:           settingSvc,
 		fileRepo:             fileRepo,
+		cacheSvc:             cacheSvc,
 	}
 
 	// 创建cleanup函数
@@ -463,6 +465,10 @@ func (a *App) DB() *sql.DB {
 
 func (a *App) StoragePolicyService() volume.IStoragePolicyService {
 	return a.storagePolicyService
+}
+
+func (a *App) CacheService() utility.CacheService {
+	return a.cacheSvc
 }
 
 // Version 返回应用的版本号

@@ -2,7 +2,7 @@
  * @Description: 站点地图服务
  * @Author: 安知鱼
  * @Date: 2025-09-21 00:00:00
- * @LastEditTime: 2025-09-30 12:08:23
+ * @LastEditTime: 2025-10-08 22:47:02
  * @LastEditors: 安知鱼
  */
 package sitemap
@@ -184,7 +184,7 @@ func (s *service) addPages(ctx context.Context, baseURL string, items *[]Sitemap
 func (s *service) addLinkPages(ctx context.Context, baseURL string, items *[]SitemapItem) error {
 	// 添加友链主页面
 	*items = append(*items, SitemapItem{
-		URL:          baseURL + "/links",
+		URL:          baseURL + "/link",
 		LastModified: time.Now(),
 		ChangeFreq:   ChangeFreqWeekly,
 		Priority:     0.6,
