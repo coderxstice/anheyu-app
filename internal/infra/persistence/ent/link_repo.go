@@ -187,7 +187,7 @@ func (r *linkRepo) ListPublic(ctx context.Context, req *model.ListPublicLinksReq
 	results, err := query.
 		Offset((req.GetPage()-1)*req.GetPageSize()).
 		Limit(req.GetPageSize()).
-		Order(ent.Desc(link.FieldSortOrder), ent.Desc(link.FieldID)).
+		Order(ent.Desc(link.FieldSortOrder), ent.Asc(link.FieldID)).
 		All(ctx)
 	if err != nil {
 		return nil, 0, err

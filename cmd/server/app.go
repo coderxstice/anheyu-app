@@ -91,7 +91,9 @@ type App struct {
 	mw                   *middleware.Middleware
 	settingSvc           setting.SettingService
 	fileRepo             repository.FileRepository
+	entityRepo           repository.EntityRepository
 	cacheSvc             utility.CacheService
+	eventBus             *event.EventBus
 }
 
 func (a *App) PrintBanner() {
@@ -407,7 +409,9 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		mw:                   mw,
 		settingSvc:           settingSvc,
 		fileRepo:             fileRepo,
+		entityRepo:           entityRepo,
 		cacheSvc:             cacheSvc,
+		eventBus:             eventBus,
 	}
 
 	// 创建cleanup函数
@@ -437,6 +441,10 @@ func (a *App) Engine() *gin.Engine {
 
 func (a *App) FileRepository() repository.FileRepository {
 	return a.fileRepo
+}
+
+func (a *App) EntityRepository() repository.EntityRepository {
+	return a.entityRepo
 }
 
 func (a *App) SettingService() setting.SettingService {
@@ -469,6 +477,11 @@ func (a *App) StoragePolicyService() volume.IStoragePolicyService {
 
 func (a *App) CacheService() utility.CacheService {
 	return a.cacheSvc
+}
+
+// EventBus 返回事件总线，用于发布和订阅事件
+func (a *App) EventBus() *event.EventBus {
+	return a.eventBus
 }
 
 // Version 返回应用的版本号
