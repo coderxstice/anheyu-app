@@ -292,30 +292,56 @@ func (s *Service) Create(ctx context.Context, req *dto.CreateRequest, ip, ua str
 			go func() {
 				log.Printf("[DEBUG] 开始处理即时通知逻辑")
 				pushChannel := s.settingSvc.Get(constant.KeyPushooChannel.String())
-				pushURL := s.settingSvc.Get(constant.KeyPushooURL.String())
 				notifyAdmin := s.settingSvc.GetBool(constant.KeyCommentNotifyAdmin.String())
 				scMailNotify := s.settingSvc.GetBool(constant.KeyScMailNotify.String())
+				notifyReply := s.settingSvc.GetBool(constant.KeyCommentNotifyReply.String())
+				adminEmail := s.settingSvc.Get(constant.KeyFrontDeskSiteOwnerEmail.String())
 
 				log.Printf("[DEBUG] 即时通知配置检查:")
 				log.Printf("[DEBUG]   - pushChannel: '%s'", pushChannel)
-				log.Printf("[DEBUG]   - pushURL: '%s'", pushURL)
 				log.Printf("[DEBUG]   - notifyAdmin: %t", notifyAdmin)
 				log.Printf("[DEBUG]   - scMailNotify: %t", scMailNotify)
+				log.Printf("[DEBUG]   - notifyReply: %t", notifyReply)
 
 				if pushChannel != "" {
 					log.Printf("[DEBUG] pushChannel 不为空，继续检查通知条件")
-					// 检查是否需要发送博主通知
 
-					// 如果配置了即时通知且(开启了博主通知或者开启了双重通知)
-					if notifyAdmin || scMailNotify {
-						log.Printf("[DEBUG] 满足通知条件，开始发送即时通知")
-						if err := s.pushooSvc.SendCommentNotification(ctx, newComment, parentComment); err != nil {
-							log.Printf("[ERROR] 发送即时通知失败: %v", err)
+					// 检查新评论者是否是管理员本人
+					var newCommenterEmail string
+					if newComment.Author.Email != nil {
+						newCommenterEmail = *newComment.Author.Email
+					}
+					isAdminComment := newCommenterEmail != "" && newCommenterEmail == adminEmail
+
+					// 场景一：通知博主有新评论
+					// 如果开启了博主通知且不是管理员自己评论
+					if (notifyAdmin || scMailNotify) && !isAdminComment {
+						log.Printf("[DEBUG] 满足博主通知条件，开始发送即时通知")
+						if err := s.pushooSvc.SendCommentNotification(ctx, newComment, nil); err != nil {
+							log.Printf("[ERROR] 发送博主即时通知失败: %v", err)
 						} else {
-							log.Printf("[DEBUG] 即时通知发送成功")
+							log.Printf("[DEBUG] 博主即时通知发送成功")
 						}
-					} else {
-						log.Printf("[DEBUG] 不满足通知条件 (notifyAdmin: %t, scMailNotify: %t)，跳过即时通知", notifyAdmin, scMailNotify)
+					}
+
+					// 场景二：通知被回复者有新回复
+					// 如果开启了回复通知、有父评论、父评论允许通知、且不是自己回复自己
+					if notifyReply && parentComment != nil && parentComment.AllowNotification {
+						var parentEmail string
+						if parentComment.Author.Email != nil {
+							parentEmail = *parentComment.Author.Email
+						}
+						// 如果新评论者不是父评论作者本人（避免自己回复自己）
+						if parentEmail != "" && newCommenterEmail != parentEmail {
+							log.Printf("[DEBUG] 满足回复通知条件，开始发送即时通知")
+							if err := s.pushooSvc.SendCommentNotification(ctx, newComment, parentComment); err != nil {
+								log.Printf("[ERROR] 发送回复即时通知失败: %v", err)
+							} else {
+								log.Printf("[DEBUG] 回复即时通知发送成功")
+							}
+						} else {
+							log.Printf("[DEBUG] 不满足回复通知条件（自己回复自己或无邮箱），跳过")
+						}
 					}
 				} else {
 					log.Printf("[DEBUG] pushChannel 为空，跳过即时通知")
