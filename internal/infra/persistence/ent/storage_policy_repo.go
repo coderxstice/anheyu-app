@@ -139,7 +139,8 @@ func (r *entStoragePolicyRepo) List(ctx context.Context, page, pageSize int) ([]
 	}
 
 	offset := (page - 1) * pageSize
-	pos, err := query.Limit(pageSize).Offset(offset).All(ctx)
+	// 按创建时间倒序排列，最新创建的在前面
+	pos, err := query.Order(ent.Desc(storagepolicy.FieldCreatedAt)).Limit(pageSize).Offset(offset).All(ctx)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -153,7 +154,8 @@ func (r *entStoragePolicyRepo) List(ctx context.Context, page, pageSize int) ([]
 }
 
 func (r *entStoragePolicyRepo) ListAll(ctx context.Context) ([]*model.StoragePolicy, error) {
-	pos, err := r.client.StoragePolicy.Query().All(ctx)
+	// 按创建时间倒序排列，最新创建的在前面
+	pos, err := r.client.StoragePolicy.Query().Order(ent.Desc(storagepolicy.FieldCreatedAt)).All(ctx)
 	if err != nil {
 		return nil, err
 	}
