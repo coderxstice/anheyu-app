@@ -88,6 +88,7 @@ type App struct {
 	directLinkService    direct_link.Service
 	storagePolicyRepo    repository.StoragePolicyRepository
 	storagePolicyService volume.IStoragePolicyService
+	fileService          file_service.FileService
 	mw                   *middleware.Middleware
 	settingSvc           setting.SettingService
 	fileRepo             repository.FileRepository
@@ -406,6 +407,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		directLinkService:    directLinkSvc,
 		storagePolicyRepo:    storagePolicyRepo,
 		storagePolicyService: storagePolicySvc,
+		fileService:          fileSvc, // ✅ 新增：暴露给 PRO 版使用
 		mw:                   mw,
 		settingSvc:           settingSvc,
 		fileRepo:             fileRepo,
@@ -477,6 +479,11 @@ func (a *App) StoragePolicyService() volume.IStoragePolicyService {
 
 func (a *App) CacheService() utility.CacheService {
 	return a.cacheSvc
+}
+
+// FileService 返回文件服务实例（暴露给 PRO 版使用）
+func (a *App) FileService() file_service.FileService {
+	return a.fileService
 }
 
 // EventBus 返回事件总线，用于发布和订阅事件

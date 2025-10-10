@@ -68,6 +68,9 @@ type FileService interface {
 
 	// UploadFileByPolicyFlag 根据策略标志（如 article_image）上传文件。
 	UploadFileByPolicyFlag(ctx context.Context, viewerID uint, fileReader io.Reader, policyFlag, filename string) (*model.FileItem, error)
+
+	// GetProviderForPolicy 根据存储策略获取对应的存储提供者实例
+	GetProviderForPolicy(policy *model.StoragePolicy) (storage.IStorageProvider, error)
 }
 
 // serviceImpl 是 FileService 接口的实现。

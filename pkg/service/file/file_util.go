@@ -414,6 +414,7 @@ func (s *serviceImpl) GetFolderPathWithRepo(ctx context.Context, folderID uint, 
 }
 
 // GetProviderForPolicy 根据存储策略获取对应的存储提供者实例。
+// 公开方法，可以被 PRO 版等外部调用。
 func (s *serviceImpl) GetProviderForPolicy(policy *model.StoragePolicy) (storage.IStorageProvider, error) {
 	if policy == nil {
 		return nil, errors.New("storage policy cannot be nil")
