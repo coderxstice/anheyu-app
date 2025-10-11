@@ -134,13 +134,40 @@ changelog:
 
 # Docker 镜像配置 - 多架构支持 (AMD64 + ARM64)
 dockers:
-  # AMD64 镜像 - 基础版本标签
-  - id: anheyu-app-docker-amd64
+  # AMD64 镜像 - 版本标签
+  - id: anheyu-app-docker-amd64-versioned
     goos: linux
     goarch: amd64
 
     image_templates:
       - "anheyu/anheyu-backend:{{ .Version }}-amd64"
+
+    dockerfile: Dockerfile
+    use: buildx
+
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--pull"
+      - "--build-arg=VERSION={{ .Version }}"
+      - "--build-arg=COMMIT={{ .ShortCommit }}"
+      - "--build-arg=BUILD_DATE={{ .Date }}"
+      - "--label=org.opencontainers.image.source={{ .GitURL }}"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.created={{ .Date }}"
+
+    extra_files:
+      - README.md
+      - LICENSE
+      - entrypoint.sh
+      - default_files/
+
+  # AMD64 镜像 - latest 标签（仅正式版本）
+  - id: anheyu-app-docker-amd64-latest
+    goos: linux
+    goarch: amd64
+    skip_push: '{{ or (contains .Version "beta") (contains .Version "alpha") (contains .Version "rc") }}'
+
+    image_templates:
       - "anheyu/anheyu-backend:latest-amd64"
 
     dockerfile: Dockerfile
@@ -162,13 +189,40 @@ dockers:
       - entrypoint.sh
       - default_files/
 
-  # ARM64 镜像 - 基础版本标签
-  - id: anheyu-app-docker-arm64
+  # ARM64 镜像 - 版本标签
+  - id: anheyu-app-docker-arm64-versioned
     goos: linux
     goarch: arm64
 
     image_templates:
       - "anheyu/anheyu-backend:{{ .Version }}-arm64"
+
+    dockerfile: Dockerfile
+    use: buildx
+
+    build_flag_templates:
+      - "--platform=linux/arm64"
+      - "--pull"
+      - "--build-arg=VERSION={{ .Version }}"
+      - "--build-arg=COMMIT={{ .ShortCommit }}"
+      - "--build-arg=BUILD_DATE={{ .Date }}"
+      - "--label=org.opencontainers.image.source={{ .GitURL }}"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.created={{ .Date }}"
+
+    extra_files:
+      - README.md
+      - LICENSE
+      - entrypoint.sh
+      - default_files/
+
+  # ARM64 镜像 - latest 标签（仅正式版本）
+  - id: anheyu-app-docker-arm64-latest
+    goos: linux
+    goarch: arm64
+    skip_push: '{{ or (contains .Version "beta") (contains .Version "alpha") (contains .Version "rc") }}'
+
+    image_templates:
       - "anheyu/anheyu-backend:latest-arm64"
 
     dockerfile: Dockerfile
@@ -342,17 +396,18 @@ dockers:
 
 # Docker Manifest 配置 - 多架构镜像聚合
 docker_manifests:
-  # 版本标签的多架构 manifest
+  # 版本标签的多架构 manifest（所有版本）
   - name_template: "anheyu/anheyu-backend:{{ .Version }}"
     image_templates:
       - "anheyu/anheyu-backend:{{ .Version }}-amd64"
       - "anheyu/anheyu-backend:{{ .Version }}-arm64"
 
-  # latest 标签的多架构 manifest
+  # latest 标签的多架构 manifest（仅正式版本）
   - name_template: "anheyu/anheyu-backend:latest"
     image_templates:
       - "anheyu/anheyu-backend:latest-amd64"
       - "anheyu/anheyu-backend:latest-arm64"
+    skip_push: '{{ or (contains .Version "beta") (contains .Version "alpha") (contains .Version "rc") }}'
 
   # Beta版本的多架构 manifest
   - name_template: "anheyu/anheyu-backend:beta"

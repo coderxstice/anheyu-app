@@ -2,7 +2,7 @@
  * @Description: 腾讯云COS存储提供者实现
  * @Author: 安知鱼
  * @Date: 2025-09-28 12:00:00
- * @LastEditTime: 2025-09-28 17:27:44
+ * @LastEditTime: 2025-10-11 20:38:54
  * @LastEditors: 安知鱼
  */
 package storage
@@ -81,11 +81,26 @@ func (p *TencentCOSProvider) getCOSClient(policy *model.StoragePolicy) (*cos.Cli
 
 // buildObjectKey 构建对象存储路径
 func (p *TencentCOSProvider) buildObjectKey(policy *model.StoragePolicy, virtualPath string) string {
-	// 去掉虚拟路径前缀，得到相对路径
-	relativePath := strings.TrimPrefix(virtualPath, policy.VirtualPath)
-	// 去掉开头的斜杠
-	objectKey := strings.TrimPrefix(relativePath, "/")
+	// 基础前缀路径处理
+	basePath := strings.TrimSuffix(policy.BasePath, "/")
+	if basePath != "" && !strings.HasPrefix(basePath, "/") {
+		basePath = "/" + basePath
+	}
 
+	// 虚拟路径处理：移除开头的斜杠
+	virtualPath = strings.TrimPrefix(virtualPath, "/")
+
+	var objectKey string
+	if basePath == "" || basePath == "/" {
+		objectKey = virtualPath
+	} else {
+		objectKey = strings.TrimPrefix(basePath, "/") + "/" + virtualPath
+	}
+
+	// 确保不以斜杠开头
+	objectKey = strings.TrimPrefix(objectKey, "/")
+
+	log.Printf("[腾讯云COS] 路径转换 - basePath: %s, virtualPath: %s -> objectKey: %s", basePath, virtualPath, objectKey)
 	return objectKey
 }
 

@@ -69,15 +69,15 @@ func (s *serviceImpl) UploadFileByPolicyFlag(ctx context.Context, viewerID uint,
 			return fmt.Errorf("获取父目录 '%s' 的路径失败: %w", parentFolder.Name, err)
 		}
 
-		// 6. 确定存储驱动和完整的上传路径
-		fullVirtualPath := filepath.ToSlash(filepath.Join(parentVirtualPath, filename))
+		// 6. 确定存储驱动和上传路径
+		// 注意：这里只传递文件名，basePath会在存储提供者的buildObjectKey中添加
 		provider, err := s.GetProviderForPolicy(policy)
 		if err != nil {
 			return err
 		}
 
-		// 7. 执行物理上传
-		uploadResult, err := provider.Upload(ctx, bytes.NewReader(content), policy, fullVirtualPath)
+		// 7. 执行物理上传（只传递文件名，不包含虚拟路径前缀）
+		uploadResult, err := provider.Upload(ctx, bytes.NewReader(content), policy, filename)
 		if err != nil {
 			return fmt.Errorf("存储驱动上传失败: %w", err)
 		}
