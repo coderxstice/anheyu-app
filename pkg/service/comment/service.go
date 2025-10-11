@@ -313,27 +313,38 @@ func (s *Service) Create(ctx context.Context, req *dto.CreateRequest, ip, ua str
 					}
 					isAdminComment := newCommenterEmail != "" && newCommenterEmail == adminEmail
 
-					// 场景一：通知博主有新评论
-					// 如果开启了博主通知且不是管理员自己评论
+					// 判断是否有回复父评论
+					hasParentComment := parentComment != nil && parentComment.AllowNotification
+					var parentEmail string
+					if hasParentComment && parentComment.Author.Email != nil {
+						parentEmail = *parentComment.Author.Email
+					}
+
+					// 判断被回复者是否是管理员
+					parentIsAdmin := parentEmail != "" && parentEmail == adminEmail
+
+					// 场景一：通知博主有新评论（顶级评论）
+					// 条件：开启了博主通知、不是管理员自己评论、且没有父评论（或父评论作者不是管理员）
 					if (notifyAdmin || scMailNotify) && !isAdminComment {
-						log.Printf("[DEBUG] 满足博主通知条件，开始发送即时通知")
-						if err := s.pushooSvc.SendCommentNotification(ctx, newComment, nil); err != nil {
-							log.Printf("[ERROR] 发送博主即时通知失败: %v", err)
+						// 如果有父评论且父评论作者是管理员，跳过博主通知（会在场景二中通知）
+						if !parentIsAdmin {
+							log.Printf("[DEBUG] 满足博主通知条件，开始发送即时通知")
+							if err := s.pushooSvc.SendCommentNotification(ctx, newComment, nil); err != nil {
+								log.Printf("[ERROR] 发送博主即时通知失败: %v", err)
+							} else {
+								log.Printf("[DEBUG] 博主即时通知发送成功")
+							}
 						} else {
-							log.Printf("[DEBUG] 博主即时通知发送成功")
+							log.Printf("[DEBUG] 被回复者是管理员，将在场景二统一通知，跳过场景一")
 						}
 					}
 
 					// 场景二：通知被回复者有新回复
-					// 如果开启了回复通知、有父评论、父评论允许通知、且不是自己回复自己
-					if notifyReply && parentComment != nil && parentComment.AllowNotification {
-						var parentEmail string
-						if parentComment.Author.Email != nil {
-							parentEmail = *parentComment.Author.Email
-						}
+					// 条件：开启了回复通知、有父评论、父评论允许通知、且不是自己回复自己
+					if notifyReply && hasParentComment {
 						// 如果新评论者不是父评论作者本人（避免自己回复自己）
 						if parentEmail != "" && newCommenterEmail != parentEmail {
-							log.Printf("[DEBUG] 满足回复通知条件，开始发送即时通知")
+							log.Printf("[DEBUG] 满足回复通知条件，开始发送即时通知（被回复者：%s）", parentEmail)
 							if err := s.pushooSvc.SendCommentNotification(ctx, newComment, parentComment); err != nil {
 								log.Printf("[ERROR] 发送回复即时通知失败: %v", err)
 							} else {

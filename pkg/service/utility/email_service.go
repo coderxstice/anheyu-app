@@ -57,6 +57,8 @@ func (s *emailService) SendTestEmail(ctx context.Context, toEmail string) error 
 
 // SendCommentNotification 实现了发送评论通知的逻辑
 func (s *emailService) SendCommentNotification(newComment *model.Comment, parentComment *model.Comment) {
+	log.Printf("[DEBUG] SendCommentNotification 开始执行，评论ID: %d", newComment.ID)
+
 	siteName := s.settingSvc.Get(constant.KeyAppName.String())
 	siteURL := s.settingSvc.Get(constant.KeySiteURL.String())
 	pageURL := siteURL + newComment.TargetPath
@@ -78,11 +80,16 @@ func (s *emailService) SendCommentNotification(newComment *model.Comment, parent
 		newCommentEmailMD5 = fmt.Sprintf("%x", md5.Sum([]byte(strings.ToLower(newCommenterEmail))))
 	}
 
+	log.Printf("[DEBUG] 新评论者邮箱: %s, 是否有父评论: %t", newCommenterEmail, parentComment != nil)
+
 	// --- 场景一：通知博主有新评论 ---
 	adminEmail := s.settingSvc.Get(constant.KeyFrontDeskSiteOwnerEmail.String())
 	notifyAdmin := s.settingSvc.GetBool(constant.KeyCommentNotifyAdmin.String())
 	pushChannel := s.settingSvc.Get(constant.KeyPushooChannel.String())
 	scMailNotify := s.settingSvc.GetBool(constant.KeyScMailNotify.String())
+
+	log.Printf("[DEBUG] 邮件通知配置: adminEmail=%s, notifyAdmin=%t, pushChannel=%s, scMailNotify=%t",
+		adminEmail, notifyAdmin, pushChannel, scMailNotify)
 
 	// 邮件通知逻辑：
 	// 1. 如果没有配置即时通知，按原来的逻辑发送邮件
@@ -93,7 +100,10 @@ func (s *emailService) SendCommentNotification(newComment *model.Comment, parent
 	// 检查新评论者是否是管理员本人，如果是则不需要通知管理员
 	isAdminComment := newCommenterEmail != "" && newCommenterEmail == adminEmail
 
+	log.Printf("[DEBUG] 场景一检查: shouldSendEmail=%t, isAdminComment=%t", shouldSendEmail, isAdminComment)
+
 	if adminEmail != "" && shouldSendEmail && !isAdminComment {
+		log.Printf("[DEBUG] 准备发送博主通知邮件到: %s", adminEmail)
 		adminSubjectTpl := s.settingSvc.Get(constant.KeyCommentMailSubjectAdmin.String())
 		adminBodyTpl := s.settingSvc.Get(constant.KeyCommentMailTemplateAdmin.String())
 
@@ -112,17 +122,42 @@ func (s *emailService) SendCommentNotification(newComment *model.Comment, parent
 		subject, _ := renderTemplate(adminSubjectTpl, data)
 		body, _ := renderTemplate(adminBodyTpl, data)
 		go func() { _ = s.send(adminEmail, subject, body) }()
+		log.Printf("[DEBUG] 博主通知邮件已分发")
+	} else {
+		log.Printf("[DEBUG] 跳过博主通知: adminEmail=%s, shouldSendEmail=%t, isAdminComment=%t",
+			adminEmail, shouldSendEmail, isAdminComment)
 	}
 
 	// --- 场景二：通知被回复者 ---
 	notifyReply := s.settingSvc.GetBool(constant.KeyCommentNotifyReply.String())
-	if notifyReply && parentComment != nil && parentComment.AllowNotification && parentComment.Author.Email != nil && *parentComment.Author.Email != "" {
-		if newCommenterEmail != "" && newCommenterEmail == *parentComment.Author.Email {
+
+	// 邮件通知逻辑：与博主通知保持一致
+	// 1. 如果没有配置即时通知，按原来的逻辑发送邮件
+	// 2. 如果配置了即时通知但开启了双重通知，也发送邮件
+	// 3. 如果配置了即时通知但没有开启双重通知，则不发送邮件
+	shouldSendReplyEmail := notifyReply && (pushChannel == "" || scMailNotify)
+
+	log.Printf("[DEBUG] 场景二检查: notifyReply=%t, shouldSendReplyEmail=%t", notifyReply, shouldSendReplyEmail)
+
+	if shouldSendReplyEmail && parentComment != nil && parentComment.AllowNotification && parentComment.Author.Email != nil && *parentComment.Author.Email != "" {
+		// 如果新评论者是父评论作者本人，或者是管理员（已经收到博主通知），跳过
+		parentEmail := *parentComment.Author.Email
+		log.Printf("[DEBUG] 父评论信息: parentEmail=%s, allowNotification=%t", parentEmail, parentComment.AllowNotification)
+
+		if newCommenterEmail != "" && newCommenterEmail == parentEmail {
+			log.Printf("[DEBUG] 自己回复自己，跳过回复通知")
+			return
+		}
+		// 如果被回复者是管理员，且管理员已经收到博主通知，避免重复
+		if parentEmail == adminEmail && shouldSendEmail && !isAdminComment {
+			log.Printf("[DEBUG] 被回复者是管理员且已收到博主通知，跳过回复通知")
 			return
 		}
 
+		log.Printf("[DEBUG] 准备发送回复通知邮件到: %s", parentEmail)
+
 		parentCommentHTML, _ := parser.MarkdownToHTML(parentComment.Content)
-		parentCommentEmailMD5 := fmt.Sprintf("%x", md5.Sum([]byte(strings.ToLower(*parentComment.Author.Email))))
+		parentCommentEmailMD5 := fmt.Sprintf("%x", md5.Sum([]byte(strings.ToLower(parentEmail))))
 
 		replySubjectTpl := s.settingSvc.Get(constant.KeyCommentMailSubject.String())
 		replyBodyTpl := s.settingSvc.Get(constant.KeyCommentMailTemplate.String())
@@ -141,7 +176,19 @@ func (s *emailService) SendCommentNotification(newComment *model.Comment, parent
 
 		subject, _ := renderTemplate(replySubjectTpl, data)
 		body, _ := renderTemplate(replyBodyTpl, data)
-		go func() { _ = s.send(*parentComment.Author.Email, subject, body) }()
+		go func() { _ = s.send(parentEmail, subject, body) }()
+		log.Printf("[DEBUG] 回复通知邮件已分发到: %s", parentEmail)
+	} else {
+		log.Printf("[DEBUG] 跳过回复通知 - 条件检查:")
+		log.Printf("[DEBUG]   shouldSendReplyEmail: %t", shouldSendReplyEmail)
+		log.Printf("[DEBUG]   parentComment != nil: %t", parentComment != nil)
+		if parentComment != nil {
+			log.Printf("[DEBUG]   parentComment.AllowNotification: %t", parentComment.AllowNotification)
+			log.Printf("[DEBUG]   parentComment.Author.Email != nil: %t", parentComment.Author.Email != nil)
+			if parentComment.Author.Email != nil {
+				log.Printf("[DEBUG]   parentComment.Author.Email: %s", *parentComment.Author.Email)
+			}
+		}
 	}
 }
 
