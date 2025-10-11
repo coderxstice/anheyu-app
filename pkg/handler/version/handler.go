@@ -30,6 +30,11 @@ func NewHandler() *Handler {
 // @Success      200  {object}  object{code=int,message=string,data=object}  "版本信息"
 // @Router       /public/version [get]
 func (h *Handler) GetVersion(c *gin.Context) {
+	// 设置缓存控制头，确保版本信息不被缓存
+	c.Header("Cache-Control", "no-cache, no-store, must-revalidate, private, max-age=0")
+	c.Header("Pragma", "no-cache")
+	c.Header("Expires", "0")
+
 	buildInfo := version.GetBuildInfo()
 
 	c.JSON(http.StatusOK, gin.H{
@@ -47,6 +52,11 @@ func (h *Handler) GetVersion(c *gin.Context) {
 // @Success      200  {object}  object{version=string}  "版本字符串"
 // @Router       /public/version/string [get]
 func (h *Handler) GetVersionString(c *gin.Context) {
+	// 设置缓存控制头，确保版本信息不被缓存
+	c.Header("Cache-Control", "no-cache, no-store, must-revalidate, private, max-age=0")
+	c.Header("Pragma", "no-cache")
+	c.Header("Expires", "0")
+
 	versionString := version.GetVersionString()
 
 	c.JSON(http.StatusOK, gin.H{
