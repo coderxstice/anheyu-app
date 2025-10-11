@@ -50,6 +50,13 @@ func (s *emailService) SendTestEmail(ctx context.Context, toEmail string) error 
 	appName := s.settingSvc.Get(constant.KeyAppName.String())
 	siteURL := s.settingSvc.Get(constant.KeySiteURL.String())
 
+	// 🔧 处理 siteURL，确保有效
+	if siteURL == "" || siteURL == "https://" || siteURL == "http://" {
+		log.Printf("[WARNING] 站点URL未正确配置（当前值: %s），使用默认值 https://anheyu.com", siteURL)
+		siteURL = "https://anheyu.com"
+	}
+	siteURL = strings.TrimRight(siteURL, "/")
+
 	subject := fmt.Sprintf("这是一封来自「%s」的测试邮件", appName)
 	body := fmt.Sprintf(`<p>你好！</p>
 	<p>这是一封来自 <a href="%s">%s</a> 的测试邮件。</p>
@@ -64,7 +71,18 @@ func (s *emailService) SendCommentNotification(newComment *model.Comment, parent
 
 	siteName := s.settingSvc.Get(constant.KeyAppName.String())
 	siteURL := s.settingSvc.Get(constant.KeySiteURL.String())
+
+	// 🔧 处理 siteURL，确保有效
+	if siteURL == "" || siteURL == "https://" || siteURL == "http://" {
+		log.Printf("[WARNING] 站点URL未正确配置（当前值: %s），使用默认值 https://anheyu.com", siteURL)
+		siteURL = "https://anheyu.com"
+	}
+	// 移除末尾的斜杠，避免双斜杠
+	siteURL = strings.TrimRight(siteURL, "/")
+
 	pageURL := siteURL + newComment.TargetPath
+	log.Printf("[DEBUG] 生成页面链接: %s", pageURL)
+
 	var targetTitle string
 	if newComment.TargetTitle != nil {
 		targetTitle = *newComment.TargetTitle
@@ -210,6 +228,13 @@ func (s *emailService) SendActivationEmail(ctx context.Context, toEmail, nicknam
 	appName := s.settingSvc.Get(constant.KeyAppName.String())
 	siteURL := s.settingSvc.Get(constant.KeySiteURL.String())
 
+	// 🔧 处理 siteURL，确保有效
+	if siteURL == "" || siteURL == "https://" || siteURL == "http://" {
+		log.Printf("[WARNING] 站点URL未正确配置（当前值: %s），使用默认值 https://anheyu.com", siteURL)
+		siteURL = "https://anheyu.com"
+	}
+	siteURL = strings.TrimRight(siteURL, "/")
+
 	activateLink := fmt.Sprintf("%s/activate?id=%s&sign=%s", siteURL, userID, sign)
 	data := map[string]string{
 		"Nickname":     nickname,
@@ -236,6 +261,13 @@ func (s *emailService) SendForgotPasswordEmail(ctx context.Context, toEmail, nic
 	bodyTplStr := s.settingSvc.Get(constant.KeyResetPasswordTemplate.String())
 	appName := s.settingSvc.Get(constant.KeyAppName.String())
 	siteURL := s.settingSvc.Get(constant.KeySiteURL.String())
+
+	// 🔧 处理 siteURL，确保有效
+	if siteURL == "" || siteURL == "https://" || siteURL == "http://" {
+		log.Printf("[WARNING] 站点URL未正确配置（当前值: %s），使用默认值 https://anheyu.com", siteURL)
+		siteURL = "https://anheyu.com"
+	}
+	siteURL = strings.TrimRight(siteURL, "/")
 
 	resetLink := fmt.Sprintf("%s/reset-password?id=%s&sign=%s", siteURL, userID, sign)
 	data := map[string]string{

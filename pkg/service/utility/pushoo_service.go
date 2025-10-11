@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-09-04 10:46:35
- * @LastEditTime: 2025-09-20 16:33:18
+ * @LastEditTime: 2025-10-12 03:54:56
  * @LastEditors: 安知鱼
  */
 // pkg/service/utility/pushoo_service.go
@@ -94,6 +94,13 @@ func (s *pushooService) SendCommentNotification(ctx context.Context, newComment 
 func (s *pushooService) prepareTemplateData(newComment *model.Comment, parentComment *model.Comment) (map[string]interface{}, error) {
 	siteName := s.settingSvc.Get(constant.KeyAppName.String())
 	siteURL := s.settingSvc.Get(constant.KeySiteURL.String())
+
+	// 🔧 处理 siteURL，确保有效
+	if siteURL == "" || siteURL == "https://" || siteURL == "http://" {
+		log.Printf("[WARNING] 站点URL未正确配置（当前值: %s），使用默认值 https://anheyu.com", siteURL)
+		siteURL = "https://anheyu.com"
+	}
+	siteURL = strings.TrimRight(siteURL, "/")
 
 	// 生成评论的公开ID用作hash
 	commentPublicID, err := idgen.GeneratePublicID(newComment.ID, idgen.EntityTypeComment)
@@ -438,6 +445,13 @@ func (s *pushooService) SendLinkApplicationNotification(ctx context.Context, lin
 func (s *pushooService) prepareLinkTemplateData(link *model.LinkDTO) (map[string]interface{}, error) {
 	siteName := s.settingSvc.Get(constant.KeyAppName.String())
 	siteURL := s.settingSvc.Get(constant.KeySiteURL.String())
+
+	// 🔧 处理 siteURL，确保有效
+	if siteURL == "" || siteURL == "https://" || siteURL == "http://" {
+		log.Printf("[WARNING] 站点URL未正确配置（当前值: %s），使用默认值 https://anheyu.com", siteURL)
+		siteURL = "https://anheyu.com"
+	}
+	siteURL = strings.TrimRight(siteURL, "/")
 
 	title := fmt.Sprintf("「%s」收到了新的友链申请", siteName)
 	body := fmt.Sprintf("%s 申请了友链", link.Name)
