@@ -18,6 +18,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/parser"
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/notification"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 )
 
@@ -32,13 +33,15 @@ type EmailService interface {
 
 // emailService 是 EmailService 接口的实现
 type emailService struct {
-	settingSvc setting.SettingService
+	settingSvc      setting.SettingService
+	notificationSvc notification.Service
 }
 
 // NewEmailService 是 emailService 的构造函数
-func NewEmailService(settingSvc setting.SettingService) EmailService {
+func NewEmailService(settingSvc setting.SettingService, notificationSvc notification.Service) EmailService {
 	return &emailService{
-		settingSvc: settingSvc,
+		settingSvc:      settingSvc,
+		notificationSvc: notificationSvc,
 	}
 }
 
@@ -139,10 +142,29 @@ func (s *emailService) SendCommentNotification(newComment *model.Comment, parent
 
 	log.Printf("[DEBUG] 场景二检查: notifyReply=%t, shouldSendReplyEmail=%t", notifyReply, shouldSendReplyEmail)
 
-	if shouldSendReplyEmail && parentComment != nil && parentComment.AllowNotification && parentComment.Author.Email != nil && *parentComment.Author.Email != "" {
-		// 如果新评论者是父评论作者本人，或者是管理员（已经收到博主通知），跳过
+	// ✅ 核心修改：检查被回复用户的实时通知设置，而不是评论创建时的设置
+	userAllowNotification := true // 默认允许（游客评论）
+	if shouldSendReplyEmail && parentComment != nil && parentComment.Author.Email != nil && *parentComment.Author.Email != "" {
+		// 如果父评论有关联的用户ID，查询该用户的实时通知设置
+		if parentComment.UserID != nil {
+			ctx := context.Background()
+			userSettings, err := s.notificationSvc.GetUserNotificationSettings(ctx, *parentComment.UserID)
+			if err != nil {
+				log.Printf("警告：获取用户通知设置失败（用户ID: %d），使用默认值 true: %v", *parentComment.UserID, err)
+			} else {
+				userAllowNotification = userSettings.AllowCommentReplyNotification
+				log.Printf("[DEBUG] 用户 %d 的实时通知偏好设置: %t", *parentComment.UserID, userAllowNotification)
+			}
+		}
+
 		parentEmail := *parentComment.Author.Email
-		log.Printf("[DEBUG] 父评论信息: parentEmail=%s, allowNotification=%t", parentEmail, parentComment.AllowNotification)
+		log.Printf("[DEBUG] 父评论信息: parentEmail=%s, 用户实时通知设置=%t", parentEmail, userAllowNotification)
+
+		// 如果用户关闭了通知，跳过
+		if !userAllowNotification {
+			log.Printf("[DEBUG] 用户已关闭回复通知，跳过")
+			return
+		}
 
 		if newCommenterEmail != "" && newCommenterEmail == parentEmail {
 			log.Printf("[DEBUG] 自己回复自己，跳过回复通知")
@@ -178,17 +200,6 @@ func (s *emailService) SendCommentNotification(newComment *model.Comment, parent
 		body, _ := renderTemplate(replyBodyTpl, data)
 		go func() { _ = s.send(parentEmail, subject, body) }()
 		log.Printf("[DEBUG] 回复通知邮件已分发到: %s", parentEmail)
-	} else {
-		log.Printf("[DEBUG] 跳过回复通知 - 条件检查:")
-		log.Printf("[DEBUG]   shouldSendReplyEmail: %t", shouldSendReplyEmail)
-		log.Printf("[DEBUG]   parentComment != nil: %t", parentComment != nil)
-		if parentComment != nil {
-			log.Printf("[DEBUG]   parentComment.AllowNotification: %t", parentComment.AllowNotification)
-			log.Printf("[DEBUG]   parentComment.Author.Email != nil: %t", parentComment.Author.Email != nil)
-			if parentComment.Author.Email != nil {
-				log.Printf("[DEBUG]   parentComment.Author.Email: %s", *parentComment.Author.Email)
-			}
-		}
 	}
 }
 

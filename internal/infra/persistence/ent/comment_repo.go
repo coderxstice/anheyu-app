@@ -39,21 +39,21 @@ func toDomain(c *ent.Comment) *model.Comment {
 		loc = *c.IPLocation
 	}
 	domainComment := &model.Comment{
-		ID:                c.ID,
-		TargetPath:        c.TargetPath,
-		TargetTitle:       c.TargetTitle,
-		ParentID:          c.ParentID,
-		UserID:            c.UserID,
-		Author:            model.Author{Nickname: c.Nickname, Email: c.Email, Website: c.Website, IP: c.IPAddress, UserAgent: ua, Location: loc},
-		Content:           c.Content,
-		ContentHTML:       c.ContentHTML,
-		LikeCount:         c.LikeCount,
-		Status:            model.Status(c.Status),
-		IsAdminAuthor:     c.IsAdminComment,
-		AllowNotification: c.AllowNotification,
-		CreatedAt:         c.CreatedAt,
-		UpdatedAt:         c.UpdatedAt,
-		PinnedAt:          c.PinnedAt,
+		ID:            c.ID,
+		TargetPath:    c.TargetPath,
+		TargetTitle:   c.TargetTitle,
+		ParentID:      c.ParentID,
+		UserID:        c.UserID,
+		Author:        model.Author{Nickname: c.Nickname, Email: c.Email, Website: c.Website, IP: c.IPAddress, UserAgent: ua, Location: loc},
+		Content:       c.Content,
+		ContentHTML:   c.ContentHTML,
+		LikeCount:     c.LikeCount,
+		Status:        model.Status(c.Status),
+		IsAdminAuthor: c.IsAdminComment,
+		IsAnonymous:   c.IsAnonymous,
+		CreatedAt:     c.CreatedAt,
+		UpdatedAt:     c.UpdatedAt,
+		PinnedAt:      c.PinnedAt,
 	}
 	return domainComment
 }
@@ -69,7 +69,7 @@ func (r *commentRepo) Create(ctx context.Context, params *repository.CreateComme
 		SetIPLocation(params.IPLocation).
 		SetStatus(params.Status).
 		SetIsAdminComment(params.IsAdminComment).
-		SetAllowNotification(params.AllowNotification)
+		SetIsAnonymous(params.IsAnonymous)
 
 	if params.TargetTitle != nil {
 		creator.SetTargetTitle(*params.TargetTitle)

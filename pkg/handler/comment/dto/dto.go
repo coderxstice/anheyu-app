@@ -27,9 +27,6 @@ type CreateRequest struct {
 	// 评论的 Markdown 原文内容。
 	Content string `json:"content" binding:"required,min=1,max=1000"`
 
-	// 是否允许接收邮件通知。
-	AllowNotification bool `json:"allow_notification"`
-
 	// 是否为匿名评论（前端明确标识）。
 	IsAnonymous bool `json:"is_anonymous"`
 }

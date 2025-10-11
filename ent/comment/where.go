@@ -135,11 +135,6 @@ func IsAnonymous(v bool) predicate.Comment {
 	return predicate.Comment(sql.FieldEQ(FieldIsAnonymous, v))
 }
 
-// AllowNotification applies equality check predicate on the "allow_notification" field. It's identical to AllowNotificationEQ.
-func AllowNotification(v bool) predicate.Comment {
-	return predicate.Comment(sql.FieldEQ(FieldAllowNotification, v))
-}
-
 // UserAgent applies equality check predicate on the "user_agent" field. It's identical to UserAgentEQ.
 func UserAgent(v string) predicate.Comment {
 	return predicate.Comment(sql.FieldEQ(FieldUserAgent, v))
@@ -963,16 +958,6 @@ func IsAnonymousEQ(v bool) predicate.Comment {
 // IsAnonymousNEQ applies the NEQ predicate on the "is_anonymous" field.
 func IsAnonymousNEQ(v bool) predicate.Comment {
 	return predicate.Comment(sql.FieldNEQ(FieldIsAnonymous, v))
-}
-
-// AllowNotificationEQ applies the EQ predicate on the "allow_notification" field.
-func AllowNotificationEQ(v bool) predicate.Comment {
-	return predicate.Comment(sql.FieldEQ(FieldAllowNotification, v))
-}
-
-// AllowNotificationNEQ applies the NEQ predicate on the "allow_notification" field.
-func AllowNotificationNEQ(v bool) predicate.Comment {
-	return predicate.Comment(sql.FieldNEQ(FieldAllowNotification, v))
 }
 
 // UserAgentEQ applies the EQ predicate on the "user_agent" field.

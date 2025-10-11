@@ -57,9 +57,11 @@ type UserEdges struct {
 	Comments []*Comment `json:"comments,omitempty"`
 	// InstalledThemes holds the value of the installed_themes edge.
 	InstalledThemes []*UserInstalledTheme `json:"installed_themes,omitempty"`
+	// NotificationConfigs holds the value of the notification_configs edge.
+	NotificationConfigs []*UserNotificationConfig `json:"notification_configs,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [5]bool
 }
 
 // UserGroupOrErr returns the UserGroup value or an error if the edge
@@ -98,6 +100,15 @@ func (e UserEdges) InstalledThemesOrErr() ([]*UserInstalledTheme, error) {
 		return e.InstalledThemes, nil
 	}
 	return nil, &NotLoadedError{edge: "installed_themes"}
+}
+
+// NotificationConfigsOrErr returns the NotificationConfigs value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) NotificationConfigsOrErr() ([]*UserNotificationConfig, error) {
+	if e.loadedTypes[4] {
+		return e.NotificationConfigs, nil
+	}
+	return nil, &NotLoadedError{edge: "notification_configs"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -240,6 +251,11 @@ func (_m *User) QueryComments() *CommentQuery {
 // QueryInstalledThemes queries the "installed_themes" edge of the User entity.
 func (_m *User) QueryInstalledThemes() *UserInstalledThemeQuery {
 	return NewUserClient(_m.config).QueryInstalledThemes(_m)
+}
+
+// QueryNotificationConfigs queries the "notification_configs" edge of the User entity.
+func (_m *User) QueryNotificationConfigs() *UserNotificationConfigQuery {
+	return NewUserClient(_m.config).QueryNotificationConfigs(_m)
 }
 
 // Update returns a builder for updating this User.

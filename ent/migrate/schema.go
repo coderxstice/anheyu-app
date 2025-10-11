@@ -86,7 +86,6 @@ var (
 		{Name: "status", Type: field.TypeInt, Default: 2},
 		{Name: "is_admin_comment", Type: field.TypeBool, Default: false},
 		{Name: "is_anonymous", Type: field.TypeBool, Default: false},
-		{Name: "allow_notification", Type: field.TypeBool, Default: true},
 		{Name: "user_agent", Type: field.TypeString, Nullable: true, Size: 512},
 		{Name: "ip_address", Type: field.TypeString, Size: 45},
 		{Name: "ip_location", Type: field.TypeString, Nullable: true, Size: 255},
@@ -104,19 +103,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "comments_articles_comments",
-				Columns:    []*schema.Column{CommentsColumns[21]},
+				Columns:    []*schema.Column{CommentsColumns[20]},
 				RefColumns: []*schema.Column{ArticlesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "comments_comments_parent",
-				Columns:    []*schema.Column{CommentsColumns[22]},
+				Columns:    []*schema.Column{CommentsColumns[21]},
 				RefColumns: []*schema.Column{CommentsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "comments_users_comments",
-				Columns:    []*schema.Column{CommentsColumns[23]},
+				Columns:    []*schema.Column{CommentsColumns[22]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -130,12 +129,12 @@ var (
 			{
 				Name:    "comment_parent_id",
 				Unique:  false,
-				Columns: []*schema.Column{CommentsColumns[22]},
+				Columns: []*schema.Column{CommentsColumns[21]},
 			},
 			{
 				Name:    "comment_user_id",
 				Unique:  false,
-				Columns: []*schema.Column{CommentsColumns[23]},
+				Columns: []*schema.Column{CommentsColumns[22]},
 			},
 			{
 				Name:    "comment_email",
@@ -352,6 +351,37 @@ var (
 				Name:    "metadata_file_id_name",
 				Unique:  true,
 				Columns: []*schema.Column{MetadataColumns[6], MetadataColumns[4]},
+			},
+		},
+	}
+	// NotificationTypesColumns holds the columns for the "notification_types" table.
+	NotificationTypesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "code", Type: field.TypeString, Unique: true, Size: 100},
+		{Name: "name", Type: field.TypeString, Size: 100},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 500},
+		{Name: "category", Type: field.TypeString, Size: 50},
+		{Name: "is_active", Type: field.TypeBool, Default: true},
+		{Name: "default_enabled", Type: field.TypeBool, Default: true},
+		{Name: "supported_channels", Type: field.TypeJSON, Nullable: true},
+	}
+	// NotificationTypesTable holds the schema information for the "notification_types" table.
+	NotificationTypesTable = &schema.Table{
+		Name:       "notification_types",
+		Columns:    NotificationTypesColumns,
+		PrimaryKey: []*schema.Column{NotificationTypesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "notificationtype_code",
+				Unique:  true,
+				Columns: []*schema.Column{NotificationTypesColumns[3]},
+			},
+			{
+				Name:    "notificationtype_category",
+				Unique:  false,
+				Columns: []*schema.Column{NotificationTypesColumns[6]},
 			},
 		},
 	}
@@ -599,6 +629,50 @@ var (
 			},
 		},
 	}
+	// UserNotificationConfigsColumns holds the columns for the "user_notification_configs" table.
+	UserNotificationConfigsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "is_enabled", Type: field.TypeBool, Default: true},
+		{Name: "enabled_channels", Type: field.TypeJSON, Nullable: true},
+		{Name: "notification_email", Type: field.TypeString, Nullable: true, Size: 100},
+		{Name: "custom_settings", Type: field.TypeJSON, Nullable: true},
+		{Name: "notification_type_id", Type: field.TypeUint},
+		{Name: "user_id", Type: field.TypeUint},
+	}
+	// UserNotificationConfigsTable holds the schema information for the "user_notification_configs" table.
+	UserNotificationConfigsTable = &schema.Table{
+		Name:       "user_notification_configs",
+		Columns:    UserNotificationConfigsColumns,
+		PrimaryKey: []*schema.Column{UserNotificationConfigsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_notification_configs_notification_types_user_configs",
+				Columns:    []*schema.Column{UserNotificationConfigsColumns[7]},
+				RefColumns: []*schema.Column{NotificationTypesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "user_notification_configs_users_notification_configs",
+				Columns:    []*schema.Column{UserNotificationConfigsColumns[8]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "usernotificationconfig_user_id_notification_type_id",
+				Unique:  true,
+				Columns: []*schema.Column{UserNotificationConfigsColumns[8], UserNotificationConfigsColumns[7]},
+			},
+			{
+				Name:    "usernotificationconfig_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{UserNotificationConfigsColumns[8]},
+			},
+		},
+	}
 	// VisitorLogsColumns holds the columns for the "visitor_logs" table.
 	VisitorLogsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint, Increment: true},
@@ -768,6 +842,7 @@ var (
 		LinkCategoriesTable,
 		LinkTagsTable,
 		MetadataTable,
+		NotificationTypesTable,
 		PagesTable,
 		PostCategoriesTable,
 		PostTagsTable,
@@ -778,6 +853,7 @@ var (
 		UsersTable,
 		UserGroupsTable,
 		UserInstalledThemesTable,
+		UserNotificationConfigsTable,
 		VisitorLogsTable,
 		VisitorStatsTable,
 		ArticlePostTagsTable,
@@ -800,6 +876,8 @@ func init() {
 	MetadataTable.ForeignKeys[0].RefTable = FilesTable
 	UsersTable.ForeignKeys[0].RefTable = UserGroupsTable
 	UserInstalledThemesTable.ForeignKeys[0].RefTable = UsersTable
+	UserNotificationConfigsTable.ForeignKeys[0].RefTable = NotificationTypesTable
+	UserNotificationConfigsTable.ForeignKeys[1].RefTable = UsersTable
 	ArticlePostTagsTable.ForeignKeys[0].RefTable = ArticlesTable
 	ArticlePostTagsTable.ForeignKeys[1].RefTable = PostTagsTable
 	ArticlePostCategoriesTable.ForeignKeys[0].RefTable = ArticlesTable

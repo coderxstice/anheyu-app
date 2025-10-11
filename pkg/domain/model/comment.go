@@ -40,13 +40,12 @@ type Comment struct {
 	LikeCount   int
 
 	// --- 元数据 ---
-	Status            Status
-	IsAdminAuthor     bool
-	IsAnonymous       bool
-	AllowNotification bool
-	CreatedAt         time.Time
-	UpdatedAt         time.Time
-	PinnedAt          *time.Time
+	Status        Status
+	IsAdminAuthor bool
+	IsAnonymous   bool
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	PinnedAt      *time.Time
 }
 
 // Author 代表了评论的作者信息

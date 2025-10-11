@@ -20,6 +20,7 @@ import (
 	file_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/file"
 	link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/link"
 	music_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/music"
+	notification_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/notification"
 	page_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/page"
 	post_category_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_category"
 	post_tag_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_tag"
@@ -77,6 +78,7 @@ type Router struct {
 	proxyHandler         *proxy_handler.ProxyHandler
 	sitemapHandler       *sitemap_handler.Handler
 	versionHandler       *version_handler.Handler
+	notificationHandler  *notification_handler.Handler
 }
 
 // NewRouter 是 Router 的构造函数，通过依赖注入接收所有处理器。
@@ -104,6 +106,7 @@ func NewRouter(
 	proxyHandler *proxy_handler.ProxyHandler,
 	sitemapHandler *sitemap_handler.Handler,
 	versionHandler *version_handler.Handler,
+	notificationHandler *notification_handler.Handler,
 ) *Router {
 	return &Router{
 		authHandler:          authHandler,
@@ -129,6 +132,7 @@ func NewRouter(
 		proxyHandler:         proxyHandler,
 		sitemapHandler:       sitemapHandler,
 		versionHandler:       versionHandler,
+		notificationHandler:  notificationHandler,
 	}
 }
 
@@ -176,6 +180,7 @@ func (r *Router) Setup(engine *gin.Engine) {
 	r.registerStatisticsRoutes(apiGroup)
 	r.registerThemeRoutes(apiGroup)
 	r.registerVersionRoutes(apiGroup)
+	r.registerNotificationRoutes(apiGroup)
 	r.registerSitemapRoutes(engine) // 直接注册到engine，不使用/api前缀
 }
 
@@ -634,5 +639,25 @@ func (r *Router) registerVersionRoutes(api *gin.RouterGroup) {
 
 		// GET /api/version/string - 获取版本字符串 (简单字符串格式)
 		versionGroup.GET("/string", r.versionHandler.GetVersionString)
+	}
+}
+
+// registerNotificationRoutes 注册通知相关路由
+func (r *Router) registerNotificationRoutes(api *gin.RouterGroup) {
+	// 用户通知设置路由 - 需要登录
+	userNotificationGroup := api.Group("/user").Use(r.mw.JWTAuth())
+	{
+		// 简化版接口（给前端用户中心用）
+		userNotificationGroup.GET("/notification-settings", r.notificationHandler.GetUserNotificationSettings)
+		userNotificationGroup.PUT("/notification-settings", r.notificationHandler.UpdateUserNotificationSettings)
+
+		// 完整版接口（可选，供高级功能使用）
+		userNotificationGroup.GET("/notification-configs", r.notificationHandler.GetUserNotificationConfigs)
+	}
+
+	// 通知类型管理路由 - 管理员专用
+	notificationAdminGroup := api.Group("/notification").Use(r.mw.JWTAuth(), r.mw.AdminAuth())
+	{
+		notificationAdminGroup.GET("/types", r.notificationHandler.ListNotificationTypes)
 	}
 }

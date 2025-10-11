@@ -33,6 +33,7 @@ import (
 	file_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/file"
 	link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/link"
 	music_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/music"
+	notification_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/notification"
 	page_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/page"
 	post_category_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_category"
 	post_tag_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_tag"
@@ -58,6 +59,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/file_info"
 	link_service "github.com/anzhiyu-c/anheyu-app/pkg/service/link"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/music"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/notification"
 	page_service "github.com/anzhiyu-c/anheyu-app/pkg/service/page"
 	parser_service "github.com/anzhiyu-c/anheyu-app/pkg/service/parser"
 	post_category_service "github.com/anzhiyu-c/anheyu-app/pkg/service/post_category"
@@ -193,6 +195,8 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	linkCategoryRepo := ent_impl.NewLinkCategoryRepo(entClient)
 	linkTagRepo := ent_impl.NewLinkTagRepo(entClient)
 	pageRepo := ent_impl.NewEntPageRepository(entClient)
+	notificationTypeRepo := ent_impl.NewEntNotificationTypeRepository(entClient)
+	userNotificationConfigRepo := ent_impl.NewEntUserNotificationConfigRepository(entClient)
 
 	// --- Phase 4: 初始化应用引导程序 ---
 	bootstrapper := bootstrap.NewBootstrapper(entClient)
@@ -212,7 +216,6 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	strategyManager.Register(constant.PolicyTypeTencentCOS, strategy.NewTencentCOSStrategy())
 	strategyManager.Register(constant.PolicyTypeAliOSS, strategy.NewAliyunOSSStrategy())
 	strategyManager.Register(constant.PolicyTypeS3, strategy.NewAWSS3Strategy())
-	emailSvc := utility.NewEmailService(settingSvc)
 
 	// 使用智能缓存工厂，自动选择 Redis 或内存缓存
 	cacheSvc := utility.NewCacheServiceWithFallback(redisClient)
@@ -258,6 +261,23 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	if err != nil {
 		return nil, tempCleanup, fmt.Errorf("初始化统计服务失败: %w", err)
 	}
+
+	// ✅ 将 NotificationService 和 EmailService 移到这里，在 taskBroker 之前初始化
+	log.Printf("[DEBUG] 正在初始化 NotificationService...")
+	notificationSvc := notification.NewNotificationService(notificationTypeRepo, userNotificationConfigRepo)
+	log.Printf("[DEBUG] NotificationService 初始化完成")
+
+	// 初始化默认通知类型
+	log.Printf("[DEBUG] 正在初始化默认通知类型...")
+	if err := notificationSvc.InitializeDefaultNotificationTypes(context.Background()); err != nil {
+		log.Printf("[WARNING] 初始化默认通知类型失败: %v", err)
+	} else {
+		log.Printf("[DEBUG] 默认通知类型初始化完成")
+	}
+
+	// 初始化邮件服务（需要 notificationSvc）
+	emailSvc := utility.NewEmailService(settingSvc, notificationSvc)
+
 	taskBroker := task.NewBroker(uploadSvc, thumbnailSvc, cleanupSvc, articleRepo, commentRepo, emailSvc, cacheSvc, linkCategoryRepo, linkTagRepo, linkRepo, settingSvc, statService)
 	pageSvc := page_service.NewService(pageRepo)
 
@@ -313,9 +333,9 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	log.Printf("[DEBUG] LinkService 初始化完成，PushooService 已注入")
 
 	authSvc := auth.NewAuthService(userRepo, settingSvc, tokenSvc, emailSvc, txManager, articleSvc)
-	log.Printf("[DEBUG] 正在初始化 CommentService，将注入 PushooService...")
-	commentSvc := comment_service.NewService(commentRepo, userRepo, txManager, geoSvc, settingSvc, cacheSvc, taskBroker, fileSvc, parserSvc, pushooSvc)
-	log.Printf("[DEBUG] CommentService 初始化完成，PushooService 已注入")
+	log.Printf("[DEBUG] 正在初始化 CommentService，将注入 PushooService 和 NotificationService...")
+	commentSvc := comment_service.NewService(commentRepo, userRepo, txManager, geoSvc, settingSvc, cacheSvc, taskBroker, fileSvc, parserSvc, pushooSvc, notificationSvc)
+	log.Printf("[DEBUG] CommentService 初始化完成，PushooService 和 NotificationService 已注入")
 	themeSvc := theme.NewThemeService(entClient, userRepo)
 	_ = listener.NewFilePostProcessingListener(eventBus, taskBroker, extractionSvc)
 
@@ -348,6 +368,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	proxyHandler := proxy_handler.NewHandler()
 	musicHandler := music_handler.NewMusicHandler(musicSvc)
 	versionHandler := version_handler.NewHandler()
+	notificationHandler := notification_handler.NewHandler(notificationSvc)
 
 	// --- Phase 7: 初始化路由 ---
 	appRouter := router.NewRouter(
@@ -374,6 +395,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		proxyHandler,
 		sitemapHandler,
 		versionHandler,
+		notificationHandler,
 	)
 
 	// --- Phase 8: 配置 Gin 引擎 ---

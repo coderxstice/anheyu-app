@@ -45,6 +45,8 @@ const (
 	EdgeComments = "comments"
 	// EdgeInstalledThemes holds the string denoting the installed_themes edge name in mutations.
 	EdgeInstalledThemes = "installed_themes"
+	// EdgeNotificationConfigs holds the string denoting the notification_configs edge name in mutations.
+	EdgeNotificationConfigs = "notification_configs"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// UserGroupTable is the table that holds the user_group relation/edge.
@@ -75,6 +77,13 @@ const (
 	InstalledThemesInverseTable = "user_installed_themes"
 	// InstalledThemesColumn is the table column denoting the installed_themes relation/edge.
 	InstalledThemesColumn = "user_id"
+	// NotificationConfigsTable is the table that holds the notification_configs relation/edge.
+	NotificationConfigsTable = "user_notification_configs"
+	// NotificationConfigsInverseTable is the table name for the UserNotificationConfig entity.
+	// It exists in this package in order to avoid circular dependency with the "usernotificationconfig" package.
+	NotificationConfigsInverseTable = "user_notification_configs"
+	// NotificationConfigsColumn is the table column denoting the notification_configs relation/edge.
+	NotificationConfigsColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -254,6 +263,20 @@ func ByInstalledThemes(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newInstalledThemesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByNotificationConfigsCount orders the results by notification_configs count.
+func ByNotificationConfigsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newNotificationConfigsStep(), opts...)
+	}
+}
+
+// ByNotificationConfigs orders the results by notification_configs terms.
+func ByNotificationConfigs(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newNotificationConfigsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newUserGroupStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -280,5 +303,12 @@ func newInstalledThemesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(InstalledThemesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, InstalledThemesTable, InstalledThemesColumn),
+	)
+}
+func newNotificationConfigsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(NotificationConfigsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, NotificationConfigsTable, NotificationConfigsColumn),
 	)
 }

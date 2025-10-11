@@ -38,7 +38,7 @@ func (Comment) Fields() []ent.Field {
 			UpdateDefault(time.Now).
 			Comment("更新时间"),
 
-		// --- 核心关联字段 (已重构为路径绑定) ---
+		// --- 核心关联字段 ---
 		field.String("target_path").
 			MaxLen(255).
 			Comment("评论所属的目标路径 (例如 /posts/some-slug)"),
@@ -95,9 +95,6 @@ func (Comment) Fields() []ent.Field {
 		field.Bool("is_anonymous").
 			Default(false).
 			Comment("是否为匿名评论（使用匿名邮箱发表的评论）"),
-		field.Bool("allow_notification").
-			Default(true).
-			Comment("用户是否同意接收回复邮件通知"),
 
 		// --- 环境信息 ---
 		field.String("user_agent").
