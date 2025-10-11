@@ -334,7 +334,7 @@ func (r *commentRepo) FindPublishedChildrenByParentID(ctx context.Context, paren
 	}
 
 	entComments, err := query.
-		Order(ent.Asc(entcomment.FieldCreatedAt)).
+		Order(ent.Desc(entcomment.FieldCreatedAt)).
 		Limit(pageSize).
 		Offset((page - 1) * pageSize).
 		All(ctx)

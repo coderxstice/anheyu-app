@@ -466,16 +466,12 @@ func (s *Service) ListByPath(ctx context.Context, path string, page, pageSize in
 
 		rootResp.TotalChildren = int64(len(descendants))
 
+		// descendants 已经按时间降序排列（从新到旧），直接取前 N 个即可
 		var previewChildren []*model.Comment
 		if len(descendants) > previewLimit {
-			previewChildren = descendants[len(descendants)-previewLimit:]
+			previewChildren = descendants[:previewLimit]
 		} else {
 			previewChildren = descendants
-		}
-
-		// 反转切片，确保预览评论按时间倒序（从新到旧）显示
-		for i, j := 0, len(previewChildren)-1; i < j; i, j = i+1, j-1 {
-			previewChildren[i], previewChildren[j] = previewChildren[j], previewChildren[i]
 		}
 
 		childResponses := make([]*dto.Response, len(previewChildren))
