@@ -23,6 +23,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/handler/comment/dto"
 	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
 	filesvc "github.com/anzhiyu-c/anheyu-app/pkg/service/file"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/notification"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/parser"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/utility"
@@ -35,16 +36,17 @@ var htmlInternalURIRegex = regexp.MustCompile(`src="anzhiyu://file/([a-zA-Z0-9_-
 
 // Service 评论服务的核心业务逻辑。
 type Service struct {
-	repo       repository.CommentRepository
-	userRepo   repository.UserRepository
-	txManager  repository.TransactionManager
-	geoService utility.GeoIPService
-	settingSvc setting.SettingService
-	cacheSvc   utility.CacheService
-	broker     *task.Broker
-	fileSvc    filesvc.FileService
-	parserSvc  *parser.Service
-	pushooSvc  utility.PushooService
+	repo            repository.CommentRepository
+	userRepo        repository.UserRepository
+	txManager       repository.TransactionManager
+	geoService      utility.GeoIPService
+	settingSvc      setting.SettingService
+	cacheSvc        utility.CacheService
+	broker          *task.Broker
+	fileSvc         filesvc.FileService
+	parserSvc       *parser.Service
+	pushooSvc       utility.PushooService
+	notificationSvc notification.Service
 }
 
 // NewService 创建一个新的评论服务实例。
@@ -59,18 +61,20 @@ func NewService(
 	fileSvc filesvc.FileService,
 	parserSvc *parser.Service,
 	pushooSvc utility.PushooService,
+	notificationSvc notification.Service,
 ) *Service {
 	return &Service{
-		repo:       repo,
-		userRepo:   userRepo,
-		txManager:  txManager,
-		geoService: geoService,
-		settingSvc: settingSvc,
-		cacheSvc:   cacheSvc,
-		broker:     broker,
-		fileSvc:    fileSvc,
-		parserSvc:  parserSvc,
-		pushooSvc:  pushooSvc,
+		repo:            repo,
+		userRepo:        userRepo,
+		txManager:       txManager,
+		geoService:      geoService,
+		settingSvc:      settingSvc,
+		cacheSvc:        cacheSvc,
+		broker:          broker,
+		fileSvc:         fileSvc,
+		parserSvc:       parserSvc,
+		pushooSvc:       pushooSvc,
+		notificationSvc: notificationSvc,
 	}
 }
 
@@ -251,23 +255,22 @@ func (s *Service) Create(ctx context.Context, req *dto.CreateRequest, ip, ua str
 	}
 
 	params := &repository.CreateCommentParams{
-		TargetPath:        req.TargetPath,
-		TargetTitle:       req.TargetTitle,
-		UserID:            userID,
-		ParentID:          parentDBID,
-		Nickname:          req.Nickname,
-		Email:             req.Email,
-		EmailMD5:          emailMD5,
-		Website:           req.Website,
-		Content:           req.Content,
-		ContentHTML:       safeHTML,
-		UserAgent:         &ua,
-		IPAddress:         ip,
-		IPLocation:        ipLocation,
-		Status:            int(status),
-		IsAdminComment:    isAdmin,
-		IsAnonymous:       isAnonymous,
-		AllowNotification: req.AllowNotification,
+		TargetPath:     req.TargetPath,
+		TargetTitle:    req.TargetTitle,
+		UserID:         userID,
+		ParentID:       parentDBID,
+		Nickname:       req.Nickname,
+		Email:          req.Email,
+		EmailMD5:       emailMD5,
+		Website:        req.Website,
+		Content:        req.Content,
+		ContentHTML:    safeHTML,
+		UserAgent:      &ua,
+		IPAddress:      ip,
+		IPLocation:     ipLocation,
+		Status:         int(status),
+		IsAdminComment: isAdmin,
+		IsAnonymous:    isAnonymous,
 	}
 
 	newComment, err := s.repo.Create(ctx, params)
@@ -313,34 +316,60 @@ func (s *Service) Create(ctx context.Context, req *dto.CreateRequest, ip, ua str
 					}
 					isAdminComment := newCommenterEmail != "" && newCommenterEmail == adminEmail
 
-					// 场景一：通知博主有新评论
-					// 如果开启了博主通知且不是管理员自己评论
+					// ✅ 核心修改：判断被回复用户的实时通知设置，而不是评论的 AllowNotification
+					userAllowNotification := true // 默认允许（游客评论）
+					hasParentComment := parentComment != nil
+					var parentEmail string
+					if hasParentComment && parentComment.Author.Email != nil {
+						parentEmail = *parentComment.Author.Email
+						// 如果父评论有关联的用户ID，查询该用户的实时通知设置
+						if parentComment.UserID != nil {
+							userSettings, err := s.notificationSvc.GetUserNotificationSettings(ctx, *parentComment.UserID)
+							if err != nil {
+								log.Printf("[WARNING] 获取用户通知设置失败（用户ID: %d），使用默认值 true: %v", *parentComment.UserID, err)
+							} else {
+								userAllowNotification = userSettings.AllowCommentReplyNotification
+								log.Printf("[DEBUG] 即时通知 - 用户 %d 的实时通知偏好设置: %t", *parentComment.UserID, userAllowNotification)
+							}
+						}
+					}
+
+					// 判断被回复者是否是管理员
+					parentIsAdmin := parentEmail != "" && parentEmail == adminEmail
+
+					// 场景一：通知博主有新评论（顶级评论）
+					// 条件：开启了博主通知、不是管理员自己评论、且没有父评论（或父评论作者不是管理员）
 					if (notifyAdmin || scMailNotify) && !isAdminComment {
-						log.Printf("[DEBUG] 满足博主通知条件，开始发送即时通知")
-						if err := s.pushooSvc.SendCommentNotification(ctx, newComment, nil); err != nil {
-							log.Printf("[ERROR] 发送博主即时通知失败: %v", err)
+						// 如果有父评论且父评论作者是管理员，跳过博主通知（会在场景二中通知）
+						if !parentIsAdmin {
+							log.Printf("[DEBUG] 满足博主通知条件，开始发送即时通知")
+							if err := s.pushooSvc.SendCommentNotification(ctx, newComment, nil); err != nil {
+								log.Printf("[ERROR] 发送博主即时通知失败: %v", err)
+							} else {
+								log.Printf("[DEBUG] 博主即时通知发送成功")
+							}
 						} else {
-							log.Printf("[DEBUG] 博主即时通知发送成功")
+							log.Printf("[DEBUG] 被回复者是管理员，将在场景二统一通知，跳过场景一")
 						}
 					}
 
 					// 场景二：通知被回复者有新回复
-					// 如果开启了回复通知、有父评论、父评论允许通知、且不是自己回复自己
-					if notifyReply && parentComment != nil && parentComment.AllowNotification {
-						var parentEmail string
-						if parentComment.Author.Email != nil {
-							parentEmail = *parentComment.Author.Email
-						}
+					// 条件：开启了回复通知、有父评论、用户允许通知、且不是自己回复自己
+					if notifyReply && hasParentComment && userAllowNotification {
 						// 如果新评论者不是父评论作者本人（避免自己回复自己）
 						if parentEmail != "" && newCommenterEmail != parentEmail {
-							log.Printf("[DEBUG] 满足回复通知条件，开始发送即时通知")
+							log.Printf("[DEBUG] 满足被回复者通知条件（用户通知偏好: %t），开始发送即时通知", userAllowNotification)
 							if err := s.pushooSvc.SendCommentNotification(ctx, newComment, parentComment); err != nil {
-								log.Printf("[ERROR] 发送回复即时通知失败: %v", err)
+								log.Printf("[ERROR] 发送被回复者即时通知失败: %v", err)
 							} else {
-								log.Printf("[DEBUG] 回复即时通知发送成功")
+								log.Printf("[DEBUG] 被回复者即时通知发送成功")
 							}
 						} else {
-							log.Printf("[DEBUG] 不满足回复通知条件（自己回复自己或无邮箱），跳过")
+							log.Printf("[DEBUG] 自己回复自己，跳过被回复者通知")
+						}
+					} else {
+						if hasParentComment {
+							log.Printf("[DEBUG] 跳过被回复者即时通知 - notifyReply=%t, userAllowNotification=%t", notifyReply, userAllowNotification)
 						}
 					}
 				} else {

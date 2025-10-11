@@ -207,20 +207,6 @@ func (_c *CommentCreate) SetNillableIsAnonymous(v *bool) *CommentCreate {
 	return _c
 }
 
-// SetAllowNotification sets the "allow_notification" field.
-func (_c *CommentCreate) SetAllowNotification(v bool) *CommentCreate {
-	_c.mutation.SetAllowNotification(v)
-	return _c
-}
-
-// SetNillableAllowNotification sets the "allow_notification" field if the given value is not nil.
-func (_c *CommentCreate) SetNillableAllowNotification(v *bool) *CommentCreate {
-	if v != nil {
-		_c.SetAllowNotification(*v)
-	}
-	return _c
-}
-
 // SetUserAgent sets the "user_agent" field.
 func (_c *CommentCreate) SetUserAgent(v string) *CommentCreate {
 	_c.mutation.SetUserAgent(v)
@@ -391,10 +377,6 @@ func (_c *CommentCreate) defaults() error {
 		v := comment.DefaultIsAnonymous
 		_c.mutation.SetIsAnonymous(v)
 	}
-	if _, ok := _c.mutation.AllowNotification(); !ok {
-		v := comment.DefaultAllowNotification
-		_c.mutation.SetAllowNotification(v)
-	}
 	if _, ok := _c.mutation.LikeCount(); !ok {
 		v := comment.DefaultLikeCount
 		_c.mutation.SetLikeCount(v)
@@ -473,9 +455,6 @@ func (_c *CommentCreate) check() error {
 	}
 	if _, ok := _c.mutation.IsAnonymous(); !ok {
 		return &ValidationError{Name: "is_anonymous", err: errors.New(`ent: missing required field "Comment.is_anonymous"`)}
-	}
-	if _, ok := _c.mutation.AllowNotification(); !ok {
-		return &ValidationError{Name: "allow_notification", err: errors.New(`ent: missing required field "Comment.allow_notification"`)}
 	}
 	if v, ok := _c.mutation.UserAgent(); ok {
 		if err := comment.UserAgentValidator(v); err != nil {
@@ -591,10 +570,6 @@ func (_c *CommentCreate) createSpec() (*Comment, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.IsAnonymous(); ok {
 		_spec.SetField(comment.FieldIsAnonymous, field.TypeBool, value)
 		_node.IsAnonymous = value
-	}
-	if value, ok := _c.mutation.AllowNotification(); ok {
-		_spec.SetField(comment.FieldAllowNotification, field.TypeBool, value)
-		_node.AllowNotification = value
 	}
 	if value, ok := _c.mutation.UserAgent(); ok {
 		_spec.SetField(comment.FieldUserAgent, field.TypeString, value)
@@ -937,18 +912,6 @@ func (u *CommentUpsert) SetIsAnonymous(v bool) *CommentUpsert {
 // UpdateIsAnonymous sets the "is_anonymous" field to the value that was provided on create.
 func (u *CommentUpsert) UpdateIsAnonymous() *CommentUpsert {
 	u.SetExcluded(comment.FieldIsAnonymous)
-	return u
-}
-
-// SetAllowNotification sets the "allow_notification" field.
-func (u *CommentUpsert) SetAllowNotification(v bool) *CommentUpsert {
-	u.Set(comment.FieldAllowNotification, v)
-	return u
-}
-
-// UpdateAllowNotification sets the "allow_notification" field to the value that was provided on create.
-func (u *CommentUpsert) UpdateAllowNotification() *CommentUpsert {
-	u.SetExcluded(comment.FieldAllowNotification)
 	return u
 }
 
@@ -1343,20 +1306,6 @@ func (u *CommentUpsertOne) SetIsAnonymous(v bool) *CommentUpsertOne {
 func (u *CommentUpsertOne) UpdateIsAnonymous() *CommentUpsertOne {
 	return u.Update(func(s *CommentUpsert) {
 		s.UpdateIsAnonymous()
-	})
-}
-
-// SetAllowNotification sets the "allow_notification" field.
-func (u *CommentUpsertOne) SetAllowNotification(v bool) *CommentUpsertOne {
-	return u.Update(func(s *CommentUpsert) {
-		s.SetAllowNotification(v)
-	})
-}
-
-// UpdateAllowNotification sets the "allow_notification" field to the value that was provided on create.
-func (u *CommentUpsertOne) UpdateAllowNotification() *CommentUpsertOne {
-	return u.Update(func(s *CommentUpsert) {
-		s.UpdateAllowNotification()
 	})
 }
 
@@ -1931,20 +1880,6 @@ func (u *CommentUpsertBulk) SetIsAnonymous(v bool) *CommentUpsertBulk {
 func (u *CommentUpsertBulk) UpdateIsAnonymous() *CommentUpsertBulk {
 	return u.Update(func(s *CommentUpsert) {
 		s.UpdateIsAnonymous()
-	})
-}
-
-// SetAllowNotification sets the "allow_notification" field.
-func (u *CommentUpsertBulk) SetAllowNotification(v bool) *CommentUpsertBulk {
-	return u.Update(func(s *CommentUpsert) {
-		s.SetAllowNotification(v)
-	})
-}
-
-// UpdateAllowNotification sets the "allow_notification" field to the value that was provided on create.
-func (u *CommentUpsertBulk) UpdateAllowNotification() *CommentUpsertBulk {
-	return u.Update(func(s *CommentUpsert) {
-		s.UpdateAllowNotification()
 	})
 }
 

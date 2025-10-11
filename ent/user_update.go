@@ -17,6 +17,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/user"
 	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
 	"github.com/anzhiyu-c/anheyu-app/ent/userinstalledtheme"
+	"github.com/anzhiyu-c/anheyu-app/ent/usernotificationconfig"
 )
 
 // UserUpdate is the builder for updating User entities.
@@ -264,6 +265,21 @@ func (_u *UserUpdate) AddInstalledThemes(v ...*UserInstalledTheme) *UserUpdate {
 	return _u.AddInstalledThemeIDs(ids...)
 }
 
+// AddNotificationConfigIDs adds the "notification_configs" edge to the UserNotificationConfig entity by IDs.
+func (_u *UserUpdate) AddNotificationConfigIDs(ids ...uint) *UserUpdate {
+	_u.mutation.AddNotificationConfigIDs(ids...)
+	return _u
+}
+
+// AddNotificationConfigs adds the "notification_configs" edges to the UserNotificationConfig entity.
+func (_u *UserUpdate) AddNotificationConfigs(v ...*UserNotificationConfig) *UserUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddNotificationConfigIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdate) Mutation() *UserMutation {
 	return _u.mutation
@@ -336,6 +352,27 @@ func (_u *UserUpdate) RemoveInstalledThemes(v ...*UserInstalledTheme) *UserUpdat
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveInstalledThemeIDs(ids...)
+}
+
+// ClearNotificationConfigs clears all "notification_configs" edges to the UserNotificationConfig entity.
+func (_u *UserUpdate) ClearNotificationConfigs() *UserUpdate {
+	_u.mutation.ClearNotificationConfigs()
+	return _u
+}
+
+// RemoveNotificationConfigIDs removes the "notification_configs" edge to UserNotificationConfig entities by IDs.
+func (_u *UserUpdate) RemoveNotificationConfigIDs(ids ...uint) *UserUpdate {
+	_u.mutation.RemoveNotificationConfigIDs(ids...)
+	return _u
+}
+
+// RemoveNotificationConfigs removes "notification_configs" edges to UserNotificationConfig entities.
+func (_u *UserUpdate) RemoveNotificationConfigs(v ...*UserNotificationConfig) *UserUpdate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveNotificationConfigIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -651,6 +688,51 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.NotificationConfigsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationConfigsTable,
+			Columns: []string{user.NotificationConfigsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usernotificationconfig.FieldID, field.TypeUint),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedNotificationConfigsIDs(); len(nodes) > 0 && !_u.mutation.NotificationConfigsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationConfigsTable,
+			Columns: []string{user.NotificationConfigsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usernotificationconfig.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.NotificationConfigsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationConfigsTable,
+			Columns: []string{user.NotificationConfigsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usernotificationconfig.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -904,6 +986,21 @@ func (_u *UserUpdateOne) AddInstalledThemes(v ...*UserInstalledTheme) *UserUpdat
 	return _u.AddInstalledThemeIDs(ids...)
 }
 
+// AddNotificationConfigIDs adds the "notification_configs" edge to the UserNotificationConfig entity by IDs.
+func (_u *UserUpdateOne) AddNotificationConfigIDs(ids ...uint) *UserUpdateOne {
+	_u.mutation.AddNotificationConfigIDs(ids...)
+	return _u
+}
+
+// AddNotificationConfigs adds the "notification_configs" edges to the UserNotificationConfig entity.
+func (_u *UserUpdateOne) AddNotificationConfigs(v ...*UserNotificationConfig) *UserUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddNotificationConfigIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (_u *UserUpdateOne) Mutation() *UserMutation {
 	return _u.mutation
@@ -976,6 +1073,27 @@ func (_u *UserUpdateOne) RemoveInstalledThemes(v ...*UserInstalledTheme) *UserUp
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveInstalledThemeIDs(ids...)
+}
+
+// ClearNotificationConfigs clears all "notification_configs" edges to the UserNotificationConfig entity.
+func (_u *UserUpdateOne) ClearNotificationConfigs() *UserUpdateOne {
+	_u.mutation.ClearNotificationConfigs()
+	return _u
+}
+
+// RemoveNotificationConfigIDs removes the "notification_configs" edge to UserNotificationConfig entities by IDs.
+func (_u *UserUpdateOne) RemoveNotificationConfigIDs(ids ...uint) *UserUpdateOne {
+	_u.mutation.RemoveNotificationConfigIDs(ids...)
+	return _u
+}
+
+// RemoveNotificationConfigs removes "notification_configs" edges to UserNotificationConfig entities.
+func (_u *UserUpdateOne) RemoveNotificationConfigs(v ...*UserNotificationConfig) *UserUpdateOne {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveNotificationConfigIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -1314,6 +1432,51 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(userinstalledtheme.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.NotificationConfigsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationConfigsTable,
+			Columns: []string{user.NotificationConfigsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usernotificationconfig.FieldID, field.TypeUint),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedNotificationConfigsIDs(); len(nodes) > 0 && !_u.mutation.NotificationConfigsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationConfigsTable,
+			Columns: []string{user.NotificationConfigsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usernotificationconfig.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.NotificationConfigsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationConfigsTable,
+			Columns: []string{user.NotificationConfigsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usernotificationconfig.FieldID, field.TypeUint),
 			},
 		}
 		for _, k := range nodes {

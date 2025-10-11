@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-07-13 23:40:12
- * @LastEditTime: 2025-10-03 21:11:02
+ * @LastEditTime: 2025-10-12 02:14:53
  * @LastEditors: 安知鱼
  */
 package schema
@@ -91,5 +91,8 @@ func (User) Edges() []ent.Edge {
 
 		// 定义一个用户可以安装多个主题的关系
 		edge.To("installed_themes", UserInstalledTheme.Type),
+
+		// 定义一个用户有多个通知配置的关系
+		edge.To("notification_configs", UserNotificationConfig.Type),
 	}
 }

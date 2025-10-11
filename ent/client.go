@@ -26,6 +26,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/linkcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/linktag"
 	"github.com/anzhiyu-c/anheyu-app/ent/metadata"
+	"github.com/anzhiyu-c/anheyu-app/ent/notificationtype"
 	"github.com/anzhiyu-c/anheyu-app/ent/page"
 	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
@@ -36,6 +37,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/user"
 	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
 	"github.com/anzhiyu-c/anheyu-app/ent/userinstalledtheme"
+	"github.com/anzhiyu-c/anheyu-app/ent/usernotificationconfig"
 	"github.com/anzhiyu-c/anheyu-app/ent/visitorlog"
 	"github.com/anzhiyu-c/anheyu-app/ent/visitorstat"
 )
@@ -67,6 +69,8 @@ type Client struct {
 	LinkTag *LinkTagClient
 	// Metadata is the client for interacting with the Metadata builders.
 	Metadata *MetadataClient
+	// NotificationType is the client for interacting with the NotificationType builders.
+	NotificationType *NotificationTypeClient
 	// Page is the client for interacting with the Page builders.
 	Page *PageClient
 	// PostCategory is the client for interacting with the PostCategory builders.
@@ -87,6 +91,8 @@ type Client struct {
 	UserGroup *UserGroupClient
 	// UserInstalledTheme is the client for interacting with the UserInstalledTheme builders.
 	UserInstalledTheme *UserInstalledThemeClient
+	// UserNotificationConfig is the client for interacting with the UserNotificationConfig builders.
+	UserNotificationConfig *UserNotificationConfigClient
 	// VisitorLog is the client for interacting with the VisitorLog builders.
 	VisitorLog *VisitorLogClient
 	// VisitorStat is the client for interacting with the VisitorStat builders.
@@ -113,6 +119,7 @@ func (c *Client) init() {
 	c.LinkCategory = NewLinkCategoryClient(c.config)
 	c.LinkTag = NewLinkTagClient(c.config)
 	c.Metadata = NewMetadataClient(c.config)
+	c.NotificationType = NewNotificationTypeClient(c.config)
 	c.Page = NewPageClient(c.config)
 	c.PostCategory = NewPostCategoryClient(c.config)
 	c.PostTag = NewPostTagClient(c.config)
@@ -123,6 +130,7 @@ func (c *Client) init() {
 	c.User = NewUserClient(c.config)
 	c.UserGroup = NewUserGroupClient(c.config)
 	c.UserInstalledTheme = NewUserInstalledThemeClient(c.config)
+	c.UserNotificationConfig = NewUserNotificationConfigClient(c.config)
 	c.VisitorLog = NewVisitorLogClient(c.config)
 	c.VisitorStat = NewVisitorStatClient(c.config)
 }
@@ -215,31 +223,33 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:                ctx,
-		config:             cfg,
-		Album:              NewAlbumClient(cfg),
-		Article:            NewArticleClient(cfg),
-		Comment:            NewCommentClient(cfg),
-		DirectLink:         NewDirectLinkClient(cfg),
-		Entity:             NewEntityClient(cfg),
-		File:               NewFileClient(cfg),
-		FileEntity:         NewFileEntityClient(cfg),
-		Link:               NewLinkClient(cfg),
-		LinkCategory:       NewLinkCategoryClient(cfg),
-		LinkTag:            NewLinkTagClient(cfg),
-		Metadata:           NewMetadataClient(cfg),
-		Page:               NewPageClient(cfg),
-		PostCategory:       NewPostCategoryClient(cfg),
-		PostTag:            NewPostTagClient(cfg),
-		Setting:            NewSettingClient(cfg),
-		StoragePolicy:      NewStoragePolicyClient(cfg),
-		Tag:                NewTagClient(cfg),
-		URLStat:            NewURLStatClient(cfg),
-		User:               NewUserClient(cfg),
-		UserGroup:          NewUserGroupClient(cfg),
-		UserInstalledTheme: NewUserInstalledThemeClient(cfg),
-		VisitorLog:         NewVisitorLogClient(cfg),
-		VisitorStat:        NewVisitorStatClient(cfg),
+		ctx:                    ctx,
+		config:                 cfg,
+		Album:                  NewAlbumClient(cfg),
+		Article:                NewArticleClient(cfg),
+		Comment:                NewCommentClient(cfg),
+		DirectLink:             NewDirectLinkClient(cfg),
+		Entity:                 NewEntityClient(cfg),
+		File:                   NewFileClient(cfg),
+		FileEntity:             NewFileEntityClient(cfg),
+		Link:                   NewLinkClient(cfg),
+		LinkCategory:           NewLinkCategoryClient(cfg),
+		LinkTag:                NewLinkTagClient(cfg),
+		Metadata:               NewMetadataClient(cfg),
+		NotificationType:       NewNotificationTypeClient(cfg),
+		Page:                   NewPageClient(cfg),
+		PostCategory:           NewPostCategoryClient(cfg),
+		PostTag:                NewPostTagClient(cfg),
+		Setting:                NewSettingClient(cfg),
+		StoragePolicy:          NewStoragePolicyClient(cfg),
+		Tag:                    NewTagClient(cfg),
+		URLStat:                NewURLStatClient(cfg),
+		User:                   NewUserClient(cfg),
+		UserGroup:              NewUserGroupClient(cfg),
+		UserInstalledTheme:     NewUserInstalledThemeClient(cfg),
+		UserNotificationConfig: NewUserNotificationConfigClient(cfg),
+		VisitorLog:             NewVisitorLogClient(cfg),
+		VisitorStat:            NewVisitorStatClient(cfg),
 	}, nil
 }
 
@@ -257,31 +267,33 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:                ctx,
-		config:             cfg,
-		Album:              NewAlbumClient(cfg),
-		Article:            NewArticleClient(cfg),
-		Comment:            NewCommentClient(cfg),
-		DirectLink:         NewDirectLinkClient(cfg),
-		Entity:             NewEntityClient(cfg),
-		File:               NewFileClient(cfg),
-		FileEntity:         NewFileEntityClient(cfg),
-		Link:               NewLinkClient(cfg),
-		LinkCategory:       NewLinkCategoryClient(cfg),
-		LinkTag:            NewLinkTagClient(cfg),
-		Metadata:           NewMetadataClient(cfg),
-		Page:               NewPageClient(cfg),
-		PostCategory:       NewPostCategoryClient(cfg),
-		PostTag:            NewPostTagClient(cfg),
-		Setting:            NewSettingClient(cfg),
-		StoragePolicy:      NewStoragePolicyClient(cfg),
-		Tag:                NewTagClient(cfg),
-		URLStat:            NewURLStatClient(cfg),
-		User:               NewUserClient(cfg),
-		UserGroup:          NewUserGroupClient(cfg),
-		UserInstalledTheme: NewUserInstalledThemeClient(cfg),
-		VisitorLog:         NewVisitorLogClient(cfg),
-		VisitorStat:        NewVisitorStatClient(cfg),
+		ctx:                    ctx,
+		config:                 cfg,
+		Album:                  NewAlbumClient(cfg),
+		Article:                NewArticleClient(cfg),
+		Comment:                NewCommentClient(cfg),
+		DirectLink:             NewDirectLinkClient(cfg),
+		Entity:                 NewEntityClient(cfg),
+		File:                   NewFileClient(cfg),
+		FileEntity:             NewFileEntityClient(cfg),
+		Link:                   NewLinkClient(cfg),
+		LinkCategory:           NewLinkCategoryClient(cfg),
+		LinkTag:                NewLinkTagClient(cfg),
+		Metadata:               NewMetadataClient(cfg),
+		NotificationType:       NewNotificationTypeClient(cfg),
+		Page:                   NewPageClient(cfg),
+		PostCategory:           NewPostCategoryClient(cfg),
+		PostTag:                NewPostTagClient(cfg),
+		Setting:                NewSettingClient(cfg),
+		StoragePolicy:          NewStoragePolicyClient(cfg),
+		Tag:                    NewTagClient(cfg),
+		URLStat:                NewURLStatClient(cfg),
+		User:                   NewUserClient(cfg),
+		UserGroup:              NewUserGroupClient(cfg),
+		UserInstalledTheme:     NewUserInstalledThemeClient(cfg),
+		UserNotificationConfig: NewUserNotificationConfigClient(cfg),
+		VisitorLog:             NewVisitorLogClient(cfg),
+		VisitorStat:            NewVisitorStatClient(cfg),
 	}, nil
 }
 
@@ -312,9 +324,10 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.Album, c.Article, c.Comment, c.DirectLink, c.Entity, c.File, c.FileEntity,
-		c.Link, c.LinkCategory, c.LinkTag, c.Metadata, c.Page, c.PostCategory,
-		c.PostTag, c.Setting, c.StoragePolicy, c.Tag, c.URLStat, c.User, c.UserGroup,
-		c.UserInstalledTheme, c.VisitorLog, c.VisitorStat,
+		c.Link, c.LinkCategory, c.LinkTag, c.Metadata, c.NotificationType, c.Page,
+		c.PostCategory, c.PostTag, c.Setting, c.StoragePolicy, c.Tag, c.URLStat,
+		c.User, c.UserGroup, c.UserInstalledTheme, c.UserNotificationConfig,
+		c.VisitorLog, c.VisitorStat,
 	} {
 		n.Use(hooks...)
 	}
@@ -325,9 +338,10 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.Album, c.Article, c.Comment, c.DirectLink, c.Entity, c.File, c.FileEntity,
-		c.Link, c.LinkCategory, c.LinkTag, c.Metadata, c.Page, c.PostCategory,
-		c.PostTag, c.Setting, c.StoragePolicy, c.Tag, c.URLStat, c.User, c.UserGroup,
-		c.UserInstalledTheme, c.VisitorLog, c.VisitorStat,
+		c.Link, c.LinkCategory, c.LinkTag, c.Metadata, c.NotificationType, c.Page,
+		c.PostCategory, c.PostTag, c.Setting, c.StoragePolicy, c.Tag, c.URLStat,
+		c.User, c.UserGroup, c.UserInstalledTheme, c.UserNotificationConfig,
+		c.VisitorLog, c.VisitorStat,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -358,6 +372,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.LinkTag.mutate(ctx, m)
 	case *MetadataMutation:
 		return c.Metadata.mutate(ctx, m)
+	case *NotificationTypeMutation:
+		return c.NotificationType.mutate(ctx, m)
 	case *PageMutation:
 		return c.Page.mutate(ctx, m)
 	case *PostCategoryMutation:
@@ -378,6 +394,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.UserGroup.mutate(ctx, m)
 	case *UserInstalledThemeMutation:
 		return c.UserInstalledTheme.mutate(ctx, m)
+	case *UserNotificationConfigMutation:
+		return c.UserNotificationConfig.mutate(ctx, m)
 	case *VisitorLogMutation:
 		return c.VisitorLog.mutate(ctx, m)
 	case *VisitorStatMutation:
@@ -2209,6 +2227,155 @@ func (c *MetadataClient) mutate(ctx context.Context, m *MetadataMutation) (Value
 	}
 }
 
+// NotificationTypeClient is a client for the NotificationType schema.
+type NotificationTypeClient struct {
+	config
+}
+
+// NewNotificationTypeClient returns a client for the NotificationType from the given config.
+func NewNotificationTypeClient(c config) *NotificationTypeClient {
+	return &NotificationTypeClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `notificationtype.Hooks(f(g(h())))`.
+func (c *NotificationTypeClient) Use(hooks ...Hook) {
+	c.hooks.NotificationType = append(c.hooks.NotificationType, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `notificationtype.Intercept(f(g(h())))`.
+func (c *NotificationTypeClient) Intercept(interceptors ...Interceptor) {
+	c.inters.NotificationType = append(c.inters.NotificationType, interceptors...)
+}
+
+// Create returns a builder for creating a NotificationType entity.
+func (c *NotificationTypeClient) Create() *NotificationTypeCreate {
+	mutation := newNotificationTypeMutation(c.config, OpCreate)
+	return &NotificationTypeCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of NotificationType entities.
+func (c *NotificationTypeClient) CreateBulk(builders ...*NotificationTypeCreate) *NotificationTypeCreateBulk {
+	return &NotificationTypeCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *NotificationTypeClient) MapCreateBulk(slice any, setFunc func(*NotificationTypeCreate, int)) *NotificationTypeCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &NotificationTypeCreateBulk{err: fmt.Errorf("calling to NotificationTypeClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*NotificationTypeCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &NotificationTypeCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for NotificationType.
+func (c *NotificationTypeClient) Update() *NotificationTypeUpdate {
+	mutation := newNotificationTypeMutation(c.config, OpUpdate)
+	return &NotificationTypeUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *NotificationTypeClient) UpdateOne(_m *NotificationType) *NotificationTypeUpdateOne {
+	mutation := newNotificationTypeMutation(c.config, OpUpdateOne, withNotificationType(_m))
+	return &NotificationTypeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *NotificationTypeClient) UpdateOneID(id uint) *NotificationTypeUpdateOne {
+	mutation := newNotificationTypeMutation(c.config, OpUpdateOne, withNotificationTypeID(id))
+	return &NotificationTypeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for NotificationType.
+func (c *NotificationTypeClient) Delete() *NotificationTypeDelete {
+	mutation := newNotificationTypeMutation(c.config, OpDelete)
+	return &NotificationTypeDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *NotificationTypeClient) DeleteOne(_m *NotificationType) *NotificationTypeDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *NotificationTypeClient) DeleteOneID(id uint) *NotificationTypeDeleteOne {
+	builder := c.Delete().Where(notificationtype.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &NotificationTypeDeleteOne{builder}
+}
+
+// Query returns a query builder for NotificationType.
+func (c *NotificationTypeClient) Query() *NotificationTypeQuery {
+	return &NotificationTypeQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeNotificationType},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a NotificationType entity by its id.
+func (c *NotificationTypeClient) Get(ctx context.Context, id uint) (*NotificationType, error) {
+	return c.Query().Where(notificationtype.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *NotificationTypeClient) GetX(ctx context.Context, id uint) *NotificationType {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUserConfigs queries the user_configs edge of a NotificationType.
+func (c *NotificationTypeClient) QueryUserConfigs(_m *NotificationType) *UserNotificationConfigQuery {
+	query := (&UserNotificationConfigClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(notificationtype.Table, notificationtype.FieldID, id),
+			sqlgraph.To(usernotificationconfig.Table, usernotificationconfig.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, notificationtype.UserConfigsTable, notificationtype.UserConfigsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *NotificationTypeClient) Hooks() []Hook {
+	return c.hooks.NotificationType
+}
+
+// Interceptors returns the client interceptors.
+func (c *NotificationTypeClient) Interceptors() []Interceptor {
+	return c.inters.NotificationType
+}
+
+func (c *NotificationTypeClient) mutate(ctx context.Context, m *NotificationTypeMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&NotificationTypeCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&NotificationTypeUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&NotificationTypeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&NotificationTypeDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown NotificationType mutation op: %q", m.Op())
+	}
+}
+
 // PageClient is a client for the Page schema.
 type PageClient struct {
 	config
@@ -3350,6 +3517,22 @@ func (c *UserClient) QueryInstalledThemes(_m *User) *UserInstalledThemeQuery {
 	return query
 }
 
+// QueryNotificationConfigs queries the notification_configs edge of a User.
+func (c *UserClient) QueryNotificationConfigs(_m *User) *UserNotificationConfigQuery {
+	query := (&UserNotificationConfigClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(usernotificationconfig.Table, usernotificationconfig.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.NotificationConfigsTable, user.NotificationConfigsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	hooks := c.hooks.User
@@ -3676,6 +3859,171 @@ func (c *UserInstalledThemeClient) mutate(ctx context.Context, m *UserInstalledT
 	}
 }
 
+// UserNotificationConfigClient is a client for the UserNotificationConfig schema.
+type UserNotificationConfigClient struct {
+	config
+}
+
+// NewUserNotificationConfigClient returns a client for the UserNotificationConfig from the given config.
+func NewUserNotificationConfigClient(c config) *UserNotificationConfigClient {
+	return &UserNotificationConfigClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `usernotificationconfig.Hooks(f(g(h())))`.
+func (c *UserNotificationConfigClient) Use(hooks ...Hook) {
+	c.hooks.UserNotificationConfig = append(c.hooks.UserNotificationConfig, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `usernotificationconfig.Intercept(f(g(h())))`.
+func (c *UserNotificationConfigClient) Intercept(interceptors ...Interceptor) {
+	c.inters.UserNotificationConfig = append(c.inters.UserNotificationConfig, interceptors...)
+}
+
+// Create returns a builder for creating a UserNotificationConfig entity.
+func (c *UserNotificationConfigClient) Create() *UserNotificationConfigCreate {
+	mutation := newUserNotificationConfigMutation(c.config, OpCreate)
+	return &UserNotificationConfigCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of UserNotificationConfig entities.
+func (c *UserNotificationConfigClient) CreateBulk(builders ...*UserNotificationConfigCreate) *UserNotificationConfigCreateBulk {
+	return &UserNotificationConfigCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *UserNotificationConfigClient) MapCreateBulk(slice any, setFunc func(*UserNotificationConfigCreate, int)) *UserNotificationConfigCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &UserNotificationConfigCreateBulk{err: fmt.Errorf("calling to UserNotificationConfigClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*UserNotificationConfigCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &UserNotificationConfigCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for UserNotificationConfig.
+func (c *UserNotificationConfigClient) Update() *UserNotificationConfigUpdate {
+	mutation := newUserNotificationConfigMutation(c.config, OpUpdate)
+	return &UserNotificationConfigUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *UserNotificationConfigClient) UpdateOne(_m *UserNotificationConfig) *UserNotificationConfigUpdateOne {
+	mutation := newUserNotificationConfigMutation(c.config, OpUpdateOne, withUserNotificationConfig(_m))
+	return &UserNotificationConfigUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *UserNotificationConfigClient) UpdateOneID(id uint) *UserNotificationConfigUpdateOne {
+	mutation := newUserNotificationConfigMutation(c.config, OpUpdateOne, withUserNotificationConfigID(id))
+	return &UserNotificationConfigUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for UserNotificationConfig.
+func (c *UserNotificationConfigClient) Delete() *UserNotificationConfigDelete {
+	mutation := newUserNotificationConfigMutation(c.config, OpDelete)
+	return &UserNotificationConfigDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *UserNotificationConfigClient) DeleteOne(_m *UserNotificationConfig) *UserNotificationConfigDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *UserNotificationConfigClient) DeleteOneID(id uint) *UserNotificationConfigDeleteOne {
+	builder := c.Delete().Where(usernotificationconfig.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &UserNotificationConfigDeleteOne{builder}
+}
+
+// Query returns a query builder for UserNotificationConfig.
+func (c *UserNotificationConfigClient) Query() *UserNotificationConfigQuery {
+	return &UserNotificationConfigQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeUserNotificationConfig},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a UserNotificationConfig entity by its id.
+func (c *UserNotificationConfigClient) Get(ctx context.Context, id uint) (*UserNotificationConfig, error) {
+	return c.Query().Where(usernotificationconfig.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *UserNotificationConfigClient) GetX(ctx context.Context, id uint) *UserNotificationConfig {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a UserNotificationConfig.
+func (c *UserNotificationConfigClient) QueryUser(_m *UserNotificationConfig) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(usernotificationconfig.Table, usernotificationconfig.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, usernotificationconfig.UserTable, usernotificationconfig.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryNotificationType queries the notification_type edge of a UserNotificationConfig.
+func (c *UserNotificationConfigClient) QueryNotificationType(_m *UserNotificationConfig) *NotificationTypeQuery {
+	query := (&NotificationTypeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(usernotificationconfig.Table, usernotificationconfig.FieldID, id),
+			sqlgraph.To(notificationtype.Table, notificationtype.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, usernotificationconfig.NotificationTypeTable, usernotificationconfig.NotificationTypeColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *UserNotificationConfigClient) Hooks() []Hook {
+	return c.hooks.UserNotificationConfig
+}
+
+// Interceptors returns the client interceptors.
+func (c *UserNotificationConfigClient) Interceptors() []Interceptor {
+	return c.inters.UserNotificationConfig
+}
+
+func (c *UserNotificationConfigClient) mutate(ctx context.Context, m *UserNotificationConfigMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&UserNotificationConfigCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&UserNotificationConfigUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&UserNotificationConfigUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&UserNotificationConfigDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown UserNotificationConfig mutation op: %q", m.Op())
+	}
+}
+
 // VisitorLogClient is a client for the VisitorLog schema.
 type VisitorLogClient struct {
 	config
@@ -3946,14 +4294,14 @@ func (c *VisitorStatClient) mutate(ctx context.Context, m *VisitorStatMutation) 
 type (
 	hooks struct {
 		Album, Article, Comment, DirectLink, Entity, File, FileEntity, Link,
-		LinkCategory, LinkTag, Metadata, Page, PostCategory, PostTag, Setting,
-		StoragePolicy, Tag, URLStat, User, UserGroup, UserInstalledTheme, VisitorLog,
-		VisitorStat []ent.Hook
+		LinkCategory, LinkTag, Metadata, NotificationType, Page, PostCategory, PostTag,
+		Setting, StoragePolicy, Tag, URLStat, User, UserGroup, UserInstalledTheme,
+		UserNotificationConfig, VisitorLog, VisitorStat []ent.Hook
 	}
 	inters struct {
 		Album, Article, Comment, DirectLink, Entity, File, FileEntity, Link,
-		LinkCategory, LinkTag, Metadata, Page, PostCategory, PostTag, Setting,
-		StoragePolicy, Tag, URLStat, User, UserGroup, UserInstalledTheme, VisitorLog,
-		VisitorStat []ent.Interceptor
+		LinkCategory, LinkTag, Metadata, NotificationType, Page, PostCategory, PostTag,
+		Setting, StoragePolicy, Tag, URLStat, User, UserGroup, UserInstalledTheme,
+		UserNotificationConfig, VisitorLog, VisitorStat []ent.Interceptor
 	}
 )

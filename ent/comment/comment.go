@@ -47,8 +47,6 @@ const (
 	FieldIsAdminComment = "is_admin_comment"
 	// FieldIsAnonymous holds the string denoting the is_anonymous field in the database.
 	FieldIsAnonymous = "is_anonymous"
-	// FieldAllowNotification holds the string denoting the allow_notification field in the database.
-	FieldAllowNotification = "allow_notification"
 	// FieldUserAgent holds the string denoting the user_agent field in the database.
 	FieldUserAgent = "user_agent"
 	// FieldIPAddress holds the string denoting the ip_address field in the database.
@@ -103,7 +101,6 @@ var Columns = []string{
 	FieldStatus,
 	FieldIsAdminComment,
 	FieldIsAnonymous,
-	FieldAllowNotification,
 	FieldUserAgent,
 	FieldIPAddress,
 	FieldIPLocation,
@@ -167,8 +164,6 @@ var (
 	DefaultIsAdminComment bool
 	// DefaultIsAnonymous holds the default value on creation for the "is_anonymous" field.
 	DefaultIsAnonymous bool
-	// DefaultAllowNotification holds the default value on creation for the "allow_notification" field.
-	DefaultAllowNotification bool
 	// UserAgentValidator is a validator for the "user_agent" field. It is called by the builders before save.
 	UserAgentValidator func(string) error
 	// IPAddressValidator is a validator for the "ip_address" field. It is called by the builders before save.
@@ -267,11 +262,6 @@ func ByIsAdminComment(opts ...sql.OrderTermOption) OrderOption {
 // ByIsAnonymous orders the results by the is_anonymous field.
 func ByIsAnonymous(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsAnonymous, opts...).ToFunc()
-}
-
-// ByAllowNotification orders the results by the allow_notification field.
-func ByAllowNotification(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAllowNotification, opts...).ToFunc()
 }
 
 // ByUserAgent orders the results by the user_agent field.

@@ -34,6 +34,8 @@ type Tx struct {
 	LinkTag *LinkTagClient
 	// Metadata is the client for interacting with the Metadata builders.
 	Metadata *MetadataClient
+	// NotificationType is the client for interacting with the NotificationType builders.
+	NotificationType *NotificationTypeClient
 	// Page is the client for interacting with the Page builders.
 	Page *PageClient
 	// PostCategory is the client for interacting with the PostCategory builders.
@@ -54,6 +56,8 @@ type Tx struct {
 	UserGroup *UserGroupClient
 	// UserInstalledTheme is the client for interacting with the UserInstalledTheme builders.
 	UserInstalledTheme *UserInstalledThemeClient
+	// UserNotificationConfig is the client for interacting with the UserNotificationConfig builders.
+	UserNotificationConfig *UserNotificationConfigClient
 	// VisitorLog is the client for interacting with the VisitorLog builders.
 	VisitorLog *VisitorLogClient
 	// VisitorStat is the client for interacting with the VisitorStat builders.
@@ -200,6 +204,7 @@ func (tx *Tx) init() {
 	tx.LinkCategory = NewLinkCategoryClient(tx.config)
 	tx.LinkTag = NewLinkTagClient(tx.config)
 	tx.Metadata = NewMetadataClient(tx.config)
+	tx.NotificationType = NewNotificationTypeClient(tx.config)
 	tx.Page = NewPageClient(tx.config)
 	tx.PostCategory = NewPostCategoryClient(tx.config)
 	tx.PostTag = NewPostTagClient(tx.config)
@@ -210,6 +215,7 @@ func (tx *Tx) init() {
 	tx.User = NewUserClient(tx.config)
 	tx.UserGroup = NewUserGroupClient(tx.config)
 	tx.UserInstalledTheme = NewUserInstalledThemeClient(tx.config)
+	tx.UserNotificationConfig = NewUserNotificationConfigClient(tx.config)
 	tx.VisitorLog = NewVisitorLogClient(tx.config)
 	tx.VisitorStat = NewVisitorStatClient(tx.config)
 }

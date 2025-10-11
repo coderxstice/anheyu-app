@@ -16,6 +16,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/user"
 	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
 	"github.com/anzhiyu-c/anheyu-app/ent/userinstalledtheme"
+	"github.com/anzhiyu-c/anheyu-app/ent/usernotificationconfig"
 )
 
 // UserCreate is the builder for creating a User entity.
@@ -224,6 +225,21 @@ func (_c *UserCreate) AddInstalledThemes(v ...*UserInstalledTheme) *UserCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddInstalledThemeIDs(ids...)
+}
+
+// AddNotificationConfigIDs adds the "notification_configs" edge to the UserNotificationConfig entity by IDs.
+func (_c *UserCreate) AddNotificationConfigIDs(ids ...uint) *UserCreate {
+	_c.mutation.AddNotificationConfigIDs(ids...)
+	return _c
+}
+
+// AddNotificationConfigs adds the "notification_configs" edges to the UserNotificationConfig entity.
+func (_c *UserCreate) AddNotificationConfigs(v ...*UserNotificationConfig) *UserCreate {
+	ids := make([]uint, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddNotificationConfigIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -469,6 +485,22 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(userinstalledtheme.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.NotificationConfigsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.NotificationConfigsTable,
+			Columns: []string{user.NotificationConfigsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(usernotificationconfig.FieldID, field.TypeUint),
 			},
 		}
 		for _, k := range nodes {

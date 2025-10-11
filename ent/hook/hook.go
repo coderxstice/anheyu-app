@@ -141,6 +141,18 @@ func (f MetadataFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MetadataMutation", m)
 }
 
+// The NotificationTypeFunc type is an adapter to allow the use of ordinary
+// function as NotificationType mutator.
+type NotificationTypeFunc func(context.Context, *ent.NotificationTypeMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f NotificationTypeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.NotificationTypeMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.NotificationTypeMutation", m)
+}
+
 // The PageFunc type is an adapter to allow the use of ordinary
 // function as Page mutator.
 type PageFunc func(context.Context, *ent.PageMutation) (ent.Value, error)
@@ -259,6 +271,18 @@ func (f UserInstalledThemeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserInstalledThemeMutation", m)
+}
+
+// The UserNotificationConfigFunc type is an adapter to allow the use of ordinary
+// function as UserNotificationConfig mutator.
+type UserNotificationConfigFunc func(context.Context, *ent.UserNotificationConfigMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UserNotificationConfigFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.UserNotificationConfigMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserNotificationConfigMutation", m)
 }
 
 // The VisitorLogFunc type is an adapter to allow the use of ordinary

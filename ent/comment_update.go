@@ -275,20 +275,6 @@ func (_u *CommentUpdate) SetNillableIsAnonymous(v *bool) *CommentUpdate {
 	return _u
 }
 
-// SetAllowNotification sets the "allow_notification" field.
-func (_u *CommentUpdate) SetAllowNotification(v bool) *CommentUpdate {
-	_u.mutation.SetAllowNotification(v)
-	return _u
-}
-
-// SetNillableAllowNotification sets the "allow_notification" field if the given value is not nil.
-func (_u *CommentUpdate) SetNillableAllowNotification(v *bool) *CommentUpdate {
-	if v != nil {
-		_u.SetAllowNotification(*v)
-	}
-	return _u
-}
-
 // SetUserAgent sets the "user_agent" field.
 func (_u *CommentUpdate) SetUserAgent(v string) *CommentUpdate {
 	_u.mutation.SetUserAgent(v)
@@ -639,9 +625,6 @@ func (_u *CommentUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.IsAnonymous(); ok {
 		_spec.SetField(comment.FieldIsAnonymous, field.TypeBool, value)
-	}
-	if value, ok := _u.mutation.AllowNotification(); ok {
-		_spec.SetField(comment.FieldAllowNotification, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.UserAgent(); ok {
 		_spec.SetField(comment.FieldUserAgent, field.TypeString, value)
@@ -1040,20 +1023,6 @@ func (_u *CommentUpdateOne) SetNillableIsAnonymous(v *bool) *CommentUpdateOne {
 	return _u
 }
 
-// SetAllowNotification sets the "allow_notification" field.
-func (_u *CommentUpdateOne) SetAllowNotification(v bool) *CommentUpdateOne {
-	_u.mutation.SetAllowNotification(v)
-	return _u
-}
-
-// SetNillableAllowNotification sets the "allow_notification" field if the given value is not nil.
-func (_u *CommentUpdateOne) SetNillableAllowNotification(v *bool) *CommentUpdateOne {
-	if v != nil {
-		_u.SetAllowNotification(*v)
-	}
-	return _u
-}
-
 // SetUserAgent sets the "user_agent" field.
 func (_u *CommentUpdateOne) SetUserAgent(v string) *CommentUpdateOne {
 	_u.mutation.SetUserAgent(v)
@@ -1434,9 +1403,6 @@ func (_u *CommentUpdateOne) sqlSave(ctx context.Context) (_node *Comment, err er
 	}
 	if value, ok := _u.mutation.IsAnonymous(); ok {
 		_spec.SetField(comment.FieldIsAnonymous, field.TypeBool, value)
-	}
-	if value, ok := _u.mutation.AllowNotification(); ok {
-		_spec.SetField(comment.FieldAllowNotification, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.UserAgent(); ok {
 		_spec.SetField(comment.FieldUserAgent, field.TypeString, value)

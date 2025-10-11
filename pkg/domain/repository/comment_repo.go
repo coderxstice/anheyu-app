@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-08-11 17:58:48
- * @LastEditTime: 2025-09-01 23:15:00
+ * @LastEditTime: 2025-10-12 03:44:26
  * @LastEditors: 安知鱼
  */
 // internal/domain/repository/comment_repo.go
@@ -16,23 +16,22 @@ import (
 )
 
 type CreateCommentParams struct {
-	TargetPath        string
-	TargetTitle       *string
-	UserID            *uint
-	ParentID          *uint
-	Nickname          string
-	Email             *string
-	EmailMD5          string
-	Website           *string
-	Content           string
-	ContentHTML       string
-	UserAgent         *string
-	IPAddress         string
-	IPLocation        string
-	Status            int
-	IsAdminComment    bool
-	IsAnonymous       bool
-	AllowNotification bool
+	TargetPath     string
+	TargetTitle    *string
+	UserID         *uint
+	ParentID       *uint
+	Nickname       string
+	Email          *string
+	EmailMD5       string
+	Website        *string
+	Content        string
+	ContentHTML    string
+	UserAgent      *string
+	IPAddress      string
+	IPLocation     string
+	Status         int
+	IsAdminComment bool
+	IsAnonymous    bool
 }
 type AdminListParams struct {
 	Page       int

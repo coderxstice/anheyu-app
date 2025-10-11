@@ -16,6 +16,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/linkcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/linktag"
 	"github.com/anzhiyu-c/anheyu-app/ent/metadata"
+	"github.com/anzhiyu-c/anheyu-app/ent/notificationtype"
 	"github.com/anzhiyu-c/anheyu-app/ent/page"
 	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
@@ -27,6 +28,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/user"
 	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
 	"github.com/anzhiyu-c/anheyu-app/ent/userinstalledtheme"
+	"github.com/anzhiyu-c/anheyu-app/ent/usernotificationconfig"
 	"github.com/anzhiyu-c/anheyu-app/ent/visitorlog"
 	"github.com/anzhiyu-c/anheyu-app/ent/visitorstat"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
@@ -247,24 +249,20 @@ func init() {
 	commentDescIsAnonymous := commentFields[15].Descriptor()
 	// comment.DefaultIsAnonymous holds the default value on creation for the is_anonymous field.
 	comment.DefaultIsAnonymous = commentDescIsAnonymous.Default.(bool)
-	// commentDescAllowNotification is the schema descriptor for allow_notification field.
-	commentDescAllowNotification := commentFields[16].Descriptor()
-	// comment.DefaultAllowNotification holds the default value on creation for the allow_notification field.
-	comment.DefaultAllowNotification = commentDescAllowNotification.Default.(bool)
 	// commentDescUserAgent is the schema descriptor for user_agent field.
-	commentDescUserAgent := commentFields[17].Descriptor()
+	commentDescUserAgent := commentFields[16].Descriptor()
 	// comment.UserAgentValidator is a validator for the "user_agent" field. It is called by the builders before save.
 	comment.UserAgentValidator = commentDescUserAgent.Validators[0].(func(string) error)
 	// commentDescIPAddress is the schema descriptor for ip_address field.
-	commentDescIPAddress := commentFields[18].Descriptor()
+	commentDescIPAddress := commentFields[17].Descriptor()
 	// comment.IPAddressValidator is a validator for the "ip_address" field. It is called by the builders before save.
 	comment.IPAddressValidator = commentDescIPAddress.Validators[0].(func(string) error)
 	// commentDescIPLocation is the schema descriptor for ip_location field.
-	commentDescIPLocation := commentFields[19].Descriptor()
+	commentDescIPLocation := commentFields[18].Descriptor()
 	// comment.IPLocationValidator is a validator for the "ip_location" field. It is called by the builders before save.
 	comment.IPLocationValidator = commentDescIPLocation.Validators[0].(func(string) error)
 	// commentDescLikeCount is the schema descriptor for like_count field.
-	commentDescLikeCount := commentFields[20].Descriptor()
+	commentDescLikeCount := commentFields[19].Descriptor()
 	// comment.DefaultLikeCount holds the default value on creation for the like_count field.
 	comment.DefaultLikeCount = commentDescLikeCount.Default.(int)
 	// comment.LikeCountValidator is a validator for the "like_count" field. It is called by the builders before save.
@@ -455,6 +453,42 @@ func init() {
 			return nil
 		}
 	}()
+	notificationtypeFields := schema.NotificationType{}.Fields()
+	_ = notificationtypeFields
+	// notificationtypeDescCreatedAt is the schema descriptor for created_at field.
+	notificationtypeDescCreatedAt := notificationtypeFields[1].Descriptor()
+	// notificationtype.DefaultCreatedAt holds the default value on creation for the created_at field.
+	notificationtype.DefaultCreatedAt = notificationtypeDescCreatedAt.Default.(func() time.Time)
+	// notificationtypeDescUpdatedAt is the schema descriptor for updated_at field.
+	notificationtypeDescUpdatedAt := notificationtypeFields[2].Descriptor()
+	// notificationtype.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	notificationtype.DefaultUpdatedAt = notificationtypeDescUpdatedAt.Default.(func() time.Time)
+	// notificationtype.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	notificationtype.UpdateDefaultUpdatedAt = notificationtypeDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// notificationtypeDescCode is the schema descriptor for code field.
+	notificationtypeDescCode := notificationtypeFields[3].Descriptor()
+	// notificationtype.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	notificationtype.CodeValidator = notificationtypeDescCode.Validators[0].(func(string) error)
+	// notificationtypeDescName is the schema descriptor for name field.
+	notificationtypeDescName := notificationtypeFields[4].Descriptor()
+	// notificationtype.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	notificationtype.NameValidator = notificationtypeDescName.Validators[0].(func(string) error)
+	// notificationtypeDescDescription is the schema descriptor for description field.
+	notificationtypeDescDescription := notificationtypeFields[5].Descriptor()
+	// notificationtype.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	notificationtype.DescriptionValidator = notificationtypeDescDescription.Validators[0].(func(string) error)
+	// notificationtypeDescCategory is the schema descriptor for category field.
+	notificationtypeDescCategory := notificationtypeFields[6].Descriptor()
+	// notificationtype.CategoryValidator is a validator for the "category" field. It is called by the builders before save.
+	notificationtype.CategoryValidator = notificationtypeDescCategory.Validators[0].(func(string) error)
+	// notificationtypeDescIsActive is the schema descriptor for is_active field.
+	notificationtypeDescIsActive := notificationtypeFields[7].Descriptor()
+	// notificationtype.DefaultIsActive holds the default value on creation for the is_active field.
+	notificationtype.DefaultIsActive = notificationtypeDescIsActive.Default.(bool)
+	// notificationtypeDescDefaultEnabled is the schema descriptor for default_enabled field.
+	notificationtypeDescDefaultEnabled := notificationtypeFields[8].Descriptor()
+	// notificationtype.DefaultDefaultEnabled holds the default value on creation for the default_enabled field.
+	notificationtype.DefaultDefaultEnabled = notificationtypeDescDefaultEnabled.Default.(bool)
 	pageMixin := schema.Page{}.Mixin()
 	pageMixinHooks0 := pageMixin[0].Hooks()
 	page.Hooks[0] = pageMixinHooks0[0]
@@ -922,6 +956,26 @@ func init() {
 	userinstalledthemeDescInstalledVersion := userinstalledthemeFields[9].Descriptor()
 	// userinstalledtheme.InstalledVersionValidator is a validator for the "installed_version" field. It is called by the builders before save.
 	userinstalledtheme.InstalledVersionValidator = userinstalledthemeDescInstalledVersion.Validators[0].(func(string) error)
+	usernotificationconfigFields := schema.UserNotificationConfig{}.Fields()
+	_ = usernotificationconfigFields
+	// usernotificationconfigDescCreatedAt is the schema descriptor for created_at field.
+	usernotificationconfigDescCreatedAt := usernotificationconfigFields[1].Descriptor()
+	// usernotificationconfig.DefaultCreatedAt holds the default value on creation for the created_at field.
+	usernotificationconfig.DefaultCreatedAt = usernotificationconfigDescCreatedAt.Default.(func() time.Time)
+	// usernotificationconfigDescUpdatedAt is the schema descriptor for updated_at field.
+	usernotificationconfigDescUpdatedAt := usernotificationconfigFields[2].Descriptor()
+	// usernotificationconfig.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	usernotificationconfig.DefaultUpdatedAt = usernotificationconfigDescUpdatedAt.Default.(func() time.Time)
+	// usernotificationconfig.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	usernotificationconfig.UpdateDefaultUpdatedAt = usernotificationconfigDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// usernotificationconfigDescIsEnabled is the schema descriptor for is_enabled field.
+	usernotificationconfigDescIsEnabled := usernotificationconfigFields[5].Descriptor()
+	// usernotificationconfig.DefaultIsEnabled holds the default value on creation for the is_enabled field.
+	usernotificationconfig.DefaultIsEnabled = usernotificationconfigDescIsEnabled.Default.(bool)
+	// usernotificationconfigDescNotificationEmail is the schema descriptor for notification_email field.
+	usernotificationconfigDescNotificationEmail := usernotificationconfigFields[7].Descriptor()
+	// usernotificationconfig.NotificationEmailValidator is a validator for the "notification_email" field. It is called by the builders before save.
+	usernotificationconfig.NotificationEmailValidator = usernotificationconfigDescNotificationEmail.Validators[0].(func(string) error)
 	visitorlogFields := schema.VisitorLog{}.Fields()
 	_ = visitorlogFields
 	// visitorlogDescCreatedAt is the schema descriptor for created_at field.

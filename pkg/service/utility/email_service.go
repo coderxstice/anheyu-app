@@ -18,6 +18,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/parser"
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/notification"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 )
 
@@ -32,13 +33,15 @@ type EmailService interface {
 
 // emailService 是 EmailService 接口的实现
 type emailService struct {
-	settingSvc setting.SettingService
+	settingSvc      setting.SettingService
+	notificationSvc notification.Service
 }
 
 // NewEmailService 是 emailService 的构造函数
-func NewEmailService(settingSvc setting.SettingService) EmailService {
+func NewEmailService(settingSvc setting.SettingService, notificationSvc notification.Service) EmailService {
 	return &emailService{
-		settingSvc: settingSvc,
+		settingSvc:      settingSvc,
+		notificationSvc: notificationSvc,
 	}
 }
 
@@ -46,6 +49,13 @@ func NewEmailService(settingSvc setting.SettingService) EmailService {
 func (s *emailService) SendTestEmail(ctx context.Context, toEmail string) error {
 	appName := s.settingSvc.Get(constant.KeyAppName.String())
 	siteURL := s.settingSvc.Get(constant.KeySiteURL.String())
+
+	// 🔧 处理 siteURL，确保有效
+	if siteURL == "" || siteURL == "https://" || siteURL == "http://" {
+		log.Printf("[WARNING] 站点URL未正确配置（当前值: %s），使用默认值 https://anheyu.com", siteURL)
+		siteURL = "https://anheyu.com"
+	}
+	siteURL = strings.TrimRight(siteURL, "/")
 
 	subject := fmt.Sprintf("这是一封来自「%s」的测试邮件", appName)
 	body := fmt.Sprintf(`<p>你好！</p>
@@ -57,9 +67,22 @@ func (s *emailService) SendTestEmail(ctx context.Context, toEmail string) error 
 
 // SendCommentNotification 实现了发送评论通知的逻辑
 func (s *emailService) SendCommentNotification(newComment *model.Comment, parentComment *model.Comment) {
+	log.Printf("[DEBUG] SendCommentNotification 开始执行，评论ID: %d", newComment.ID)
+
 	siteName := s.settingSvc.Get(constant.KeyAppName.String())
 	siteURL := s.settingSvc.Get(constant.KeySiteURL.String())
+
+	// 🔧 处理 siteURL，确保有效
+	if siteURL == "" || siteURL == "https://" || siteURL == "http://" {
+		log.Printf("[WARNING] 站点URL未正确配置（当前值: %s），使用默认值 https://anheyu.com", siteURL)
+		siteURL = "https://anheyu.com"
+	}
+	// 移除末尾的斜杠，避免双斜杠
+	siteURL = strings.TrimRight(siteURL, "/")
+
 	pageURL := siteURL + newComment.TargetPath
+	log.Printf("[DEBUG] 生成页面链接: %s", pageURL)
+
 	var targetTitle string
 	if newComment.TargetTitle != nil {
 		targetTitle = *newComment.TargetTitle
@@ -78,11 +101,16 @@ func (s *emailService) SendCommentNotification(newComment *model.Comment, parent
 		newCommentEmailMD5 = fmt.Sprintf("%x", md5.Sum([]byte(strings.ToLower(newCommenterEmail))))
 	}
 
+	log.Printf("[DEBUG] 新评论者邮箱: %s, 是否有父评论: %t", newCommenterEmail, parentComment != nil)
+
 	// --- 场景一：通知博主有新评论 ---
 	adminEmail := s.settingSvc.Get(constant.KeyFrontDeskSiteOwnerEmail.String())
 	notifyAdmin := s.settingSvc.GetBool(constant.KeyCommentNotifyAdmin.String())
 	pushChannel := s.settingSvc.Get(constant.KeyPushooChannel.String())
 	scMailNotify := s.settingSvc.GetBool(constant.KeyScMailNotify.String())
+
+	log.Printf("[DEBUG] 邮件通知配置: adminEmail=%s, notifyAdmin=%t, pushChannel=%s, scMailNotify=%t",
+		adminEmail, notifyAdmin, pushChannel, scMailNotify)
 
 	// 邮件通知逻辑：
 	// 1. 如果没有配置即时通知，按原来的逻辑发送邮件
@@ -93,7 +121,10 @@ func (s *emailService) SendCommentNotification(newComment *model.Comment, parent
 	// 检查新评论者是否是管理员本人，如果是则不需要通知管理员
 	isAdminComment := newCommenterEmail != "" && newCommenterEmail == adminEmail
 
+	log.Printf("[DEBUG] 场景一检查: shouldSendEmail=%t, isAdminComment=%t", shouldSendEmail, isAdminComment)
+
 	if adminEmail != "" && shouldSendEmail && !isAdminComment {
+		log.Printf("[DEBUG] 准备发送博主通知邮件到: %s", adminEmail)
 		adminSubjectTpl := s.settingSvc.Get(constant.KeyCommentMailSubjectAdmin.String())
 		adminBodyTpl := s.settingSvc.Get(constant.KeyCommentMailTemplateAdmin.String())
 
@@ -112,17 +143,61 @@ func (s *emailService) SendCommentNotification(newComment *model.Comment, parent
 		subject, _ := renderTemplate(adminSubjectTpl, data)
 		body, _ := renderTemplate(adminBodyTpl, data)
 		go func() { _ = s.send(adminEmail, subject, body) }()
+		log.Printf("[DEBUG] 博主通知邮件已分发")
+	} else {
+		log.Printf("[DEBUG] 跳过博主通知: adminEmail=%s, shouldSendEmail=%t, isAdminComment=%t",
+			adminEmail, shouldSendEmail, isAdminComment)
 	}
 
 	// --- 场景二：通知被回复者 ---
 	notifyReply := s.settingSvc.GetBool(constant.KeyCommentNotifyReply.String())
-	if notifyReply && parentComment != nil && parentComment.AllowNotification && parentComment.Author.Email != nil && *parentComment.Author.Email != "" {
-		if newCommenterEmail != "" && newCommenterEmail == *parentComment.Author.Email {
+
+	// 邮件通知逻辑：与博主通知保持一致
+	// 1. 如果没有配置即时通知，按原来的逻辑发送邮件
+	// 2. 如果配置了即时通知但开启了双重通知，也发送邮件
+	// 3. 如果配置了即时通知但没有开启双重通知，则不发送邮件
+	shouldSendReplyEmail := notifyReply && (pushChannel == "" || scMailNotify)
+
+	log.Printf("[DEBUG] 场景二检查: notifyReply=%t, shouldSendReplyEmail=%t", notifyReply, shouldSendReplyEmail)
+
+	// ✅ 核心修改：检查被回复用户的实时通知设置，而不是评论创建时的设置
+	userAllowNotification := true // 默认允许（游客评论）
+	if shouldSendReplyEmail && parentComment != nil && parentComment.Author.Email != nil && *parentComment.Author.Email != "" {
+		// 如果父评论有关联的用户ID，查询该用户的实时通知设置
+		if parentComment.UserID != nil {
+			ctx := context.Background()
+			userSettings, err := s.notificationSvc.GetUserNotificationSettings(ctx, *parentComment.UserID)
+			if err != nil {
+				log.Printf("警告：获取用户通知设置失败（用户ID: %d），使用默认值 true: %v", *parentComment.UserID, err)
+			} else {
+				userAllowNotification = userSettings.AllowCommentReplyNotification
+				log.Printf("[DEBUG] 用户 %d 的实时通知偏好设置: %t", *parentComment.UserID, userAllowNotification)
+			}
+		}
+
+		parentEmail := *parentComment.Author.Email
+		log.Printf("[DEBUG] 父评论信息: parentEmail=%s, 用户实时通知设置=%t", parentEmail, userAllowNotification)
+
+		// 如果用户关闭了通知，跳过
+		if !userAllowNotification {
+			log.Printf("[DEBUG] 用户已关闭回复通知，跳过")
 			return
 		}
 
+		if newCommenterEmail != "" && newCommenterEmail == parentEmail {
+			log.Printf("[DEBUG] 自己回复自己，跳过回复通知")
+			return
+		}
+		// 如果被回复者是管理员，且管理员已经收到博主通知，避免重复
+		if parentEmail == adminEmail && shouldSendEmail && !isAdminComment {
+			log.Printf("[DEBUG] 被回复者是管理员且已收到博主通知，跳过回复通知")
+			return
+		}
+
+		log.Printf("[DEBUG] 准备发送回复通知邮件到: %s", parentEmail)
+
 		parentCommentHTML, _ := parser.MarkdownToHTML(parentComment.Content)
-		parentCommentEmailMD5 := fmt.Sprintf("%x", md5.Sum([]byte(strings.ToLower(*parentComment.Author.Email))))
+		parentCommentEmailMD5 := fmt.Sprintf("%x", md5.Sum([]byte(strings.ToLower(parentEmail))))
 
 		replySubjectTpl := s.settingSvc.Get(constant.KeyCommentMailSubject.String())
 		replyBodyTpl := s.settingSvc.Get(constant.KeyCommentMailTemplate.String())
@@ -141,7 +216,8 @@ func (s *emailService) SendCommentNotification(newComment *model.Comment, parent
 
 		subject, _ := renderTemplate(replySubjectTpl, data)
 		body, _ := renderTemplate(replyBodyTpl, data)
-		go func() { _ = s.send(*parentComment.Author.Email, subject, body) }()
+		go func() { _ = s.send(parentEmail, subject, body) }()
+		log.Printf("[DEBUG] 回复通知邮件已分发到: %s", parentEmail)
 	}
 }
 
@@ -151,6 +227,13 @@ func (s *emailService) SendActivationEmail(ctx context.Context, toEmail, nicknam
 	bodyTplStr := s.settingSvc.Get(constant.KeyActivateAccountTemplate.String())
 	appName := s.settingSvc.Get(constant.KeyAppName.String())
 	siteURL := s.settingSvc.Get(constant.KeySiteURL.String())
+
+	// 🔧 处理 siteURL，确保有效
+	if siteURL == "" || siteURL == "https://" || siteURL == "http://" {
+		log.Printf("[WARNING] 站点URL未正确配置（当前值: %s），使用默认值 https://anheyu.com", siteURL)
+		siteURL = "https://anheyu.com"
+	}
+	siteURL = strings.TrimRight(siteURL, "/")
 
 	activateLink := fmt.Sprintf("%s/activate?id=%s&sign=%s", siteURL, userID, sign)
 	data := map[string]string{
@@ -178,6 +261,13 @@ func (s *emailService) SendForgotPasswordEmail(ctx context.Context, toEmail, nic
 	bodyTplStr := s.settingSvc.Get(constant.KeyResetPasswordTemplate.String())
 	appName := s.settingSvc.Get(constant.KeyAppName.String())
 	siteURL := s.settingSvc.Get(constant.KeySiteURL.String())
+
+	// 🔧 处理 siteURL，确保有效
+	if siteURL == "" || siteURL == "https://" || siteURL == "http://" {
+		log.Printf("[WARNING] 站点URL未正确配置（当前值: %s），使用默认值 https://anheyu.com", siteURL)
+		siteURL = "https://anheyu.com"
+	}
+	siteURL = strings.TrimRight(siteURL, "/")
 
 	resetLink := fmt.Sprintf("%s/reset-password?id=%s&sign=%s", siteURL, userID, sign)
 	data := map[string]string{

@@ -39,6 +39,9 @@ type LinkTag func(*sql.Selector)
 // Metadata is the predicate function for metadata builders.
 type Metadata func(*sql.Selector)
 
+// NotificationType is the predicate function for notificationtype builders.
+type NotificationType func(*sql.Selector)
+
 // Page is the predicate function for page builders.
 type Page func(*sql.Selector)
 
@@ -68,6 +71,9 @@ type UserGroup func(*sql.Selector)
 
 // UserInstalledTheme is the predicate function for userinstalledtheme builders.
 type UserInstalledTheme func(*sql.Selector)
+
+// UserNotificationConfig is the predicate function for usernotificationconfig builders.
+type UserNotificationConfig func(*sql.Selector)
 
 // VisitorLog is the predicate function for visitorlog builders.
 type VisitorLog func(*sql.Selector)
