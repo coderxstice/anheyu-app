@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/anzhiyu-c/anheyu-app/ent/album"
+	"github.com/anzhiyu-c/anheyu-app/ent/albumcategory"
 )
 
 // Album is the model entity for the Album schema.
@@ -53,7 +54,32 @@ type Album struct {
 	FileHash string `json:"file_hash,omitempty"`
 	// 排序字段，数字越小越靠前
 	DisplayOrder int `json:"display_order,omitempty"`
+	// 分类ID
+	CategoryID uint `json:"category_id,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the AlbumQuery when eager-loading is set.
+	Edges        AlbumEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// AlbumEdges holds the relations/edges for other nodes in the graph.
+type AlbumEdges struct {
+	// Category holds the value of the category edge.
+	Category *AlbumCategory `json:"category,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// CategoryOrErr returns the Category value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e AlbumEdges) CategoryOrErr() (*AlbumCategory, error) {
+	if e.Category != nil {
+		return e.Category, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: albumcategory.Label}
+	}
+	return nil, &NotLoadedError{edge: "category"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -61,7 +87,7 @@ func (*Album) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case album.FieldID, album.FieldViewCount, album.FieldDownloadCount, album.FieldWidth, album.FieldHeight, album.FieldFileSize, album.FieldDisplayOrder:
+		case album.FieldID, album.FieldViewCount, album.FieldDownloadCount, album.FieldWidth, album.FieldHeight, album.FieldFileSize, album.FieldDisplayOrder, album.FieldCategoryID:
 			values[i] = new(sql.NullInt64)
 		case album.FieldImageURL, album.FieldBigImageURL, album.FieldDownloadURL, album.FieldThumbParam, album.FieldBigParam, album.FieldTags, album.FieldFormat, album.FieldAspectRatio, album.FieldFileHash:
 			values[i] = new(sql.NullString)
@@ -197,6 +223,12 @@ func (_m *Album) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DisplayOrder = int(value.Int64)
 			}
+		case album.FieldCategoryID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field category_id", values[i])
+			} else if value.Valid {
+				_m.CategoryID = uint(value.Int64)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -208,6 +240,11 @@ func (_m *Album) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *Album) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryCategory queries the "category" edge of the Album entity.
+func (_m *Album) QueryCategory() *AlbumCategoryQuery {
+	return NewAlbumClient(_m.config).QueryCategory(_m)
 }
 
 // Update returns a builder for updating this Album.
@@ -288,6 +325,9 @@ func (_m *Album) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("display_order=")
 	builder.WriteString(fmt.Sprintf("%v", _m.DisplayOrder))
+	builder.WriteString(", ")
+	builder.WriteString("category_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.CategoryID))
 	builder.WriteByte(')')
 	return builder.String()
 }

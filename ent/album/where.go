@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 )
 
@@ -142,6 +143,11 @@ func FileHash(v string) predicate.Album {
 // DisplayOrder applies equality check predicate on the "display_order" field. It's identical to DisplayOrderEQ.
 func DisplayOrder(v int) predicate.Album {
 	return predicate.Album(sql.FieldEQ(FieldDisplayOrder, v))
+}
+
+// CategoryID applies equality check predicate on the "category_id" field. It's identical to CategoryIDEQ.
+func CategoryID(v uint) predicate.Album {
+	return predicate.Album(sql.FieldEQ(FieldCategoryID, v))
 }
 
 // DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
@@ -1197,6 +1203,59 @@ func DisplayOrderLT(v int) predicate.Album {
 // DisplayOrderLTE applies the LTE predicate on the "display_order" field.
 func DisplayOrderLTE(v int) predicate.Album {
 	return predicate.Album(sql.FieldLTE(FieldDisplayOrder, v))
+}
+
+// CategoryIDEQ applies the EQ predicate on the "category_id" field.
+func CategoryIDEQ(v uint) predicate.Album {
+	return predicate.Album(sql.FieldEQ(FieldCategoryID, v))
+}
+
+// CategoryIDNEQ applies the NEQ predicate on the "category_id" field.
+func CategoryIDNEQ(v uint) predicate.Album {
+	return predicate.Album(sql.FieldNEQ(FieldCategoryID, v))
+}
+
+// CategoryIDIn applies the In predicate on the "category_id" field.
+func CategoryIDIn(vs ...uint) predicate.Album {
+	return predicate.Album(sql.FieldIn(FieldCategoryID, vs...))
+}
+
+// CategoryIDNotIn applies the NotIn predicate on the "category_id" field.
+func CategoryIDNotIn(vs ...uint) predicate.Album {
+	return predicate.Album(sql.FieldNotIn(FieldCategoryID, vs...))
+}
+
+// CategoryIDIsNil applies the IsNil predicate on the "category_id" field.
+func CategoryIDIsNil() predicate.Album {
+	return predicate.Album(sql.FieldIsNull(FieldCategoryID))
+}
+
+// CategoryIDNotNil applies the NotNil predicate on the "category_id" field.
+func CategoryIDNotNil() predicate.Album {
+	return predicate.Album(sql.FieldNotNull(FieldCategoryID))
+}
+
+// HasCategory applies the HasEdge predicate on the "category" edge.
+func HasCategory() predicate.Album {
+	return predicate.Album(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, CategoryTable, CategoryColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCategoryWith applies the HasEdge predicate on the "category" edge with a given conditions (other predicates).
+func HasCategoryWith(preds ...predicate.AlbumCategory) predicate.Album {
+	return predicate.Album(func(s *sql.Selector) {
+		step := newCategoryStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

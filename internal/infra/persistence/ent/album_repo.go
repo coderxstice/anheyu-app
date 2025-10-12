@@ -85,7 +85,7 @@ func (r *entAlbumRepository) CreateOrRestore(ctx context.Context, domainAlbum *m
 
 	if ent.IsNotFound(err) {
 		// 不存在，创建新的
-		newAlbumPO, createErr := tx.Album.Create().
+		create := tx.Album.Create().
 			SetImageURL(domainAlbum.ImageUrl).
 			SetBigImageURL(domainAlbum.BigImageUrl).
 			SetDownloadURL(domainAlbum.DownloadUrl).
@@ -100,8 +100,14 @@ func (r *entAlbumRepository) CreateOrRestore(ctx context.Context, domainAlbum *m
 			SetFormat(domainAlbum.Format).
 			SetAspectRatio(domainAlbum.AspectRatio).
 			SetFileHash(domainAlbum.FileHash).
-			SetDisplayOrder(domainAlbum.DisplayOrder).
-			Save(ctx)
+			SetDisplayOrder(domainAlbum.DisplayOrder)
+
+		// 处理可选的 CategoryID
+		if domainAlbum.CategoryID != nil {
+			create = create.SetCategoryID(*domainAlbum.CategoryID)
+		}
+
+		newAlbumPO, createErr := create.Save(ctx)
 		if createErr != nil {
 			err = createErr
 			return nil, repository.StatusError, err
@@ -134,7 +140,7 @@ func (r *entAlbumRepository) CreateOrRestore(ctx context.Context, domainAlbum *m
 }
 
 func (r *entAlbumRepository) Update(ctx context.Context, domainAlbum *model.Album) error {
-	_, err := r.client.Album.
+	update := r.client.Album.
 		UpdateOneID(domainAlbum.ID).
 		SetImageURL(domainAlbum.ImageUrl).
 		SetBigImageURL(domainAlbum.BigImageUrl).
@@ -150,8 +156,16 @@ func (r *entAlbumRepository) Update(ctx context.Context, domainAlbum *model.Albu
 		SetFormat(domainAlbum.Format).
 		SetAspectRatio(domainAlbum.AspectRatio).
 		SetFileHash(domainAlbum.FileHash).
-		SetDisplayOrder(domainAlbum.DisplayOrder).
-		Save(ctx)
+		SetDisplayOrder(domainAlbum.DisplayOrder)
+
+	// 处理可选的 CategoryID
+	if domainAlbum.CategoryID != nil {
+		update = update.SetCategoryID(*domainAlbum.CategoryID)
+	} else {
+		update = update.ClearCategoryID()
+	}
+
+	_, err := update.Save(ctx)
 	return err
 }
 
@@ -159,6 +173,9 @@ func (r *entAlbumRepository) FindListByOptions(ctx context.Context, opts reposit
 	query := r.client.Album.Query()
 
 	// 应用过滤条件
+	if opts.CategoryID != nil {
+		query = query.Where(album.CategoryID(*opts.CategoryID))
+	}
 	if opts.Tag != "" {
 		// 使用 SQL 的 LIKE 操作来模拟 FIND_IN_SET
 		query = query.Where(func(s *sql.Selector) {
@@ -253,8 +270,15 @@ func toDomainAlbum(po *ent.Album) *model.Album {
 		downloadUrl = po.ImageURL
 	}
 
+	// 处理 CategoryID：将 uint 转换为 *uint
+	var categoryID *uint
+	if po.CategoryID != 0 {
+		categoryID = &po.CategoryID
+	}
+
 	return &model.Album{
 		ID:            po.ID,
+		CategoryID:    categoryID,
 		CreatedAt:     po.CreatedAt,
 		UpdatedAt:     po.UpdatedAt,
 		ImageUrl:      po.ImageURL,

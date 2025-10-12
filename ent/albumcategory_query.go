@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -16,54 +17,54 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 )
 
-// AlbumQuery is the builder for querying Album entities.
-type AlbumQuery struct {
+// AlbumCategoryQuery is the builder for querying AlbumCategory entities.
+type AlbumCategoryQuery struct {
 	config
-	ctx          *QueryContext
-	order        []album.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.Album
-	withCategory *AlbumCategoryQuery
-	modifiers    []func(*sql.Selector)
+	ctx        *QueryContext
+	order      []albumcategory.OrderOption
+	inters     []Interceptor
+	predicates []predicate.AlbumCategory
+	withAlbums *AlbumQuery
+	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the AlbumQuery builder.
-func (_q *AlbumQuery) Where(ps ...predicate.Album) *AlbumQuery {
+// Where adds a new predicate for the AlbumCategoryQuery builder.
+func (_q *AlbumCategoryQuery) Where(ps ...predicate.AlbumCategory) *AlbumCategoryQuery {
 	_q.predicates = append(_q.predicates, ps...)
 	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (_q *AlbumQuery) Limit(limit int) *AlbumQuery {
+func (_q *AlbumCategoryQuery) Limit(limit int) *AlbumCategoryQuery {
 	_q.ctx.Limit = &limit
 	return _q
 }
 
 // Offset to start from.
-func (_q *AlbumQuery) Offset(offset int) *AlbumQuery {
+func (_q *AlbumCategoryQuery) Offset(offset int) *AlbumCategoryQuery {
 	_q.ctx.Offset = &offset
 	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (_q *AlbumQuery) Unique(unique bool) *AlbumQuery {
+func (_q *AlbumCategoryQuery) Unique(unique bool) *AlbumCategoryQuery {
 	_q.ctx.Unique = &unique
 	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (_q *AlbumQuery) Order(o ...album.OrderOption) *AlbumQuery {
+func (_q *AlbumCategoryQuery) Order(o ...albumcategory.OrderOption) *AlbumCategoryQuery {
 	_q.order = append(_q.order, o...)
 	return _q
 }
 
-// QueryCategory chains the current query on the "category" edge.
-func (_q *AlbumQuery) QueryCategory() *AlbumCategoryQuery {
-	query := (&AlbumCategoryClient{config: _q.config}).Query()
+// QueryAlbums chains the current query on the "albums" edge.
+func (_q *AlbumCategoryQuery) QueryAlbums() *AlbumQuery {
+	query := (&AlbumClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -73,9 +74,9 @@ func (_q *AlbumQuery) QueryCategory() *AlbumCategoryQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(album.Table, album.FieldID, selector),
-			sqlgraph.To(albumcategory.Table, albumcategory.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, album.CategoryTable, album.CategoryColumn),
+			sqlgraph.From(albumcategory.Table, albumcategory.FieldID, selector),
+			sqlgraph.To(album.Table, album.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, albumcategory.AlbumsTable, albumcategory.AlbumsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -83,21 +84,21 @@ func (_q *AlbumQuery) QueryCategory() *AlbumCategoryQuery {
 	return query
 }
 
-// First returns the first Album entity from the query.
-// Returns a *NotFoundError when no Album was found.
-func (_q *AlbumQuery) First(ctx context.Context) (*Album, error) {
+// First returns the first AlbumCategory entity from the query.
+// Returns a *NotFoundError when no AlbumCategory was found.
+func (_q *AlbumCategoryQuery) First(ctx context.Context) (*AlbumCategory, error) {
 	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
-		return nil, &NotFoundError{album.Label}
+		return nil, &NotFoundError{albumcategory.Label}
 	}
 	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (_q *AlbumQuery) FirstX(ctx context.Context) *Album {
+func (_q *AlbumCategoryQuery) FirstX(ctx context.Context) *AlbumCategory {
 	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -105,22 +106,22 @@ func (_q *AlbumQuery) FirstX(ctx context.Context) *Album {
 	return node
 }
 
-// FirstID returns the first Album ID from the query.
-// Returns a *NotFoundError when no Album ID was found.
-func (_q *AlbumQuery) FirstID(ctx context.Context) (id uint, err error) {
+// FirstID returns the first AlbumCategory ID from the query.
+// Returns a *NotFoundError when no AlbumCategory ID was found.
+func (_q *AlbumCategoryQuery) FirstID(ctx context.Context) (id uint, err error) {
 	var ids []uint
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{album.Label}
+		err = &NotFoundError{albumcategory.Label}
 		return
 	}
 	return ids[0], nil
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *AlbumQuery) FirstIDX(ctx context.Context) uint {
+func (_q *AlbumCategoryQuery) FirstIDX(ctx context.Context) uint {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -128,10 +129,10 @@ func (_q *AlbumQuery) FirstIDX(ctx context.Context) uint {
 	return id
 }
 
-// Only returns a single Album entity found by the query, ensuring it only returns one.
-// Returns a *NotSingularError when more than one Album entity is found.
-// Returns a *NotFoundError when no Album entities are found.
-func (_q *AlbumQuery) Only(ctx context.Context) (*Album, error) {
+// Only returns a single AlbumCategory entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when more than one AlbumCategory entity is found.
+// Returns a *NotFoundError when no AlbumCategory entities are found.
+func (_q *AlbumCategoryQuery) Only(ctx context.Context) (*AlbumCategory, error) {
 	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
@@ -140,14 +141,14 @@ func (_q *AlbumQuery) Only(ctx context.Context) (*Album, error) {
 	case 1:
 		return nodes[0], nil
 	case 0:
-		return nil, &NotFoundError{album.Label}
+		return nil, &NotFoundError{albumcategory.Label}
 	default:
-		return nil, &NotSingularError{album.Label}
+		return nil, &NotSingularError{albumcategory.Label}
 	}
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (_q *AlbumQuery) OnlyX(ctx context.Context) *Album {
+func (_q *AlbumCategoryQuery) OnlyX(ctx context.Context) *AlbumCategory {
 	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
@@ -155,10 +156,10 @@ func (_q *AlbumQuery) OnlyX(ctx context.Context) *Album {
 	return node
 }
 
-// OnlyID is like Only, but returns the only Album ID in the query.
-// Returns a *NotSingularError when more than one Album ID is found.
+// OnlyID is like Only, but returns the only AlbumCategory ID in the query.
+// Returns a *NotSingularError when more than one AlbumCategory ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *AlbumQuery) OnlyID(ctx context.Context) (id uint, err error) {
+func (_q *AlbumCategoryQuery) OnlyID(ctx context.Context) (id uint, err error) {
 	var ids []uint
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
@@ -167,15 +168,15 @@ func (_q *AlbumQuery) OnlyID(ctx context.Context) (id uint, err error) {
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{album.Label}
+		err = &NotFoundError{albumcategory.Label}
 	default:
-		err = &NotSingularError{album.Label}
+		err = &NotSingularError{albumcategory.Label}
 	}
 	return
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *AlbumQuery) OnlyIDX(ctx context.Context) uint {
+func (_q *AlbumCategoryQuery) OnlyIDX(ctx context.Context) uint {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -183,18 +184,18 @@ func (_q *AlbumQuery) OnlyIDX(ctx context.Context) uint {
 	return id
 }
 
-// All executes the query and returns a list of Albums.
-func (_q *AlbumQuery) All(ctx context.Context) ([]*Album, error) {
+// All executes the query and returns a list of AlbumCategories.
+func (_q *AlbumCategoryQuery) All(ctx context.Context) ([]*AlbumCategory, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	qr := querierAll[[]*Album, *AlbumQuery]()
-	return withInterceptors[[]*Album](ctx, _q, qr, _q.inters)
+	qr := querierAll[[]*AlbumCategory, *AlbumCategoryQuery]()
+	return withInterceptors[[]*AlbumCategory](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (_q *AlbumQuery) AllX(ctx context.Context) []*Album {
+func (_q *AlbumCategoryQuery) AllX(ctx context.Context) []*AlbumCategory {
 	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
@@ -202,20 +203,20 @@ func (_q *AlbumQuery) AllX(ctx context.Context) []*Album {
 	return nodes
 }
 
-// IDs executes the query and returns a list of Album IDs.
-func (_q *AlbumQuery) IDs(ctx context.Context) (ids []uint, err error) {
+// IDs executes the query and returns a list of AlbumCategory IDs.
+func (_q *AlbumCategoryQuery) IDs(ctx context.Context) (ids []uint, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
-	if err = _q.Select(album.FieldID).Scan(ctx, &ids); err != nil {
+	if err = _q.Select(albumcategory.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *AlbumQuery) IDsX(ctx context.Context) []uint {
+func (_q *AlbumCategoryQuery) IDsX(ctx context.Context) []uint {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -224,16 +225,16 @@ func (_q *AlbumQuery) IDsX(ctx context.Context) []uint {
 }
 
 // Count returns the count of the given query.
-func (_q *AlbumQuery) Count(ctx context.Context) (int, error) {
+func (_q *AlbumCategoryQuery) Count(ctx context.Context) (int, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, _q, querierCount[*AlbumQuery](), _q.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*AlbumCategoryQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (_q *AlbumQuery) CountX(ctx context.Context) int {
+func (_q *AlbumCategoryQuery) CountX(ctx context.Context) int {
 	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
@@ -242,7 +243,7 @@ func (_q *AlbumQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (_q *AlbumQuery) Exist(ctx context.Context) (bool, error) {
+func (_q *AlbumCategoryQuery) Exist(ctx context.Context) (bool, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
 	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
@@ -255,7 +256,7 @@ func (_q *AlbumQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (_q *AlbumQuery) ExistX(ctx context.Context) bool {
+func (_q *AlbumCategoryQuery) ExistX(ctx context.Context) bool {
 	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
@@ -263,19 +264,19 @@ func (_q *AlbumQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the AlbumQuery builder, including all associated steps. It can be
+// Clone returns a duplicate of the AlbumCategoryQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (_q *AlbumQuery) Clone() *AlbumQuery {
+func (_q *AlbumCategoryQuery) Clone() *AlbumCategoryQuery {
 	if _q == nil {
 		return nil
 	}
-	return &AlbumQuery{
-		config:       _q.config,
-		ctx:          _q.ctx.Clone(),
-		order:        append([]album.OrderOption{}, _q.order...),
-		inters:       append([]Interceptor{}, _q.inters...),
-		predicates:   append([]predicate.Album{}, _q.predicates...),
-		withCategory: _q.withCategory.Clone(),
+	return &AlbumCategoryQuery{
+		config:     _q.config,
+		ctx:        _q.ctx.Clone(),
+		order:      append([]albumcategory.OrderOption{}, _q.order...),
+		inters:     append([]Interceptor{}, _q.inters...),
+		predicates: append([]predicate.AlbumCategory{}, _q.predicates...),
+		withAlbums: _q.withAlbums.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -283,14 +284,14 @@ func (_q *AlbumQuery) Clone() *AlbumQuery {
 	}
 }
 
-// WithCategory tells the query-builder to eager-load the nodes that are connected to
-// the "category" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *AlbumQuery) WithCategory(opts ...func(*AlbumCategoryQuery)) *AlbumQuery {
-	query := (&AlbumCategoryClient{config: _q.config}).Query()
+// WithAlbums tells the query-builder to eager-load the nodes that are connected to
+// the "albums" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *AlbumCategoryQuery) WithAlbums(opts ...func(*AlbumQuery)) *AlbumCategoryQuery {
+	query := (&AlbumClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	_q.withCategory = query
+	_q.withAlbums = query
 	return _q
 }
 
@@ -300,19 +301,19 @@ func (_q *AlbumQuery) WithCategory(opts ...func(*AlbumCategoryQuery)) *AlbumQuer
 // Example:
 //
 //	var v []struct {
-//		DeletedAt time.Time `json:"deleted_at,omitempty"`
+//		Name string `json:"name,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
-//	client.Album.Query().
-//		GroupBy(album.FieldDeletedAt).
+//	client.AlbumCategory.Query().
+//		GroupBy(albumcategory.FieldName).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (_q *AlbumQuery) GroupBy(field string, fields ...string) *AlbumGroupBy {
+func (_q *AlbumCategoryQuery) GroupBy(field string, fields ...string) *AlbumCategoryGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &AlbumGroupBy{build: _q}
+	grbuild := &AlbumCategoryGroupBy{build: _q}
 	grbuild.flds = &_q.ctx.Fields
-	grbuild.label = album.Label
+	grbuild.label = albumcategory.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
 }
@@ -323,26 +324,26 @@ func (_q *AlbumQuery) GroupBy(field string, fields ...string) *AlbumGroupBy {
 // Example:
 //
 //	var v []struct {
-//		DeletedAt time.Time `json:"deleted_at,omitempty"`
+//		Name string `json:"name,omitempty"`
 //	}
 //
-//	client.Album.Query().
-//		Select(album.FieldDeletedAt).
+//	client.AlbumCategory.Query().
+//		Select(albumcategory.FieldName).
 //		Scan(ctx, &v)
-func (_q *AlbumQuery) Select(fields ...string) *AlbumSelect {
+func (_q *AlbumCategoryQuery) Select(fields ...string) *AlbumCategorySelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
-	sbuild := &AlbumSelect{AlbumQuery: _q}
-	sbuild.label = album.Label
+	sbuild := &AlbumCategorySelect{AlbumCategoryQuery: _q}
+	sbuild.label = albumcategory.Label
 	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
-// Aggregate returns a AlbumSelect configured with the given aggregations.
-func (_q *AlbumQuery) Aggregate(fns ...AggregateFunc) *AlbumSelect {
+// Aggregate returns a AlbumCategorySelect configured with the given aggregations.
+func (_q *AlbumCategoryQuery) Aggregate(fns ...AggregateFunc) *AlbumCategorySelect {
 	return _q.Select().Aggregate(fns...)
 }
 
-func (_q *AlbumQuery) prepareQuery(ctx context.Context) error {
+func (_q *AlbumCategoryQuery) prepareQuery(ctx context.Context) error {
 	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
@@ -354,7 +355,7 @@ func (_q *AlbumQuery) prepareQuery(ctx context.Context) error {
 		}
 	}
 	for _, f := range _q.ctx.Fields {
-		if !album.ValidColumn(f) {
+		if !albumcategory.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
@@ -368,19 +369,19 @@ func (_q *AlbumQuery) prepareQuery(ctx context.Context) error {
 	return nil
 }
 
-func (_q *AlbumQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Album, error) {
+func (_q *AlbumCategoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*AlbumCategory, error) {
 	var (
-		nodes       = []*Album{}
+		nodes       = []*AlbumCategory{}
 		_spec       = _q.querySpec()
 		loadedTypes = [1]bool{
-			_q.withCategory != nil,
+			_q.withAlbums != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
-		return (*Album).scanValues(nil, columns)
+		return (*AlbumCategory).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &Album{config: _q.config}
+		node := &AlbumCategory{config: _q.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -397,46 +398,48 @@ func (_q *AlbumQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Album,
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := _q.withCategory; query != nil {
-		if err := _q.loadCategory(ctx, query, nodes, nil,
-			func(n *Album, e *AlbumCategory) { n.Edges.Category = e }); err != nil {
+	if query := _q.withAlbums; query != nil {
+		if err := _q.loadAlbums(ctx, query, nodes,
+			func(n *AlbumCategory) { n.Edges.Albums = []*Album{} },
+			func(n *AlbumCategory, e *Album) { n.Edges.Albums = append(n.Edges.Albums, e) }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (_q *AlbumQuery) loadCategory(ctx context.Context, query *AlbumCategoryQuery, nodes []*Album, init func(*Album), assign func(*Album, *AlbumCategory)) error {
-	ids := make([]uint, 0, len(nodes))
-	nodeids := make(map[uint][]*Album)
+func (_q *AlbumCategoryQuery) loadAlbums(ctx context.Context, query *AlbumQuery, nodes []*AlbumCategory, init func(*AlbumCategory), assign func(*AlbumCategory, *Album)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uint]*AlbumCategory)
 	for i := range nodes {
-		fk := nodes[i].CategoryID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
 		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	if len(ids) == 0 {
-		return nil
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(album.FieldCategoryID)
 	}
-	query.Where(albumcategory.IDIn(ids...))
+	query.Where(predicate.Album(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(albumcategory.AlbumsColumn), fks...))
+	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
+		fk := n.CategoryID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "category_id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "category_id" returned %v for node %v`, fk, n.ID)
 		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
+		assign(node, n)
 	}
 	return nil
 }
 
-func (_q *AlbumQuery) sqlCount(ctx context.Context) (int, error) {
+func (_q *AlbumCategoryQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
 	if len(_q.modifiers) > 0 {
 		_spec.Modifiers = _q.modifiers
@@ -448,8 +451,8 @@ func (_q *AlbumQuery) sqlCount(ctx context.Context) (int, error) {
 	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (_q *AlbumQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(album.Table, album.Columns, sqlgraph.NewFieldSpec(album.FieldID, field.TypeUint))
+func (_q *AlbumCategoryQuery) querySpec() *sqlgraph.QuerySpec {
+	_spec := sqlgraph.NewQuerySpec(albumcategory.Table, albumcategory.Columns, sqlgraph.NewFieldSpec(albumcategory.FieldID, field.TypeUint))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -458,14 +461,11 @@ func (_q *AlbumQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, album.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, albumcategory.FieldID)
 		for i := range fields {
-			if fields[i] != album.FieldID {
+			if fields[i] != albumcategory.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
-		}
-		if _q.withCategory != nil {
-			_spec.Node.AddColumnOnce(album.FieldCategoryID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {
@@ -491,12 +491,12 @@ func (_q *AlbumQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (_q *AlbumQuery) sqlQuery(ctx context.Context) *sql.Selector {
+func (_q *AlbumCategoryQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(_q.driver.Dialect())
-	t1 := builder.Table(album.Table)
+	t1 := builder.Table(albumcategory.Table)
 	columns := _q.ctx.Fields
 	if len(columns) == 0 {
-		columns = album.Columns
+		columns = albumcategory.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if _q.sql != nil {
@@ -527,33 +527,33 @@ func (_q *AlbumQuery) sqlQuery(ctx context.Context) *sql.Selector {
 }
 
 // Modify adds a query modifier for attaching custom logic to queries.
-func (_q *AlbumQuery) Modify(modifiers ...func(s *sql.Selector)) *AlbumSelect {
+func (_q *AlbumCategoryQuery) Modify(modifiers ...func(s *sql.Selector)) *AlbumCategorySelect {
 	_q.modifiers = append(_q.modifiers, modifiers...)
 	return _q.Select()
 }
 
-// AlbumGroupBy is the group-by builder for Album entities.
-type AlbumGroupBy struct {
+// AlbumCategoryGroupBy is the group-by builder for AlbumCategory entities.
+type AlbumCategoryGroupBy struct {
 	selector
-	build *AlbumQuery
+	build *AlbumCategoryQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (_g *AlbumGroupBy) Aggregate(fns ...AggregateFunc) *AlbumGroupBy {
+func (_g *AlbumCategoryGroupBy) Aggregate(fns ...AggregateFunc) *AlbumCategoryGroupBy {
 	_g.fns = append(_g.fns, fns...)
 	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_g *AlbumGroupBy) Scan(ctx context.Context, v any) error {
+func (_g *AlbumCategoryGroupBy) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
 	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*AlbumQuery, *AlbumGroupBy](ctx, _g.build, _g, _g.build.inters, v)
+	return scanWithInterceptors[*AlbumCategoryQuery, *AlbumCategoryGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (_g *AlbumGroupBy) sqlScan(ctx context.Context, root *AlbumQuery, v any) error {
+func (_g *AlbumCategoryGroupBy) sqlScan(ctx context.Context, root *AlbumCategoryQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
 	aggregation := make([]string, 0, len(_g.fns))
 	for _, fn := range _g.fns {
@@ -580,28 +580,28 @@ func (_g *AlbumGroupBy) sqlScan(ctx context.Context, root *AlbumQuery, v any) er
 	return sql.ScanSlice(rows, v)
 }
 
-// AlbumSelect is the builder for selecting fields of Album entities.
-type AlbumSelect struct {
-	*AlbumQuery
+// AlbumCategorySelect is the builder for selecting fields of AlbumCategory entities.
+type AlbumCategorySelect struct {
+	*AlbumCategoryQuery
 	selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (_s *AlbumSelect) Aggregate(fns ...AggregateFunc) *AlbumSelect {
+func (_s *AlbumCategorySelect) Aggregate(fns ...AggregateFunc) *AlbumCategorySelect {
 	_s.fns = append(_s.fns, fns...)
 	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_s *AlbumSelect) Scan(ctx context.Context, v any) error {
+func (_s *AlbumCategorySelect) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
 	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*AlbumQuery, *AlbumSelect](ctx, _s.AlbumQuery, _s, _s.inters, v)
+	return scanWithInterceptors[*AlbumCategoryQuery, *AlbumCategorySelect](ctx, _s.AlbumCategoryQuery, _s, _s.inters, v)
 }
 
-func (_s *AlbumSelect) sqlScan(ctx context.Context, root *AlbumQuery, v any) error {
+func (_s *AlbumCategorySelect) sqlScan(ctx context.Context, root *AlbumCategoryQuery, v any) error {
 	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(_s.fns))
 	for _, fn := range _s.fns {
@@ -623,7 +623,7 @@ func (_s *AlbumSelect) sqlScan(ctx context.Context, root *AlbumQuery, v any) err
 }
 
 // Modify adds a query modifier for attaching custom logic to queries.
-func (_s *AlbumSelect) Modify(modifiers ...func(s *sql.Selector)) *AlbumSelect {
+func (_s *AlbumCategorySelect) Modify(modifiers ...func(s *sql.Selector)) *AlbumCategorySelect {
 	_s.modifiers = append(_s.modifiers, modifiers...)
 	return _s
 }

@@ -16,19 +16,22 @@ import (
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/album"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/album_category"
 
 	"github.com/gin-gonic/gin"
 )
 
 // PublicHandler 封装了所有公开接口的控制器方法
 type PublicHandler struct {
-	albumSvc album.AlbumService
+	albumSvc         album.AlbumService
+	albumCategorySvc album_category.Service
 }
 
 // NewPublicHandler 是 PublicHandler 的构造函数
-func NewPublicHandler(albumSvc album.AlbumService) *PublicHandler {
+func NewPublicHandler(albumSvc album.AlbumService, albumCategorySvc album_category.Service) *PublicHandler {
 	return &PublicHandler{
-		albumSvc: albumSvc,
+		albumSvc:         albumSvc,
+		albumCategorySvc: albumCategorySvc,
 	}
 }
 
@@ -39,6 +42,7 @@ func NewPublicHandler(albumSvc album.AlbumService) *PublicHandler {
 // @Produce      json
 // @Param        page          query  int     false  "页码"  default(1)
 // @Param        pageSize      query  int     false  "每页数量"  default(12)
+// @Param        categoryId    query  int     false  "分类ID筛选"
 // @Param        tag           query  string  false  "标签筛选"
 // @Param        createdAt[0]  query  string  false  "开始时间"
 // @Param        createdAt[1]  query  string  false  "结束时间"
@@ -50,10 +54,20 @@ func (h *PublicHandler) GetPublicAlbums(c *gin.Context) {
 	// 1. 解析参数
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "12"))
+	categoryIdStr := c.Query("categoryId")
 	tag := c.Query("tag")
 	startStr := c.Query("createdAt[0]")
 	endStr := c.Query("createdAt[1]")
 	sort := c.DefaultQuery("sort", "display_order_asc")
+
+	// 解析 categoryId
+	var categoryID *uint
+	if categoryIdStr != "" {
+		if id, err := strconv.ParseUint(categoryIdStr, 10, 32); err == nil {
+			categoryIDVal := uint(id)
+			categoryID = &categoryIDVal
+		}
+	}
 
 	var startTime, endTime *time.Time
 	const layout = "2006/01/02 15:04:05"
@@ -66,12 +80,13 @@ func (h *PublicHandler) GetPublicAlbums(c *gin.Context) {
 
 	// 3. 调用 Service 方法，并确保传递了 Sort 字段
 	pageResult, err := h.albumSvc.FindAlbums(c.Request.Context(), album.FindAlbumsParams{
-		Page:     page,
-		PageSize: pageSize,
-		Tag:      tag,
-		Start:    startTime,
-		End:      endTime,
-		Sort:     sort,
+		Page:       page,
+		PageSize:   pageSize,
+		CategoryID: categoryID,
+		Tag:        tag,
+		Start:      startTime,
+		End:        endTime,
+		Sort:       sort,
 	})
 	if err != nil {
 		response.Fail(c, http.StatusInternalServerError, "获取相册列表失败: "+err.Error())
@@ -121,4 +136,22 @@ func (h *PublicHandler) UpdateAlbumStat(c *gin.Context) {
 
 	// 3. 返回成功响应
 	response.Success(c, nil, "更新成功")
+}
+
+// GetPublicAlbumCategories 获取公开的相册分类列表
+// @Summary      获取公开相册分类列表
+// @Description  获取所有相册分类列表，无需认证
+// @Tags         公共接口
+// @Produce      json
+// @Success      200  {object}  response.Response  "获取成功"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /public/album-categories [get]
+func (h *PublicHandler) GetPublicAlbumCategories(c *gin.Context) {
+	categories, err := h.albumCategorySvc.ListCategories(c.Request.Context())
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, "获取分类列表失败: "+err.Error())
+		return
+	}
+
+	response.Success(c, categories, "获取成功")
 }

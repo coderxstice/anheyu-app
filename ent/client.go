@@ -16,6 +16,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/anzhiyu-c/anheyu-app/ent/album"
+	"github.com/anzhiyu-c/anheyu-app/ent/albumcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/article"
 	"github.com/anzhiyu-c/anheyu-app/ent/comment"
 	"github.com/anzhiyu-c/anheyu-app/ent/directlink"
@@ -49,6 +50,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// Album is the client for interacting with the Album builders.
 	Album *AlbumClient
+	// AlbumCategory is the client for interacting with the AlbumCategory builders.
+	AlbumCategory *AlbumCategoryClient
 	// Article is the client for interacting with the Article builders.
 	Article *ArticleClient
 	// Comment is the client for interacting with the Comment builders.
@@ -109,6 +112,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Album = NewAlbumClient(c.config)
+	c.AlbumCategory = NewAlbumCategoryClient(c.config)
 	c.Article = NewArticleClient(c.config)
 	c.Comment = NewCommentClient(c.config)
 	c.DirectLink = NewDirectLinkClient(c.config)
@@ -226,6 +230,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:                    ctx,
 		config:                 cfg,
 		Album:                  NewAlbumClient(cfg),
+		AlbumCategory:          NewAlbumCategoryClient(cfg),
 		Article:                NewArticleClient(cfg),
 		Comment:                NewCommentClient(cfg),
 		DirectLink:             NewDirectLinkClient(cfg),
@@ -270,6 +275,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ctx:                    ctx,
 		config:                 cfg,
 		Album:                  NewAlbumClient(cfg),
+		AlbumCategory:          NewAlbumCategoryClient(cfg),
 		Article:                NewArticleClient(cfg),
 		Comment:                NewCommentClient(cfg),
 		DirectLink:             NewDirectLinkClient(cfg),
@@ -323,11 +329,11 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.Album, c.Article, c.Comment, c.DirectLink, c.Entity, c.File, c.FileEntity,
-		c.Link, c.LinkCategory, c.LinkTag, c.Metadata, c.NotificationType, c.Page,
-		c.PostCategory, c.PostTag, c.Setting, c.StoragePolicy, c.Tag, c.URLStat,
-		c.User, c.UserGroup, c.UserInstalledTheme, c.UserNotificationConfig,
-		c.VisitorLog, c.VisitorStat,
+		c.Album, c.AlbumCategory, c.Article, c.Comment, c.DirectLink, c.Entity, c.File,
+		c.FileEntity, c.Link, c.LinkCategory, c.LinkTag, c.Metadata,
+		c.NotificationType, c.Page, c.PostCategory, c.PostTag, c.Setting,
+		c.StoragePolicy, c.Tag, c.URLStat, c.User, c.UserGroup, c.UserInstalledTheme,
+		c.UserNotificationConfig, c.VisitorLog, c.VisitorStat,
 	} {
 		n.Use(hooks...)
 	}
@@ -337,11 +343,11 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Album, c.Article, c.Comment, c.DirectLink, c.Entity, c.File, c.FileEntity,
-		c.Link, c.LinkCategory, c.LinkTag, c.Metadata, c.NotificationType, c.Page,
-		c.PostCategory, c.PostTag, c.Setting, c.StoragePolicy, c.Tag, c.URLStat,
-		c.User, c.UserGroup, c.UserInstalledTheme, c.UserNotificationConfig,
-		c.VisitorLog, c.VisitorStat,
+		c.Album, c.AlbumCategory, c.Article, c.Comment, c.DirectLink, c.Entity, c.File,
+		c.FileEntity, c.Link, c.LinkCategory, c.LinkTag, c.Metadata,
+		c.NotificationType, c.Page, c.PostCategory, c.PostTag, c.Setting,
+		c.StoragePolicy, c.Tag, c.URLStat, c.User, c.UserGroup, c.UserInstalledTheme,
+		c.UserNotificationConfig, c.VisitorLog, c.VisitorStat,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -352,6 +358,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *AlbumMutation:
 		return c.Album.mutate(ctx, m)
+	case *AlbumCategoryMutation:
+		return c.AlbumCategory.mutate(ctx, m)
 	case *ArticleMutation:
 		return c.Article.mutate(ctx, m)
 	case *CommentMutation:
@@ -513,6 +521,22 @@ func (c *AlbumClient) GetX(ctx context.Context, id uint) *Album {
 	return obj
 }
 
+// QueryCategory queries the category edge of a Album.
+func (c *AlbumClient) QueryCategory(_m *Album) *AlbumCategoryQuery {
+	query := (&AlbumCategoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(album.Table, album.FieldID, id),
+			sqlgraph.To(albumcategory.Table, albumcategory.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, album.CategoryTable, album.CategoryColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *AlbumClient) Hooks() []Hook {
 	hooks := c.hooks.Album
@@ -536,6 +560,155 @@ func (c *AlbumClient) mutate(ctx context.Context, m *AlbumMutation) (Value, erro
 		return (&AlbumDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Album mutation op: %q", m.Op())
+	}
+}
+
+// AlbumCategoryClient is a client for the AlbumCategory schema.
+type AlbumCategoryClient struct {
+	config
+}
+
+// NewAlbumCategoryClient returns a client for the AlbumCategory from the given config.
+func NewAlbumCategoryClient(c config) *AlbumCategoryClient {
+	return &AlbumCategoryClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `albumcategory.Hooks(f(g(h())))`.
+func (c *AlbumCategoryClient) Use(hooks ...Hook) {
+	c.hooks.AlbumCategory = append(c.hooks.AlbumCategory, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `albumcategory.Intercept(f(g(h())))`.
+func (c *AlbumCategoryClient) Intercept(interceptors ...Interceptor) {
+	c.inters.AlbumCategory = append(c.inters.AlbumCategory, interceptors...)
+}
+
+// Create returns a builder for creating a AlbumCategory entity.
+func (c *AlbumCategoryClient) Create() *AlbumCategoryCreate {
+	mutation := newAlbumCategoryMutation(c.config, OpCreate)
+	return &AlbumCategoryCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of AlbumCategory entities.
+func (c *AlbumCategoryClient) CreateBulk(builders ...*AlbumCategoryCreate) *AlbumCategoryCreateBulk {
+	return &AlbumCategoryCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *AlbumCategoryClient) MapCreateBulk(slice any, setFunc func(*AlbumCategoryCreate, int)) *AlbumCategoryCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &AlbumCategoryCreateBulk{err: fmt.Errorf("calling to AlbumCategoryClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*AlbumCategoryCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &AlbumCategoryCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for AlbumCategory.
+func (c *AlbumCategoryClient) Update() *AlbumCategoryUpdate {
+	mutation := newAlbumCategoryMutation(c.config, OpUpdate)
+	return &AlbumCategoryUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *AlbumCategoryClient) UpdateOne(_m *AlbumCategory) *AlbumCategoryUpdateOne {
+	mutation := newAlbumCategoryMutation(c.config, OpUpdateOne, withAlbumCategory(_m))
+	return &AlbumCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *AlbumCategoryClient) UpdateOneID(id uint) *AlbumCategoryUpdateOne {
+	mutation := newAlbumCategoryMutation(c.config, OpUpdateOne, withAlbumCategoryID(id))
+	return &AlbumCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for AlbumCategory.
+func (c *AlbumCategoryClient) Delete() *AlbumCategoryDelete {
+	mutation := newAlbumCategoryMutation(c.config, OpDelete)
+	return &AlbumCategoryDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *AlbumCategoryClient) DeleteOne(_m *AlbumCategory) *AlbumCategoryDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *AlbumCategoryClient) DeleteOneID(id uint) *AlbumCategoryDeleteOne {
+	builder := c.Delete().Where(albumcategory.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &AlbumCategoryDeleteOne{builder}
+}
+
+// Query returns a query builder for AlbumCategory.
+func (c *AlbumCategoryClient) Query() *AlbumCategoryQuery {
+	return &AlbumCategoryQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeAlbumCategory},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a AlbumCategory entity by its id.
+func (c *AlbumCategoryClient) Get(ctx context.Context, id uint) (*AlbumCategory, error) {
+	return c.Query().Where(albumcategory.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *AlbumCategoryClient) GetX(ctx context.Context, id uint) *AlbumCategory {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryAlbums queries the albums edge of a AlbumCategory.
+func (c *AlbumCategoryClient) QueryAlbums(_m *AlbumCategory) *AlbumQuery {
+	query := (&AlbumClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(albumcategory.Table, albumcategory.FieldID, id),
+			sqlgraph.To(album.Table, album.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, albumcategory.AlbumsTable, albumcategory.AlbumsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *AlbumCategoryClient) Hooks() []Hook {
+	return c.hooks.AlbumCategory
+}
+
+// Interceptors returns the client interceptors.
+func (c *AlbumCategoryClient) Interceptors() []Interceptor {
+	return c.inters.AlbumCategory
+}
+
+func (c *AlbumCategoryClient) mutate(ctx context.Context, m *AlbumCategoryMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&AlbumCategoryCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&AlbumCategoryUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&AlbumCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&AlbumCategoryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown AlbumCategory mutation op: %q", m.Op())
 	}
 }
 
@@ -4293,15 +4466,16 @@ func (c *VisitorStatClient) mutate(ctx context.Context, m *VisitorStatMutation) 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Album, Article, Comment, DirectLink, Entity, File, FileEntity, Link,
-		LinkCategory, LinkTag, Metadata, NotificationType, Page, PostCategory, PostTag,
-		Setting, StoragePolicy, Tag, URLStat, User, UserGroup, UserInstalledTheme,
-		UserNotificationConfig, VisitorLog, VisitorStat []ent.Hook
+		Album, AlbumCategory, Article, Comment, DirectLink, Entity, File, FileEntity,
+		Link, LinkCategory, LinkTag, Metadata, NotificationType, Page, PostCategory,
+		PostTag, Setting, StoragePolicy, Tag, URLStat, User, UserGroup,
+		UserInstalledTheme, UserNotificationConfig, VisitorLog, VisitorStat []ent.Hook
 	}
 	inters struct {
-		Album, Article, Comment, DirectLink, Entity, File, FileEntity, Link,
-		LinkCategory, LinkTag, Metadata, NotificationType, Page, PostCategory, PostTag,
-		Setting, StoragePolicy, Tag, URLStat, User, UserGroup, UserInstalledTheme,
-		UserNotificationConfig, VisitorLog, VisitorStat []ent.Interceptor
+		Album, AlbumCategory, Article, Comment, DirectLink, Entity, File, FileEntity,
+		Link, LinkCategory, LinkTag, Metadata, NotificationType, Page, PostCategory,
+		PostTag, Setting, StoragePolicy, Tag, URLStat, User, UserGroup,
+		UserInstalledTheme, UserNotificationConfig, VisitorLog,
+		VisitorStat []ent.Interceptor
 	}
 )

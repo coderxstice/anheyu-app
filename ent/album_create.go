@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/anzhiyu-c/anheyu-app/ent/album"
+	"github.com/anzhiyu-c/anheyu-app/ent/albumcategory"
 )
 
 // AlbumCreate is the builder for creating a Album entity.
@@ -258,10 +259,29 @@ func (_c *AlbumCreate) SetNillableDisplayOrder(v *int) *AlbumCreate {
 	return _c
 }
 
+// SetCategoryID sets the "category_id" field.
+func (_c *AlbumCreate) SetCategoryID(v uint) *AlbumCreate {
+	_c.mutation.SetCategoryID(v)
+	return _c
+}
+
+// SetNillableCategoryID sets the "category_id" field if the given value is not nil.
+func (_c *AlbumCreate) SetNillableCategoryID(v *uint) *AlbumCreate {
+	if v != nil {
+		_c.SetCategoryID(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *AlbumCreate) SetID(v uint) *AlbumCreate {
 	_c.mutation.SetID(v)
 	return _c
+}
+
+// SetCategory sets the "category" edge to the AlbumCategory entity.
+func (_c *AlbumCreate) SetCategory(v *AlbumCategory) *AlbumCreate {
+	return _c.SetCategoryID(v.ID)
 }
 
 // Mutation returns the AlbumMutation object of the builder.
@@ -502,6 +522,23 @@ func (_c *AlbumCreate) createSpec() (*Album, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DisplayOrder(); ok {
 		_spec.SetField(album.FieldDisplayOrder, field.TypeInt, value)
 		_node.DisplayOrder = value
+	}
+	if nodes := _c.mutation.CategoryIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   album.CategoryTable,
+			Columns: []string{album.CategoryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(albumcategory.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.CategoryID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
@@ -858,6 +895,24 @@ func (u *AlbumUpsert) UpdateDisplayOrder() *AlbumUpsert {
 // AddDisplayOrder adds v to the "display_order" field.
 func (u *AlbumUpsert) AddDisplayOrder(v int) *AlbumUpsert {
 	u.Add(album.FieldDisplayOrder, v)
+	return u
+}
+
+// SetCategoryID sets the "category_id" field.
+func (u *AlbumUpsert) SetCategoryID(v uint) *AlbumUpsert {
+	u.Set(album.FieldCategoryID, v)
+	return u
+}
+
+// UpdateCategoryID sets the "category_id" field to the value that was provided on create.
+func (u *AlbumUpsert) UpdateCategoryID() *AlbumUpsert {
+	u.SetExcluded(album.FieldCategoryID)
+	return u
+}
+
+// ClearCategoryID clears the value of the "category_id" field.
+func (u *AlbumUpsert) ClearCategoryID() *AlbumUpsert {
+	u.SetNull(album.FieldCategoryID)
 	return u
 }
 
@@ -1266,6 +1321,27 @@ func (u *AlbumUpsertOne) AddDisplayOrder(v int) *AlbumUpsertOne {
 func (u *AlbumUpsertOne) UpdateDisplayOrder() *AlbumUpsertOne {
 	return u.Update(func(s *AlbumUpsert) {
 		s.UpdateDisplayOrder()
+	})
+}
+
+// SetCategoryID sets the "category_id" field.
+func (u *AlbumUpsertOne) SetCategoryID(v uint) *AlbumUpsertOne {
+	return u.Update(func(s *AlbumUpsert) {
+		s.SetCategoryID(v)
+	})
+}
+
+// UpdateCategoryID sets the "category_id" field to the value that was provided on create.
+func (u *AlbumUpsertOne) UpdateCategoryID() *AlbumUpsertOne {
+	return u.Update(func(s *AlbumUpsert) {
+		s.UpdateCategoryID()
+	})
+}
+
+// ClearCategoryID clears the value of the "category_id" field.
+func (u *AlbumUpsertOne) ClearCategoryID() *AlbumUpsertOne {
+	return u.Update(func(s *AlbumUpsert) {
+		s.ClearCategoryID()
 	})
 }
 
@@ -1840,6 +1916,27 @@ func (u *AlbumUpsertBulk) AddDisplayOrder(v int) *AlbumUpsertBulk {
 func (u *AlbumUpsertBulk) UpdateDisplayOrder() *AlbumUpsertBulk {
 	return u.Update(func(s *AlbumUpsert) {
 		s.UpdateDisplayOrder()
+	})
+}
+
+// SetCategoryID sets the "category_id" field.
+func (u *AlbumUpsertBulk) SetCategoryID(v uint) *AlbumUpsertBulk {
+	return u.Update(func(s *AlbumUpsert) {
+		s.SetCategoryID(v)
+	})
+}
+
+// UpdateCategoryID sets the "category_id" field to the value that was provided on create.
+func (u *AlbumUpsertBulk) UpdateCategoryID() *AlbumUpsertBulk {
+	return u.Update(func(s *AlbumUpsert) {
+		s.UpdateCategoryID()
+	})
+}
+
+// ClearCategoryID clears the value of the "category_id" field.
+func (u *AlbumUpsertBulk) ClearCategoryID() *AlbumUpsertBulk {
+	return u.Update(func(s *AlbumUpsert) {
+		s.ClearCategoryID()
 	})
 }
 

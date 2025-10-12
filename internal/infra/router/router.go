@@ -13,6 +13,7 @@ import (
 
 	"github.com/anzhiyu-c/anheyu-app/internal/app/middleware"
 	album_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/album"
+	album_category_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/album_category"
 	article_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/article"
 	auth_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/auth"
 	comment_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/comment"
@@ -57,6 +58,7 @@ func NoCacheMiddleware() gin.HandlerFunc {
 type Router struct {
 	authHandler          *auth_handler.AuthHandler
 	albumHandler         *album_handler.AlbumHandler
+	albumCategoryHandler *album_category_handler.Handler
 	userHandler          *user_handler.UserHandler
 	publicHandler        *public_handler.PublicHandler
 	settingHandler       *setting_handler.SettingHandler
@@ -85,6 +87,7 @@ type Router struct {
 func NewRouter(
 	authHandler *auth_handler.AuthHandler,
 	albumHandler *album_handler.AlbumHandler,
+	albumCategoryHandler *album_category_handler.Handler,
 	userHandler *user_handler.UserHandler,
 	publicHandler *public_handler.PublicHandler,
 	settingHandler *setting_handler.SettingHandler,
@@ -111,6 +114,7 @@ func NewRouter(
 	return &Router{
 		authHandler:          authHandler,
 		albumHandler:         albumHandler,
+		albumCategoryHandler: albumCategoryHandler,
 		userHandler:          userHandler,
 		publicHandler:        publicHandler,
 		settingHandler:       settingHandler,
@@ -162,6 +166,7 @@ func (r *Router) Setup(engine *gin.Engine) {
 	// 注册各个模块的路由
 	r.registerAuthRoutes(apiGroup)
 	r.registerAlbumRoutes(apiGroup)
+	r.registerAlbumCategoryRoutes(apiGroup)
 	r.registerUserRoutes(apiGroup)
 	r.registerPublicRoutes(apiGroup)
 	r.registerSettingRoutes(apiGroup)
@@ -301,8 +306,21 @@ func (r *Router) registerAlbumRoutes(api *gin.RouterGroup) {
 	{
 		albums.GET("/get", r.albumHandler.GetAlbums)
 		albums.POST("/add", r.albumHandler.AddAlbum)
+		albums.POST("/batch-import", r.albumHandler.BatchImportAlbums)
 		albums.PUT("/update/:id", r.albumHandler.UpdateAlbum)
 		albums.DELETE("/delete/:id", r.albumHandler.DeleteAlbum)
+	}
+}
+
+// registerAlbumCategoryRoutes 注册相册分类相关的路由
+func (r *Router) registerAlbumCategoryRoutes(api *gin.RouterGroup) {
+	albumCategories := api.Group("/album-categories").Use(r.mw.JWTAuth(), r.mw.AdminAuth())
+	{
+		albumCategories.POST("", r.albumCategoryHandler.CreateCategory)       // POST /api/album-categories
+		albumCategories.GET("", r.albumCategoryHandler.ListCategories)        // GET /api/album-categories
+		albumCategories.GET("/:id", r.albumCategoryHandler.GetCategory)       // GET /api/album-categories/:id
+		albumCategories.PUT("/:id", r.albumCategoryHandler.UpdateCategory)    // PUT /api/album-categories/:id
+		albumCategories.DELETE("/:id", r.albumCategoryHandler.DeleteCategory) // DELETE /api/album-categories/:id
 	}
 }
 
@@ -356,6 +374,7 @@ func (r *Router) registerPublicRoutes(api *gin.RouterGroup) {
 	public := api.Group("/public")
 	{
 		public.GET("/albums", r.publicHandler.GetPublicAlbums)
+		public.GET("/album-categories", r.publicHandler.GetPublicAlbumCategories)
 		public.PUT("/stat/:id", r.publicHandler.UpdateAlbumStat)
 		public.GET("/site-config", r.settingHandler.GetSiteConfig)
 	}

@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/anzhiyu-c/anheyu-app/ent/album"
+	"github.com/anzhiyu-c/anheyu-app/ent/albumcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
 )
 
@@ -367,9 +368,40 @@ func (_u *AlbumUpdate) AddDisplayOrder(v int) *AlbumUpdate {
 	return _u
 }
 
+// SetCategoryID sets the "category_id" field.
+func (_u *AlbumUpdate) SetCategoryID(v uint) *AlbumUpdate {
+	_u.mutation.SetCategoryID(v)
+	return _u
+}
+
+// SetNillableCategoryID sets the "category_id" field if the given value is not nil.
+func (_u *AlbumUpdate) SetNillableCategoryID(v *uint) *AlbumUpdate {
+	if v != nil {
+		_u.SetCategoryID(*v)
+	}
+	return _u
+}
+
+// ClearCategoryID clears the value of the "category_id" field.
+func (_u *AlbumUpdate) ClearCategoryID() *AlbumUpdate {
+	_u.mutation.ClearCategoryID()
+	return _u
+}
+
+// SetCategory sets the "category" edge to the AlbumCategory entity.
+func (_u *AlbumUpdate) SetCategory(v *AlbumCategory) *AlbumUpdate {
+	return _u.SetCategoryID(v.ID)
+}
+
 // Mutation returns the AlbumMutation object of the builder.
 func (_u *AlbumUpdate) Mutation() *AlbumMutation {
 	return _u.mutation
+}
+
+// ClearCategory clears the "category" edge to the AlbumCategory entity.
+func (_u *AlbumUpdate) ClearCategory() *AlbumUpdate {
+	_u.mutation.ClearCategory()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -583,6 +615,35 @@ func (_u *AlbumUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.AddedDisplayOrder(); ok {
 		_spec.AddField(album.FieldDisplayOrder, field.TypeInt, value)
+	}
+	if _u.mutation.CategoryCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   album.CategoryTable,
+			Columns: []string{album.CategoryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(albumcategory.FieldID, field.TypeUint),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.CategoryIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   album.CategoryTable,
+			Columns: []string{album.CategoryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(albumcategory.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -944,9 +1005,40 @@ func (_u *AlbumUpdateOne) AddDisplayOrder(v int) *AlbumUpdateOne {
 	return _u
 }
 
+// SetCategoryID sets the "category_id" field.
+func (_u *AlbumUpdateOne) SetCategoryID(v uint) *AlbumUpdateOne {
+	_u.mutation.SetCategoryID(v)
+	return _u
+}
+
+// SetNillableCategoryID sets the "category_id" field if the given value is not nil.
+func (_u *AlbumUpdateOne) SetNillableCategoryID(v *uint) *AlbumUpdateOne {
+	if v != nil {
+		_u.SetCategoryID(*v)
+	}
+	return _u
+}
+
+// ClearCategoryID clears the value of the "category_id" field.
+func (_u *AlbumUpdateOne) ClearCategoryID() *AlbumUpdateOne {
+	_u.mutation.ClearCategoryID()
+	return _u
+}
+
+// SetCategory sets the "category" edge to the AlbumCategory entity.
+func (_u *AlbumUpdateOne) SetCategory(v *AlbumCategory) *AlbumUpdateOne {
+	return _u.SetCategoryID(v.ID)
+}
+
 // Mutation returns the AlbumMutation object of the builder.
 func (_u *AlbumUpdateOne) Mutation() *AlbumMutation {
 	return _u.mutation
+}
+
+// ClearCategory clears the "category" edge to the AlbumCategory entity.
+func (_u *AlbumUpdateOne) ClearCategory() *AlbumUpdateOne {
+	_u.mutation.ClearCategory()
+	return _u
 }
 
 // Where appends a list predicates to the AlbumUpdate builder.
@@ -1190,6 +1282,35 @@ func (_u *AlbumUpdateOne) sqlSave(ctx context.Context) (_node *Album, err error)
 	}
 	if value, ok := _u.mutation.AddedDisplayOrder(); ok {
 		_spec.AddField(album.FieldDisplayOrder, field.TypeInt, value)
+	}
+	if _u.mutation.CategoryCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   album.CategoryTable,
+			Columns: []string{album.CategoryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(albumcategory.FieldID, field.TypeUint),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.CategoryIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   album.CategoryTable,
+			Columns: []string{album.CategoryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(albumcategory.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &Album{config: _u.config}

@@ -9,6 +9,9 @@ import (
 // Album is the predicate function for album builders.
 type Album func(*sql.Selector)
 
+// AlbumCategory is the predicate function for albumcategory builders.
+type AlbumCategory func(*sql.Selector)
+
 // Article is the predicate function for article builders.
 type Article func(*sql.Selector)
 

@@ -26,6 +26,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
 	album_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/album"
+	album_category_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/album_category"
 	article_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/article"
 	auth_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/auth"
 	comment_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/comment"
@@ -50,6 +51,7 @@ import (
 	version_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/version"
 	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/album"
+	album_category_service "github.com/anzhiyu-c/anheyu-app/pkg/service/album_category"
 	article_service "github.com/anzhiyu-c/anheyu-app/pkg/service/article"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/auth"
 	cleanup_service "github.com/anzhiyu-c/anheyu-app/pkg/service/cleanup"
@@ -184,6 +186,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	tagRepo := ent_impl.NewEntTagRepository(entClient)
 	directLinkRepo := ent_impl.NewEntDirectLinkRepository(entClient)
 	albumRepo := ent_impl.NewEntAlbumRepository(entClient)
+	albumCategoryRepo := ent_impl.NewAlbumCategoryRepo(entClient)
 	storagePolicyRepo := ent_impl.NewEntStoragePolicyRepository(entClient)
 	metadataRepo := ent_impl.NewEntMetadataRepository(entClient)
 	articleRepo := ent_impl.NewArticleRepo(entClient)
@@ -226,6 +229,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		log.Printf("警告: GeoIP 服务初始化失败: %v。IP属地将显示为'未知'", err)
 	}
 	albumSvc := album.NewAlbumService(albumRepo, tagRepo, settingSvc)
+	albumCategorySvc := album_category_service.NewService(albumCategoryRepo)
 	storageProviders := make(map[constant.StoragePolicyType]storage.IStorageProvider)
 	localSigningSecret := settingSvc.Get(constant.KeyLocalFileSigningSecret.String())
 	parserSvc := parser_service.NewService(settingSvc, eventBus)
@@ -348,8 +352,9 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	mw := middleware.NewMiddleware(tokenSvc)
 	authHandler := auth_handler.NewAuthHandler(authSvc, tokenSvc, settingSvc)
 	albumHandler := album_handler.NewAlbumHandler(albumSvc)
+	albumCategoryHandler := album_category_handler.NewHandler(albumCategorySvc)
 	userHandler := user_handler.NewUserHandler(userSvc, settingSvc)
-	publicHandler := public_handler.NewPublicHandler(albumSvc)
+	publicHandler := public_handler.NewPublicHandler(albumSvc, albumCategorySvc)
 	settingHandler := setting_handler.NewSettingHandler(settingSvc, emailSvc)
 	storagePolicyHandler := storage_policy_handler.NewStoragePolicyHandler(storagePolicySvc)
 	fileHandler := file_handler.NewHandler(fileSvc, uploadSvc, settingSvc)
@@ -374,6 +379,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	appRouter := router.NewRouter(
 		authHandler,
 		albumHandler,
+		albumCategoryHandler,
 		userHandler,
 		publicHandler,
 		settingHandler,

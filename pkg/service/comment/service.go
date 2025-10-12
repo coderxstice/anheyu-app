@@ -143,10 +143,11 @@ func (s *Service) ListLatest(ctx context.Context, page, pageSize int) (*dto.List
 	}
 
 	return &dto.ListResponse{
-		List:     responses,
-		Total:    total,
-		Page:     page,
-		PageSize: pageSize,
+		List:              responses,
+		Total:             total,
+		TotalWithChildren: total, // 对于最新评论列表，total 和 totalWithChildren 相同（因为返回的是扁平列表）
+		Page:              page,
+		PageSize:          pageSize,
 	}, nil
 }
 
@@ -446,11 +447,18 @@ func (s *Service) ListByPath(ctx context.Context, path string, page, pageSize in
 	})
 
 	// 4. 对根评论进行分页
-	total := int64(len(rootComments))
+	totalRootComments := int64(len(rootComments)) // 根评论总数（用于分页）
+	totalWithChildren := int64(len(allComments))  // 包含所有子评论的总数（用于前端显示）
 	start := (page - 1) * pageSize
 	end := start + pageSize
 	if start >= len(rootComments) {
-		return &dto.ListResponse{List: []*dto.Response{}, Total: total, Page: page, PageSize: pageSize}, nil
+		return &dto.ListResponse{
+			List:              []*dto.Response{},
+			Total:             totalRootComments,
+			TotalWithChildren: totalWithChildren,
+			Page:              page,
+			PageSize:          pageSize,
+		}, nil
 	}
 	if end > len(rootComments) {
 		end = len(rootComments)
@@ -484,10 +492,11 @@ func (s *Service) ListByPath(ctx context.Context, path string, page, pageSize in
 	}
 
 	return &dto.ListResponse{
-		List:     rootResponses,
-		Total:    total,
-		Page:     page,
-		PageSize: pageSize,
+		List:              rootResponses,
+		Total:             totalRootComments,
+		TotalWithChildren: totalWithChildren,
+		Page:              page,
+		PageSize:          pageSize,
 	}, nil
 }
 
@@ -539,7 +548,13 @@ func (s *Service) ListChildren(ctx context.Context, parentPublicID string, page,
 	start := (page - 1) * pageSize
 	end := start + pageSize
 	if start >= len(allDescendants) {
-		return &dto.ListResponse{List: []*dto.Response{}, Total: total, Page: page, PageSize: pageSize}, nil
+		return &dto.ListResponse{
+			List:              []*dto.Response{},
+			Total:             total,
+			TotalWithChildren: total, // 对于子评论列表，total 和 totalWithChildren 相同（因为返回的是扁平列表）
+			Page:              page,
+			PageSize:          pageSize,
+		}, nil
 	}
 	if end > len(allDescendants) {
 		end = len(allDescendants)
@@ -554,10 +569,11 @@ func (s *Service) ListChildren(ctx context.Context, parentPublicID string, page,
 	}
 
 	return &dto.ListResponse{
-		List:     childResponses,
-		Total:    total,
-		Page:     page,
-		PageSize: pageSize,
+		List:              childResponses,
+		Total:             total,
+		TotalWithChildren: total, // 对于子评论列表，total 和 totalWithChildren 相同（因为返回的是扁平列表）
+		Page:              page,
+		PageSize:          pageSize,
 	}, nil
 }
 
@@ -720,10 +736,11 @@ func (s *Service) AdminList(ctx context.Context, req *dto.AdminListRequest) (*dt
 	}
 
 	return &dto.ListResponse{
-		List:     responses,
-		Total:    total,
-		Page:     req.Page,
-		PageSize: req.PageSize,
+		List:              responses,
+		Total:             total,
+		TotalWithChildren: total, // 对于管理员列表，total 和 totalWithChildren 相同（因为返回的是扁平列表）
+		Page:              req.Page,
+		PageSize:          req.PageSize,
 	}, nil
 }
 

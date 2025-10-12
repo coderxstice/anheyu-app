@@ -29,4 +29,27 @@ type Album struct {
 	AspectRatio   string    `json:"aspectRatio"`
 	FileHash      string    `json:"fileHash"`
 	DisplayOrder  int       `json:"displayOrder"`
+	CategoryID    *uint     `json:"categoryId"`
+}
+
+// AlbumCategoryDTO 是相册分类的数据传输对象
+type AlbumCategoryDTO struct {
+	ID           uint   `json:"id"`
+	Name         string `json:"name"`
+	Description  string `json:"description,omitempty"`
+	DisplayOrder int    `json:"displayOrder"`
+}
+
+// CreateAlbumCategoryRequest 是创建相册分类的请求结构
+type CreateAlbumCategoryRequest struct {
+	Name         string `json:"name" binding:"required"`
+	Description  string `json:"description"`
+	DisplayOrder int    `json:"displayOrder"`
+}
+
+// UpdateAlbumCategoryRequest 是更新相册分类的请求结构
+type UpdateAlbumCategoryRequest struct {
+	Name         string `json:"name" binding:"required"`
+	Description  string `json:"description"`
+	DisplayOrder int    `json:"displayOrder"`
 }

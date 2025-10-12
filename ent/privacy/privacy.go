@@ -134,6 +134,30 @@ func (f AlbumMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation)
 	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.AlbumMutation", m)
 }
 
+// The AlbumCategoryQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type AlbumCategoryQueryRuleFunc func(context.Context, *ent.AlbumCategoryQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f AlbumCategoryQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.AlbumCategoryQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.AlbumCategoryQuery", q)
+}
+
+// The AlbumCategoryMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type AlbumCategoryMutationRuleFunc func(context.Context, *ent.AlbumCategoryMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f AlbumCategoryMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.AlbumCategoryMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.AlbumCategoryMutation", m)
+}
+
 // The ArticleQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type ArticleQueryRuleFunc func(context.Context, *ent.ArticleQuery) error

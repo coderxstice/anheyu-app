@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/anzhiyu-c/anheyu-app/ent/album"
+	"github.com/anzhiyu-c/anheyu-app/ent/albumcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/article"
 	"github.com/anzhiyu-c/anheyu-app/ent/comment"
 	"github.com/anzhiyu-c/anheyu-app/ent/directlink"
@@ -98,6 +99,7 @@ func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			album.Table:                  album.ValidColumn,
+			albumcategory.Table:          albumcategory.ValidColumn,
 			article.Table:                article.ValidColumn,
 			comment.Table:                comment.ValidColumn,
 			directlink.Table:             directlink.ValidColumn,

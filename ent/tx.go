@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// Album is the client for interacting with the Album builders.
 	Album *AlbumClient
+	// AlbumCategory is the client for interacting with the AlbumCategory builders.
+	AlbumCategory *AlbumCategoryClient
 	// Article is the client for interacting with the Article builders.
 	Article *ArticleClient
 	// Comment is the client for interacting with the Comment builders.
@@ -194,6 +196,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Album = NewAlbumClient(tx.config)
+	tx.AlbumCategory = NewAlbumCategoryClient(tx.config)
 	tx.Article = NewArticleClient(tx.config)
 	tx.Comment = NewCommentClient(tx.config)
 	tx.DirectLink = NewDirectLinkClient(tx.config)
