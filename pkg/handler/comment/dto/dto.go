@@ -101,10 +101,11 @@ type Response struct {
 
 // ListResponse 定义了评论列表的API响应结构。
 type ListResponse struct {
-	List     []*Response `json:"list"`
-	Total    int64       `json:"total"`
-	Page     int         `json:"page"`
-	PageSize int         `json:"pageSize"`
+	List              []*Response `json:"list"`
+	Total             int64       `json:"total"`               // 根评论总数（用于分页）
+	TotalWithChildren int64       `json:"total_with_children"` // 包含所有子评论的总数（用于前端显示）
+	Page              int         `json:"page"`
+	PageSize          int         `json:"pageSize"`
 }
 
 // UploadImageResponse 是评论图片上传成功后返回的数据结构。
