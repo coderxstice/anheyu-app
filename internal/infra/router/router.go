@@ -301,6 +301,7 @@ func (r *Router) registerAlbumRoutes(api *gin.RouterGroup) {
 	{
 		albums.GET("/get", r.albumHandler.GetAlbums)
 		albums.POST("/add", r.albumHandler.AddAlbum)
+		albums.POST("/batch-import", r.albumHandler.BatchImportAlbums)
 		albums.PUT("/update/:id", r.albumHandler.UpdateAlbum)
 		albums.DELETE("/delete/:id", r.albumHandler.DeleteAlbum)
 	}

@@ -259,3 +259,74 @@ func (h *AlbumHandler) UpdateAlbum(c *gin.Context) {
 
 	response.Success(c, nil, "更新成功")
 }
+
+// BatchImportAlbums 处理批量导入图片的请求
+// @Summary      批量导入相册图片
+// @Description  批量导入图片到相册，后端自动获取图片元数据
+// @Tags         相册管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        body  body  object{urls=[]string,thumbParam=string,bigParam=string,tags=[]string,displayOrder=int}  true  "批量导入信息"
+// @Success      200  {object}  response.Response  "导入完成"
+// @Failure      400  {object}  response.Response  "参数错误"
+// @Failure      500  {object}  response.Response  "导入失败"
+// @Router       /albums/batch-import [post]
+func (h *AlbumHandler) BatchImportAlbums(c *gin.Context) {
+	var req struct {
+		URLs         []string `json:"urls" binding:"required,min=1,max=100"`
+		ThumbParam   string   `json:"thumbParam"`
+		BigParam     string   `json:"bigParam"`
+		Tags         []string `json:"tags"`
+		DisplayOrder int      `json:"displayOrder"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Fail(c, http.StatusBadRequest, "参数错误: "+err.Error())
+		return
+	}
+
+	// 调用Service层进行批量导入
+	result, err := h.albumSvc.BatchImportAlbums(c.Request.Context(), album.BatchImportParams{
+		URLs:         req.URLs,
+		ThumbParam:   req.ThumbParam,
+		BigParam:     req.BigParam,
+		Tags:         req.Tags,
+		DisplayOrder: req.DisplayOrder,
+	})
+
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, "批量导入失败: "+err.Error())
+		return
+	}
+
+	// 构造详细的响应数据
+	responseData := gin.H{
+		"successCount": result.SuccessCount,
+		"failCount":    result.FailCount,
+		"skipCount":    result.SkipCount,
+		"total":        len(req.URLs),
+	}
+
+	// 如果有错误，添加错误详情
+	if len(result.Errors) > 0 {
+		errors := make([]gin.H, 0, len(result.Errors))
+		for _, e := range result.Errors {
+			errors = append(errors, gin.H{
+				"url":    e.URL,
+				"reason": e.Reason,
+			})
+		}
+		responseData["errors"] = errors
+	}
+
+	// 如果有重复，添加重复列表
+	if len(result.Duplicates) > 0 {
+		responseData["duplicates"] = result.Duplicates
+	}
+
+	message := fmt.Sprintf("批量导入完成！成功 %d 张，失败 %d 张，跳过 %d 张",
+		result.SuccessCount, result.FailCount, result.SkipCount)
+
+	response.Success(c, responseData, message)
+}
