@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/ent/album"
+	"github.com/anzhiyu-c/anheyu-app/ent/albumcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/article"
 	"github.com/anzhiyu-c/anheyu-app/ent/comment"
 	"github.com/anzhiyu-c/anheyu-app/ent/directlink"
@@ -115,6 +116,16 @@ func init() {
 	albumDescDisplayOrder := albumFields[17].Descriptor()
 	// album.DefaultDisplayOrder holds the default value on creation for the display_order field.
 	album.DefaultDisplayOrder = albumDescDisplayOrder.Default.(int)
+	albumcategoryFields := schema.AlbumCategory{}.Fields()
+	_ = albumcategoryFields
+	// albumcategoryDescName is the schema descriptor for name field.
+	albumcategoryDescName := albumcategoryFields[1].Descriptor()
+	// albumcategory.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	albumcategory.NameValidator = albumcategoryDescName.Validators[0].(func(string) error)
+	// albumcategoryDescDisplayOrder is the schema descriptor for display_order field.
+	albumcategoryDescDisplayOrder := albumcategoryFields[3].Descriptor()
+	// albumcategory.DefaultDisplayOrder holds the default value on creation for the display_order field.
+	albumcategory.DefaultDisplayOrder = albumcategoryDescDisplayOrder.Default.(int)
 	articleMixin := schema.Article{}.Mixin()
 	articleMixinHooks0 := articleMixin[0].Hooks()
 	article.Hooks[0] = articleMixinHooks0[0]

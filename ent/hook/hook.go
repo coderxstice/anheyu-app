@@ -21,6 +21,18 @@ func (f AlbumFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AlbumMutation", m)
 }
 
+// The AlbumCategoryFunc type is an adapter to allow the use of ordinary
+// function as AlbumCategory mutator.
+type AlbumCategoryFunc func(context.Context, *ent.AlbumCategoryMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AlbumCategoryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.AlbumCategoryMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AlbumCategoryMutation", m)
+}
+
 // The ArticleFunc type is an adapter to allow the use of ordinary
 // function as Article mutator.
 type ArticleFunc func(context.Context, *ent.ArticleMutation) (ent.Value, error)

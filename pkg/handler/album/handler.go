@@ -26,12 +26,13 @@ func NewAlbumHandler(albumSvc album.AlbumService) *AlbumHandler {
 
 // GetAlbums 处理获取图片列表的请求
 // @Summary      获取相册图片列表
-// @Description  获取相册图片列表，支持分页、标签筛选、时间筛选和排序
+// @Description  获取相册图片列表，支持分页、分类筛选、标签筛选、时间筛选和排序
 // @Tags         相册管理
 // @Security     BearerAuth
 // @Produce      json
 // @Param        page          query  int     false  "页码"  default(1)
 // @Param        pageSize      query  int     false  "每页数量"  default(10)
+// @Param        categoryId    query  int     false  "分类ID筛选"
 // @Param        tag           query  string  false  "标签筛选"
 // @Param        createdAt[0]  query  string  false  "开始时间 (2006/01/02 15:04:05)"
 // @Param        createdAt[1]  query  string  false  "结束时间 (2006/01/02 15:04:05)"
@@ -43,10 +44,20 @@ func (h *AlbumHandler) GetAlbums(c *gin.Context) {
 	// 1. 解析参数
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
+	categoryIdStr := c.Query("categoryId")
 	tag := c.Query("tag")
 	startStr := c.Query("createdAt[0]")
 	endStr := c.Query("createdAt[1]")
 	sort := c.DefaultQuery("sort", "display_order_asc")
+
+	// 解析 categoryId
+	var categoryID *uint
+	if categoryIdStr != "" {
+		if id, err := strconv.ParseUint(categoryIdStr, 10, 32); err == nil {
+			categoryIDVal := uint(id)
+			categoryID = &categoryIDVal
+		}
+	}
 
 	var startTime, endTime *time.Time
 	const layout = "2006/01/02 15:04:05"
@@ -59,12 +70,13 @@ func (h *AlbumHandler) GetAlbums(c *gin.Context) {
 
 	// 2. 调用更新后的 Service 方法
 	pageResult, err := h.albumSvc.FindAlbums(c.Request.Context(), album.FindAlbumsParams{
-		Page:     page,
-		PageSize: pageSize,
-		Tag:      tag,
-		Start:    startTime,
-		End:      endTime,
-		Sort:     sort,
+		Page:       page,
+		PageSize:   pageSize,
+		CategoryID: categoryID,
+		Tag:        tag,
+		Start:      startTime,
+		End:        endTime,
+		Sort:       sort,
 	})
 	if err != nil {
 		response.Fail(c, http.StatusInternalServerError, "获取图片列表失败: "+err.Error())
@@ -74,6 +86,7 @@ func (h *AlbumHandler) GetAlbums(c *gin.Context) {
 	// 3. 准备响应 DTO (Data Transfer Object)
 	type AlbumResponse struct {
 		ID             uint      `json:"id"`
+		CategoryID     *uint     `json:"categoryId"`
 		ImageUrl       string    `json:"imageUrl"`
 		BigImageUrl    string    `json:"bigImageUrl"`
 		DownloadUrl    string    `json:"downloadUrl"`
@@ -98,6 +111,7 @@ func (h *AlbumHandler) GetAlbums(c *gin.Context) {
 	for _, album := range pageResult.Items {
 		responseList = append(responseList, AlbumResponse{
 			ID:             album.ID,
+			CategoryID:     album.CategoryID,
 			ImageUrl:       album.ImageUrl,
 			BigImageUrl:    album.BigImageUrl,
 			DownloadUrl:    album.DownloadUrl,
@@ -140,6 +154,7 @@ func (h *AlbumHandler) GetAlbums(c *gin.Context) {
 // @Router       /albums [post]
 func (h *AlbumHandler) AddAlbum(c *gin.Context) {
 	var req struct {
+		CategoryID   *uint    `json:"categoryId"`
 		ImageUrl     string   `json:"imageUrl" binding:"required"`
 		BigImageUrl  string   `json:"bigImageUrl"`
 		DownloadUrl  string   `json:"downloadUrl"`
@@ -160,6 +175,7 @@ func (h *AlbumHandler) AddAlbum(c *gin.Context) {
 	}
 
 	_, err := h.albumSvc.CreateAlbum(c.Request.Context(), album.CreateAlbumParams{
+		CategoryID:   req.CategoryID,
 		ImageUrl:     req.ImageUrl,
 		BigImageUrl:  req.BigImageUrl,
 		DownloadUrl:  req.DownloadUrl,
@@ -229,6 +245,7 @@ func (h *AlbumHandler) UpdateAlbum(c *gin.Context) {
 	}
 
 	var req struct {
+		CategoryID   *uint    `json:"categoryId"`
 		ImageUrl     string   `json:"imageUrl" binding:"required"`
 		BigImageUrl  string   `json:"bigImageUrl"`
 		DownloadUrl  string   `json:"downloadUrl"`
@@ -243,6 +260,7 @@ func (h *AlbumHandler) UpdateAlbum(c *gin.Context) {
 	}
 
 	_, err = h.albumSvc.UpdateAlbum(c.Request.Context(), uint(id), album.UpdateAlbumParams{
+		CategoryID:   req.CategoryID,
 		ImageUrl:     req.ImageUrl,
 		BigImageUrl:  req.BigImageUrl,
 		DownloadUrl:  req.DownloadUrl,
@@ -274,6 +292,7 @@ func (h *AlbumHandler) UpdateAlbum(c *gin.Context) {
 // @Router       /albums/batch-import [post]
 func (h *AlbumHandler) BatchImportAlbums(c *gin.Context) {
 	var req struct {
+		CategoryID   *uint    `json:"categoryId"`
 		URLs         []string `json:"urls" binding:"required,min=1,max=100"`
 		ThumbParam   string   `json:"thumbParam"`
 		BigParam     string   `json:"bigParam"`
@@ -288,6 +307,7 @@ func (h *AlbumHandler) BatchImportAlbums(c *gin.Context) {
 
 	// 调用Service层进行批量导入
 	result, err := h.albumSvc.BatchImportAlbums(c.Request.Context(), album.BatchImportParams{
+		CategoryID:   req.CategoryID,
 		URLs:         req.URLs,
 		ThumbParam:   req.ThumbParam,
 		BigParam:     req.BigParam,

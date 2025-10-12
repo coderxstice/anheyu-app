@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -50,8 +51,19 @@ const (
 	FieldFileHash = "file_hash"
 	// FieldDisplayOrder holds the string denoting the display_order field in the database.
 	FieldDisplayOrder = "display_order"
+	// FieldCategoryID holds the string denoting the category_id field in the database.
+	FieldCategoryID = "category_id"
+	// EdgeCategory holds the string denoting the category edge name in mutations.
+	EdgeCategory = "category"
 	// Table holds the table name of the album in the database.
 	Table = "albums"
+	// CategoryTable is the table that holds the category relation/edge.
+	CategoryTable = "albums"
+	// CategoryInverseTable is the table name for the AlbumCategory entity.
+	// It exists in this package in order to avoid circular dependency with the "albumcategory" package.
+	CategoryInverseTable = "album_categories"
+	// CategoryColumn is the table column denoting the category relation/edge.
+	CategoryColumn = "category_id"
 )
 
 // Columns holds all SQL columns for album fields.
@@ -75,6 +87,7 @@ var Columns = []string{
 	FieldAspectRatio,
 	FieldFileHash,
 	FieldDisplayOrder,
+	FieldCategoryID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -222,4 +235,23 @@ func ByFileHash(opts ...sql.OrderTermOption) OrderOption {
 // ByDisplayOrder orders the results by the display_order field.
 func ByDisplayOrder(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDisplayOrder, opts...).ToFunc()
+}
+
+// ByCategoryID orders the results by the category_id field.
+func ByCategoryID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCategoryID, opts...).ToFunc()
+}
+
+// ByCategoryField orders the results by category field.
+func ByCategoryField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCategoryStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newCategoryStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CategoryInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, CategoryTable, CategoryColumn),
+	)
 }

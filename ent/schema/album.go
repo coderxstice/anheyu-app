@@ -13,6 +13,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/schema/mixin"
 
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
 
@@ -92,5 +93,18 @@ func (Album) Fields() []ent.Field {
 		field.Int("display_order").
 			Default(0).
 			Comment("排序字段，数字越小越靠前"),
+		field.Uint("category_id").
+			Optional().
+			Comment("分类ID"),
+	}
+}
+
+// Edges of the Album.
+func (Album) Edges() []ent.Edge {
+	return []ent.Edge{
+		edge.From("category", AlbumCategory.Type).
+			Ref("albums").
+			Unique().
+			Field("category_id"),
 	}
 }

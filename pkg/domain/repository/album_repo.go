@@ -27,11 +27,12 @@ const (
 // AlbumQueryOptions 定义了查询相册时的过滤条件。
 // 它嵌入了通用的分页参数，并添加了 Album 特有的过滤字段。
 type AlbumQueryOptions struct {
-	PageQuery // 嵌入通用的分页参数 Page 和 PageSize
-	Tag       string
-	Start     *time.Time
-	End       *time.Time
-	Sort      string
+	PageQuery  // 嵌入通用的分页参数 Page 和 PageSize
+	CategoryID *uint
+	Tag        string
+	Start      *time.Time
+	End        *time.Time
+	Sort       string
 }
 
 // AlbumRepository 定义了相册数据操作的契约。

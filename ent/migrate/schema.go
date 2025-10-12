@@ -29,12 +29,34 @@ var (
 		{Name: "aspect_ratio", Type: field.TypeString, Nullable: true, Size: 50},
 		{Name: "file_hash", Type: field.TypeString, Unique: true, Size: 64},
 		{Name: "display_order", Type: field.TypeInt, Default: 0},
+		{Name: "category_id", Type: field.TypeUint, Nullable: true},
 	}
 	// AlbumsTable holds the schema information for the "albums" table.
 	AlbumsTable = &schema.Table{
 		Name:       "albums",
 		Columns:    AlbumsColumns,
 		PrimaryKey: []*schema.Column{AlbumsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "albums_album_categories_albums",
+				Columns:    []*schema.Column{AlbumsColumns[19]},
+				RefColumns: []*schema.Column{AlbumCategoriesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// AlbumCategoriesColumns holds the columns for the "album_categories" table.
+	AlbumCategoriesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint, Increment: true},
+		{Name: "name", Type: field.TypeString, Unique: true},
+		{Name: "description", Type: field.TypeString, Nullable: true},
+		{Name: "display_order", Type: field.TypeInt, Default: 0},
+	}
+	// AlbumCategoriesTable holds the schema information for the "album_categories" table.
+	AlbumCategoriesTable = &schema.Table{
+		Name:       "album_categories",
+		Columns:    AlbumCategoriesColumns,
+		PrimaryKey: []*schema.Column{AlbumCategoriesColumns[0]},
 	}
 	// ArticlesColumns holds the columns for the "articles" table.
 	ArticlesColumns = []*schema.Column{
@@ -832,6 +854,7 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		AlbumsTable,
+		AlbumCategoriesTable,
 		ArticlesTable,
 		CommentsTable,
 		DirectLinksTable,
@@ -863,6 +886,7 @@ var (
 )
 
 func init() {
+	AlbumsTable.ForeignKeys[0].RefTable = AlbumCategoriesTable
 	CommentsTable.ForeignKeys[0].RefTable = ArticlesTable
 	CommentsTable.ForeignKeys[1].RefTable = CommentsTable
 	CommentsTable.ForeignKeys[2].RefTable = UsersTable

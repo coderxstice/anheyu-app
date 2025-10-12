@@ -25,6 +25,7 @@ import (
 
 // CreateAlbumParams 定义了创建相册时需要的参数
 type CreateAlbumParams struct {
+	CategoryID   *uint
 	ImageUrl     string
 	BigImageUrl  string
 	DownloadUrl  string
@@ -41,6 +42,7 @@ type CreateAlbumParams struct {
 
 // UpdateAlbumParams 定义了更新相册时需要的参数
 type UpdateAlbumParams struct {
+	CategoryID   *uint
 	ImageUrl     string
 	BigImageUrl  string
 	DownloadUrl  string
@@ -52,12 +54,13 @@ type UpdateAlbumParams struct {
 
 // FindAlbumsParams 定义了查询相册时需要的参数
 type FindAlbumsParams struct {
-	Page     int
-	PageSize int
-	Tag      string
-	Start    *time.Time
-	End      *time.Time
-	Sort     string
+	Page       int
+	PageSize   int
+	CategoryID *uint
+	Tag        string
+	Start      *time.Time
+	End        *time.Time
+	Sort       string
 }
 
 // BatchImportResult 批量导入的结果
@@ -77,6 +80,7 @@ type BatchImportError struct {
 
 // BatchImportParams 批量导入的参数
 type BatchImportParams struct {
+	CategoryID   *uint
 	URLs         []string
 	ThumbParam   string
 	BigParam     string
@@ -113,6 +117,7 @@ func NewAlbumService(albumRepo repository.AlbumRepository, tagRepo repository.Ta
 // CreateAlbum 实现了创建相册的业务逻辑
 func (s *albumService) CreateAlbum(ctx context.Context, params CreateAlbumParams) (*model.Album, error) {
 	album := &model.Album{
+		CategoryID:   params.CategoryID,
 		ImageUrl:     params.ImageUrl,
 		BigImageUrl:  params.BigImageUrl,
 		DownloadUrl:  params.DownloadUrl,
@@ -179,6 +184,7 @@ func (s *albumService) UpdateAlbum(ctx context.Context, id uint, params UpdateAl
 	}
 
 	// 更新字段
+	album.CategoryID = params.CategoryID
 	album.ImageUrl = params.ImageUrl
 	album.BigImageUrl = params.BigImageUrl
 	album.DownloadUrl = params.DownloadUrl
@@ -206,10 +212,11 @@ func (s *albumService) FindAlbums(ctx context.Context, params FindAlbumsParams) 
 			Page:     params.Page,
 			PageSize: params.PageSize,
 		},
-		Tag:   params.Tag,
-		Start: params.Start,
-		End:   params.End,
-		Sort:  params.Sort,
+		CategoryID: params.CategoryID,
+		Tag:        params.Tag,
+		Start:      params.Start,
+		End:        params.End,
+		Sort:       params.Sort,
 	}
 
 	pageResult, err := s.albumRepo.FindListByOptions(ctx, opts)
@@ -288,6 +295,7 @@ func (s *albumService) BatchImportAlbums(ctx context.Context, params BatchImport
 
 		// 创建相册记录
 		_, err = s.CreateAlbum(ctx, CreateAlbumParams{
+			CategoryID:   params.CategoryID,
 			ImageUrl:     url,
 			BigImageUrl:  url,
 			DownloadUrl:  url,
