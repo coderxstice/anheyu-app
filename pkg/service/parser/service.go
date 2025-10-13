@@ -74,6 +74,7 @@ func NewService(settingSvc setting.SettingService, bus *event.EventBus) *Service
 	policy.AllowAttrs("ontoggle").OnElements("details")
 	policy.AllowAttrs("onmouseover", "onmouseout").OnElements("summary")
 	policy.AllowAttrs("onclick").OnElements("button")
+	policy.AllowAttrs("onclick").OnElements("div")
 	policy.AllowAttrs("color").OnElements("font")
 	policy.AllowAttrs("align").OnElements("div")
 	policy.AllowAttrs("xmlns").OnElements("annotation", "div")
