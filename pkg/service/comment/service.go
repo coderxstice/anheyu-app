@@ -799,6 +799,33 @@ func (s *Service) SetPin(ctx context.Context, publicID string, isPinned bool) (*
 	return s.toResponseDTO(ctx, updatedComment, nil, true), nil
 }
 
+// UpdateContent 更新评论的内容（仅限管理员）。
+func (s *Service) UpdateContent(ctx context.Context, publicID string, newContent string) (*dto.Response, error) {
+	dbID, entityType, err := idgen.DecodePublicID(publicID)
+	if err != nil || entityType != idgen.EntityTypeComment {
+		return nil, errors.New("无效的评论ID")
+	}
+
+	// 验证内容长度
+	if len(newContent) < 1 || len(newContent) > 1000 {
+		return nil, errors.New("评论内容长度必须在 1-1000 字符之间")
+	}
+
+	// 解析 Markdown 为 HTML（处理表情包和内部图片链接）
+	contentHTML, err := s.parserSvc.ToHTML(ctx, newContent)
+	if err != nil {
+		return nil, fmt.Errorf("解析评论内容失败: %w", err)
+	}
+
+	// 更新评论内容
+	updatedComment, err := s.repo.UpdateContent(ctx, dbID, newContent, contentHTML)
+	if err != nil {
+		return nil, fmt.Errorf("更新评论内容失败: %w", err)
+	}
+
+	return s.toResponseDTO(ctx, updatedComment, nil, true), nil
+}
+
 // UpdatePath 是一项内部服务，用于在文章或页面的路径（slug）变更时，同步更新所有相关评论的路径。
 // 这个方法通常由其他服务（如ArticleService）通过事件或直接调用的方式触发。
 func (s *Service) UpdatePath(ctx context.Context, oldPath, newPath string) (int, error) {

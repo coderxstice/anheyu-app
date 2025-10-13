@@ -426,3 +426,39 @@ func (h *Handler) Delete(c *gin.Context) {
 
 	response.Success(c, deletedCount, fmt.Sprintf("成功删除 %d 条评论", deletedCount))
 }
+
+// UpdateContent
+// @Summary      管理员更新评论内容
+// @Description  根据评论ID更新评论的内容
+// @Tags         评论管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        id   path  string  true  "评论公共ID"
+// @Param        update_request body dto.UpdateContentRequest true "更新请求，包含新的内容"
+// @Success      200  {object}  response.Response{data=dto.Response}  "更新成功"
+// @Failure      400  {object}  response.Response  "请求参数错误"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      500  {object}  response.Response  "服务器内部错误"
+// @Router       /comments/{id} [put]
+func (h *Handler) UpdateContent(c *gin.Context) {
+	publicID := c.Param("id")
+	if publicID == "" {
+		response.Fail(c, http.StatusBadRequest, "评论ID不能为空")
+		return
+	}
+
+	var req dto.UpdateContentRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Fail(c, http.StatusBadRequest, "请求参数无效: "+err.Error())
+		return
+	}
+
+	updatedComment, err := h.svc.UpdateContent(c.Request.Context(), publicID, req.Content)
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, "更新评论失败: "+err.Error())
+		return
+	}
+
+	response.Success(c, updatedComment, "评论更新成功")
+}
