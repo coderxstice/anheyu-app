@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/go-ini/ini"
@@ -52,7 +53,18 @@ func NewConfig() (*Config, error) {
 	iniCfg, err := ini.Load(filePath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			log.Printf("提示: 未找到 %s，将仅依赖环境变量或内部默认值。", filePath)
+			log.Printf("提示: 未找到 %s，将创建默认配置文件。", filePath)
+			// 自动创建默认配置文件
+			if err := createDefaultConfigFile(filePath); err != nil {
+				log.Printf("警告: 创建默认配置文件失败: %v，将仅依赖环境变量或内部默认值。", err)
+			} else {
+				log.Printf("✅ 已创建默认配置文件: %s", filePath)
+				// 重新加载配置文件
+				iniCfg, err = ini.Load(filePath)
+				if err != nil {
+					log.Printf("警告: 重新加载配置文件失败: %v", err)
+				}
+			}
 		} else {
 			// 如果文件存在但格式错误
 			return nil, fmt.Errorf("错误: 解析配置文件 '%s' 失败: %w", filePath, err)
@@ -105,4 +117,39 @@ func (c *Config) GetInt(key string) int {
 
 func (c *Config) GetBool(key string) bool {
 	return c.vp.GetBool(key)
+}
+
+// createDefaultConfigFile 创建默认的配置文件
+func createDefaultConfigFile(filePath string) error {
+	// 确保目录存在
+	dir := filepath.Dir(filePath)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("创建目录失败: %w", err)
+	}
+
+	// 默认配置内容（使用 SQLite 作为默认数据库）
+	defaultConfig := `[System]
+Port = 8091
+Debug = false
+
+[Database]
+Type = sqlite
+Name = anheyu_app.db
+Debug = false
+
+# Redis 配置（可选）
+# 如果不配置或留空 Addr，系统将自动使用内存缓存
+# 推荐生产环境使用 Redis 以获得更好的性能和功能
+[Redis]
+Addr = 
+Password =
+DB = 0
+`
+
+	// 写入文件
+	if err := os.WriteFile(filePath, []byte(defaultConfig), 0644); err != nil {
+		return fmt.Errorf("写入配置文件失败: %w", err)
+	}
+
+	return nil
 }

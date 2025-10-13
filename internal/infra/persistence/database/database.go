@@ -32,8 +32,8 @@ import (
 func NewSQLDB(cfg *config.Config) (*sql.DB, error) {
 	driver := cfg.GetString(config.KeyDBType)
 	if driver == "" {
-		log.Println("警告: 配置文件中未指定 'Database.Type'，将默认使用 'mysql'")
-		driver = "mysql"
+		log.Println("提示: 配置文件中未指定 'Database.Type'，将默认使用 'sqlite'")
+		driver = "sqlite"
 	}
 
 	var dsn string
@@ -107,7 +107,7 @@ func NewEntClient(db *sql.DB, cfg *config.Config) (*ent.Client, error) {
 	// *FIXED*: 使用 KeyDBType 来获取数据库类型，以匹配 conf.ini 的配置
 	driverName := cfg.GetString(config.KeyDBType)
 	if driverName == "" {
-		driverName = "mysql" // 保持与 NewSQLDB 的默认值一致
+		driverName = "sqlite" // 保持与 NewSQLDB 的默认值一致
 	}
 
 	var drv dialect.Driver
