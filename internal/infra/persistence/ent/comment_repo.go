@@ -313,6 +313,16 @@ func (r *commentRepo) SetPin(ctx context.Context, id uint, pinTime *time.Time) (
 	}
 	return r.FindByID(ctx, id)
 }
+func (r *commentRepo) UpdateContent(ctx context.Context, id uint, content, contentHTML string) (*model.Comment, error) {
+	_, err := r.db.Comment.UpdateOneID(id).
+		SetContent(content).
+		SetContentHTML(contentHTML).
+		Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return r.FindByID(ctx, id)
+}
 func (r *commentRepo) UpdatePath(ctx context.Context, oldPath, newPath string) (int, error) {
 	info, err := r.db.Comment.Update().
 		Where(entcomment.TargetPath(oldPath)).

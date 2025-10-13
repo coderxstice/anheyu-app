@@ -131,6 +131,26 @@ func (s *storagePolicyService) CreatePolicy(ctx context.Context, ownerID uint, p
 		return errors.New("不能通过此方法创建根'/'策略")
 	}
 
+	// 1d-extra. 本地存储路径规范化：强制所有本地存储路径在 data/storage 目录下
+	if policy.Type == constant.PolicyTypeLocal {
+		policy.BasePath = strings.TrimSpace(policy.BasePath)
+		// 移除路径中的 ".." 防止路径穿越
+		if strings.Contains(policy.BasePath, "..") {
+			return errors.New("本地存储路径不能包含 '..' 路径穿越符号")
+		}
+		// 如果是绝对路径或不在 data/storage 下，强制规范化
+		if filepath.IsAbs(policy.BasePath) || !strings.HasPrefix(policy.BasePath, "data/storage/") {
+			// 从 VirtualPath 生成安全的相对路径
+			safePath := strings.TrimPrefix(policy.VirtualPath, "/")
+			safePath = strings.TrimSpace(safePath)
+			if safePath == "" {
+				return errors.New("无法从虚拟路径生成有效的存储路径")
+			}
+			policy.BasePath = filepath.Join("data/storage", safePath)
+			log.Printf("[CreatePolicy] 本地存储路径已规范化: %s", policy.BasePath)
+		}
+	}
+
 	// 1e. 路径唯一性验证
 	existingPolicy, err := s.repo.FindByVirtualPath(ctx, policy.VirtualPath)
 	if err != nil {
@@ -394,6 +414,26 @@ func (s *storagePolicyService) UpdatePolicy(ctx context.Context, policy *model.S
 		if policy.Type == constant.PolicyTypeOneDrive {
 			if policy.Server == "" || policy.BucketName == "" || policy.SecretKey == "" {
 				return errors.New("对于OneDrive策略, server (endpoint), bucket_name (client_id), 和 secret_key (client_secret) 是必填项")
+			}
+		}
+
+		// 本地存储路径规范化：强制所有本地存储路径在 data/storage 目录下
+		if policy.Type == constant.PolicyTypeLocal {
+			policy.BasePath = strings.TrimSpace(policy.BasePath)
+			// 移除路径中的 ".." 防止路径穿越
+			if strings.Contains(policy.BasePath, "..") {
+				return errors.New("本地存储路径不能包含 '..' 路径穿越符号")
+			}
+			// 如果是绝对路径或不在 data/storage 下，强制规范化
+			if filepath.IsAbs(policy.BasePath) || !strings.HasPrefix(policy.BasePath, "data/storage/") {
+				// 从 VirtualPath 生成安全的相对路径
+				safePath := strings.TrimPrefix(policy.VirtualPath, "/")
+				safePath = strings.TrimSpace(safePath)
+				if safePath == "" {
+					return errors.New("无法从虚拟路径生成有效的存储路径")
+				}
+				policy.BasePath = filepath.Join("data/storage", safePath)
+				log.Printf("[UpdatePolicy] 本地存储路径已规范化: %s", policy.BasePath)
 			}
 		}
 

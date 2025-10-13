@@ -70,6 +70,11 @@ type SetPinRequest struct {
 	Pinned *bool `json:"pinned" binding:"required"`
 }
 
+// UpdateContentRequest 定义了更新评论内容的API请求体。
+type UpdateContentRequest struct {
+	Content string `json:"content" binding:"required,min=1,max=1000"` // 更新后的 Markdown 内容
+}
+
 // Response 定义了单条评论的API响应结构。
 // 这个结构是为前端展示专门设计的。
 type Response struct {

@@ -79,6 +79,9 @@ type CommentRepository interface {
 	// 设置或取消评论的置顶状态
 	SetPin(ctx context.Context, id uint, pinTime *time.Time) (*model.Comment, error)
 
+	// 更新评论的内容（仅限管理员）
+	UpdateContent(ctx context.Context, id uint, content, contentHTML string) (*model.Comment, error)
+
 	// 更新评论的路径（用于处理文章或页面slug变更的情况）
 	UpdatePath(ctx context.Context, oldPath, newPath string) (int, error)
 

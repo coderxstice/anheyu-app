@@ -37,6 +37,32 @@ func NewLocalProvider(secret string) IStorageProvider {
 	}
 }
 
+// copyFile 复制文件从 src 到 dst，用于跨文件系统的文件移动
+func copyFile(src, dst string) error {
+	sourceFile, err := os.Open(src)
+	if err != nil {
+		return fmt.Errorf("无法打开源文件: %w", err)
+	}
+	defer sourceFile.Close()
+
+	destFile, err := os.Create(dst)
+	if err != nil {
+		return fmt.Errorf("无法创建目标文件: %w", err)
+	}
+	defer destFile.Close()
+
+	if _, err := io.Copy(destFile, sourceFile); err != nil {
+		return fmt.Errorf("复制文件内容失败: %w", err)
+	}
+
+	// 确保数据写入磁盘
+	if err := destFile.Sync(); err != nil {
+		return fmt.Errorf("同步文件到磁盘失败: %w", err)
+	}
+
+	return nil
+}
+
 // List 实现了为本地文件系统列出目录内容的功能。
 func (p *LocalProvider) List(ctx context.Context, policy *model.StoragePolicy, virtualPath string) ([]FileInfo, error) {
 	relativePath := strings.TrimPrefix(virtualPath, policy.VirtualPath)
@@ -191,9 +217,15 @@ func (p *LocalProvider) Upload(ctx context.Context, file io.Reader, policy *mode
 	tempFileName := tempFile.Name()
 	tempFile.Close()
 
-	// 因为临时文件和最终目录都在 ./data 下（同一个文件系统），os.Rename 可以高效工作
+	// 尝试使用 os.Rename (高效)，如果失败则使用 copy + delete (兼容跨文件系统)
 	if err := os.Rename(tempFileName, finalPath); err != nil {
-		return nil, fmt.Errorf("移动文件到最终存储位置 '%s' 失败: %w", finalPath, err)
+		// os.Rename 失败，可能是跨文件系统，使用 copy + delete 方式
+		if err := copyFile(tempFileName, finalPath); err != nil {
+			os.Remove(tempFileName) // 清理临时文件
+			return nil, fmt.Errorf("复制文件到最终存储位置 '%s' 失败: %w", finalPath, err)
+		}
+		// 复制成功，删除临时文件
+		os.Remove(tempFileName)
 	}
 
 	result := &UploadResult{
