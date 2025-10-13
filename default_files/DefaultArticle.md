@@ -512,6 +512,93 @@ console.log("Hello World");
 
 :::
 
+## LinkCard
+
+LinkCard 插件可以创建美观的链接卡片，用于展示外部链接信息。
+
+### 基础用法
+
+{linkcard url=https://blog.anheyu.com title=安知鱼 sitename=AnZhiYu}{/linkcard}
+
+```markdown
+{linkcard url=https://blog.anheyu.com title=安知鱼 sitename=AnZhiYu}{/linkcard}
+```
+
+### 自定义图标
+
+#### 字体图标
+
+{linkcard url=https://github.com title=GitHub sitename=代码托管平台 icon=anzhiyu-icon-github}{/linkcard}
+
+```markdown
+{linkcard url=https://github.com title=GitHub sitename=代码托管平台 icon=anzhiyu-icon-github}{/linkcard}
+```
+
+#### HTTP 图标链接
+
+{linkcard url=https://www.google.com title=Google sitename=搜索引擎 icon=https://www.google.com/favicon.ico}{/linkcard}
+
+{linkcard url=https://github.com title=GitHub sitename=代码托管平台 icon=https://github.githubassets.com/favicons/favicon.png}{/linkcard}
+
+```markdown
+{linkcard url=https://www.google.com title=Google sitename=搜索引擎 icon=https://www.google.com/favicon.ico}{/linkcard}
+
+{linkcard url=https://github.com title=GitHub sitename=代码托管平台 icon=https://github.githubassets.com/favicons/favicon.png}{/linkcard}
+```
+
+### 自定义提示文本
+
+{linkcard url=https://www.google.com title=Google sitename=搜索引擎 tips=访问搜索引擎}{/linkcard}
+
+```markdown
+{linkcard url=https://www.google.com title=Google sitename=搜索引擎 tips=访问搜索引擎}{/linkcard}
+```
+
+### 完整示例
+
+{linkcard url=https://docs.anheyu.com title=AnZhiYu 文档 sitename=AnZhiYu Docs icon=anzhiyu-icon-book tips=查看完整文档}{/linkcard}
+
+```markdown
+{linkcard url=https://docs.anheyu.com title=AnZhiYu 文档 sitename=AnZhiYu Docs icon=anzhiyu-icon-book tips=查看完整文档}{/linkcard}
+```
+
+### 多个链接卡片
+
+{linkcard url=https://blog.anheyu.com title=安知鱼博客 sitename=AnZhiYu Blog}{/linkcard}
+
+{linkcard url=https://github.com/anzhiyu-c title=AnZhiYu GitHub sitename=GitHub Repository icon=https://github.githubassets.com/favicons/favicon.png}{/linkcard}
+
+{linkcard url=https://www.bilibili.com title=哔哩哔哩 sitename=B 站 icon=https://www.bilibili.com/favicon.ico tips=观看视频}{/linkcard}
+
+```markdown
+{linkcard url=https://blog.anheyu.com title=安知鱼博客 sitename=AnZhiYu Blog}{/linkcard}
+
+{linkcard url=https://github.com/anzhiyu-c title=AnZhiYu GitHub sitename=GitHub Repository icon=https://github.githubassets.com/favicons/favicon.png}{/linkcard}
+
+{linkcard url=https://www.bilibili.com title=哔哩哔哩 sitename=B 站 icon=https://www.bilibili.com/favicon.ico tips=观看视频}{/linkcard}
+```
+
+### 参数说明
+
+| 参数     | 说明                           | 类型   | 可选值                       | 默认值            |
+| -------- | ------------------------------ | ------ | ---------------------------- | ----------------- |
+| url      | 链接地址                       | string | -                            | #                 |
+| title    | 链接标题                       | string | -                            | 链接标题          |
+| sitename | 网站名称                       | string | -                            | 网站名称          |
+| icon     | 图标（字体图标类名或图片链接） | string | 字体图标类名或 HTTP 图片链接 | anzhiyu-icon-link |
+| tips     | 提示文本                       | string | -                            | 引用站外地址      |
+
+### 注意事项
+
+- 链接会在新标签页中打开
+- 自动添加 `rel="external nofollow noreferrer"` 属性
+- 图标支持两种方式：
+  - **字体图标**：使用 AnZhiYu 图标字体类名（如 `anzhiyu-icon-github`）
+  - **图片图标**：使用 HTTP/HTTPS 图片链接（如网站 favicon）
+- 图片图标会自动调整为 20x20 像素，带圆角效果
+- 卡片具有悬停效果和点击反馈
+- 适合用于推荐相关链接或引用外部资源
+
 ## ☘️ 占个坑@！
 
 没了
