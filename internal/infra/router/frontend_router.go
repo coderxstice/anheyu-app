@@ -583,6 +583,32 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 	log.Println("动态前端路由系统配置完成")
 }
 
+// ensureScriptTagsClosed 确保HTML中的script标签正确闭合
+// 这个函数会检测未闭合的script标签并自动添加闭合标签
+func ensureScriptTagsClosed(html string) string {
+	if html == "" {
+		return html
+	}
+
+	// 使用正则表达式匹配所有 script 开始标签和结束标签
+	openTagRegex := regexp.MustCompile(`(?i)<script[^>]*>`)
+	closeTagRegex := regexp.MustCompile(`(?i)</script>`)
+
+	openTags := openTagRegex.FindAllString(html, -1)
+	closeTags := closeTagRegex.FindAllString(html, -1)
+
+	// 如果有开始标签但闭合标签数量不足，补全缺失的闭合标签
+	if len(openTags) > len(closeTags) {
+		missingCloseTags := len(openTags) - len(closeTags)
+		for i := 0; i < missingCloseTags; i++ {
+			html += "</script>"
+		}
+		log.Printf("⚠️ 检测到 %d 个未闭合的 script 标签，已自动补全", missingCloseTags)
+	}
+
+	return html
+}
+
 // renderHTMLPage 渲染HTML页面的通用函数（版本）
 func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSvc article_service.Service, templates *template.Template) {
 	// 获取完整的当前页面 URL
@@ -648,6 +674,10 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 				articleTags[i] = tag.Name
 			}
 
+			// 处理自定义HTML，确保script标签正确闭合
+			customHeaderHTML := ensureScriptTagsClosed(settingSvc.Get(constant.KeyCustomHeaderHTML.String()))
+			customFooterHTML := ensureScriptTagsClosed(settingSvc.Get(constant.KeyCustomFooterHTML.String()))
+
 			// 使用传入的模板实例渲染
 			render := CustomHTMLRender{Templates: templates}
 			c.Render(http.StatusOK, render.Instance("index.html", gin.H{
@@ -672,6 +702,9 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 				"articleModifiedTime":  articleResponse.UpdatedAt.Format(time.RFC3339),
 				"articleAuthor":        articleResponse.CopyrightAuthor,
 				"articleTags":          articleTags,
+				// --- 自定义HTML（包含CSS/JS） ---
+				"customHeaderHTML": template.HTML(customHeaderHTML),
+				"customFooterHTML": template.HTML(customFooterHTML),
 			}))
 			return
 		}
@@ -710,6 +743,10 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 	}
 	setSmartCacheHeaders(c, pageType, defaultETag, 0) // maxAge由pageType决定
 
+	// 处理自定义HTML，确保script标签正确闭合
+	customHeaderHTML := ensureScriptTagsClosed(settingSvc.Get(constant.KeyCustomHeaderHTML.String()))
+	customFooterHTML := ensureScriptTagsClosed(settingSvc.Get(constant.KeyCustomFooterHTML.String()))
+
 	// 使用传入的模板实例渲染
 	render := CustomHTMLRender{Templates: templates}
 	c.Render(http.StatusOK, render.Instance("index.html", gin.H{
@@ -734,5 +771,8 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 		"articleModifiedTime":  nil,
 		"articleAuthor":        nil,
 		"articleTags":          nil,
+		// --- 自定义HTML（包含CSS/JS） ---
+		"customHeaderHTML": template.HTML(customHeaderHTML),
+		"customFooterHTML": template.HTML(customFooterHTML),
 	}))
 }
