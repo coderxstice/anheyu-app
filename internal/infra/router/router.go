@@ -258,6 +258,7 @@ func (r *Router) registerArticleRoutes(api *gin.RouterGroup) {
 		articlesAdmin.PUT("/:id", r.articleHandler.Update)
 		articlesAdmin.DELETE("/:id", r.articleHandler.Delete)
 		articlesAdmin.POST("/upload", r.articleHandler.UploadImage)
+		articlesAdmin.POST("/primary-color", r.articleHandler.GetPrimaryColor)
 	}
 
 	articlesPublic := api.Group("/public/articles")

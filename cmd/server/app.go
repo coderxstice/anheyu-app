@@ -7,7 +7,9 @@ import (
 	"embed"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -327,7 +329,14 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		log.Printf("✅ 搜索索引重建完成！成功为 %d/%d 篇文章建立索引", successCount, len(articles))
 	}()
 
-	articleSvc := article_service.NewService(articleRepo, postTagRepo, postCategoryRepo, txManager, cacheSvc, geoSvc, taskBroker, settingSvc, parserSvc, fileSvc, directLinkSvc, searchSvc)
+	// 初始化主色调服务
+	log.Printf("[DEBUG] 正在初始化 PrimaryColorService...")
+	colorSvc := utility.NewColorService()
+	httpClient := &http.Client{Timeout: 10 * time.Second}
+	primaryColorSvc := utility.NewPrimaryColorService(colorSvc, settingSvc, fileRepo, storagePolicyRepo, httpClient, storageProviders)
+	log.Printf("[DEBUG] PrimaryColorService 初始化完成")
+
+	articleSvc := article_service.NewService(articleRepo, postTagRepo, postCategoryRepo, txManager, cacheSvc, geoSvc, taskBroker, settingSvc, parserSvc, fileSvc, directLinkSvc, searchSvc, primaryColorSvc)
 	log.Printf("[DEBUG] 正在初始化 PushooService...")
 	pushooSvc := utility.NewPushooService(settingSvc)
 	log.Printf("[DEBUG] PushooService 初始化完成")
