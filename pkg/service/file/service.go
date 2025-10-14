@@ -59,8 +59,8 @@ type FileService interface {
 	GetDownloadURLForFile(ctx context.Context, file *model.File, publicFileID string) (string, error)
 	// GetDownloadURLForFileWithExpiration 为指定的文件生成一个具有自定义过期时间的带签名下载链接。
 	GetDownloadURLForFileWithExpiration(ctx context.Context, file *model.File, publicFileID string, expiresAt time.Time) (string, error)
-	// GetPreviewURLs 获取指定文件的预览链接列表。
-	GetPreviewURLs(ctx context.Context, viewerPublicID string, currentFilePublicID string) ([]string, int, error)
+	// GetPreviewURLs 获取指定文件的预览链接列表及元信息。
+	GetPreviewURLs(ctx context.Context, viewerPublicID string, currentFilePublicID string) ([]model.PreviewURLItem, int, error)
 	// GetFileDownloadURLForViewer 为指定文件生成一个供查看者下载的链接。
 	ServeSignedContent(ctx context.Context, token string, writer http.ResponseWriter, request *http.Request) error
 	// ListAllDescendantFiles 递归获取目录下所有文件的方法

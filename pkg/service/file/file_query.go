@@ -410,9 +410,9 @@ func (s *serviceImpl) UpdateFolderViewConfig(ctx context.Context, ownerID uint, 
 }
 
 // GetPreviewURLs 根据初始文件的类型，为文件所在目录下的相应文件生成带签名的预览URL列表。
-// - 如果初始文件是图片，则返回该目录下所有图片的URL列表。
-// - 如果是其他可预览文件（视频、文本等），则只返回该文件自身的URL。
-func (s *serviceImpl) GetPreviewURLs(ctx context.Context, viewerPublicID string, currentFilePublicID string) ([]string, int, error) {
+// - 如果初始文件是图片，则返回该目录下所有图片的URL列表及元信息。
+// - 如果是其他可预览文件（视频、文本等），则只返回该文件自身的URL及元信息。
+func (s *serviceImpl) GetPreviewURLs(ctx context.Context, viewerPublicID string, currentFilePublicID string) ([]model.PreviewURLItem, int, error) {
 	// 1. 解码ID并验证权限
 	viewerID, _, err := idgen.DecodePublicID(viewerPublicID)
 	if err != nil {
@@ -441,7 +441,13 @@ func (s *serviceImpl) GetPreviewURLs(ctx context.Context, viewerPublicID string,
 			if err != nil {
 				return nil, -1, err
 			}
-			return []string{url}, 0, nil
+			publicID, _ := idgen.GeneratePublicID(currentFile.ID, idgen.EntityTypeFile)
+			return []model.PreviewURLItem{{
+				URL:      url,
+				FileID:   publicID,
+				FileName: currentFile.Name,
+				FileSize: currentFile.Size,
+			}}, 0, nil
 		}
 		parentID := uint(currentFile.ParentID.Int64)
 
@@ -452,7 +458,7 @@ func (s *serviceImpl) GetPreviewURLs(ctx context.Context, viewerPublicID string,
 		}
 
 		// 筛选出所有图片文件并生成签名URL
-		var urls []string
+		var items []model.PreviewURLItem
 		initialIndex := -1
 		for _, file := range siblings {
 			if file.Type == model.FileTypeFile && isImageFile(file.Name) {
@@ -461,13 +467,19 @@ func (s *serviceImpl) GetPreviewURLs(ctx context.Context, viewerPublicID string,
 					log.Printf("WARN: Failed to generate signed URL for image file %d: %v", file.ID, err)
 					continue
 				}
-				urls = append(urls, url)
+				publicID, _ := idgen.GeneratePublicID(file.ID, idgen.EntityTypeFile)
+				items = append(items, model.PreviewURLItem{
+					URL:      url,
+					FileID:   publicID,
+					FileName: file.Name,
+					FileSize: file.Size,
+				})
 				if file.ID == currentFileID {
-					initialIndex = len(urls) - 1
+					initialIndex = len(items) - 1
 				}
 			}
 		}
-		return urls, initialIndex, nil
+		return items, initialIndex, nil
 	}
 
 	// 2.2. 如果是其他任何可预览的文件 (视频、文本等)，或任何其他文件类型 (单一文件预览模式)
@@ -476,13 +488,19 @@ func (s *serviceImpl) GetPreviewURLs(ctx context.Context, viewerPublicID string,
 		if err != nil {
 			return nil, -1, err
 		}
-		// 只返回当前文件的URL，索引为0
-		return []string{url}, 0, nil
+		publicID, _ := idgen.GeneratePublicID(currentFile.ID, idgen.EntityTypeFile)
+		// 只返回当前文件的URL及元信息，索引为0
+		return []model.PreviewURLItem{{
+			URL:      url,
+			FileID:   publicID,
+			FileName: currentFile.Name,
+			FileSize: currentFile.Size,
+		}}, 0, nil
 	}
 
 	// 2.3. 如果文件类型完全不被支持预览
 	log.Printf("INFO: GetPreviewURLs called on a non-previewable file type: %s", currentFile.Name)
-	return []string{}, -1, nil
+	return []model.PreviewURLItem{}, -1, nil
 }
 
 func isPreviewableFile(filename string) bool {

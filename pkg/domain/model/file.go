@@ -117,6 +117,14 @@ type File struct {
 // Query 查询参数 - 搜索条件
 // 文件搜索条件，用于指定文件搜索条件，只适用于列取文件的 API。对于操作指定文件的 API（删除、更新 等），这一部分会被忽略。
 
+// PreviewURLItem 包含单个预览文件的URL和元信息
+type PreviewURLItem struct {
+	URL      string `json:"url"`
+	FileID   string `json:"file_id"`
+	FileName string `json:"file_name"`
+	FileSize int64  `json:"file_size"`
+}
+
 type FileItem struct {
 	// 基础信息
 	ID           string    `json:"id"`
