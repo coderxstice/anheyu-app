@@ -388,3 +388,55 @@ func getClaims(c *gin.Context) (*auth.CustomClaims, error) {
 	}
 	return claims, nil
 }
+
+// GetPrimaryColor 处理获取图片主色调的请求。
+// @Summary      获取图片主色调
+// @Description  根据图片URL获取主色调
+// @Tags         文章管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        body  body  object{image_url=string}  true  "图片URL"
+// @Success      200   {object}  response.Response{data=object{primary_color=string}}  "获取成功"
+// @Failure      400   {object}  response.Response  "无效的请求参数"
+// @Failure      401   {object}  response.Response  "未授权"
+// @Failure      500   {object}  response.Response  "获取主色调失败"
+// @Router       /articles/primary-color [post]
+func (h *Handler) GetPrimaryColor(c *gin.Context) {
+	log.Printf("[Handler.GetPrimaryColor] 开始处理获取主色调请求")
+
+	// 1. 解析请求参数
+	var req struct {
+		ImageURL string `json:"image_url" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Printf("[Handler.GetPrimaryColor] 参数解析失败: %v", err)
+		response.Fail(c, http.StatusBadRequest, "无效的请求参数")
+		return
+	}
+	log.Printf("[Handler.GetPrimaryColor] 图片URL: %s", req.ImageURL)
+
+	// 2. 验证用户登录状态
+	_, err := getClaims(c)
+	if err != nil {
+		log.Printf("[Handler.GetPrimaryColor] 认证失败: %v", err)
+		response.Fail(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	// 3. 调用Service层获取主色调
+	log.Printf("[Handler.GetPrimaryColor] 开始调用Service层获取主色调...")
+	primaryColor, err := h.svc.GetPrimaryColorFromURL(c.Request.Context(), req.ImageURL)
+	if err != nil {
+		log.Printf("[Handler.GetPrimaryColor] 获取主色调失败: %v", err)
+		response.Fail(c, http.StatusInternalServerError, "获取主色调失败: "+err.Error())
+		return
+	}
+
+	log.Printf("[Handler.GetPrimaryColor] 成功获取主色调: %s", primaryColor)
+
+	// 4. 成功响应
+	response.Success(c, gin.H{
+		"primary_color": primaryColor,
+	}, "获取主色调成功")
+}

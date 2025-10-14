@@ -42,6 +42,7 @@ type Service interface {
 	ListArchives(ctx context.Context) (*model.ArchiveSummaryResponse, error)
 	GetRandom(ctx context.Context) (*model.ArticleResponse, error)
 	ToAPIResponse(a *model.Article, useAbbrlinkAsID bool, includeHTML bool) *model.ArticleResponse
+	GetPrimaryColorFromURL(ctx context.Context, imageURL string) (string, error)
 }
 
 type serviceImpl struct {
@@ -58,7 +59,7 @@ type serviceImpl struct {
 	fileSvc          file.FileService
 	directLinkSvc    direct_link.Service
 	searchSvc        *search.SearchService
-	colorSvc         *utility.ColorService
+	primaryColorSvc  *utility.PrimaryColorService
 }
 
 func NewService(
@@ -74,6 +75,7 @@ func NewService(
 	fileSvc file.FileService,
 	directLinkSvc direct_link.Service,
 	searchSvc *search.SearchService,
+	primaryColorSvc *utility.PrimaryColorService,
 ) Service {
 	return &serviceImpl{
 		repo:             repo,
@@ -89,7 +91,7 @@ func NewService(
 		fileSvc:          fileSvc,
 		directLinkSvc:    directLinkSvc,
 		searchSvc:        searchSvc,
-		colorSvc:         utility.NewColorService(),
+		primaryColorSvc:  primaryColorSvc,
 	}
 }
 
@@ -148,32 +150,8 @@ func (s *serviceImpl) determinePrimaryColor(ctx context.Context, topImgURL, cove
 		return defaultColor
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, imageURLToUse, nil)
-	if err != nil {
-		log.Printf("[警告] 获取主色调失败，创建图片请求失败。图片URL: %s, 错误: %v", imageURLToUse, err)
-		return defaultColor
-	}
-
-	resp, err := s.httpClient.Do(req)
-	if err != nil {
-		log.Printf("[警告] 获取主色调失败，请求图片失败。图片URL: %s, 错误: %v", imageURLToUse, err)
-		return defaultColor
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		log.Printf("[警告] 获取主色调失败，图片URL返回非200状态码: %d。图片URL: %s", resp.StatusCode, imageURLToUse)
-		return defaultColor
-	}
-
-	color, err := s.colorSvc.GetPrimaryColor(resp.Body)
-	if err != nil {
-		log.Printf("[警告] 获取主色调失败，颜色提取失败。图片URL: %s, 错误: %v", imageURLToUse, err)
-		return defaultColor
-	}
-
-	log.Printf("[信息] 成功从图片 %s 获取主色调: %s", imageURLToUse, color)
-	return color
+	// 使用新的主色调服务智能获取主色调
+	return s.primaryColorSvc.GetPrimaryColorFromURL(ctx, imageURLToUse)
 }
 
 // updateSiteStatsInBackground 异步更新全站的文章和字数统计配置。
@@ -955,4 +933,25 @@ func (s *serviceImpl) ListArchives(ctx context.Context) (*model.ArchiveSummaryRe
 	}
 
 	return &model.ArchiveSummaryResponse{List: items}, nil
+}
+
+// GetPrimaryColorFromURL 从图片URL获取主色调
+func (s *serviceImpl) GetPrimaryColorFromURL(ctx context.Context, imageURL string) (string, error) {
+	if imageURL == "" {
+		return "", fmt.Errorf("图片URL不能为空")
+	}
+
+	log.Printf("[GetPrimaryColorFromURL] 开始获取主色调，图片URL: %s", imageURL)
+
+	// 使用主色调服务获取主色调
+	color := s.primaryColorSvc.GetPrimaryColorFromURL(ctx, imageURL)
+
+	log.Printf("[GetPrimaryColorFromURL] 主色调服务返回: %s", color)
+
+	// 只要返回了颜色就认为成功（即使是默认颜色也返回）
+	if color == "" {
+		return "", fmt.Errorf("无法从图片获取主色调")
+	}
+
+	return color, nil
 }
