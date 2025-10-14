@@ -105,7 +105,7 @@ func (p *AliOSSProvider) buildObjectKey(policy *model.StoragePolicy, virtualPath
 
 // Upload 上传文件到阿里云OSS
 func (p *AliOSSProvider) Upload(ctx context.Context, file io.Reader, policy *model.StoragePolicy, virtualPath string) (*UploadResult, error) {
-	log.Printf("[阿里云OSS] 开始上传文件: virtualPath=%s", virtualPath)
+	log.Printf("[阿里云OSS] 开始上传文件: virtualPath=%s, BasePath=%s", virtualPath, policy.BasePath)
 
 	_, bucket, err := p.getOSSClient(policy)
 	if err != nil {
@@ -113,13 +113,19 @@ func (p *AliOSSProvider) Upload(ctx context.Context, file io.Reader, policy *mod
 		return nil, err
 	}
 
-	objectKey := p.buildObjectKey(policy, virtualPath)
-	if objectKey == "" {
-		objectKey = filepath.Base(virtualPath)
-		log.Printf("[阿里云OSS] objectKey为空，使用文件名: %s", objectKey)
+	// 构建对象键
+	// virtualPath 可能是文件名（如"abc.jpg"）或完整路径（如"/comment_image_cos/abc.jpg"）
+	basePath := strings.TrimPrefix(strings.TrimSuffix(policy.BasePath, "/"), "/")
+	filename := filepath.Base(virtualPath)
+
+	var objectKey string
+	if basePath == "" {
+		objectKey = filename
+	} else {
+		objectKey = basePath + "/" + filename
 	}
 
-	log.Printf("[阿里云OSS] 上传对象: objectKey=%s", objectKey)
+	log.Printf("[阿里云OSS] 上传对象: objectKey=%s (basePath=%s, filename=%s)", objectKey, basePath, filename)
 
 	// 上传文件
 	err = bucket.PutObject(objectKey, file)

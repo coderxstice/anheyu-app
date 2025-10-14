@@ -253,8 +253,26 @@ func (s *syncService) SyncDirectory(ctx context.Context, ownerID uint, policy *m
 						relativePath := strings.TrimPrefix(virtualPath, policy.VirtualPath)
 						sourceValue = filepath.Join(policy.BasePath, relativePath, item.Name)
 					} else {
-						// 对于云存储策略，Source 是完整的虚拟路径
-						sourceValue = filepath.ToSlash(filepath.Join(virtualPath, item.Name))
+						// 对于云存储策略，Source 是对象存储的键（与Upload方法保持一致）
+						// 计算相对路径
+						relativePath := strings.TrimPrefix(virtualPath, policy.VirtualPath)
+						relativePath = strings.TrimPrefix(relativePath, "/")
+
+						basePath := strings.TrimPrefix(strings.TrimSuffix(policy.BasePath, "/"), "/")
+
+						if basePath == "" {
+							if relativePath == "" {
+								sourceValue = item.Name
+							} else {
+								sourceValue = relativePath + "/" + item.Name
+							}
+						} else {
+							if relativePath == "" {
+								sourceValue = basePath + "/" + item.Name
+							} else {
+								sourceValue = basePath + "/" + relativePath + "/" + item.Name
+							}
+						}
 					}
 
 					newEntity := &model.FileStorageEntity{

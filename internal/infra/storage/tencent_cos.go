@@ -2,7 +2,7 @@
  * @Description: 腾讯云COS存储提供者实现
  * @Author: 安知鱼
  * @Date: 2025-09-28 12:00:00
- * @LastEditTime: 2025-10-14 11:30:55
+ * @LastEditTime: 2025-10-14 12:04:10
  * @LastEditors: 安知鱼
  */
 package storage
@@ -106,7 +106,7 @@ func (p *TencentCOSProvider) buildObjectKey(policy *model.StoragePolicy, virtual
 
 // Upload 上传文件到腾讯云COS
 func (p *TencentCOSProvider) Upload(ctx context.Context, file io.Reader, policy *model.StoragePolicy, virtualPath string) (*UploadResult, error) {
-	log.Printf("[腾讯云COS] 开始上传文件: virtualPath=%s", virtualPath)
+	log.Printf("[腾讯云COS] 开始上传文件: virtualPath=%s, BasePath=%s", virtualPath, policy.BasePath)
 
 	client, err := p.getCOSClient(policy)
 	if err != nil {
@@ -114,13 +114,19 @@ func (p *TencentCOSProvider) Upload(ctx context.Context, file io.Reader, policy 
 		return nil, err
 	}
 
-	objectKey := p.buildObjectKey(policy, virtualPath)
-	if objectKey == "" {
-		objectKey = filepath.Base(virtualPath)
-		log.Printf("[腾讯云COS] objectKey为空，使用文件名: %s", objectKey)
+	// 构建对象键
+	// virtualPath 可能是文件名（如"abc.jpg"）或完整路径（如"/comment_image_cos/abc.jpg"）
+	basePath := strings.TrimPrefix(strings.TrimSuffix(policy.BasePath, "/"), "/")
+	filename := filepath.Base(virtualPath)
+
+	var objectKey string
+	if basePath == "" {
+		objectKey = filename
+	} else {
+		objectKey = basePath + "/" + filename
 	}
 
-	log.Printf("[腾讯云COS] 上传对象: objectKey=%s", objectKey)
+	log.Printf("[腾讯云COS] 上传对象: objectKey=%s (basePath=%s, filename=%s)", objectKey, basePath, filename)
 
 	// 上传文件
 	_, err = client.Object.Put(ctx, objectKey, file, nil)
@@ -179,17 +185,40 @@ func (p *TencentCOSProvider) Get(ctx context.Context, policy *model.StoragePolic
 
 // List 列出腾讯云COS存储桶中的对象
 func (p *TencentCOSProvider) List(ctx context.Context, policy *model.StoragePolicy, virtualPath string) ([]FileInfo, error) {
-	log.Printf("[腾讯云COS] List方法调用 - 策略名称: %s, virtualPath: %s", policy.Name, virtualPath)
+	log.Printf("[腾讯云COS] List方法调用 - 策略名称: %s, virtualPath: %s, BasePath: %s, VirtualPath: %s",
+		policy.Name, virtualPath, policy.BasePath, policy.VirtualPath)
 
 	client, err := p.getCOSClient(policy)
 	if err != nil {
 		return nil, err
 	}
 
-	prefix := p.buildObjectKey(policy, virtualPath)
+	// 计算相对于策略挂载点的相对路径
+	relativePath := strings.TrimPrefix(virtualPath, policy.VirtualPath)
+	relativePath = strings.TrimPrefix(relativePath, "/")
+
+	// 构建COS对象键前缀
+	var prefix string
+	basePath := strings.TrimPrefix(strings.TrimSuffix(policy.BasePath, "/"), "/")
+
+	if basePath == "" {
+		// BasePath为空，直接使用相对路径
+		prefix = relativePath
+	} else {
+		// BasePath不为空，拼接basePath和相对路径
+		if relativePath == "" {
+			prefix = basePath
+		} else {
+			prefix = basePath + "/" + relativePath
+		}
+	}
+
+	// 添加结尾斜杠以表示目录
 	if prefix != "" && !strings.HasSuffix(prefix, "/") {
 		prefix += "/"
 	}
+
+	log.Printf("[腾讯云COS] 计算的prefix: %s (relativePath: %s)", prefix, relativePath)
 
 	opt := &cos.BucketGetOptions{
 		Prefix:    prefix,

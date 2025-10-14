@@ -2,7 +2,7 @@
  * @Description: OneDrive 存储驱动的具体实现
  * @Author: 安知鱼
  * @Date: 2025-07-15 17:50:00
- * @LastEditTime: 2025-08-14 13:00:34
+ * @LastEditTime: 2025-10-14 13:13:58
  * @LastEditors: 安知鱼
  */
 package storage
@@ -362,25 +362,41 @@ func (p *OneDriveProvider) CreateDirectory(ctx context.Context, policy *model.St
 // Delete 从 OneDrive 删除一个或多个物理文件或目录。
 // 注意：OneDrive的实现暂时忽略传入的policy参数，仍然使用原有的路径查找策略逻辑。
 func (p *OneDriveProvider) Delete(ctx context.Context, policy *model.StoragePolicy, sources []string) error {
-	policyCache := make(map[uint]*model.StoragePolicy)
-	groupedSources := make(map[uint][]string)
-
-	for _, source := range sources {
-		policy, err := p.policyRepo.FindByVirtualPath(ctx, source)
-		if err != nil {
-			log.Printf("警告: 无法为 source '%s' 找到存储策略，跳过删除: %v", source, err)
-			continue
-		}
-		policyCache[policy.ID] = policy
-		groupedSources[policy.ID] = append(groupedSources[policy.ID], source)
+	client, err := p.getClient(ctx, policy)
+	if err != nil {
+		return err
+	}
+	driveBaseURL, err := p.getDriveBaseURL(policy)
+	if err != nil {
+		return err
 	}
 
-	for policyID, policySources := range groupedSources {
-		policy := policyCache[policyID]
-		for _, source := range policySources {
-			if err := p.deleteItem(ctx, policy, source); err != nil {
-				log.Printf("错误: 删除 OneDrive 项目 '%s' 失败: %v", source, err)
-			}
+	// source 现在存储的是云端路径（如"OneDrive/AnHeYuComment/uuid.jpg"）
+	for _, source := range sources {
+		finalAPIPath := strings.Trim(source, "/")
+		var apiPath string
+		if finalAPIPath == "" || finalAPIPath == "." {
+			apiPath = "/root"
+		} else {
+			apiPath = fmt.Sprintf("/root:/%s", finalAPIPath)
+		}
+
+		deleteURL := fmt.Sprintf("%s%s", driveBaseURL, apiPath)
+		req, err := http.NewRequestWithContext(ctx, "DELETE", deleteURL, nil)
+		if err != nil {
+			log.Printf("错误: 创建删除请求失败 for '%s': %v", source, err)
+			continue
+		}
+
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Printf("错误: 执行删除请求失败 for '%s': %v", source, err)
+			continue
+		}
+		resp.Body.Close()
+
+		if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusNotFound {
+			log.Printf("错误: 删除 OneDrive 项目 '%s' 失败, 状态码: %d", source, resp.StatusCode)
 		}
 	}
 	return nil
@@ -396,7 +412,14 @@ func (p *OneDriveProvider) GetDownloadURL(ctx context.Context, policy *model.Sto
 	if err != nil {
 		return "", err
 	}
-	apiPath := p.buildAPIPath(policy, source)
+	// source 现在存储的是云端路径（如"OneDrive/AnHeYuComment/uuid.jpg"），直接构建API路径
+	finalAPIPath := strings.Trim(source, "/")
+	var apiPath string
+	if finalAPIPath == "" || finalAPIPath == "." {
+		apiPath = "/root"
+	} else {
+		apiPath = fmt.Sprintf("/root:/%s", finalAPIPath)
+	}
 	itemURL := fmt.Sprintf("%s%s?select=@microsoft.graph.downloadUrl", driveBaseURL, apiPath)
 
 	resp, err := client.Get(itemURL)
@@ -575,14 +598,6 @@ func (p *OneDriveProvider) Stream(ctx context.Context, policy *model.StoragePoli
 
 // IsExist 检查给定的源路径在 OneDrive 上是否存在物理文件或目录。
 func (p *OneDriveProvider) IsExist(ctx context.Context, policy *model.StoragePolicy, source string) (bool, error) {
-	policy, apiPath, err := p.getPolicyAndAPIPath(ctx, source)
-	if err != nil {
-		if errors.Is(err, constant.ErrNotFound) {
-			return false, nil
-		}
-		return false, err
-	}
-
 	client, err := p.getClient(ctx, policy)
 	if err != nil {
 		return false, err
@@ -590,6 +605,15 @@ func (p *OneDriveProvider) IsExist(ctx context.Context, policy *model.StoragePol
 	driveBaseURL, err := p.getDriveBaseURL(policy)
 	if err != nil {
 		return false, err
+	}
+
+	// source 现在存储的是云端路径（如"OneDrive/AnHeYuComment/uuid.jpg"），直接构建API路径
+	finalAPIPath := strings.Trim(source, "/")
+	var apiPath string
+	if finalAPIPath == "" || finalAPIPath == "." {
+		apiPath = "/root"
+	} else {
+		apiPath = fmt.Sprintf("/root:/%s", finalAPIPath)
 	}
 
 	itemURL := fmt.Sprintf("%s%s", driveBaseURL, apiPath)
@@ -945,8 +969,23 @@ func (p *OneDriveProvider) parseUploadResponse(body []byte, policy *model.Storag
 	originalParentDir := path.Dir(originalVirtualPath)
 	finalVirtualPath := path.Join(originalParentDir, finalFileName)
 
+	// OneDrive Source应该存储云端路径（相对于BasePath），类似于OSS/COS的对象键
+	// 计算相对路径
 	relativeSourcePath := strings.TrimPrefix(finalVirtualPath, policy.VirtualPath)
-	sourcePath := path.Join(policy.BasePath, relativeSourcePath)
+	relativeSourcePath = strings.TrimPrefix(relativeSourcePath, "/")
+
+	basePath := strings.TrimPrefix(strings.TrimSuffix(policy.BasePath, "/"), "/")
+
+	var sourcePath string
+	if basePath == "" {
+		sourcePath = relativeSourcePath
+	} else {
+		if relativeSourcePath == "" {
+			sourcePath = basePath
+		} else {
+			sourcePath = basePath + "/" + relativeSourcePath
+		}
+	}
 
 	return &UploadResult{
 		Source:   sourcePath,
