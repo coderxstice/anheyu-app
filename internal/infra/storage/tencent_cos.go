@@ -2,7 +2,7 @@
  * @Description: 腾讯云COS存储提供者实现
  * @Author: 安知鱼
  * @Date: 2025-09-28 12:00:00
- * @LastEditTime: 2025-10-11 20:38:54
+ * @LastEditTime: 2025-10-14 11:30:55
  * @LastEditors: 安知鱼
  */
 package storage
@@ -168,6 +168,7 @@ func (p *TencentCOSProvider) Get(ctx context.Context, policy *model.StoragePolic
 		return nil, err
 	}
 
+	// source 已经是完整的对象键
 	resp, err := client.Object.Get(ctx, source, nil)
 	if err != nil {
 		return nil, fmt.Errorf("从腾讯云COS获取文件失败: %w", err)
@@ -286,11 +287,8 @@ func (p *TencentCOSProvider) DeleteWithPolicy(ctx context.Context, policy *model
 	}
 
 	for _, source := range sources {
-		objectKey := p.buildObjectKey(policy, source)
-		if objectKey == "" {
-			objectKey = filepath.Base(source)
-		}
-		_, err := client.Object.Delete(ctx, objectKey)
+		// source 已经是完整的对象键
+		_, err := client.Object.Delete(ctx, source)
 		if err != nil {
 			return fmt.Errorf("删除腾讯云COS对象 %s 失败: %w", source, err)
 		}
@@ -350,13 +348,13 @@ func (p *TencentCOSProvider) GetDownloadURL(ctx context.Context, policy *model.S
 		return "", fmt.Errorf("腾讯云COS策略缺少访问域名配置")
 	}
 
-	// 将虚拟路径转换为对象存储路径
-	objectKey := p.buildObjectKey(policy, source)
+	// source 已经是完整的对象键（在Upload时已经包含了basePath），不需要再次调用buildObjectKey
+	objectKey := source
 	if objectKey == "" {
-		objectKey = filepath.Base(source)
-		log.Printf("[腾讯云COS] objectKey为空，使用文件名: %s", objectKey)
+		log.Printf("[腾讯云COS] objectKey为空，这不应该发生")
+		return "", fmt.Errorf("对象键为空")
 	}
-	log.Printf("[腾讯云COS] 转换路径 - source: %s -> objectKey: %s", source, objectKey)
+	log.Printf("[腾讯云COS] 使用对象键: %s", objectKey)
 
 	// 检查是否配置了CDN域名
 	cdnDomain := ""
@@ -430,8 +428,9 @@ func (p *TencentCOSProvider) Rename(ctx context.Context, policy *model.StoragePo
 		return err
 	}
 
-	oldObjectKey := p.buildObjectKey(policy, oldVirtualPath)
-	newObjectKey := p.buildObjectKey(policy, newVirtualPath)
+	// oldVirtualPath 和 newVirtualPath 已经是完整的对象键
+	oldObjectKey := oldVirtualPath
+	newObjectKey := newVirtualPath
 
 	// 腾讯云COS不支持直接重命名，需要先复制后删除
 	// 从Server URL提取域名部分构建源URL
@@ -479,12 +478,8 @@ func (p *TencentCOSProvider) IsExist(ctx context.Context, policy *model.StorageP
 		return false, err
 	}
 
-	objectKey := p.buildObjectKey(policy, source)
-	if objectKey == "" {
-		objectKey = filepath.Base(source)
-	}
-
-	_, err = client.Object.Head(ctx, objectKey, nil)
+	// source 已经是完整的对象键
+	_, err = client.Object.Head(ctx, source, nil)
 	if err != nil {
 		// 如果是404错误，表示对象不存在
 		if cosErr, ok := err.(*cos.ErrorResponse); ok && cosErr.Code == "NoSuchKey" {
@@ -503,12 +498,8 @@ func (p *TencentCOSProvider) IsExistWithPolicy(ctx context.Context, policy *mode
 		return false, err
 	}
 
-	objectKey := p.buildObjectKey(policy, source)
-	if objectKey == "" {
-		objectKey = filepath.Base(source)
-	}
-
-	_, err = client.Object.Head(ctx, objectKey, nil)
+	// source 已经是完整的对象键
+	_, err = client.Object.Head(ctx, source, nil)
 	if err != nil {
 		// 如果是404错误，表示对象不存在
 		if cosErr, ok := err.(*cos.ErrorResponse); ok && cosErr.Code == "NoSuchKey" {
@@ -530,16 +521,11 @@ func (p *TencentCOSProvider) GetThumbnail(ctx context.Context, policy *model.Sto
 		return nil, fmt.Errorf("无效的缩略图尺寸: %s", size)
 	}
 
-	// 将虚拟路径转换为对象存储路径
-	objectKey := p.buildObjectKey(policy, source)
-	if objectKey == "" {
-		objectKey = filepath.Base(source)
-	}
-
+	// source 已经是完整的对象键
 	// 构建数据万象处理URL
 	serverURL := strings.TrimSuffix(policy.Server, "/")
 	thumbnailURL := fmt.Sprintf("%s/%s?imageMogr2/thumbnail/%dx%d",
-		serverURL, objectKey, width, height)
+		serverURL, source, width, height)
 
 	// 获取缩略图数据（这里简化为返回URL，实际使用中可能需要下载数据）
 	// 由于ThumbnailResult需要Data字段，我们需要下载缩略图数据
