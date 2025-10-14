@@ -595,11 +595,13 @@ func (s *Service) toResponseDTO(ctx context.Context, c *model.Comment, parent *m
 	}
 
 	// 渲染图片URL
+	log.Printf("【DEBUG】评论 %s 渲染前HTML: %s", publicID, renderedContentHTML)
 	renderedContentHTML, err = s.renderHTMLURLs(ctx, renderedContentHTML)
 	if err != nil {
 		log.Printf("【WARN】渲染评论 %s 的HTML链接失败: %v", publicID, err)
 		renderedContentHTML = c.ContentHTML
 	}
+	log.Printf("【DEBUG】评论 %s 渲染后HTML: %s", publicID, renderedContentHTML)
 
 	var emailMD5 string
 	if c.Author.Email != nil {
@@ -654,19 +656,33 @@ func (s *Service) toResponseDTO(ctx context.Context, c *model.Comment, parent *m
 
 // renderHTMLURLs 将HTML内容中的内部URI（anzhiyu://file/...）替换为可访问的临时URL。
 func (s *Service) renderHTMLURLs(ctx context.Context, htmlContent string) (string, error) {
+	log.Printf("【DEBUG】开始渲染HTML中的图片链接，原始HTML长度: %d", len(htmlContent))
+
+	// 检查是否包含需要替换的内部URI
+	matches := htmlInternalURIRegex.FindAllString(htmlContent, -1)
+	log.Printf("【DEBUG】找到 %d 个需要替换的内部URI: %v", len(matches), matches)
+
 	var firstError error
 	replacer := func(match string) string {
+		log.Printf("【DEBUG】正在处理匹配项: %s", match)
 		parts := htmlInternalURIRegex.FindStringSubmatch(match)
 		if len(parts) < 2 {
+			log.Printf("【DEBUG】正则匹配失败，parts长度: %d", len(parts))
 			return match
 		}
 		publicID := parts[1]
+		log.Printf("【DEBUG】提取到文件公共ID: %s", publicID)
+
 		fileModel, err := s.fileSvc.FindFileByPublicID(ctx, publicID)
 		if err != nil {
 			log.Printf("【ERROR】渲染图片失败：找不到文件, PublicID=%s, 错误: %v", publicID, err)
 			return `src=""`
 		}
-		url, err := s.fileSvc.GetDownloadURLForFile(ctx, fileModel, publicID)
+		log.Printf("【DEBUG】找到文件模型: Name=%s, Size=%d", fileModel.Name, fileModel.Size)
+
+		// 评论图片URL有效期：1小时
+		expiresAt := time.Now().Add(1 * time.Hour)
+		url, err := s.fileSvc.GetDownloadURLForFileWithExpiration(ctx, fileModel, publicID, expiresAt)
 		if err != nil {
 			if firstError == nil {
 				firstError = err
@@ -674,9 +690,11 @@ func (s *Service) renderHTMLURLs(ctx context.Context, htmlContent string) (strin
 			log.Printf("【ERROR】渲染图片失败：为文件 %s 生成URL时出错: %v", publicID, err)
 			return `src=""`
 		}
+		log.Printf("【DEBUG】成功生成URL: %s", url)
 		return `src="` + url + `"`
 	}
 	result := htmlInternalURIRegex.ReplaceAllStringFunc(htmlContent, replacer)
+	log.Printf("【DEBUG】渲染完成，结果HTML长度: %d", len(result))
 	return result, firstError
 }
 

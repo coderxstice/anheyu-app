@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/internal/infra/storage"
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/event"
@@ -56,6 +57,8 @@ type FileService interface {
 	GetFolderPath(ctx context.Context, folderID uint) (string, error)
 	// GetDownloadURLForFile 为指定的文件生成一个带签名的下载链接 (默认1小时过期)。
 	GetDownloadURLForFile(ctx context.Context, file *model.File, publicFileID string) (string, error)
+	// GetDownloadURLForFileWithExpiration 为指定的文件生成一个具有自定义过期时间的带签名下载链接。
+	GetDownloadURLForFileWithExpiration(ctx context.Context, file *model.File, publicFileID string, expiresAt time.Time) (string, error)
 	// GetPreviewURLs 获取指定文件的预览链接列表。
 	GetPreviewURLs(ctx context.Context, viewerPublicID string, currentFilePublicID string) ([]string, int, error)
 	// GetFileDownloadURLForViewer 为指定文件生成一个供查看者下载的链接。
