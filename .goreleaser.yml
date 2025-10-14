@@ -102,34 +102,34 @@ changelog:
 
   groups:
     - title: "🚀 新功能"
-      regexp: "^feat(\\([\\w]+\\))?: .*$"
+      regexp: "^feat(\\([\\w-]+\\))?: .*$"
       order: 0
     - title: "🐛 问题修复"
-      regexp: "^fix(\\([\\w]+\\))?: .*$"
+      regexp: "^fix(\\([\\w-]+\\))?: .*$"
       order: 1
     - title: "📚 文档更新"
-      regexp: "^docs(\\([\\w]+\\))?: .*$"
+      regexp: "^docs(\\([\\w-]+\\))?: .*$"
       order: 2
     - title: "⚡️ 性能优化"
-      regexp: "^perf(\\([\\w]+\\))?: .*$"
+      regexp: "^perf(\\([\\w-]+\\))?: .*$"
       order: 3
     - title: "♻️ 代码重构"
-      regexp: "^refactor(\\([\\w]+\\))?: .*$"
+      regexp: "^refactor(\\([\\w-]+\\))?: .*$"
       order: 4
     - title: "💄 代码格式"
-      regexp: "^style(\\([\\w]+\\))?: .*$"
+      regexp: "^style(\\([\\w-]+\\))?: .*$"
       order: 5
     - title: "✅ 测试相关"
-      regexp: "^test(\\([\\w]+\\))?: .*$"
+      regexp: "^test(\\([\\w-]+\\))?: .*$"
       order: 6
     - title: "👷 CI配置"
-      regexp: "^ci(\\([\\w]+\\))?: .*$"
+      regexp: "^ci(\\([\\w-]+\\))?: .*$"
       order: 7
     - title: "📦️ 构建系统"
-      regexp: "^build(\\([\\w]+\\))?: .*$"
+      regexp: "^build(\\([\\w-]+\\))?: .*$"
       order: 8
     - title: "🔧 其他更新"
-      regexp: "^chore(\\([\\w]+\\))?: .*$"
+      regexp: "^chore(\\([\\w-]+\\))?: .*$"
       order: 999
 
 # Docker 镜像配置 - 多架构支持 (AMD64 + ARM64)
