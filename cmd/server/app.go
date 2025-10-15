@@ -97,6 +97,8 @@ type App struct {
 	fileService          file_service.FileService
 	mw                   *middleware.Middleware
 	settingSvc           setting.SettingService
+	tokenSvc             auth.TokenService
+	userSvc              user.UserService
 	fileRepo             repository.FileRepository
 	entityRepo           repository.EntityRepository
 	cacheSvc             utility.CacheService
@@ -447,6 +449,8 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		fileService:          fileSvc, // ✅ 新增：暴露给 PRO 版使用
 		mw:                   mw,
 		settingSvc:           settingSvc,
+		tokenSvc:             tokenSvc, // ✅ 新增：暴露给 PRO 版使用
+		userSvc:              userSvc,  // ✅ 新增：暴露给 PRO 版使用
 		fileRepo:             fileRepo,
 		entityRepo:           entityRepo,
 		cacheSvc:             cacheSvc,
@@ -521,6 +525,16 @@ func (a *App) CacheService() utility.CacheService {
 // FileService 返回文件服务实例（暴露给 PRO 版使用）
 func (a *App) FileService() file_service.FileService {
 	return a.fileService
+}
+
+// TokenService 返回 Token 服务（用于 JWT token 生成和验证）
+func (a *App) TokenService() auth.TokenService {
+	return a.tokenSvc
+}
+
+// UserService 返回用户服务（用于用户管理和认证）
+func (a *App) UserService() user.UserService {
+	return a.userSvc
 }
 
 // EventBus 返回事件总线，用于发布和订阅事件
