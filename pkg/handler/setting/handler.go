@@ -13,6 +13,7 @@ import (
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/handler/setting/dto"
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/cdn"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/utility"
 
@@ -20,22 +21,22 @@ import (
 )
 
 // SettingHandler 封装了站点配置相关的控制器方法
-// 它现在也依赖 EmailService 来处理邮件发送请求。
 type SettingHandler struct {
 	settingSvc setting.SettingService
 	emailSvc   utility.EmailService
+	cdnSvc     cdn.CDNService
 }
 
 // NewSettingHandler 是 SettingHandler 的构造函数
-// 注意：构造函数已更新，需要注入 EmailService。
-// 您需要更新您的依赖注入配置（例如 wire.go）。
 func NewSettingHandler(
 	settingSvc setting.SettingService,
 	emailSvc utility.EmailService,
+	cdnSvc cdn.CDNService,
 ) *SettingHandler {
 	return &SettingHandler{
 		settingSvc: settingSvc,
 		emailSvc:   emailSvc,
+		cdnSvc:     cdnSvc,
 	}
 }
 
@@ -130,6 +131,9 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		return
 	}
 
+	// 检查是否有影响前端的公开配置被更新
+	needsPurgeCDN := h.checkIfNeedsPurgeCDN(settingsToUpdate)
+
 	// 调用 Service 层执行更新
 	err := h.settingSvc.UpdateSettings(c.Request.Context(), settingsToUpdate)
 	if err != nil {
@@ -138,5 +142,66 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		return
 	}
 
+	// 如果需要，异步清除CDN缓存
+	if needsPurgeCDN && h.cdnSvc != nil {
+		go func() {
+			baseURL := h.settingSvc.Get("SITE_URL")
+			if baseURL == "" {
+				baseURL = "https://yourdomain.com"
+			}
+
+			// 只清除首页（因为HTML渲染配置会影响所有页面的meta标签和自定义代码）
+			// 注意：文章详情页不需要清除，因为它们有自己的更新机制
+			urls := []string{
+				baseURL + "/", // 首页
+			}
+
+			if err := h.cdnSvc.PurgeCache(c.Request.Context(), urls); err != nil {
+				log.Printf("[警告] CDN缓存清除失败: %v", err)
+			} else {
+				log.Printf("[信息] 配置更新后成功清除CDN缓存")
+			}
+		}()
+	}
+
 	response.Success(c, nil, "更新配置成功")
+}
+
+// checkIfNeedsPurgeCDN 检查更新的配置项中是否包含需要清除CDN缓存的配置
+func (h *SettingHandler) checkIfNeedsPurgeCDN(settingsToUpdate map[string]string) bool {
+	// 只有直接影响HTML渲染（SSR）的配置才需要清除CDN缓存
+	// 大部分配置是通过API动态获取的，不会被水合到HTML中，因此不需要清除CDN
+	//
+	// 需要清除CDN的场景：
+	// 1. SEO meta标签（直接渲染到HTML中）
+	// 2. 自定义HTML/CSS/JS（直接注入到HTML中）
+	//
+	// 不需要清除CDN的场景（通过API获取）：
+	// - 站点配置（APP_NAME, LOGO等）- 前端通过 /api/site/config 获取
+	// - 导航菜单 - 前端通过API获取并渲染
+	// - 页脚配置 - 前端通过API获取并渲染
+	// - 文章列表 - 前端通过API分页获取
+	htmlRenderingSettings := map[string]bool{
+		// SEO相关（直接渲染到HTML meta标签）
+		"SITE_KEYWORDS":              true, // <meta name="keywords">
+		"SITE_DESCRIPTION":           true, // <meta name="description">
+		"FRONT_DESK_SITE_OWNER_NAME": true, // <meta name="author">
+		"ICON_URL":                   true, // <link rel="icon">
+
+		// 自定义HTML/CSS/JS（直接注入到HTML）
+		"CUSTOM_HEADER_HTML": true, // 注入到<head>
+		"CUSTOM_FOOTER_HTML": true, // 注入到</body>前
+		"CUSTOM_CSS":         true, // 内联CSS
+		"CUSTOM_JS":          true, // 内联JS
+	}
+
+	// 检查是否有任何需要清除CDN的配置被更新
+	for key := range settingsToUpdate {
+		if htmlRenderingSettings[key] {
+			log.Printf("[CDN] 检测到HTML渲染配置 %s 被更新，需要清除CDN缓存", key)
+			return true
+		}
+	}
+
+	return false
 }

@@ -42,36 +42,96 @@ func generateContentETag(content interface{}) string {
 	return fmt.Sprintf(`"ctx7-%x"`, hash)
 }
 
-// ：设置智能缓存策略
+// ：设置智能缓存策略（针对CDN优化）
 func setSmartCacheHeaders(c *gin.Context, pageType string, etag string, maxAge int) {
+	// 检测是否通过CDN访问
+	isCDN := c.GetHeader("CF-Ray") != "" || // Cloudflare
+		c.GetHeader("X-Amz-Cf-Id") != "" || // CloudFront
+		c.GetHeader("X-Cache") != "" || // 通用CDN标识
+		c.GetHeader("X-Served-By") != "" // Fastly等
+
 	switch pageType {
 	case "article_detail":
-		// 文章详情页：短期缓存，依赖ETag
-		c.Header("Cache-Control", fmt.Sprintf("public, max-age=%d, must-revalidate", maxAge))
+		if isCDN {
+			// CDN环境：更短的缓存时间，强制验证
+			c.Header("Cache-Control", fmt.Sprintf("public, max-age=%d, s-maxage=%d, must-revalidate, stale-while-revalidate=60",
+				min(maxAge, 180), min(maxAge/2, 60))) // CDN缓存时间更短
+		} else {
+			// 直连环境：正常缓存策略
+			c.Header("Cache-Control", fmt.Sprintf("public, max-age=%d, must-revalidate", maxAge))
+		}
 		c.Header("ETag", etag)
 		c.Header("Vary", "Accept-Encoding")
 		c.Header("X-Content-Type-Options", "nosniff")
+		// 添加缓存标签，便于CDN批量清除
+		c.Header("Cache-Tag", fmt.Sprintf("article-detail,article-%s", extractArticleIDFromPath(c.Request.URL.Path)))
 
 	case "home_page":
-		// 首页：中等缓存，频繁更新
-		c.Header("Cache-Control", "public, max-age=300, must-revalidate") // 5分钟
+		if isCDN {
+			// 首页：CDN缓存2分钟，浏览器缓存5分钟
+			c.Header("Cache-Control", "public, max-age=300, s-maxage=120, must-revalidate, stale-while-revalidate=30")
+		} else {
+			c.Header("Cache-Control", "public, max-age=300, must-revalidate") // 5分钟
+		}
 		c.Header("ETag", etag)
 		c.Header("Vary", "Accept-Encoding")
+		c.Header("Cache-Tag", "home-page,article-list")
 
 	case "static_page":
-		// 静态页面：长期缓存
-		c.Header("Cache-Control", "public, max-age=1800, must-revalidate") // 30分钟
+		if isCDN {
+			// 静态页面：CDN缓存10分钟，浏览器缓存30分钟
+			c.Header("Cache-Control", "public, max-age=1800, s-maxage=600, must-revalidate, stale-while-revalidate=120")
+		} else {
+			c.Header("Cache-Control", "public, max-age=1800, must-revalidate") // 30分钟
+		}
 		c.Header("ETag", etag)
 		c.Header("Vary", "Accept-Encoding")
+		c.Header("Cache-Tag", "static-page")
 
 	default:
-		// 默认：谨慎缓存
-		c.Header("Cache-Control", "public, max-age=180, must-revalidate") // 3分钟
+		if isCDN {
+			// 默认：CDN缓存1分钟，浏览器缓存3分钟
+			c.Header("Cache-Control", "public, max-age=180, s-maxage=60, must-revalidate, stale-while-revalidate=30")
+		} else {
+			c.Header("Cache-Control", "public, max-age=180, must-revalidate") // 3分钟
+		}
 		c.Header("ETag", etag)
 		c.Header("Vary", "Accept-Encoding")
+		c.Header("Cache-Tag", "default")
 	}
+
+	// 安全头部
 	c.Header("X-Frame-Options", "SAMEORIGIN")
 	c.Header("X-XSS-Protection", "1; mode=block")
+
+	// 添加版本标识，便于缓存失效
+	c.Header("X-App-Version", getAppVersion())
+}
+
+// min 返回两个整数中的较小值
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+// extractArticleIDFromPath 从URL路径中提取文章ID
+func extractArticleIDFromPath(path string) string {
+	// 匹配 /posts/{id} 格式
+	re := regexp.MustCompile(`^/posts/([^/]+)$`)
+	matches := re.FindStringSubmatch(path)
+	if len(matches) > 1 {
+		return matches[1]
+	}
+	return "unknown"
+}
+
+// getAppVersion 获取应用版本号（用于缓存失效）
+func getAppVersion() string {
+	// 可以从环境变量、构建时间或版本文件中获取
+	// 这里使用简单的时间戳作为版本标识
+	return fmt.Sprintf("v%d", time.Now().Unix()/3600) // 每小时变化一次
 }
 
 // ：处理条件请求
@@ -625,15 +685,19 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 			return
 		}
 		if articleResponse != nil {
-			// 🎯 ：生成文章内容ETag（基于更新时间和内容）
+			// 🎯 ：生成文章内容ETag（基于更新时间、内容和版本）
 			contentForETag := struct {
 				UpdatedAt   time.Time `json:"updated_at"`
 				Title       string    `json:"title"`
 				ContentHash string    `json:"content_hash"`
+				AppVersion  string    `json:"app_version"`
+				ArticleID   string    `json:"article_id"`
 			}{
 				UpdatedAt:   articleResponse.UpdatedAt,
 				Title:       articleResponse.Title,
 				ContentHash: fmt.Sprintf("%x", md5.Sum([]byte(articleResponse.ContentHTML))),
+				AppVersion:  getAppVersion(),
+				ArticleID:   articleResponse.ID,
 			}
 			etag := generateContentETag(contentForETag)
 
@@ -678,6 +742,12 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 			customHeaderHTML := ensureScriptTagsClosed(settingSvc.Get(constant.KeyCustomHeaderHTML.String()))
 			customFooterHTML := ensureScriptTagsClosed(settingSvc.Get(constant.KeyCustomFooterHTML.String()))
 
+			// 创建包含时间戳的初始数据
+			initialDataWithTimestamp := map[string]interface{}{
+				"data":          articleResponse,
+				"__timestamp__": time.Now().UnixMilli(), // 添加时间戳用于客户端验证数据新鲜度
+			}
+
 			// 使用传入的模板实例渲染
 			render := CustomHTMLRender{Templates: templates}
 			c.Render(http.StatusOK, render.Instance("index.html", gin.H{
@@ -688,8 +758,8 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 				"author":          settingSvc.Get(constant.KeyFrontDeskSiteOwnerName.String()),
 				"themeColor":      articleResponse.PrimaryColor,
 				"favicon":         settingSvc.Get(constant.KeyIconURL.String()),
-				// --- 用于 Vue 水合的数据 ---
-				"initialData":   articleResponse,
+				// --- 用于 Vue 水合的数据（包含时间戳） ---
+				"initialData":   initialDataWithTimestamp,
 				"ogType":        "article",
 				"ogUrl":         fullURL,
 				"ogTitle":       pageTitle,

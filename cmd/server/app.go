@@ -56,6 +56,7 @@ import (
 	album_category_service "github.com/anzhiyu-c/anheyu-app/pkg/service/album_category"
 	article_service "github.com/anzhiyu-c/anheyu-app/pkg/service/article"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/auth"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/cdn"
 	cleanup_service "github.com/anzhiyu-c/anheyu-app/pkg/service/cleanup"
 	comment_service "github.com/anzhiyu-c/anheyu-app/pkg/service/comment"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/direct_link"
@@ -156,7 +157,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	redisClient, err := database.NewRedisClient(context.Background(), cfg)
 	if err != nil {
 		sqlDB.Close()
-		return nil, nil, fmt.Errorf("Redis 初始化失败: %w", err)
+		return nil, nil, fmt.Errorf("redis 初始化失败: %w", err)
 	}
 
 	// 临时cleanup函数，后面会被增强版本替换
@@ -338,7 +339,12 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	primaryColorSvc := utility.NewPrimaryColorService(colorSvc, settingSvc, fileRepo, storagePolicyRepo, httpClient, storageProviders)
 	log.Printf("[DEBUG] PrimaryColorService 初始化完成")
 
-	articleSvc := article_service.NewService(articleRepo, postTagRepo, postCategoryRepo, txManager, cacheSvc, geoSvc, taskBroker, settingSvc, parserSvc, fileSvc, directLinkSvc, searchSvc, primaryColorSvc)
+	// 初始化CDN服务
+	log.Printf("[DEBUG] 正在初始化 CDNService...")
+	cdnSvc := cdn.NewService(settingSvc)
+	log.Printf("[DEBUG] CDNService 初始化完成")
+
+	articleSvc := article_service.NewService(articleRepo, postTagRepo, postCategoryRepo, txManager, cacheSvc, geoSvc, taskBroker, settingSvc, parserSvc, fileSvc, directLinkSvc, searchSvc, primaryColorSvc, cdnSvc)
 	log.Printf("[DEBUG] 正在初始化 PushooService...")
 	pushooSvc := utility.NewPushooService(settingSvc)
 	log.Printf("[DEBUG] PushooService 初始化完成")
@@ -366,7 +372,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	albumCategoryHandler := album_category_handler.NewHandler(albumCategorySvc)
 	userHandler := user_handler.NewUserHandler(userSvc, settingSvc)
 	publicHandler := public_handler.NewPublicHandler(albumSvc, albumCategorySvc)
-	settingHandler := setting_handler.NewSettingHandler(settingSvc, emailSvc)
+	settingHandler := setting_handler.NewSettingHandler(settingSvc, emailSvc, cdnSvc)
 	storagePolicyHandler := storage_policy_handler.NewStoragePolicyHandler(storagePolicySvc)
 	fileHandler := file_handler.NewHandler(fileSvc, uploadSvc, settingSvc)
 	directLinkHandler := direct_link_handler.NewDirectLinkHandler(directLinkSvc, storageProviders)
