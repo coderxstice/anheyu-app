@@ -21,6 +21,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
 	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/cdn"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/direct_link"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/file"
 	appParser "github.com/anzhiyu-c/anheyu-app/pkg/service/parser"
@@ -60,6 +61,7 @@ type serviceImpl struct {
 	directLinkSvc    direct_link.Service
 	searchSvc        *search.SearchService
 	primaryColorSvc  *utility.PrimaryColorService
+	cdnSvc           cdn.CDNService
 }
 
 func NewService(
@@ -76,6 +78,7 @@ func NewService(
 	directLinkSvc direct_link.Service,
 	searchSvc *search.SearchService,
 	primaryColorSvc *utility.PrimaryColorService,
+	cdnSvc cdn.CDNService,
 ) Service {
 	return &serviceImpl{
 		repo:             repo,
@@ -92,6 +95,7 @@ func NewService(
 		directLinkSvc:    directLinkSvc,
 		searchSvc:        searchSvc,
 		primaryColorSvc:  primaryColorSvc,
+		cdnSvc:           cdnSvc,
 	}
 }
 
@@ -294,7 +298,57 @@ func (s *serviceImpl) invalidateRelatedCaches(ctx context.Context) {
 	if err := s.cacheSvc.Delete(ctx, "rss:feed:latest"); err != nil {
 		log.Printf("[警告] 清除 RSS 缓存失败: %v", err)
 	}
-	// 未来可以在这里添加更多相关缓存的清除
+
+	// 清除首页缓存相关的键
+	homePageKeys := []string{
+		"home:articles:cache",
+		"home:featured:cache",
+		"sidebar:recent:cache",
+	}
+	for _, key := range homePageKeys {
+		if err := s.cacheSvc.Delete(ctx, key); err != nil {
+			log.Printf("[警告] 清除首页缓存 %s 失败: %v", key, err)
+		}
+	}
+
+	log.Printf("[信息] 已清除文章相关缓存，包括RSS和首页缓存")
+}
+
+// invalidateArticleCache 清除特定文章的缓存（包括CDN缓存）
+func (s *serviceImpl) invalidateArticleCache(ctx context.Context, articleID, abbrlink string) {
+	// 清除Redis缓存
+	cacheKeys := []string{
+		s.getCacheKey(articleID),
+	}
+
+	if abbrlink != "" {
+		cacheKeys = append(cacheKeys, s.getCacheKey(abbrlink))
+	}
+
+	for _, key := range cacheKeys {
+		if err := s.cacheSvc.Delete(ctx, key); err != nil {
+			log.Printf("[警告] 清除文章缓存 %s 失败: %v", key, err)
+		}
+	}
+
+	// 异步清除CDN缓存
+	go func() {
+		if s.cdnSvc != nil {
+			// 使用文章ID清除CDN缓存（优先使用abbrlink）
+			cacheID := articleID
+			if abbrlink != "" {
+				cacheID = abbrlink
+			}
+
+			if err := s.cdnSvc.PurgeArticleCache(context.Background(), cacheID); err != nil {
+				log.Printf("[警告] 清除CDN缓存失败: %v", err)
+			} else {
+				log.Printf("[信息] CDN缓存清除成功，文章ID: %s", cacheID)
+			}
+		}
+	}()
+
+	log.Printf("[信息] 已清除文章 %s 的相关缓存（包括CDN）", articleID)
 }
 
 // GetPublicBySlugOrID 为公开浏览，通过 slug 或 ID 获取单篇文章，并处理浏览量。
@@ -762,12 +816,13 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 	if err != nil {
 		return nil, err
 	}
-	_ = s.cacheSvc.Delete(ctx, s.getCacheKey(publicID))
-	_ = s.cacheSvc.Delete(ctx, s.getCacheKey(updatedArticle.Abbrlink))
+
+	// 清除特定文章的缓存
+	s.invalidateArticleCache(ctx, publicID, updatedArticle.Abbrlink)
 
 	s.updateSiteStatsInBackground()
 
-	// 清除相关缓存（包括 RSS feed）
+	// 清除相关缓存（包括 RSS feed 和首页缓存）
 	go s.invalidateRelatedCaches(context.Background())
 
 	// 异步更新搜索索引

@@ -336,6 +336,15 @@ var AllSettings = []Definition{
 	{Key: constant.KeyMusicPlayerEnable, Value: "false", Comment: "是否启用音乐播放器功能 (true/false)", IsPublic: true},
 	{Key: constant.KeyMusicPlayerPlaylistID, Value: "8152976493", Comment: "音乐播放器播放列表ID (网易云歌单ID)", IsPublic: true},
 	{Key: constant.KeyMusicPlayerCustomPlaylist, Value: "", Comment: "自定义音乐歌单JSON文件链接", IsPublic: true},
+
+	// --- CDN缓存清除配置 ---
+	{Key: constant.KeyCDNEnable, Value: "false", Comment: "是否启用CDN缓存清除功能 (true/false)", IsPublic: false},
+	{Key: constant.KeyCDNProvider, Value: "", Comment: "CDN提供商 (tencent/edgeone)", IsPublic: false},
+	{Key: constant.KeyCDNSecretID, Value: "", Comment: "腾讯云API密钥ID", IsPublic: false},
+	{Key: constant.KeyCDNSecretKey, Value: "", Comment: "腾讯云API密钥Key", IsPublic: false},
+	{Key: constant.KeyCDNRegion, Value: "ap-beijing", Comment: "腾讯云地域 (如: ap-beijing, ap-shanghai)", IsPublic: false},
+	{Key: constant.KeyCDNDomain, Value: "", Comment: "腾讯云CDN加速域名", IsPublic: false},
+	{Key: constant.KeyCDNZoneID, Value: "", Comment: "EdgeOne站点ID", IsPublic: false},
 }
 
 // AllUserGroups 是所有默认用户组的"单一事实来源"

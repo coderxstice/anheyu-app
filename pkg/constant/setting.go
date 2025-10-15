@@ -247,4 +247,13 @@ const (
 	KeyMusicPlayerEnable         SettingKey = "music.player.enable"
 	KeyMusicPlayerPlaylistID     SettingKey = "music.player.playlist_id"
 	KeyMusicPlayerCustomPlaylist SettingKey = "music.player.custom_playlist"
+
+	// --- CDN缓存清除配置 ---
+	KeyCDNEnable    SettingKey = "cdn.enable"
+	KeyCDNProvider  SettingKey = "cdn.provider"
+	KeyCDNSecretID  SettingKey = "cdn.secret_id"
+	KeyCDNSecretKey SettingKey = "cdn.secret_key"
+	KeyCDNRegion    SettingKey = "cdn.region"
+	KeyCDNDomain    SettingKey = "cdn.domain"
+	KeyCDNZoneID    SettingKey = "cdn.zone_id"
 )
