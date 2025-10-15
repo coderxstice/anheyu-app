@@ -89,14 +89,16 @@ func (s *smartGeoIPService) lookupViaAPI(apiURL, apiToken, ipStr string) (string
 
 	req, err := http.NewRequest("GET", reqURL, nil)
 	if err != nil {
-		log.Printf("[IP属地查询] ❌ 创建HTTP请求失败 - IP: %s, 错误: %v", ipStr, err)
+		// 避免在日志中暴露完整的URL和Token信息
+		log.Printf("[IP属地查询] ❌ 创建HTTP请求失败 - IP: %s, 目标: %s", ipStr, logSafeURL)
 		return "", fmt.Errorf("创建 API 请求失败: %w", err)
 	}
 
 	log.Printf("[IP属地查询] 发送HTTP请求到第三方API...")
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
-		log.Printf("[IP属地查询] ❌ HTTP请求失败 - IP: %s, 网络错误: %v", ipStr, err)
+		// 避免在日志中暴露完整的URL和Token信息
+		log.Printf("[IP属地查询] ❌ HTTP请求失败 - IP: %s, 目标: %s, 错误类型: %T", ipStr, logSafeURL, err)
 		return "", fmt.Errorf("API 请求网络错误: %w", err)
 	}
 	defer resp.Body.Close()
