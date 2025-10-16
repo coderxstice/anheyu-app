@@ -6,7 +6,6 @@
 package music
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -33,34 +32,44 @@ type Song struct {
 	Lrc       string `json:"lrc"`
 }
 
-// MusicApiResponse 高质量音乐API响应结构
-type MusicApiResponse struct {
-	Code      int                    `json:"code"`
-	Data      []HighQualityMusicData `json:"data"`
-	Msg       string                 `json:"msg"`       // 错误信息
-	Timestamp string                 `json:"timestamp"` // 时间戳
-}
-
-// HighQualityMusicData 高质量音乐数据结构
-type HighQualityMusicData struct {
-	ID       int    `json:"id"` // 修改为int类型，因为API返回的是数字
-	URL      string `json:"url"`
-	Br       int    `json:"br"`
-	Size     int    `json:"size"`
-	MD5      string `json:"md5"`
-	Level    string `json:"level"`    // 音质等级
-	Duration string `json:"duration"` // 时长
-	Time     string `json:"time"`     // 时间戳
-}
-
-// LyricApiResponse 歌词API响应结构
-type LyricApiResponse struct {
-	Code int `json:"code"`
+// PlaylistApiResponse 新的播放列表API响应结构
+type PlaylistApiResponse struct {
 	Data struct {
-		Lrc string `json:"lrc"`
+		Playlist struct {
+			CoverImgURL string `json:"coverImgUrl"`
+			Creator     string `json:"creator"`
+			Description string `json:"description"`
+			ID          int64  `json:"id"`
+			Name        string `json:"name"`
+			TrackCount  int    `json:"trackCount"`
+			Tracks      []struct {
+				Album   string `json:"album"`
+				Artists string `json:"artists"`
+				ID      int64  `json:"id"`
+				Name    string `json:"name"`
+				PicURL  string `json:"picUrl"`
+			} `json:"tracks"`
+		} `json:"playlist"`
 	} `json:"data"`
-	Msg       string `json:"msg"`       // 错误信息
-	Timestamp string `json:"timestamp"` // 时间戳
+}
+
+// SongV1ApiResponse 新的单曲解析API响应结构
+type SongV1ApiResponse struct {
+	Status  int    `json:"status"`
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	Data    struct {
+		ID     string `json:"id"`
+		Name   string `json:"name"`
+		ArName string `json:"ar_name"` // 歌手名
+		AlName string `json:"al_name"` // 专辑名
+		Pic    string `json:"pic"`     // 封面图
+		URL    string `json:"url"`     // 音频URL
+		Lyric  string `json:"lyric"`   // 歌词
+		TLyric string `json:"tlyric"`  // 翻译歌词
+		Level  string `json:"level"`   // 音质等级
+		Size   string `json:"size"`    // 文件大小
+	} `json:"data"`
 }
 
 // SongResourceResponse 歌曲资源响应结构
@@ -75,14 +84,6 @@ type MusicService interface {
 	FetchPlaylist(ctx context.Context) ([]Song, error)
 	// 获取歌曲资源（音频和歌词）
 	FetchSongResources(ctx context.Context, song Song) (SongResourceResponse, error)
-	// 获取高质量音频URL（内部使用）
-	fetchHighQualityMusicUrl(ctx context.Context, neteaseID string) (string, error)
-	// 获取高质量歌词（内部使用）
-	fetchHighQualityLyrics(ctx context.Context, neteaseID string) (string, error)
-	// 获取歌词（内部使用）
-	fetchLyrics(ctx context.Context, lrcUrl string) (string, error)
-	// 优化图片URL尺寸（内部使用）
-	optimizePicUrl(ctx context.Context, originalPicUrl string) (string, error)
 }
 
 // musicService 音乐服务实现
@@ -90,8 +91,8 @@ type musicService struct {
 	settingSvc setting.SettingService
 	httpClient *http.Client
 	// API URLs
-	highQualityMusicAPI string
-	highQualityLyricAPI string
+	playlistAPI string
+	songAPI     string
 	// 图片URL缓存，key: 原始URL, value: 优化后的URL
 	picUrlCache sync.Map
 	// 并发控制
@@ -101,12 +102,12 @@ type musicService struct {
 // NewMusicService 创建新的音乐服务
 func NewMusicService(settingSvc setting.SettingService) MusicService {
 	return &musicService{
-		settingSvc:          settingSvc,
-		httpClient:          &http.Client{Timeout: 15 * time.Second},
-		highQualityMusicAPI: "https://wyapi.toubiec.cn/api/music/url",
-		highQualityLyricAPI: "https://wyapi.toubiec.cn/api/music/lyric",
-		picUrlCache:         sync.Map{},
-		concurrencyLimit:    20, // 限制并发数量为20
+		settingSvc:       settingSvc,
+		httpClient:       &http.Client{Timeout: 15 * time.Second},
+		playlistAPI:      "https://metings.qjqq.cn/Playlist",
+		songAPI:          "https://metings.qjqq.cn/Song_V1",
+		picUrlCache:      sync.Map{},
+		concurrencyLimit: 20, // 限制并发数量为20
 	}
 }
 
@@ -295,23 +296,12 @@ func (s *musicService) logJSONStructure(jsonStr string) {
 func (s *musicService) logURLInfo(url string) {
 	// 识别API类型
 	apiType := "unknown"
-	if strings.Contains(url, "meting.qjqq.cn") {
-		apiType = "meting-api"
-		if strings.Contains(url, "type=playlist") {
-			apiType = "meting-playlist"
-		} else if strings.Contains(url, "type=url") {
-			apiType = "meting-audio"
-		} else if strings.Contains(url, "type=lrc") {
-			apiType = "meting-lyrics"
-		} else if strings.Contains(url, "type=pic") {
-			apiType = "meting-picture"
-		}
-	} else if strings.Contains(url, "wyapi.toubiec.cn") {
-		apiType = "high-quality-api"
-		if strings.Contains(url, "/music/url") {
-			apiType = "high-quality-audio"
-		} else if strings.Contains(url, "/music/lyric") {
-			apiType = "high-quality-lyrics"
+	if strings.Contains(url, "metings.qjqq.cn") {
+		apiType = "metings-api"
+		if strings.Contains(url, "/Playlist") {
+			apiType = "metings-playlist"
+		} else if strings.Contains(url, "/Song_V1") {
+			apiType = "metings-song"
 		}
 	}
 
@@ -396,7 +386,7 @@ func (s *musicService) getPlaylistID() string {
 // buildPlaylistAPI 构建播放列表API URL
 func (s *musicService) buildPlaylistAPI() string {
 	playlistID := s.getPlaylistID()
-	return fmt.Sprintf("https://meting.qjqq.cn/?server=netease&type=playlist&id=%s", playlistID)
+	return fmt.Sprintf("%s?id=%s", s.playlistAPI, playlistID)
 }
 
 // isValidSong 验证歌曲数据是否有效
@@ -451,48 +441,50 @@ func (s *musicService) FetchPlaylist(ctx context.Context) ([]Song, error) {
 		return nil, fmt.Errorf("播放列表API返回错误状态码: %d", resp.StatusCode)
 	}
 
-	// 解析JSON
-	var data []map[string]interface{}
-	if err := json.Unmarshal(responseBody, &data); err != nil {
+	// 解析JSON - 新API返回的是嵌套结构
+	var apiResponse PlaylistApiResponse
+	if err := json.Unmarshal(responseBody, &apiResponse); err != nil {
 		s.logError("解析播放列表JSON", playlistURL, err)
 		return nil, fmt.Errorf("解析播放列表JSON失败: %w", err)
 	}
 
-	// 验证和转换数据 - 第一步：收集所有有效歌曲的基本信息
+	// 验证数据
+	tracks := apiResponse.Data.Playlist.Tracks
+	if len(tracks) == 0 {
+		log.Printf("[MUSIC_API] 播放列表为空")
+		return []Song{}, nil
+	}
+
+	// 转换数据
 	var songs []Song
 	validCount := 0
 
-	for i, item := range data {
-		if !s.isValidSong(item) {
+	for i, track := range tracks {
+		// 验证必要字段
+		if track.Name == "" || track.Artists == "" || track.ID == 0 {
 			log.Printf("[MUSIC_API] 跳过无效歌曲数据，索引: %d", i)
 			continue
 		}
 
-		// 提取网易云音乐ID
-		neteaseID := s.extractNeteaseID(item)
+		// 将ID转换为字符串
+		songID := fmt.Sprintf("%d", track.ID)
 
 		song := Song{
-			ID:        fmt.Sprintf("%d", i),
-			NeteaseID: neteaseID,
-			Name:      getString(item["name"]),
-			Artist:    getString(item["artist"]),
-			URL:       getString(item["url"]),
-			Pic:       getString(item["pic"]), // 先使用原始URL
-			Lrc:       getString(item["lrc"]),
+			ID:        songID,
+			NeteaseID: songID, // 网易云ID
+			Name:      track.Name,
+			Artist:    track.Artists,
+			URL:       "",           // 播放列表不提供URL，需要通过Song_V1 API获取
+			Pic:       track.PicURL, // 封面图
+			Lrc:       "",           // 播放列表不提供歌词，需要通过Song_V1 API获取
 		}
 
 		songs = append(songs, song)
 		validCount++
 	}
 
-	log.Printf("[MUSIC_API] 基本数据解析完成 - 总数: %d, 有效: %d", len(data), validCount)
-
-	// 第二步：快速并发优化图片URL（带时间限制）
-	if len(songs) > 0 {
-		log.Printf("[MUSIC_API] 开始快速优化 %d 个图片URL", len(songs))
-		optimized := s.optimizePicUrlsWithTimeout(ctx, songs, 500*time.Millisecond)
-		log.Printf("[MUSIC_API] 图片URL优化完成 - 成功优化: %d/%d", optimized, len(songs))
-	}
+	log.Printf("[MUSIC_API] 播放列表解析完成 - 播放列表: %s, 总数: %d, 有效: %d",
+		apiResponse.Data.Playlist.Name, len(tracks), validCount)
 
 	return songs, nil
 }
@@ -536,7 +528,7 @@ func (s *musicService) extractIDFromURL(url string) string {
 
 // FetchSongResources 获取歌曲的高质量资源
 func (s *musicService) FetchSongResources(ctx context.Context, song Song) (SongResourceResponse, error) {
-	log.Printf("[MUSIC_API] 开始获取高质量歌曲资源 - 网易云ID: %s", song.NeteaseID)
+	log.Printf("[MUSIC_API] 开始获取歌曲资源 - 网易云ID: %s", song.NeteaseID)
 
 	// 验证网易云ID
 	if song.NeteaseID == "" {
@@ -547,44 +539,36 @@ func (s *musicService) FetchSongResources(ctx context.Context, song Song) (SongR
 		return SongResourceResponse{}, fmt.Errorf("网易云音乐ID格式无效: %s", song.NeteaseID)
 	}
 
-	// 获取高质量音频 - 必须成功
-	log.Printf("[MUSIC_API] 获取高质量音频 - 网易云ID: %s", song.NeteaseID)
-	audioURL, err := s.fetchHighQualityMusicUrl(ctx, song.NeteaseID)
-	if err != nil {
-		log.Printf("[MUSIC_API] 高质量音频获取失败 - 网易云ID: %s, 错误: %v", song.NeteaseID, err)
-		return SongResourceResponse{}, fmt.Errorf("高质量音频获取失败: %w", err)
+	// 先尝试获取 exhigh 音质
+	log.Printf("[MUSIC_API] 尝试获取 exhigh 音质 - 网易云ID: %s", song.NeteaseID)
+	response, err := s.fetchSongV1(ctx, song.NeteaseID, "exhigh")
+
+	// 如果 exhigh 失败或返回空，尝试 standard 音质
+	if err != nil || response.AudioURL == "" {
+		if err != nil {
+			log.Printf("[MUSIC_API] exhigh 音质获取失败，尝试 standard 音质 - 网易云ID: %s, 错误: %v", song.NeteaseID, err)
+		} else {
+			log.Printf("[MUSIC_API] exhigh 音质返回空，尝试 standard 音质 - 网易云ID: %s", song.NeteaseID)
+		}
+
+		response, err = s.fetchSongV1(ctx, song.NeteaseID, "standard")
+		if err != nil {
+			log.Printf("[MUSIC_API] standard 音质获取失败 - 网易云ID: %s, 错误: %v", song.NeteaseID, err)
+			return SongResourceResponse{}, fmt.Errorf("获取歌曲资源失败: %w", err)
+		}
 	}
 
-	if audioURL == "" {
-		log.Printf("[MUSIC_API] 高质量音频URL为空，允许前端降级使用基础资源 - 网易云ID: %s", song.NeteaseID)
-		// 不抛出错误，返回空的响应，让前端自动降级到基础资源
+	if response.AudioURL == "" {
+		log.Printf("[MUSIC_API] 所有音质都返回空URL - 网易云ID: %s", song.NeteaseID)
 		return SongResourceResponse{
 			AudioURL:   "",
 			LyricsText: "",
 		}, nil
 	}
 
-	log.Printf("[MUSIC_API] 成功获取高质量音频URL - 网易云ID: %s", song.NeteaseID)
+	log.Printf("[MUSIC_API] 成功获取歌曲资源 - 网易云ID: %s, 有歌词: %v", song.NeteaseID, response.LyricsText != "")
 
-	// 获取高质量歌词 - 可选，失败不影响整体结果
-	var lyricsText string
-	log.Printf("[MUSIC_API] 获取高质量歌词 - 网易云ID: %s", song.NeteaseID)
-	if lyrics, err := s.fetchHighQualityLyrics(ctx, song.NeteaseID); err == nil && lyrics != "" {
-		lyricsText = lyrics
-		log.Printf("[MUSIC_API] 成功获取高质量歌词 - 网易云ID: %s", song.NeteaseID)
-	} else {
-		log.Printf("[MUSIC_API] 高质量歌词获取失败，但不影响音频 - 网易云ID: %s, 错误: %v", song.NeteaseID, err)
-	}
-
-	result := SongResourceResponse{
-		AudioURL:   audioURL,
-		LyricsText: lyricsText,
-	}
-
-	log.Printf("[MUSIC_API] 高质量资源获取完成 - 网易云ID: %s, 有歌词: %v",
-		song.NeteaseID, lyricsText != "")
-
-	return result, nil
+	return response, nil
 }
 
 // isValidLRCFormat 验证LRC格式
@@ -609,260 +593,85 @@ func (s *musicService) isValidNeteaseID(neteaseID string) bool {
 	return neteaseIDPattern.MatchString(neteaseID)
 }
 
-// fetchHighQualityMusicUrl 获取高质量音频URL（内部方法）
-func (s *musicService) fetchHighQualityMusicUrl(ctx context.Context, neteaseID string) (string, error) {
+// fetchSongV1 使用 Song_V1 API 获取歌曲资源（音频和歌词）
+func (s *musicService) fetchSongV1(ctx context.Context, neteaseID string, level string) (SongResourceResponse, error) {
+	log.Printf("[MUSIC_API] 调用 Song_V1 API - 网易云ID: %s, 音质: %s", neteaseID, level)
 
-	if neteaseID == "" {
-		log.Printf("[MUSIC_API] 网易云音乐ID为空，无法获取高质量音频")
-		return "", nil
-	}
-
-	// 验证ID格式 - 必须是纯数字
-	if !s.isValidNeteaseID(neteaseID) {
-		log.Printf("[MUSIC_API] 网易云音乐ID格式无效，跳过高质量音频获取 - ID: %s", neteaseID)
-		return "", nil // 返回空字符串而不是错误，允许降级到原始音频
-	}
-
-	// 构建请求体
-	requestData := map[string]interface{}{
-		"id":    neteaseID,
-		"level": "lossless",
-	}
-
-	requestBody, err := json.Marshal(requestData)
-	if err != nil {
-		s.logError("构建高质量音频请求体", s.highQualityMusicAPI, err)
-		return "", fmt.Errorf("构建高质量音频请求体失败: %w", err)
-	}
+	// 构建请求参数（使用 form-urlencoded 格式）
+	formData := fmt.Sprintf("url=%s&level=%s&type=json", neteaseID, level)
 
 	// 记录请求日志
-	s.logRequest("POST", s.highQualityMusicAPI, requestBody)
+	s.logRequest("POST", s.songAPI, []byte(formData))
 
 	startTime := time.Now()
 
 	// 创建请求
-	req, err := http.NewRequestWithContext(ctx, "POST", s.highQualityMusicAPI, bytes.NewBuffer(requestBody))
+	req, err := http.NewRequestWithContext(ctx, "POST", s.songAPI, strings.NewReader(formData))
 	if err != nil {
-		s.logError("创建高质量音频请求", s.highQualityMusicAPI, err)
-		return "", fmt.Errorf("创建高质量音频请求失败: %w", err)
+		s.logError("创建 Song_V1 请求", s.songAPI, err)
+		return SongResourceResponse{}, fmt.Errorf("创建 Song_V1 请求失败: %w", err)
 	}
 
-	// 设置请求头
-	req.Header.Set("Accept", "*/*")
+	// 设置请求头（模拟浏览器请求）
+	req.Header.Set("Accept", "application/json, text/javascript, */*; q=0.01")
 	req.Header.Set("Accept-Language", "zh-CN,zh;q=0.9")
 	req.Header.Set("Cache-Control", "no-cache")
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+	req.Header.Set("Origin", "https://metings.qjqq.cn")
 	req.Header.Set("Pragma", "no-cache")
+	req.Header.Set("Referer", "https://metings.qjqq.cn/")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36")
+	req.Header.Set("X-Requested-With", "XMLHttpRequest")
 
 	// 发送请求
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
-		s.logError("获取高质量音频", s.highQualityMusicAPI, err)
-		return "", fmt.Errorf("高质量音频请求失败: %w", err)
+		s.logError("获取 Song_V1 数据", s.songAPI, err)
+		return SongResourceResponse{}, fmt.Errorf("Song_V1 请求失败: %w", err)
 	}
 	defer resp.Body.Close()
 
 	// 读取响应
 	responseBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		s.logError("读取高质量音频响应", s.highQualityMusicAPI, err)
-		return "", fmt.Errorf("读取高质量音频响应失败: %w", err)
+		s.logError("读取 Song_V1 响应", s.songAPI, err)
+		return SongResourceResponse{}, fmt.Errorf("读取 Song_V1 响应失败: %w", err)
 	}
 
 	duration := time.Since(startTime)
-	s.logResponse(s.highQualityMusicAPI, resp.StatusCode, responseBody, duration)
-
-	// 验证响应格式
-	if err := s.validateJSONResponse(resp, responseBody, "高质量音频"); err != nil {
-		return "", err
-	}
-
-	// 解析响应
-	var apiResponse MusicApiResponse
-	if err := json.Unmarshal(responseBody, &apiResponse); err != nil {
-		log.Printf("[MUSIC_API] JSON解析失败，响应内容: %s", string(responseBody))
-		s.logError("解析高质量音频JSON", s.highQualityMusicAPI, err)
-		return "", fmt.Errorf("解析高质量音频JSON失败: %w", err)
-	}
-
-	// 检查响应
-	if apiResponse.Code != 200 {
-		// API返回了错误响应，记录详细信息但不抛出错误（允许降级）
-		if apiResponse.Msg != "" {
-			log.Printf("[MUSIC_API] 高质量音频获取失败 - 网易云ID: %s, 响应码: %d, 错误信息: %s",
-				neteaseID, apiResponse.Code, apiResponse.Msg)
-		} else {
-			log.Printf("[MUSIC_API] 高质量音频获取失败 - 网易云ID: %s, 响应码: %d", neteaseID, apiResponse.Code)
-		}
-		return "", nil // 返回空而不是错误，允许降级到原始API
-	}
-
-	// 检查数据是否有效
-	if len(apiResponse.Data) > 0 {
-		musicData := apiResponse.Data[0]
-		if musicData.URL != "" {
-			log.Printf("[MUSIC_API] 成功获取高质量音频URL - 网易云ID: %s, 码率: %d", neteaseID, musicData.Br)
-			return musicData.URL, nil
-		}
-	}
-
-	log.Printf("[MUSIC_API] 高质量音频数据为空或无效 - 网易云ID: %s", neteaseID)
-	return "", nil
-}
-
-// fetchHighQualityLyrics 获取高质量歌词（内部方法）
-func (s *musicService) fetchHighQualityLyrics(ctx context.Context, neteaseID string) (string, error) {
-
-	if neteaseID == "" {
-		log.Printf("[MUSIC_API] 网易云音乐ID为空，无法获取高质量歌词")
-		return "", nil
-	}
-
-	// 验证ID格式 - 必须是纯数字
-	if !s.isValidNeteaseID(neteaseID) {
-		log.Printf("[MUSIC_API] 网易云音乐ID格式无效，跳过高质量歌词获取 - ID: %s", neteaseID)
-		return "", nil // 返回空字符串而不是错误，允许降级到原始歌词
-	}
-
-	// 构建请求体
-	requestData := map[string]interface{}{
-		"id": neteaseID,
-	}
-
-	requestBody, err := json.Marshal(requestData)
-	if err != nil {
-		s.logError("构建高质量歌词请求体", s.highQualityLyricAPI, err)
-		return "", fmt.Errorf("构建高质量歌词请求体失败: %w", err)
-	}
-
-	// 记录请求日志
-	s.logRequest("POST", s.highQualityLyricAPI, requestBody)
-
-	startTime := time.Now()
-
-	// 创建请求
-	req, err := http.NewRequestWithContext(ctx, "POST", s.highQualityLyricAPI, bytes.NewBuffer(requestBody))
-	if err != nil {
-		s.logError("创建高质量歌词请求", s.highQualityLyricAPI, err)
-		return "", fmt.Errorf("创建高质量歌词请求失败: %w", err)
-	}
-
-	// 设置请求头
-	req.Header.Set("Accept", "*/*")
-	req.Header.Set("Accept-Language", "zh-CN,zh;q=0.9")
-	req.Header.Set("Cache-Control", "no-cache")
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Pragma", "no-cache")
-
-	// 发送请求
-	resp, err := s.httpClient.Do(req)
-	if err != nil {
-		s.logError("获取高质量歌词", s.highQualityLyricAPI, err)
-		return "", fmt.Errorf("高质量歌词请求失败: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// 读取响应
-	responseBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		s.logError("读取高质量歌词响应", s.highQualityLyricAPI, err)
-		return "", fmt.Errorf("读取高质量歌词响应失败: %w", err)
-	}
-
-	duration := time.Since(startTime)
-	s.logResponse(s.highQualityLyricAPI, resp.StatusCode, responseBody, duration)
-
-	// 验证响应格式
-	if err := s.validateJSONResponse(resp, responseBody, "高质量歌词"); err != nil {
-		return "", err
-	}
-
-	// 解析响应
-	var apiResponse LyricApiResponse
-	if err := json.Unmarshal(responseBody, &apiResponse); err != nil {
-		log.Printf("[MUSIC_API] JSON解析失败，响应内容: %s", string(responseBody))
-		s.logError("解析高质量歌词JSON", s.highQualityLyricAPI, err)
-		return "", fmt.Errorf("解析高质量歌词JSON失败: %w", err)
-	}
-
-	// 检查响应
-	if apiResponse.Code != 200 {
-		// API返回了错误响应，记录详细信息但不抛出错误（允许降级）
-		if apiResponse.Msg != "" {
-			log.Printf("[MUSIC_API] 高质量歌词获取失败 - 网易云ID: %s, 响应码: %d, 错误信息: %s",
-				neteaseID, apiResponse.Code, apiResponse.Msg)
-		} else {
-			log.Printf("[MUSIC_API] 高质量歌词获取失败 - 网易云ID: %s, 响应码: %d", neteaseID, apiResponse.Code)
-		}
-		return "", nil // 返回空而不是错误，允许降级到原始API
-	}
-
-	// 检查歌词数据是否有效
-	if apiResponse.Data.Lrc != "" {
-		lrcText := apiResponse.Data.Lrc
-		if s.isValidLRCFormat(lrcText) {
-			log.Printf("[MUSIC_API] 成功获取高质量歌词 - 网易云ID: %s, 长度: %d", neteaseID, len(lrcText))
-			return lrcText, nil
-		}
-		log.Printf("[MUSIC_API] 高质量歌词格式无效 - 网易云ID: %s", neteaseID)
-	}
-
-	log.Printf("[MUSIC_API] 高质量歌词数据为空或无效 - 网易云ID: %s", neteaseID)
-	return "", nil
-}
-
-// fetchLyrics 获取原始歌词（内部方法）
-func (s *musicService) fetchLyrics(ctx context.Context, lrcUrl string) (string, error) {
-	if lrcUrl == "" {
-		return "", nil
-	}
-
-	// 记录请求日志
-	s.logRequest("GET", lrcUrl, nil)
-
-	startTime := time.Now()
-
-	// 创建请求
-	req, err := http.NewRequestWithContext(ctx, "GET", lrcUrl, nil)
-	if err != nil {
-		s.logError("创建歌词请求", lrcUrl, err)
-		return "", fmt.Errorf("创建歌词请求失败: %w", err)
-	}
-
-	// 发送请求
-	resp, err := s.httpClient.Do(req)
-	if err != nil {
-		s.logError("获取歌词", lrcUrl, err)
-		return "", fmt.Errorf("获取歌词失败: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// 读取响应
-	responseBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		s.logError("读取歌词响应", lrcUrl, err)
-		return "", fmt.Errorf("读取歌词响应失败: %w", err)
-	}
-
-	duration := time.Since(startTime)
-	s.logResponse(lrcUrl, resp.StatusCode, responseBody, duration)
+	s.logResponse(s.songAPI, resp.StatusCode, responseBody, duration)
 
 	// 检查状态码
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("[MUSIC_API] 歌词API返回错误状态码: %d", resp.StatusCode)
-		return "", nil
+		log.Printf("[MUSIC_API] Song_V1 API返回错误状态码: %d", resp.StatusCode)
+		return SongResourceResponse{}, fmt.Errorf("Song_V1 API返回错误状态码: %d", resp.StatusCode)
 	}
 
-	lrcText := string(responseBody)
-
-	// 验证歌词格式
-	if lrcText == "" || !s.isValidLRCFormat(lrcText) {
-		log.Printf("[MUSIC_API] 获取到的歌词格式无效或为空")
-		return "", nil
+	// 解析响应
+	var apiResponse SongV1ApiResponse
+	if err := json.Unmarshal(responseBody, &apiResponse); err != nil {
+		log.Printf("[MUSIC_API] JSON解析失败，响应内容: %s", string(responseBody))
+		s.logError("解析 Song_V1 JSON", s.songAPI, err)
+		return SongResourceResponse{}, fmt.Errorf("解析 Song_V1 JSON失败: %w", err)
 	}
 
-	log.Printf("[MUSIC_API] 成功获取原始歌词 - 长度: %d", len(lrcText))
-	return lrcText, nil
+	// 检查响应状态
+	if apiResponse.Status != 200 || !apiResponse.Success {
+		log.Printf("[MUSIC_API] Song_V1 API返回错误 - 状态码: %d, 成功: %v, 消息: %s",
+			apiResponse.Status, apiResponse.Success, apiResponse.Message)
+		return SongResourceResponse{}, fmt.Errorf("Song_V1 API返回错误: %s", apiResponse.Message)
+	}
+
+	// 返回结果
+	result := SongResourceResponse{
+		AudioURL:   apiResponse.Data.URL,
+		LyricsText: apiResponse.Data.Lyric, // 注意字段名是 lyric 不是 lrc
+	}
+
+	log.Printf("[MUSIC_API] Song_V1 API调用成功 - 网易云ID: %s, 音质: %s (大小: %s), 有URL: %v, 有歌词: %v",
+		neteaseID, level, apiResponse.Data.Size, result.AudioURL != "", result.LyricsText != "")
+
+	return result, nil
 }
 
 // optimizePicUrlsWithTimeout 在指定时间内并发优化图片URL

@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-15 11:30:55
- * @LastEditTime: 2025-10-01 23:08:18
+ * @LastEditTime: 2025-10-16 13:40:39
  * @LastEditors: 安知鱼
  */
 // anheyu-app/pkg/router/router.go
@@ -181,7 +181,7 @@ func (r *Router) Setup(engine *gin.Engine) {
 	r.registerPageRoutes(apiGroup)
 	r.registerSearchRoutes(apiGroup)
 	r.registerLinkRoutes(apiGroup)
-	r.registerMusicRoutes(apiGroup)
+	// r.registerMusicRoutes(apiGroup) // 已禁用 - 前端直接调用外部API (2025-10-16)
 	r.registerStatisticsRoutes(apiGroup)
 	r.registerThemeRoutes(apiGroup)
 	r.registerVersionRoutes(apiGroup)
@@ -626,7 +626,14 @@ func (r *Router) registerThemeRoutes(api *gin.RouterGroup) {
 }
 
 // registerMusicRoutes 注册音乐相关的路由
+// 注意：音乐功能已改为前端直接调用外部API (2025-10-16)
+// 保留此方法作为备份，如需启用请取消注释并在 RegisterRoutes 中调用
 func (r *Router) registerMusicRoutes(api *gin.RouterGroup) {
+	// 检查 musicHandler 是否为 nil（已禁用）
+	if r.musicHandler == nil {
+		return
+	}
+
 	// --- 前台公开音乐接口 ---
 	musicPublic := api.Group("/public/music")
 	{
