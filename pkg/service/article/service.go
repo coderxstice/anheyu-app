@@ -141,8 +141,6 @@ func (s *serviceImpl) UploadArticleImage(ctx context.Context, ownerID uint, file
 }
 
 func (s *serviceImpl) determinePrimaryColor(ctx context.Context, topImgURL, coverURL string) string {
-	const defaultColor = "#b4bfe2"
-
 	imageURLToUse := ""
 	if topImgURL != "" {
 		imageURLToUse = topImgURL
@@ -151,11 +149,17 @@ func (s *serviceImpl) determinePrimaryColor(ctx context.Context, topImgURL, cove
 	}
 
 	if imageURLToUse == "" {
-		return defaultColor
+		log.Printf("[determinePrimaryColor] 没有可用的图片URL，返回空字符串")
+		return ""
 	}
 
 	// 使用新的主色调服务智能获取主色调
-	return s.primaryColorSvc.GetPrimaryColorFromURL(ctx, imageURLToUse)
+	// 返回空字符串表示获取失败，前端应使用默认值
+	color := s.primaryColorSvc.GetPrimaryColorFromURL(ctx, imageURLToUse)
+	if color == "" {
+		log.Printf("[determinePrimaryColor] 主色调服务获取失败，返回空字符串，前端将使用默认值")
+	}
+	return color
 }
 
 // updateSiteStatsInBackground 异步更新全站的文章和字数统计配置。
@@ -1003,8 +1007,9 @@ func (s *serviceImpl) GetPrimaryColorFromURL(ctx context.Context, imageURL strin
 
 	log.Printf("[GetPrimaryColorFromURL] 主色调服务返回: %s", color)
 
-	// 只要返回了颜色就认为成功（即使是默认颜色也返回）
+	// 如果返回空字符串，表示获取失败
 	if color == "" {
+		log.Printf("[GetPrimaryColorFromURL] 获取主色调失败，返回错误，前端将使用默认值")
 		return "", fmt.Errorf("无法从图片获取主色调")
 	}
 
