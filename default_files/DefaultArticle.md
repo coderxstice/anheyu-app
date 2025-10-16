@@ -370,6 +370,199 @@ note、abstract、info、tip、success、question、warning、failure、danger�
 
 :::
 
+## 按钮组
+
+:::tabs active=3
+
+== tab 标签语法
+
+```markdown
+:::btns
+
+- icon=图标类名 title=标题 url=链接地址 desc=描述文字
+- icon=图标类名 title=标题 url=链接地址 desc=描述文字
+  :::
+```
+
+完整格式：
+
+```markdown
+:::btns cols=列数 style=样式
+
+- icon=图标类名 title=标题 url=链接地址 desc=描述文字 color=颜色
+- icon=图标类名 title=标题 url=链接地址 desc=描述文字 color=颜色
+  :::
+```
+
+== tab 配置参数
+
+**容器参数**（在 `:::btns` 后指定）：
+
+- `cols`: 列数，默认为 3，范围 1-6
+- `style`: 样式风格，可选 `default`、`card`、`simple`
+
+**按钮参数**：
+
+- `icon`: 图标类名或图片链接（必填）
+  - 图标类名：如 `anzhiyu-icon-user-3-fill`
+  - 图片链接：支持 http:// 或 https:// 开头的图片 URL
+- `title`: 按钮标题（必填）
+- `url`: 链接地址，默认为 `#`
+- `desc`: 描述文字（可选）
+- `color`: 按钮颜色（可选）
+  - blue（蓝色）
+  - pink（粉色）
+  - red（红色）
+  - purple（紫色）
+  - orange（橙色）
+  - green（绿色）
+
+== tab 样式预览
+
+**团队成员展示**
+
+:::btns cols=3
+
+- icon=anzhiyu-icon-shapes title=安知鱼 url=https://blog.anheyu.com desc=创始人·全栈开发 color=blue
+- icon=anzhiyu-icon-shapes title=张小明 url=# desc=前端工程师 color=green
+- icon=anzhiyu-icon-shapes title=李小红 url=# desc=UI/UX 设计师 color=pink
+- icon=anzhiyu-icon-shapes title=王小刚 url=# desc=后端工程师 color=purple
+- icon=anzhiyu-icon-shapes title=刘小丽 url=# desc=产品经理 color=orange
+- icon=anzhiyu-icon-shapes title=赵小强 url=# desc=测试工程师 color=red
+
+:::
+
+**友情链接（4 列）**
+
+:::btns cols=4
+
+- icon=anzhiyu-icon-link title=安知鱼博客 url=https://blog.anheyu.com desc=技术分享与生活记录
+- icon=anzhiyu-icon-link title=Hexo url=https://hexo.io desc=快速、简洁的博客框架
+- icon=anzhiyu-icon-link title=Vue.js url=https://vuejs.org desc=渐进式 JavaScript 框架
+- icon=anzhiyu-icon-link title=TypeScript url=https://www.typescriptlang.org desc=JavaScript 的超集
+
+:::
+
+**社交媒体链接（5 列）**
+
+:::btns cols=5
+
+- icon=anzhiyu-icon-github-fill title=GitHub url=https://github.com color=blue
+- icon=anzhiyu-icon-twitter-fill title=Twitter url=https://twitter.com color=blue
+- icon=anzhiyu-icon-bilibili-fill title=Bilibili url=https://bilibili.com color=pink
+- icon=anzhiyu-icon-wechat-fill title=微信 url=# color=green
+- icon=anzhiyu-icon-qq-fill title=QQ url=# color=blue
+
+:::
+
+**简单列表（2 列）**
+
+:::btns cols=2
+
+- icon=anzhiyu-icon-file-text title=文档 url=# desc=查看完整文档 color=blue
+- icon=anzhiyu-icon-github title=源码 url=# desc=GitHub 仓库 color=purple
+
+:::
+
+== tab 使用示例
+
+**示例 1：团队成员页面**
+
+展示团队成员信息，使用 3 列布局：
+
+```markdown
+:::btns cols=3
+
+- icon=anzhiyu-icon-shapes title=张三 url=https://example.com desc=前端工程师 color=blue
+- icon=anzhiyu-icon-shapes title=李四 url=https://example.com desc=后端工程师 color=green
+- icon=anzhiyu-icon-shapes title=王五 url=https://example.com desc=UI 设计师 color=pink
+
+:::
+```
+
+**示例 2：项目展示**
+
+展示多个项目，使用 4 列布局：
+
+```markdown
+:::btns cols=4
+
+- icon=anzhiyu-icon-code title=项目 A url=# desc=Web 应用开发
+- icon=anzhiyu-icon-mobile title=项目 B url=# desc=移动端应用
+- icon=anzhiyu-icon-server title=项目 C url=# desc=后端服务
+- icon=anzhiyu-icon-database title=项目 D url=# desc=数据库设计
+
+:::
+```
+
+**示例 3：合作伙伴**
+
+不使用描述，只显示图标和标题：
+
+```markdown
+:::btns cols=6
+
+- icon=anzhiyu-icon-company-1 title=公司 A url=#
+- icon=anzhiyu-icon-company-2 title=公司 B url=#
+- icon=anzhiyu-icon-company-3 title=公司 C url=#
+- icon=anzhiyu-icon-company-4 title=公司 D url=#
+- icon=anzhiyu-icon-company-5 title=公司 E url=#
+- icon=anzhiyu-icon-company-6 title=公司 F url=#
+
+:::
+```
+
+**示例 4：使用图片作为图标**
+
+icon 支持 https 图片链接，显示为圆形头像：
+
+```markdown
+:::btns cols=4
+
+- icon=https://example.com/avatar1.jpg title=成员 A url=#
+- icon=https://example.com/avatar2.jpg title=成员 B url=#
+- icon=https://example.com/avatar3.jpg title=成员 C url=#
+- icon=https://example.com/avatar4.jpg title=成员 D url=#
+
+:::
+```
+
+== tab 最佳实践
+
+**1. 列数选择**
+
+- **2 列**: 适合内容较多的项目，需要更多空间展示描述
+- **3 列**: 最常用的布局，适合团队成员、服务介绍等
+- **4 列**: 适合友情链接、合作伙伴等
+- **5-6 列**: 适合社交媒体图标、简单链接等
+
+**2. 图标使用**
+
+- 保持同一组按钮使用相同系列的图标
+- 团队成员建议使用 `anzhiyu-icon-user-*` 系列
+- 社交媒体使用对应的品牌图标
+- 链接使用 `anzhiyu-icon-link` 或 `anzhiyu-icon-external-link`
+
+**3. 颜色搭配**
+
+- 团队成员可以使用不同颜色区分角色
+- 同类型链接建议使用相同颜色
+- 重要项目可以使用 `blue` 或 `purple` 突出显示
+
+**4. 描述文字**
+
+- 描述文字应该简短精炼（10-20 字为佳）
+- 如果内容较长，考虑使用 2 列布局
+- 纯图标导航可以省略描述
+
+**5. 响应式注意事项**
+
+- 移动端会自动调整为更少的列数
+- 6 列布局在移动端可能显示为 2-3 列
+- 建议测试移动端效果
+
+:::
+
 ## tab 分栏
 
 :::tabs
@@ -516,7 +709,7 @@ console.log("Hello World");
 
 LinkCard 插件可以创建美观的链接卡片，用于展示外部链接信息。
 
-### LinkCard基础用法
+### LinkCard 基础用法
 
 {linkcard url=https://blog.anheyu.com title=安知鱼 sitename=AnZhiYu}{/linkcard}
 
