@@ -2,7 +2,7 @@
  * @Description: 代理处理器，用于处理外部资源下载
  * @Author: 安知鱼
  * @Date: 2025-01-20 10:00:00
- * @LastEditTime: 2025-08-31 12:25:14
+ * @LastEditTime: 2025-10-16 11:39:50
  * @LastEditors: 安知鱼
  */
 package proxy
@@ -110,8 +110,11 @@ func (h *ProxyHandler) HandleDownload(c *gin.Context) {
 
 	// 从原始响应中复制必要的头信息到我们的响应中
 	c.Header("Content-Type", contentType)
-	if resp.Header.Get("Content-Length") != "" {
-		c.Header("Content-Length", resp.Header.Get("Content-Length"))
+
+	// 设置 Content-Length 以支持进度显示
+	contentLength := resp.Header.Get("Content-Length")
+	if contentLength != "" {
+		c.Header("Content-Length", contentLength)
 	}
 
 	// 设置我们自己的头信息
@@ -119,11 +122,36 @@ func (h *ProxyHandler) HandleDownload(c *gin.Context) {
 	c.Header("Cache-Control", "no-cache")
 	c.Header("Access-Control-Allow-Origin", "*")
 
-	// 流式传输文件内容
-	_, err = io.Copy(c.Writer, resp.Body)
-	if err != nil {
-		// 优化：此时HTTP头已发送，不能再写入JSON。只能在服务端记录日志。
-		log.Printf("向客户端传输文件时发生错误: %v", err)
+	// 禁用压缩和缓冲，确保流式传输
+	c.Header("Content-Encoding", "identity")
+	c.Header("X-Content-Type-Options", "nosniff")
+
+	// 流式传输文件内容，支持进度显示
+	// 使用缓冲区分块传输，每次传输后刷新，让浏览器能实时获取进度
+	buffer := make([]byte, 32*1024) // 32KB 缓冲区
+	flusher, ok := c.Writer.(http.Flusher)
+
+	for {
+		n, err := resp.Body.Read(buffer)
+		if n > 0 {
+			// 写入数据
+			if _, writeErr := c.Writer.Write(buffer[:n]); writeErr != nil {
+				log.Printf("写入数据到客户端时发生错误: %v", writeErr)
+				return
+			}
+
+			// 立即刷新缓冲区，让客户端能接收到数据并更新进度
+			if ok {
+				flusher.Flush()
+			}
+		}
+
+		if err != nil {
+			if err != io.EOF {
+				log.Printf("读取远程文件时发生错误: %v", err)
+			}
+			break
+		}
 	}
 }
 
