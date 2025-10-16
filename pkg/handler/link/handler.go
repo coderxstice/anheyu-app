@@ -201,9 +201,12 @@ func (h *Handler) AdminCreateLink(c *gin.Context) {
 // @Tags         友链管理
 // @Security     BearerAuth
 // @Produce      json
-// @Param        page       query  int     false  "页码"  default(1)
-// @Param        page_size  query  int     false  "每页数量"  default(10)
-// @Param        status     query  string  false  "审核状态"
+// @Param        page         query  int     false  "页码"  default(1)
+// @Param        page_size    query  int     false  "每页数量"  default(10)
+// @Param        name         query  string  false  "友链名称（模糊搜索）"
+// @Param        status       query  string  false  "审核状态"
+// @Param        category_id  query  int     false  "分类ID"
+// @Param        tag_id       query  int     false  "标签ID"
 // @Success      200  {object}  response.Response{data=model.LinkListResponse}  "获取成功"
 // @Failure      400  {object}  response.Response  "参数无效"
 // @Failure      500  {object}  response.Response  "获取失败"
