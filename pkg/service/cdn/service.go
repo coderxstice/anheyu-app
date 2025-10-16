@@ -5,12 +5,14 @@ import (
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -85,6 +87,8 @@ func (s *serviceImpl) PurgeCache(ctx context.Context, urls []string) error {
 		return s.purgeTencentCache(ctx, urls)
 	case "edgeone":
 		return s.purgeEdgeOneCache(ctx, urls)
+	case "aliyun-esa":
+		return s.purgeAliyunESACache(ctx, urls)
 	default:
 		log.Printf("[CDN] 不支持的CDN提供商: %s", provider)
 		return nil
@@ -368,4 +372,173 @@ func (s *serviceImpl) hmacSha256(key []byte, data string) []byte {
 	mac := hmac.New(sha256.New, key)
 	mac.Write([]byte(data))
 	return mac.Sum(nil)
+}
+
+// purgeAliyunESACache 清除阿里云ESA缓存
+func (s *serviceImpl) purgeAliyunESACache(ctx context.Context, urls []string) error {
+	_, _, accessKeyID, accessKeySecret, _, _, siteID := s.getConfig()
+	if accessKeyID == "" || accessKeySecret == "" || siteID == "" {
+		log.Printf("[CDN] 阿里云ESA配置不完整，跳过缓存清除")
+		return nil
+	}
+
+	// 阿里云ESA API地址
+	host := "esa.cn-hangzhou.aliyuncs.com"
+	action := "PurgeObjectCaches"
+	version := "2024-09-10"
+
+	// 构建请求参数
+	params := map[string]interface{}{
+		"SiteId":  siteID,
+		"Type":    "purge_url",
+		"Content": strings.Join(urls, "\n"), // 每个URL一行
+	}
+
+	// 调用阿里云API
+	err := s.callAliyunAPI(ctx, host, action, version, accessKeyID, accessKeySecret, params)
+	if err != nil {
+		return fmt.Errorf("阿里云ESA缓存清除失败: %w", err)
+	}
+
+	log.Printf("[CDN] 阿里云ESA缓存清除成功: %v", urls)
+	return nil
+}
+
+// callAliyunAPI 调用阿里云API的通用方法
+func (s *serviceImpl) callAliyunAPI(ctx context.Context, host, action, version, accessKeyID, accessKeySecret string, params map[string]interface{}) error {
+	// 构建请求参数
+	timestamp := time.Now().UTC().Format("2006-01-02T15:04:05Z")
+	nonce := fmt.Sprintf("%d", time.Now().UnixNano())
+
+	// 构建公共参数
+	commonParams := map[string]string{
+		"Action":           action,
+		"Version":          version,
+		"AccessKeyId":      accessKeyID,
+		"SignatureMethod":  "HMAC-SHA256",
+		"Timestamp":        timestamp,
+		"SignatureVersion": "1.0",
+		"SignatureNonce":   nonce,
+		"Format":           "JSON",
+	}
+
+	// 合并所有参数
+	allParams := make(map[string]string)
+	for k, v := range commonParams {
+		allParams[k] = v
+	}
+	for k, v := range params {
+		switch val := v.(type) {
+		case string:
+			allParams[k] = val
+		case int:
+			allParams[k] = strconv.Itoa(val)
+		default:
+			jsonBytes, _ := json.Marshal(val)
+			allParams[k] = string(jsonBytes)
+		}
+	}
+
+	// 生成签名
+	signature := s.generateAliyunSignature(allParams, accessKeySecret, "POST")
+	allParams["Signature"] = signature
+
+	// 构建请求体
+	values := make([]string, 0, len(allParams))
+	for k, v := range allParams {
+		values = append(values, fmt.Sprintf("%s=%s", k, v))
+	}
+	requestBody := strings.Join(values, "&")
+
+	// 创建HTTP请求
+	apiURL := fmt.Sprintf("https://%s", host)
+	req, err := http.NewRequestWithContext(ctx, "POST", apiURL, strings.NewReader(requestBody))
+	if err != nil {
+		return fmt.Errorf("创建HTTP请求失败: %w", err)
+	}
+
+	// 设置请求头
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	// 发送请求
+	resp, err := s.httpClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("发送请求失败: %w", err)
+	}
+	defer resp.Body.Close()
+
+	// 读取响应
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("读取响应失败: %w", err)
+	}
+
+	// 检查响应状态
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("阿里云API返回错误: %d, %s", resp.StatusCode, string(body))
+	}
+
+	// 解析响应，检查是否有错误
+	var response map[string]interface{}
+	if err := json.Unmarshal(body, &response); err != nil {
+		return fmt.Errorf("解析响应失败: %w", err)
+	}
+
+	if code, exists := response["Code"]; exists && code != "" {
+		return fmt.Errorf("阿里云API业务错误: Code=%v, Message=%v", code, response["Message"])
+	}
+
+	return nil
+}
+
+// generateAliyunSignature 生成阿里云API签名
+func (s *serviceImpl) generateAliyunSignature(params map[string]string, accessKeySecret, method string) string {
+	// 1. 对参数按字典序排序
+	var keys []string
+	for k := range params {
+		if k != "Signature" {
+			keys = append(keys, k)
+		}
+	}
+
+	// 使用 strings 包的简单排序
+	for i := 0; i < len(keys)-1; i++ {
+		for j := i + 1; j < len(keys); j++ {
+			if keys[i] > keys[j] {
+				keys[i], keys[j] = keys[j], keys[i]
+			}
+		}
+	}
+
+	// 2. 构建待签名字符串
+	var sortedParams []string
+	for _, k := range keys {
+		sortedParams = append(sortedParams, fmt.Sprintf("%s=%s", s.percentEncode(k), s.percentEncode(params[k])))
+	}
+	canonicalizedQueryString := strings.Join(sortedParams, "&")
+
+	// 3. 构造待签名的字符串
+	stringToSign := method + "&" + s.percentEncode("/") + "&" + s.percentEncode(canonicalizedQueryString)
+
+	// 4. 计算签名
+	mac := hmac.New(sha256.New, []byte(accessKeySecret+"&"))
+	mac.Write([]byte(stringToSign))
+	signData := mac.Sum(nil)
+
+	// 5. Base64编码
+	return s.base64Encode(signData)
+}
+
+// percentEncode URL编码（符合阿里云规范）
+func (s *serviceImpl) percentEncode(str string) string {
+	encoded := url.QueryEscape(str)
+	encoded = strings.ReplaceAll(encoded, "+", "%20")
+	encoded = strings.ReplaceAll(encoded, "*", "%2A")
+	encoded = strings.ReplaceAll(encoded, "%7E", "~")
+	return encoded
+}
+
+// base64Encode Base64编码
+func (s *serviceImpl) base64Encode(data []byte) string {
+	return base64.StdEncoding.EncodeToString(data)
 }

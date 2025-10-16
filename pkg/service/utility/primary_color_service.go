@@ -54,10 +54,21 @@ func NewPrimaryColorService(
 
 // GetPrimaryColorFromURL 根据图片URL智能获取主色调
 // 支持本地存储、阿里云OSS、腾讯云COS、OneDrive等多种存储方式
+// 返回空字符串表示获取失败，前端应使用默认值
 func (s *PrimaryColorService) GetPrimaryColorFromURL(ctx context.Context, imageURL string) string {
 	if imageURL == "" {
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 图片URL为空，返回空字符串")
+		return ""
 	}
+
+	// 清理URL中的特殊字符（包括零宽字符等）
+	imageURL = strings.TrimSpace(imageURL)
+	// 移除常见的零宽字符和不可见字符
+	imageURL = strings.ReplaceAll(imageURL, "\u200B", "") // 零宽空格
+	imageURL = strings.ReplaceAll(imageURL, "\u200C", "") // 零宽非连接符
+	imageURL = strings.ReplaceAll(imageURL, "\u200D", "") // 零宽连接符
+	imageURL = strings.ReplaceAll(imageURL, "\uFEFF", "") // 零宽非断空格 (BOM)
+	imageURL = strings.ReplaceAll(imageURL, "\u2060", "") // 字连接符
 
 	log.Printf("[主色调服务] 开始处理图片URL: %s", imageURL)
 
@@ -65,6 +76,12 @@ func (s *PrimaryColorService) GetPrimaryColorFromURL(ctx context.Context, imageU
 	if isSystemImage, filePublicID := s.isSystemImage(imageURL); isSystemImage {
 		log.Printf("[主色调服务] 检测到系统内图片，FileID: %s", filePublicID)
 		return s.getColorFromSystemFile(ctx, filePublicID)
+	}
+
+	// 判断是否是米游社的图片
+	if s.isMiyousheImage(imageURL) {
+		log.Printf("[主色调服务] 检测到米游社图片，使用OSS图片处理API")
+		return s.getColorFromMiyoushe(ctx, imageURL)
 	}
 
 	// 外部图片，直接下载处理
@@ -106,42 +123,47 @@ func (s *PrimaryColorService) isSystemImage(imageURL string) (bool, string) {
 	return false, ""
 }
 
+// isMiyousheImage 判断URL是否是米游社的图片
+func (s *PrimaryColorService) isMiyousheImage(imageURL string) bool {
+	return strings.Contains(imageURL, "upload-bbs.miyoushe.com")
+}
+
 // getColorFromSystemFile 从系统内的文件获取主色调
 func (s *PrimaryColorService) getColorFromSystemFile(ctx context.Context, filePublicID string) string {
 	// 解码文件公共ID
 	fileID, entityType, err := idgen.DecodePublicID(filePublicID)
 	if err != nil {
-		log.Printf("[主色调服务] 解码文件ID失败: %v", err)
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 解码文件ID失败: %v，返回空字符串", err)
+		return ""
 	}
 
 	if entityType != idgen.EntityTypeFile {
-		log.Printf("[主色调服务] ID类型不是文件类型: %v", entityType)
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] ID类型不是文件类型: %v，返回空字符串", entityType)
+		return ""
 	}
 
 	// 查找文件信息
 	file, err := s.fileRepo.FindByID(ctx, fileID)
 	if err != nil {
-		log.Printf("[主色调服务] 查找文件失败: %v", err)
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 查找文件失败: %v，返回空字符串", err)
+		return ""
 	}
 
 	if file == nil || file.PrimaryEntity == nil {
-		log.Printf("[主色调服务] 文件或实体信息不完整")
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 文件或实体信息不完整，返回空字符串")
+		return ""
 	}
 
 	// 获取存储策略
 	policy, err := s.storagePolicyRepo.FindByID(ctx, file.PrimaryEntity.PolicyID)
 	if err != nil {
-		log.Printf("[主色调服务] 查找存储策略失败: %v", err)
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 查找存储策略失败: %v，返回空字符串", err)
+		return ""
 	}
 
 	if policy == nil {
-		log.Printf("[主色调服务] 存储策略不存在")
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 存储策略不存在，返回空字符串")
+		return ""
 	}
 
 	log.Printf("[主色调服务] 文件所属存储策略类型: %s", policy.Type)
@@ -157,8 +179,8 @@ func (s *PrimaryColorService) getColorFromSystemFile(ctx context.Context, filePu
 	case constant.PolicyTypeAliOSS:
 		return s.getColorFromAliOSS(ctx, file, policy)
 	default:
-		log.Printf("[主色调服务] 不支持的存储策略类型: %s，使用默认颜色", policy.Type)
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 不支持的存储策略类型: %s，返回空字符串", policy.Type)
+		return ""
 	}
 }
 
@@ -168,8 +190,8 @@ func (s *PrimaryColorService) getColorFromLocalFile(ctx context.Context, file *m
 
 	// 检查Source字段
 	if !file.PrimaryEntity.Source.Valid {
-		log.Printf("[主色调服务] 文件Source字段无效")
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 文件Source字段无效，返回空字符串")
+		return ""
 	}
 
 	// 构建完整的文件路径
@@ -178,16 +200,16 @@ func (s *PrimaryColorService) getColorFromLocalFile(ctx context.Context, file *m
 	// 打开文件
 	f, err := os.Open(fullPath)
 	if err != nil {
-		log.Printf("[主色调服务] 打开本地文件失败: %v", err)
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 打开本地文件失败: %v，返回空字符串", err)
+		return ""
 	}
 	defer f.Close()
 
 	// 使用ColorService提取主色调
 	color, err := s.colorSvc.GetPrimaryColor(f)
 	if err != nil {
-		log.Printf("[主色调服务] 从本地文件提取主色调失败: %v", err)
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 从本地文件提取主色调失败: %v，返回空字符串", err)
+		return ""
 	}
 
 	log.Printf("[主色调服务] 成功从本地文件提取主色调: %s", color)
@@ -200,22 +222,22 @@ func (s *PrimaryColorService) getColorFromOneDriveFile(ctx context.Context, file
 
 	// 检查Source字段
 	if !file.PrimaryEntity.Source.Valid {
-		log.Printf("[主色调服务] 文件Source字段无效")
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 文件Source字段无效，返回空字符串")
+		return ""
 	}
 
 	// 获取OneDrive存储提供者
 	provider, exists := s.storageProviders[constant.PolicyTypeOneDrive]
 	if !exists {
-		log.Printf("[主色调服务] OneDrive存储提供者不存在")
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] OneDrive存储提供者不存在，返回空字符串")
+		return ""
 	}
 
 	// 获取下载URL
 	downloadURL, err := provider.GetDownloadURL(ctx, policy, file.PrimaryEntity.Source.String, storage.DownloadURLOptions{})
 	if err != nil {
-		log.Printf("[主色调服务] 获取OneDrive下载URL失败: %v", err)
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 获取OneDrive下载URL失败: %v，返回空字符串", err)
+		return ""
 	}
 
 	// 下载并处理图片
@@ -234,8 +256,8 @@ func (s *PrimaryColorService) getColorFromTencentCOS(ctx context.Context, file *
 		// 私有存储桶：使用storage provider获取带签名的URL，然后添加图片处理参数
 		downloadURL := s.getTencentCOSDownloadURL(ctx, file, policy)
 		if downloadURL == "" {
-			log.Printf("[主色调服务] 获取腾讯云COS签名URL失败")
-			return defaultPrimaryColor
+			log.Printf("[主色调服务] 获取腾讯云COS签名URL失败，返回空字符串")
+			return ""
 		}
 		// 在签名URL后添加图片处理参数
 		if strings.Contains(downloadURL, "?") {
@@ -248,8 +270,8 @@ func (s *PrimaryColorService) getColorFromTencentCOS(ctx context.Context, file *
 		// 公有存储桶：直接构建图片处理URL
 		baseURL := s.buildCOSURL(file, policy)
 		if baseURL == "" {
-			log.Printf("[主色调服务] 构建腾讯云COS URL失败")
-			return defaultPrimaryColor
+			log.Printf("[主色调服务] 构建腾讯云COS URL失败，返回空字符串")
+			return ""
 		}
 		imageAveURL = baseURL + "?imageAve"
 	}
@@ -258,14 +280,14 @@ func (s *PrimaryColorService) getColorFromTencentCOS(ctx context.Context, file *
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, imageAveURL, nil)
 	if err != nil {
-		log.Printf("[主色调服务] 创建腾讯云请求失败: %v", err)
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 创建腾讯云请求失败: %v，返回空字符串", err)
+		return ""
 	}
 
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
-		log.Printf("[主色调服务] 请求腾讯云接口失败: %v", err)
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 请求腾讯云接口失败: %v，返回空字符串", err)
+		return ""
 	}
 	defer resp.Body.Close()
 
@@ -295,8 +317,8 @@ func (s *PrimaryColorService) getColorFromTencentCOS(ctx context.Context, file *
 		RGB string `json:"RGB"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		log.Printf("[主色调服务] 解析腾讯云返回数据失败: %v", err)
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 解析腾讯云返回数据失败: %v，返回空字符串", err)
+		return ""
 	}
 
 	// RGB格式: "0xRRGGBB"
@@ -306,8 +328,8 @@ func (s *PrimaryColorService) getColorFromTencentCOS(ctx context.Context, file *
 		return hexColor
 	}
 
-	log.Printf("[主色调服务] 腾讯云返回格式异常: %s", result.RGB)
-	return defaultPrimaryColor
+	log.Printf("[主色调服务] 腾讯云返回格式异常: %s，返回空字符串", result.RGB)
+	return ""
 }
 
 // getColorFromAliOSS 从阿里云OSS获取主色调
@@ -322,8 +344,8 @@ func (s *PrimaryColorService) getColorFromAliOSS(ctx context.Context, file *mode
 		// 私有存储桶：使用storage provider获取带签名的URL，然后添加图片处理参数
 		downloadURL := s.getAliyunOSSDownloadURL(ctx, file, policy)
 		if downloadURL == "" {
-			log.Printf("[主色调服务] 获取阿里云OSS签名URL失败")
-			return defaultPrimaryColor
+			log.Printf("[主色调服务] 获取阿里云OSS签名URL失败，返回空字符串")
+			return ""
 		}
 		// 在签名URL后添加图片处理参数
 		if strings.Contains(downloadURL, "?") {
@@ -336,8 +358,8 @@ func (s *PrimaryColorService) getColorFromAliOSS(ctx context.Context, file *mode
 		// 公有存储桶：直接构建图片处理URL
 		baseURL := s.buildOSSURL(file, policy)
 		if baseURL == "" {
-			log.Printf("[主色调服务] 构建阿里云OSS URL失败")
-			return defaultPrimaryColor
+			log.Printf("[主色调服务] 构建阿里云OSS URL失败，返回空字符串")
+			return ""
 		}
 		averageHueURL = baseURL + "?x-oss-process=image/average-hue"
 	}
@@ -346,14 +368,14 @@ func (s *PrimaryColorService) getColorFromAliOSS(ctx context.Context, file *mode
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, averageHueURL, nil)
 	if err != nil {
-		log.Printf("[主色调服务] 创建阿里云请求失败: %v", err)
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 创建阿里云请求失败: %v，返回空字符串", err)
+		return ""
 	}
 
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
-		log.Printf("[主色调服务] 请求阿里云接口失败: %v", err)
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 请求阿里云接口失败: %v，返回空字符串", err)
+		return ""
 	}
 	defer resp.Body.Close()
 
@@ -383,8 +405,8 @@ func (s *PrimaryColorService) getColorFromAliOSS(ctx context.Context, file *mode
 		RGB string `json:"RGB"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		log.Printf("[主色调服务] 解析阿里云返回数据失败: %v", err)
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 解析阿里云返回数据失败: %v，返回空字符串", err)
+		return ""
 	}
 
 	// RGB格式: "0xRRGGBB"
@@ -394,8 +416,8 @@ func (s *PrimaryColorService) getColorFromAliOSS(ctx context.Context, file *mode
 		return hexColor
 	}
 
-	log.Printf("[主色调服务] 阿里云返回格式异常: %s", result.RGB)
-	return defaultPrimaryColor
+	log.Printf("[主色调服务] 阿里云返回格式异常: %s，返回空字符串", result.RGB)
+	return ""
 }
 
 // buildCOSURL 构建腾讯云COS的完整URL
@@ -425,6 +447,68 @@ func (s *PrimaryColorService) buildOSSURL(file *model.File, policy *model.Storag
 	return fmt.Sprintf("%s/%s", server, source)
 }
 
+// getColorFromMiyoushe 从米游社图片获取主色调
+func (s *PrimaryColorService) getColorFromMiyoushe(ctx context.Context, imageURL string) string {
+	// 米游社使用阿里云OSS，支持通过添加 x-oss-process=image/average-hue 参数获取主色调
+	var averageHueURL string
+	if strings.Contains(imageURL, "?") {
+		averageHueURL = imageURL + "&x-oss-process=image/average-hue"
+	} else {
+		averageHueURL = imageURL + "?x-oss-process=image/average-hue"
+	}
+
+	log.Printf("[主色调服务] 米游社 average-hue URL: %s", averageHueURL)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, averageHueURL, nil)
+	if err != nil {
+		log.Printf("[主色调服务] 创建米游社请求失败: %v，返回空字符串", err)
+		return ""
+	}
+
+	// 添加常用的 HTTP headers，米游社可能需要 Referer
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+	req.Header.Set("Accept", "application/json,*/*")
+	req.Header.Set("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8")
+	req.Header.Set("Referer", "https://www.miyoushe.com/")
+
+	resp, err := s.httpClient.Do(req)
+	if err != nil {
+		log.Printf("[主色调服务] 请求米游社接口失败: %v，返回空字符串", err)
+		return ""
+	}
+	defer resp.Body.Close()
+
+	// 如果返回403/401等权限错误，或404，降级到下载图片方式
+	if resp.StatusCode == http.StatusForbidden || resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusNotFound {
+		log.Printf("[主色调服务] 米游社接口返回%d状态码（可能是权限问题或服务未开通），降级到下载图片方式", resp.StatusCode)
+		return s.downloadAndExtractColor(ctx, imageURL)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("[主色调服务] 米游社接口返回非200状态码: %d，尝试降级处理", resp.StatusCode)
+		return s.downloadAndExtractColor(ctx, imageURL)
+	}
+
+	// 解析返回的JSON
+	var result struct {
+		RGB string `json:"RGB"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		log.Printf("[主色调服务] 解析米游社返回数据失败: %v，返回空字符串", err)
+		return ""
+	}
+
+	// RGB格式: "0xRRGGBB"
+	if strings.HasPrefix(result.RGB, "0x") {
+		hexColor := "#" + result.RGB[2:]
+		log.Printf("[主色调服务] 从米游社获取主色调成功: %s", hexColor)
+		return hexColor
+	}
+
+	log.Printf("[主色调服务] 米游社返回格式异常: %s，返回空字符串", result.RGB)
+	return ""
+}
+
 // getColorFromExternalURL 从外部URL下载图片并提取主色调
 func (s *PrimaryColorService) getColorFromExternalURL(ctx context.Context, imageURL string) string {
 	return s.downloadAndExtractColor(ctx, imageURL)
@@ -434,26 +518,48 @@ func (s *PrimaryColorService) getColorFromExternalURL(ctx context.Context, image
 func (s *PrimaryColorService) downloadAndExtractColor(ctx context.Context, imageURL string) string {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, imageURL, nil)
 	if err != nil {
-		log.Printf("[主色调服务] 创建HTTP请求失败: %v", err)
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 创建HTTP请求失败: %v，返回空字符串", err)
+		return ""
 	}
+
+	// 添加常用的 HTTP headers，避免服务器拒绝请求
+	// 注意：不设置 Accept-Encoding，让 Go 的 http.Client 自动处理 gzip 解压
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+	req.Header.Set("Accept", "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8")
+	req.Header.Set("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8")
 
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
-		log.Printf("[主色调服务] 下载图片失败: %v", err)
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 下载图片失败: %v，返回空字符串", err)
+		return ""
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("[主色调服务] 图片URL返回非200状态码: %d", resp.StatusCode)
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 图片URL返回非200状态码: %d，返回空字符串", resp.StatusCode)
+		return ""
+	}
+
+	// 检查 Content-Type
+	contentType := resp.Header.Get("Content-Type")
+	log.Printf("[主色调服务] 响应Content-Type: %s", contentType)
+
+	// 如果返回的不是图片类型，检查是否是反爬虫机制
+	if !strings.HasPrefix(contentType, "image/") {
+		// 检查服务器类型
+		server := resp.Header.Get("Server")
+		if strings.Contains(server, "EdgeOne") || strings.Contains(server, "Cloudflare") {
+			log.Printf("[主色调服务] 检测到CDN反爬虫保护 (Server: %s)，该图床需要JavaScript挑战验证，无法直接获取图片，返回空字符串", server)
+		} else {
+			log.Printf("[主色调服务] 响应类型不是图片: %s，可能是服务器返回了错误页面或反爬虫保护，返回空字符串", contentType)
+		}
+		return ""
 	}
 
 	color, err := s.colorSvc.GetPrimaryColor(resp.Body)
 	if err != nil {
-		log.Printf("[主色调服务] 提取主色调失败: %v", err)
-		return defaultPrimaryColor
+		log.Printf("[主色调服务] 提取主色调失败: %v，返回空字符串", err)
+		return ""
 	}
 
 	log.Printf("[主色调服务] 成功提取主色调: %s", color)
