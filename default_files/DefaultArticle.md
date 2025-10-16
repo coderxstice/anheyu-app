@@ -516,7 +516,7 @@ console.log("Hello World");
 
 LinkCard 插件可以创建美观的链接卡片，用于展示外部链接信息。
 
-### 基础用法
+### LinkCard基础用法
 
 {linkcard url=https://blog.anheyu.com title=安知鱼 sitename=AnZhiYu}{/linkcard}
 
