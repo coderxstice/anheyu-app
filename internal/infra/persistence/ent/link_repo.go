@@ -6,6 +6,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent"
 	"github.com/anzhiyu-c/anheyu-app/ent/link"
 	"github.com/anzhiyu-c/anheyu-app/ent/linkcategory"
+	"github.com/anzhiyu-c/anheyu-app/ent/linktag"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
 
@@ -55,6 +56,12 @@ func (r *linkRepo) List(ctx context.Context, req *model.ListLinksRequest) ([]*mo
 	}
 	if req.Status != nil && *req.Status != "" {
 		query = query.Where(link.StatusEQ(link.Status(*req.Status)))
+	}
+	if req.CategoryID != nil {
+		query = query.Where(link.HasCategoryWith(linkcategory.ID(*req.CategoryID)))
+	}
+	if req.TagID != nil {
+		query = query.Where(link.HasTagsWith(linktag.ID(*req.TagID)))
 	}
 
 	total, err := query.Count(ctx)

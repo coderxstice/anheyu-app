@@ -100,6 +100,8 @@ type ListLinksRequest struct {
 	URL         *string `form:"url"`
 	Description *string `form:"description"`
 	Status      *string `form:"status" binding:"omitempty,oneof=PENDING APPROVED REJECTED INVALID"`
+	CategoryID  *int    `form:"category_id"`
+	TagID       *int    `form:"tag_id"`
 }
 
 // ListPublicLinksRequest 是前台查询友链列表的请求结构，仅支持分页。
