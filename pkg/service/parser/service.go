@@ -73,7 +73,8 @@ func NewService(settingSvc setting.SettingService, bus *event.EventBus) *Service
 	)
 	policy.AllowAttrs("ontoggle").OnElements("details")
 	policy.AllowAttrs("onmouseover", "onmouseout").OnElements("summary")
-	policy.AllowAttrs("onclick").OnElements("button", "div", "i")
+	policy.AllowAttrs("onclick").OnElements("button", "div", "i", "span")
+	policy.AllowAttrs("onmouseenter", "onmouseleave").OnElements("span")
 	policy.AllowAttrs("color").OnElements("font")
 	policy.AllowAttrs("align").OnElements("div")
 	policy.AllowAttrs("xmlns").OnElements("annotation", "div")
@@ -100,6 +101,11 @@ func NewService(settingSvc setting.SettingService, bus *event.EventBus) *Service
 	policy.AllowAttrs("data-href").OnElements("button")
 	policy.AllowAttrs("type").OnElements("button")
 	policy.AllowAttrs("aria-label").OnElements("button")
+
+	policy.AllowAttrs("data-tip-id").OnElements("span")
+	policy.AllowAttrs("data-content", "data-position", "data-theme", "data-trigger", "data-delay").OnElements("div")
+	policy.AllowAttrs("role").OnElements("div")
+	policy.AllowAttrs("aria-hidden").OnElements("div")
 
 	// 密码保护内容相关属性
 	policy.AllowAttrs("data-content-id", "data-title", "data-hint", "data-placeholder").OnElements("div", "input", "button")
