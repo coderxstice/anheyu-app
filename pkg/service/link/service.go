@@ -145,8 +145,12 @@ func (s *service) ApplyLink(ctx context.Context, req *model.ApplyLinkRequest) (*
 	if s.pushooSvc != nil {
 		go func() {
 			log.Printf("[DEBUG] 开始处理友链申请即时通知逻辑")
-			pushChannel := s.settingSvc.Get(constant.KeyFriendLinkPushooChannel.String())
-			notifyAdmin := s.settingSvc.GetBool(constant.KeyFriendLinkNotifyAdmin.String())
+
+			pushChannelKey := constant.KeyFriendLinkPushooChannel.String()
+			notifyAdminKey := constant.KeyFriendLinkNotifyAdmin.String()
+
+			pushChannel := s.settingSvc.Get(pushChannelKey)
+			notifyAdmin := s.settingSvc.GetBool(notifyAdminKey)
 
 			log.Printf("[DEBUG] 友链通知配置检查:")
 			log.Printf("[DEBUG]   - pushChannel: '%s'", pushChannel)

@@ -293,6 +293,14 @@ var AllSettings = []Definition{
   </div>
 </details>`, Comment: "申请友链自定义 HTML 内容 (用于前台展示)", IsPublic: true},
 	{Key: constant.KeyFriendLinkDefaultCategory, Value: "2", Comment: "友链默认分类", IsPublic: true},
+	{Key: constant.KeyFriendLinkNotifyAdmin, Value: "false", Comment: "是否在收到友链申请时通知站长", IsPublic: false},
+	{Key: constant.KeyFriendLinkScMailNotify, Value: "false", Comment: "是否同时通过邮件和IM通知站长（友链申请）", IsPublic: false},
+	{Key: constant.KeyFriendLinkPushooChannel, Value: "", Comment: "友链申请即时消息推送平台名称，支持：bark, webhook", IsPublic: false},
+	{Key: constant.KeyFriendLinkPushooURL, Value: "", Comment: "友链申请即时消息推送URL地址 (支持模板变量)", IsPublic: false},
+	{Key: constant.KeyFriendLinkWebhookRequestBody, Value: ``, Comment: "友链申请Webhook自定义请求体模板", IsPublic: false},
+	{Key: constant.KeyFriendLinkWebhookHeaders, Value: "", Comment: "友链申请Webhook自定义请求头，每行一个，格式：Header-Name: Header-Value", IsPublic: false},
+	{Key: constant.KeyFriendLinkMailSubjectAdmin, Value: "{{.SITE_NAME}} 收到了来自 {{.LINK_NAME}} 的友链申请", Comment: "站长收到新友链申请的邮件主题模板", IsPublic: false},
+	{Key: constant.KeyFriendLinkMailTemplateAdmin, Value: `<p>您好！</p><p>您的网站 <strong>{{.SITE_NAME}}</strong> 收到了一个新的友链申请：</p><ul><li>网站名称：{{.LINK_NAME}}</li><li>网站地址：{{.LINK_URL}}</li><li>网站描述：{{.LINK_DESC}}</li><li>申请时间：{{.TIME}}</li></ul><p><a href="{{.ADMIN_URL}}">点击前往管理</a></p>`, Comment: "站长收到新友链申请的邮件HTML模板", IsPublic: false},
 
 	// --- 内部或敏感配置 ---
 	{Key: constant.KeyJWTSecret, Value: "", Comment: "JWT密钥", IsPublic: false},
