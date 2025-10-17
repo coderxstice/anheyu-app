@@ -3,7 +3,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-21 17:18:09
- * @LastEditTime: 2025-10-02 02:00:57
+ * @LastEditTime: 2025-10-17 15:01:53
  * @LastEditors: 安知鱼
  */
 package constant
@@ -94,14 +94,14 @@ const (
 	KeyFriendLinkApplyCustomCode     SettingKey = "FRIEND_LINK_APPLY_CUSTOM_CODE"
 	KeyFriendLinkApplyCustomCodeHtml SettingKey = "FRIEND_LINK_APPLY_CUSTOM_CODE_HTML"
 	KeyFriendLinkDefaultCategory     SettingKey = "FRIEND_LINK_DEFAULTCATEGORY"
-	KeyFriendLinkNotifyAdmin         SettingKey = "friend_link.notify_admin"
-	KeyFriendLinkPushooChannel       SettingKey = "friend_link.pushoo.channel"
-	KeyFriendLinkPushooURL           SettingKey = "friend_link.pushoo.url"
-	KeyFriendLinkWebhookRequestBody  SettingKey = "friend_link.webhook.request_body"
-	KeyFriendLinkWebhookHeaders      SettingKey = "friend_link.webhook.headers"
-	KeyFriendLinkMailSubjectAdmin    SettingKey = "friend_link.mail_subject_admin"
-	KeyFriendLinkMailTemplateAdmin   SettingKey = "friend_link.mail_template_admin"
-	KeyFriendLinkScMailNotify        SettingKey = "friend_link.sc_mail_notify"
+	KeyFriendLinkNotifyAdmin         SettingKey = "FRIEND_LINK_NOTIFY_ADMIN"
+	KeyFriendLinkPushooChannel       SettingKey = "FRIEND_LINK_PUSHOO_CHANNEL"
+	KeyFriendLinkPushooURL           SettingKey = "FRIEND_LINK_PUSHOO_URL"
+	KeyFriendLinkWebhookRequestBody  SettingKey = "FRIEND_LINK_WEBHOOK_REQUEST_BODY"
+	KeyFriendLinkWebhookHeaders      SettingKey = "FRIEND_LINK_WEBHOOK_HEADERS"
+	KeyFriendLinkMailSubjectAdmin    SettingKey = "FRIEND_LINK_MAIL_SUBJECT_ADMIN"
+	KeyFriendLinkMailTemplateAdmin   SettingKey = "FRIEND_LINK_MAIL_TEMPLATE_ADMIN"
+	KeyFriendLinkScMailNotify        SettingKey = "FRIEND_LINK_SC_MAIL_NOTIFY"
 
 	// --- 缩略图生成队列配置 ---
 	KeyQueueThumbConcurrency   SettingKey = "QUEUE_THUMB_CONCURRENCY"
