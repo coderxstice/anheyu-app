@@ -671,6 +671,11 @@ func ensureScriptTagsClosed(html string) string {
 
 // renderHTMLPage 渲染HTML页面的通用函数（版本）
 func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSvc article_service.Service, templates *template.Template) {
+	// 🚫 强制禁用HTML页面的所有缓存
+	c.Header("Cache-Control", "no-cache, no-store, must-revalidate, private, max-age=0")
+	c.Header("Pragma", "no-cache")
+	c.Header("Expires", "0")
+
 	// 获取完整的当前页面 URL
 	fullURL := fmt.Sprintf("%s://%s%s", getRequestScheme(c), c.Request.Host, c.Request.URL.RequestURI())
 
@@ -685,38 +690,6 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 			return
 		}
 		if articleResponse != nil {
-			// 🎯 ：生成文章内容ETag（基于更新时间、内容和版本）
-			contentForETag := struct {
-				UpdatedAt   time.Time `json:"updated_at"`
-				Title       string    `json:"title"`
-				ContentHash string    `json:"content_hash"`
-				AppVersion  string    `json:"app_version"`
-				ArticleID   string    `json:"article_id"`
-			}{
-				UpdatedAt:   articleResponse.UpdatedAt,
-				Title:       articleResponse.Title,
-				ContentHash: fmt.Sprintf("%x", md5.Sum([]byte(articleResponse.ContentHTML))),
-				AppVersion:  getAppVersion(),
-				ArticleID:   articleResponse.ID,
-			}
-			etag := generateContentETag(contentForETag)
-
-			if handleConditionalRequest(c, etag) {
-				return
-			}
-
-			// 📊 ：设置文章页面缓存策略（基于更新时间动态调整）
-			timeSinceUpdate := time.Since(articleResponse.UpdatedAt)
-			var cacheMaxAge int
-			if timeSinceUpdate < 24*time.Hour {
-				cacheMaxAge = 300 // 新文章：5分钟缓存
-			} else if timeSinceUpdate < 7*24*time.Hour {
-				cacheMaxAge = 600 // 一周内：10分钟缓存
-			} else {
-				cacheMaxAge = 1800 // 老文章：30分钟缓存
-			}
-
-			setSmartCacheHeaders(c, "article_detail", etag, cacheMaxAge)
 
 			pageTitle := fmt.Sprintf("%s - %s", articleResponse.Title, settingSvc.Get(constant.KeyAppName.String()))
 
@@ -784,34 +757,6 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 	defaultTitle := fmt.Sprintf("%s - %s", settingSvc.Get(constant.KeyAppName.String()), settingSvc.Get(constant.KeySubTitle.String()))
 	defaultDescription := settingSvc.Get(constant.KeySiteDescription.String())
 	defaultImage := settingSvc.Get(constant.KeyLogoURL512.String())
-
-	// 🎯 ：为默认页面生成ETag（基于站点配置）
-	siteConfigForETag := struct {
-		Title       string `json:"title"`
-		Description string `json:"description"`
-		Path        string `json:"path"`
-		Timestamp   int64  `json:"timestamp"`
-	}{
-		Title:       defaultTitle,
-		Description: defaultDescription,
-		Path:        c.Request.URL.Path,
-		Timestamp:   time.Now().Unix() / 300, // 5分钟粒度
-	}
-	defaultETag := generateContentETag(siteConfigForETag)
-
-	// 🚀 ：处理条件请求
-	if handleConditionalRequest(c, defaultETag) {
-		return // 返回304 Not Modified
-	}
-
-	// 📊 ：根据页面类型设置缓存策略
-	var pageType string
-	if c.Request.URL.Path == "/" || c.Request.URL.Path == "/index" {
-		pageType = "home_page"
-	} else {
-		pageType = "static_page"
-	}
-	setSmartCacheHeaders(c, pageType, defaultETag, 0) // maxAge由pageType决定
 
 	// 处理自定义HTML，确保script标签正确闭合
 	customHeaderHTML := ensureScriptTagsClosed(settingSvc.Get(constant.KeyCustomHeaderHTML.String()))
