@@ -1,3 +1,10 @@
+/*
+ * @Description:
+ * @Author: 安知鱼
+ * @Date: 2025-10-17 10:35:28
+ * @LastEditTime: 2025-10-17 14:10:25
+ * @LastEditors: 安知鱼
+ */
 // anheyu-app/cmd/server/app.go
 package server
 
@@ -35,8 +42,7 @@ import (
 	direct_link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/direct_link"
 	file_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/file"
 	link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/link"
-
-	// music_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/music" // 已禁用 (2025-10-16)
+	music_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/music"
 	notification_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/notification"
 	page_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/page"
 	post_category_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_category"
@@ -64,8 +70,7 @@ import (
 	file_service "github.com/anzhiyu-c/anheyu-app/pkg/service/file"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/file_info"
 	link_service "github.com/anzhiyu-c/anheyu-app/pkg/service/link"
-
-	// "github.com/anzhiyu-c/anheyu-app/pkg/service/music" // 已禁用 (2025-10-16)
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/music"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/notification"
 	page_service "github.com/anzhiyu-c/anheyu-app/pkg/service/page"
 	parser_service "github.com/anzhiyu-c/anheyu-app/pkg/service/parser"
@@ -363,11 +368,9 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	_ = listener.NewFilePostProcessingListener(eventBus, taskBroker, extractionSvc)
 
 	// 初始化音乐服务
-	// 注意：音乐功能已改为前端直接调用外部API，后端接口已禁用（2025-10-16）
-	// 保留代码作为备份，如需启用请取消注释
-	// log.Printf("[DEBUG] 正在初始化 MusicService...")
-	// musicSvc := music.NewMusicService(settingSvc)
-	// log.Printf("[DEBUG] MusicService 初始化完成")
+	log.Printf("[DEBUG] 正在初始化 MusicService...")
+	musicSvc := music.NewMusicService(settingSvc)
+	log.Printf("[DEBUG] MusicService 初始化完成")
 
 	// --- Phase 6: 初始化表现层 (Handlers) ---
 	mw := middleware.NewMiddleware(tokenSvc)
@@ -392,8 +395,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	themeHandler := theme_handler.NewHandler(themeSvc)
 	sitemapHandler := sitemap_handler.NewHandler(sitemapSvc)
 	proxyHandler := proxy_handler.NewHandler()
-	// 音乐Handler已禁用 - 前端直接调用外部API (2025-10-16)
-	// musicHandler := music_handler.NewMusicHandler(musicSvc)
+	musicHandler := music_handler.NewMusicHandler(musicSvc)
 	versionHandler := version_handler.NewHandler()
 	notificationHandler := notification_handler.NewHandler(notificationSvc)
 
@@ -414,7 +416,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		postCategoryHandler,
 		commentHandler,
 		linkHandler,
-		nil, // musicHandler - 已禁用，前端直接调用外部API
+		musicHandler,
 		pageHandler,
 		statisticsHandler,
 		themeHandler,
