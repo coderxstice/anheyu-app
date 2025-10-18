@@ -264,17 +264,32 @@ func getContentType(filePath string) string {
 }
 
 // handleStaticFileConditionalRequest 处理静态文件的条件请求
-func handleStaticFileConditionalRequest(c *gin.Context, etag string) bool {
+func handleStaticFileConditionalRequest(c *gin.Context, etag string, filePath string) bool {
 	// 检查 If-None-Match 头
 	ifNoneMatch := c.GetHeader("If-None-Match")
 	if ifNoneMatch != "" && ifNoneMatch == etag {
 		// 内容未修改，返回304
 		c.Header("ETag", etag)
-		c.Header("Cache-Control", "public, max-age=31536000") // 1年缓存
+		// 根据文件类型设置缓存策略
+		if isHTMLFile(filePath) {
+			// HTML文件不缓存
+			c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+			c.Header("Pragma", "no-cache")
+			c.Header("Expires", "0")
+		} else {
+			// 其他静态文件使用协商缓存（1年，但每次验证）
+			c.Header("Cache-Control", "public, max-age=31536000, must-revalidate")
+		}
 		c.Status(http.StatusNotModified)
 		return true
 	}
 	return false
+}
+
+// isHTMLFile 判断是否是HTML文件
+func isHTMLFile(filePath string) bool {
+	ext := strings.ToLower(filepath.Ext(filePath))
+	return ext == ".html" || ext == ".htm"
 }
 
 // tryServeStaticFile 尝试从对应的文件系统中提供静态文件（优先压缩版本）
@@ -285,13 +300,21 @@ func tryServeStaticFile(c *gin.Context, filePath string, staticMode bool, distFS
 		etag := generateFileETag(compressedPath, modTime, size)
 
 		// 处理条件请求
-		if handleStaticFileConditionalRequest(c, etag) {
+		if handleStaticFileConditionalRequest(c, etag, filePath) {
 			return true
 		}
 
-		// 设置缓存头
+		// 设置缓存头 - 根据文件类型设置不同策略
 		c.Header("ETag", etag)
-		c.Header("Cache-Control", "public, max-age=31536000") // 1年缓存
+		if isHTMLFile(filePath) {
+			// HTML文件不缓存
+			c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+			c.Header("Pragma", "no-cache")
+			c.Header("Expires", "0")
+		} else {
+			// 其他静态文件使用协商缓存（1年，但每次验证）
+			c.Header("Cache-Control", "public, max-age=31536000, must-revalidate")
+		}
 		c.Header("Vary", "Accept-Encoding")
 
 		if staticMode {
@@ -314,13 +337,21 @@ func tryServeStaticFile(c *gin.Context, filePath string, staticMode bool, distFS
 			etag := generateFileETag(filePath, fileInfo.ModTime(), fileInfo.Size())
 
 			// 处理条件请求
-			if handleStaticFileConditionalRequest(c, etag) {
+			if handleStaticFileConditionalRequest(c, etag, filePath) {
 				return true
 			}
 
-			// 设置缓存头
+			// 设置缓存头 - 根据文件类型设置不同策略
 			c.Header("ETag", etag)
-			c.Header("Cache-Control", "public, max-age=31536000") // 1年缓存
+			if isHTMLFile(filePath) {
+				// HTML文件不缓存
+				c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+				c.Header("Pragma", "no-cache")
+				c.Header("Expires", "0")
+			} else {
+				// 其他静态文件使用协商缓存（1年，但每次验证）
+				c.Header("Cache-Control", "public, max-age=31536000, must-revalidate")
+			}
 			c.Header("Vary", "Accept-Encoding")
 			c.Header("Content-Type", getContentType(filePath))
 
@@ -339,13 +370,21 @@ func tryServeStaticFile(c *gin.Context, filePath string, staticMode bool, distFS
 				etag := generateFileETag(filePath, stat.ModTime(), stat.Size())
 
 				// 处理条件请求
-				if handleStaticFileConditionalRequest(c, etag) {
+				if handleStaticFileConditionalRequest(c, etag, filePath) {
 					return true
 				}
 
-				// 设置缓存头
+				// 设置缓存头 - 根据文件类型设置不同策略
 				c.Header("ETag", etag)
-				c.Header("Cache-Control", "public, max-age=31536000") // 1年缓存
+				if isHTMLFile(filePath) {
+					// HTML文件不缓存
+					c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+					c.Header("Pragma", "no-cache")
+					c.Header("Expires", "0")
+				} else {
+					// 其他静态文件使用协商缓存（1年，但每次验证）
+					c.Header("Cache-Control", "public, max-age=31536000, must-revalidate")
+				}
 				c.Header("Vary", "Accept-Encoding")
 				c.Header("Content-Type", getContentType(filePath))
 
@@ -506,13 +545,21 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 			etag := generateFileETag(compressedPath, modTime, size)
 
 			// 处理条件请求
-			if handleStaticFileConditionalRequest(c, etag) {
+			if handleStaticFileConditionalRequest(c, etag, "static/"+filePath) {
 				return
 			}
 
-			// 设置缓存头
+			// 设置缓存头 - 根据文件类型设置不同策略
 			c.Header("ETag", etag)
-			c.Header("Cache-Control", "public, max-age=31536000") // 1年缓存
+			if isHTMLFile(filePath) {
+				// HTML文件不缓存
+				c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+				c.Header("Pragma", "no-cache")
+				c.Header("Expires", "0")
+			} else {
+				// 其他静态文件使用协商缓存（1年，但每次验证）
+				c.Header("Cache-Control", "public, max-age=31536000, must-revalidate")
+			}
 			c.Header("Vary", "Accept-Encoding")
 
 			if staticMode {
@@ -536,13 +583,21 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 				etag := generateFileETag(filePath, fileInfo.ModTime(), fileInfo.Size())
 
 				// 处理条件请求
-				if handleStaticFileConditionalRequest(c, etag) {
+				if handleStaticFileConditionalRequest(c, etag, filePath) {
 					return
 				}
 
-				// 设置缓存头
+				// 设置缓存头 - 根据文件类型设置不同策略
 				c.Header("ETag", etag)
-				c.Header("Cache-Control", "public, max-age=31536000") // 1年缓存
+				if isHTMLFile(filePath) {
+					// HTML文件不缓存
+					c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+					c.Header("Pragma", "no-cache")
+					c.Header("Expires", "0")
+				} else {
+					// 其他静态文件使用协商缓存（1年，但每次验证）
+					c.Header("Cache-Control", "public, max-age=31536000, must-revalidate")
+				}
 				c.Header("Vary", "Accept-Encoding")
 				c.Header("Content-Type", getContentType(filePath))
 
@@ -562,13 +617,21 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 					etag := generateFileETag(filePath, stat.ModTime(), stat.Size())
 
 					// 处理条件请求
-					if handleStaticFileConditionalRequest(c, etag) {
+					if handleStaticFileConditionalRequest(c, etag, filePath) {
 						return
 					}
 
-					// 设置缓存头
+					// 设置缓存头 - 根据文件类型设置不同策略
 					c.Header("ETag", etag)
-					c.Header("Cache-Control", "public, max-age=31536000") // 1年缓存
+					if isHTMLFile(filePath) {
+						// HTML文件不缓存
+						c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+						c.Header("Pragma", "no-cache")
+						c.Header("Expires", "0")
+					} else {
+						// 其他静态文件使用协商缓存（1年，但每次验证）
+						c.Header("Cache-Control", "public, max-age=31536000, must-revalidate")
+					}
 					c.Header("Vary", "Accept-Encoding")
 					c.Header("Content-Type", getContentType(filePath))
 
