@@ -36,7 +36,17 @@ func (r *articleRepo) toModel(a *ent.Article) *model.Article {
 	if a == nil {
 		return nil
 	}
-	publicID, _ := idgen.GeneratePublicID(a.ID, idgen.EntityTypeArticle)
+	publicID, err := idgen.GeneratePublicID(a.ID, idgen.EntityTypeArticle)
+	if err != nil {
+		log.Printf("[严重错误] 生成文章公共ID失败: dbID=%d, error=%v", a.ID, err)
+		// 这是一个严重错误，应该panic或返回nil
+		panic(fmt.Sprintf("生成文章公共ID失败: dbID=%d, error=%v", a.ID, err))
+	}
+	if publicID == "" {
+		log.Printf("[严重错误] 生成的文章公共ID为空: dbID=%d", a.ID)
+		panic(fmt.Sprintf("生成的文章公共ID为空: dbID=%d", a.ID))
+	}
+	log.Printf("[toModel] 成功生成公共ID: dbID=%d -> publicID=%s", a.ID, publicID)
 	var tags []*model.PostTag
 	if a.Edges.PostTags != nil {
 		tags = make([]*model.PostTag, len(a.Edges.PostTags))
@@ -271,15 +281,19 @@ func (r *articleRepo) FindRelatedArticles(ctx context.Context, articleModel *mod
 
 // GetBySlugOrID 通过 abbrlink 或公共 ID 获取一篇文章
 func (r *articleRepo) GetBySlugOrID(ctx context.Context, slugOrID string) (*model.Article, error) {
+	log.Printf("[GetBySlugOrID] 开始查询文章: slugOrID=%s", slugOrID)
+
 	// 尝试将 slugOrID 解码为数据库 ID
 	dbID, _, err := idgen.DecodePublicID(slugOrID)
 
 	var wherePredicate predicate.Article
 	if err == nil {
 		// 如果解码成功，则查询条件为 ID 或 abbrlink 匹配
+		log.Printf("[GetBySlugOrID] 解码成功，使用ID或abbrlink查询: dbID=%d", dbID)
 		wherePredicate = article.Or(article.ID(dbID), article.AbbrlinkEQ(slugOrID))
 	} else {
 		// 如果解码失败，则查询条件仅为 abbrlink 匹配
+		log.Printf("[GetBySlugOrID] 解码失败，仅使用abbrlink查询: %v", err)
 		wherePredicate = article.AbbrlinkEQ(slugOrID)
 	}
 
@@ -294,9 +308,14 @@ func (r *articleRepo) GetBySlugOrID(ctx context.Context, slugOrID string) (*mode
 		Only(ctx)
 
 	if err != nil {
+		log.Printf("[GetBySlugOrID] 查询失败: %v", err)
 		return nil, err
 	}
-	return r.toModel(entity), nil
+
+	log.Printf("[GetBySlugOrID] 查询成功: 数据库ID=%d, Title=%s", entity.ID, entity.Title)
+	result := r.toModel(entity)
+	log.Printf("[GetBySlugOrID] 转换后的公共ID: %s", result.ID)
+	return result, nil
 }
 
 // GetSiteStats 高效地获取站点范围内的统计数据
