@@ -164,6 +164,7 @@ const (
 	KeyCommentAnonymousEmail    SettingKey = "comment.anonymous_email"
 	KeyCommentShowUA            SettingKey = "comment.show_ua"
 	KeyCommentShowRegion        SettingKey = "comment.show_region"
+	KeyCommentAllowImageUpload  SettingKey = "comment.allow_image_upload"
 	KeyCommentLimitPerMinute    SettingKey = "comment.limit_per_minute"
 	KeyCommentLimitLength       SettingKey = "comment.limit_length"
 	KeyCommentForbiddenWords    SettingKey = "comment.forbidden_words"

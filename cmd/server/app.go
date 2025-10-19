@@ -379,6 +379,11 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	configBackupSvc := config_service.NewBackupService("data/conf.ini", settingRepo)
 	log.Printf("[DEBUG] ConfigBackupService 初始化完成")
 
+	// 初始化配置导入导出服务
+	log.Printf("[DEBUG] 正在初始化 ConfigImportExportService...")
+	configImportExportSvc := config_service.NewImportExportService(settingRepo)
+	log.Printf("[DEBUG] ConfigImportExportService 初始化完成")
+
 	// --- Phase 6: 初始化表现层 (Handlers) ---
 	mw := middleware.NewMiddleware(tokenSvc)
 	authHandler := auth_handler.NewAuthHandler(authSvc, tokenSvc, settingSvc)
@@ -406,6 +411,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	versionHandler := version_handler.NewHandler()
 	notificationHandler := notification_handler.NewHandler(notificationSvc)
 	configBackupHandler := config_handler.NewConfigBackupHandler(configBackupSvc)
+	configImportExportHandler := config_handler.NewConfigImportExportHandler(configImportExportSvc)
 
 	// --- Phase 7: 初始化路由 ---
 	appRouter := router.NewRouter(
@@ -435,6 +441,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		versionHandler,
 		notificationHandler,
 		configBackupHandler,
+		configImportExportHandler,
 	)
 
 	// --- Phase 8: 配置 Gin 引擎 ---

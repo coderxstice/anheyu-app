@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-15 11:30:55
- * @LastEditTime: 2025-10-19 19:40:43
+ * @LastEditTime: 2025-10-19 20:02:52
  * @LastEditors: 安知鱼
  */
 // anheyu-app/pkg/router/router.go
@@ -57,32 +57,33 @@ func NoCacheMiddleware() gin.HandlerFunc {
 
 // Router 封装了应用的所有路由和其依赖的处理器。
 type Router struct {
-	authHandler          *auth_handler.AuthHandler
-	albumHandler         *album_handler.AlbumHandler
-	albumCategoryHandler *album_category_handler.Handler
-	userHandler          *user_handler.UserHandler
-	publicHandler        *public_handler.PublicHandler
-	settingHandler       *setting_handler.SettingHandler
-	storagePolicyHandler *storage_policy_handler.StoragePolicyHandler
-	fileHandler          *file_handler.FileHandler
-	directLinkHandler    *direct_link_handler.DirectLinkHandler
-	thumbnailHandler     *thumbnail_handler.ThumbnailHandler
-	articleHandler       *article_handler.Handler
-	postTagHandler       *post_tag_handler.Handler
-	postCategoryHandler  *post_category_handler.Handler
-	commentHandler       *comment_handler.Handler
-	linkHandler          *link_handler.Handler
-	musicHandler         *music_handler.MusicHandler
-	pageHandler          *page_handler.Handler
-	statisticsHandler    *statistics_handler.StatisticsHandler
-	themeHandler         *theme_handler.Handler
-	mw                   *middleware.Middleware
-	searchHandler        *search_handler.Handler
-	proxyHandler         *proxy_handler.ProxyHandler
-	sitemapHandler       *sitemap_handler.Handler
-	versionHandler       *version_handler.Handler
-	notificationHandler  *notification_handler.Handler
-	configBackupHandler  *config_handler.ConfigBackupHandler
+	authHandler               *auth_handler.AuthHandler
+	albumHandler              *album_handler.AlbumHandler
+	albumCategoryHandler      *album_category_handler.Handler
+	userHandler               *user_handler.UserHandler
+	publicHandler             *public_handler.PublicHandler
+	settingHandler            *setting_handler.SettingHandler
+	storagePolicyHandler      *storage_policy_handler.StoragePolicyHandler
+	fileHandler               *file_handler.FileHandler
+	directLinkHandler         *direct_link_handler.DirectLinkHandler
+	thumbnailHandler          *thumbnail_handler.ThumbnailHandler
+	articleHandler            *article_handler.Handler
+	postTagHandler            *post_tag_handler.Handler
+	postCategoryHandler       *post_category_handler.Handler
+	commentHandler            *comment_handler.Handler
+	linkHandler               *link_handler.Handler
+	musicHandler              *music_handler.MusicHandler
+	pageHandler               *page_handler.Handler
+	statisticsHandler         *statistics_handler.StatisticsHandler
+	themeHandler              *theme_handler.Handler
+	mw                        *middleware.Middleware
+	searchHandler             *search_handler.Handler
+	proxyHandler              *proxy_handler.ProxyHandler
+	sitemapHandler            *sitemap_handler.Handler
+	versionHandler            *version_handler.Handler
+	notificationHandler       *notification_handler.Handler
+	configBackupHandler       *config_handler.ConfigBackupHandler
+	configImportExportHandler *config_handler.ConfigImportExportHandler
 }
 
 // NewRouter 是 Router 的构造函数，通过依赖注入接收所有处理器。
@@ -113,34 +114,36 @@ func NewRouter(
 	versionHandler *version_handler.Handler,
 	notificationHandler *notification_handler.Handler,
 	configBackupHandler *config_handler.ConfigBackupHandler,
+	configImportExportHandler *config_handler.ConfigImportExportHandler,
 ) *Router {
 	return &Router{
-		authHandler:          authHandler,
-		albumHandler:         albumHandler,
-		albumCategoryHandler: albumCategoryHandler,
-		userHandler:          userHandler,
-		publicHandler:        publicHandler,
-		settingHandler:       settingHandler,
-		storagePolicyHandler: storagePolicyHandler,
-		fileHandler:          fileHandler,
-		directLinkHandler:    directLinkHandler,
-		thumbnailHandler:     thumbnailHandler,
-		articleHandler:       articleHandler,
-		postTagHandler:       postTagHandler,
-		postCategoryHandler:  postCategoryHandler,
-		commentHandler:       commentHandler,
-		linkHandler:          linkHandler,
-		musicHandler:         musicHandler,
-		pageHandler:          pageHandler,
-		statisticsHandler:    statisticsHandler,
-		themeHandler:         themeHandler,
-		mw:                   mw,
-		searchHandler:        searchHandler,
-		proxyHandler:         proxyHandler,
-		sitemapHandler:       sitemapHandler,
-		versionHandler:       versionHandler,
-		notificationHandler:  notificationHandler,
-		configBackupHandler:  configBackupHandler,
+		authHandler:               authHandler,
+		albumHandler:              albumHandler,
+		albumCategoryHandler:      albumCategoryHandler,
+		userHandler:               userHandler,
+		publicHandler:             publicHandler,
+		settingHandler:            settingHandler,
+		storagePolicyHandler:      storagePolicyHandler,
+		fileHandler:               fileHandler,
+		directLinkHandler:         directLinkHandler,
+		thumbnailHandler:          thumbnailHandler,
+		articleHandler:            articleHandler,
+		postTagHandler:            postTagHandler,
+		postCategoryHandler:       postCategoryHandler,
+		commentHandler:            commentHandler,
+		linkHandler:               linkHandler,
+		musicHandler:              musicHandler,
+		pageHandler:               pageHandler,
+		statisticsHandler:         statisticsHandler,
+		themeHandler:              themeHandler,
+		mw:                        mw,
+		searchHandler:             searchHandler,
+		proxyHandler:              proxyHandler,
+		sitemapHandler:            sitemapHandler,
+		versionHandler:            versionHandler,
+		notificationHandler:       notificationHandler,
+		configBackupHandler:       configBackupHandler,
+		configImportExportHandler: configImportExportHandler,
 	}
 }
 
@@ -719,9 +722,9 @@ func (r *Router) registerConfigBackupRoutes(api *gin.RouterGroup) {
 	configGroup := api.Group("/config").Use(r.mw.JWTAuth(), r.mw.AdminAuth())
 	{
 		// 导出配置
-		configGroup.GET("/export", r.configBackupHandler.ExportConfig)
+		configGroup.GET("/export", r.configImportExportHandler.ExportConfig)
 
 		// 导入配置
-		configGroup.POST("/import", r.configBackupHandler.ImportConfig)
+		configGroup.POST("/import", r.configImportExportHandler.ImportConfig)
 	}
 }
