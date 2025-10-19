@@ -426,6 +426,16 @@ func (r *articleRepo) Create(ctx context.Context, params *model.CreateArticlePar
 		creator.SetStatus(article.StatusDRAFT)
 	}
 
+	// 支持自定义发布时间
+	if params.CustomPublishedAt != nil {
+		creator.SetCreatedAt(*params.CustomPublishedAt)
+	}
+
+	// 支持自定义更新时间
+	if params.CustomUpdatedAt != nil {
+		creator.SetUpdatedAt(*params.CustomUpdatedAt)
+	}
+
 	newEntity, err := creator.Save(ctx)
 	if err != nil {
 		return nil, err
@@ -516,6 +526,12 @@ func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.Up
 		}
 		if computed.IsPrimaryColorManual != nil {
 			updater.SetIsPrimaryColorManual(*computed.IsPrimaryColorManual)
+		}
+	}
+	// 支持自定义更新时间
+	if req.CustomUpdatedAt != nil && *req.CustomUpdatedAt != "" {
+		if customTime, parseErr := time.Parse(time.RFC3339, *req.CustomUpdatedAt); parseErr == nil {
+			updater.SetUpdatedAt(customTime)
 		}
 	}
 	_, err = updater.Save(ctx)
