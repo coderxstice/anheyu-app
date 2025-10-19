@@ -535,6 +535,28 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 			}
 		}
 
+		// 解析自定义发布时间
+		var customPublishedAt *time.Time
+		if req.CustomPublishedAt != nil && *req.CustomPublishedAt != "" {
+			if parsedTime, parseErr := time.Parse(time.RFC3339, *req.CustomPublishedAt); parseErr == nil {
+				customPublishedAt = &parsedTime
+				log.Printf("[新增文章] 使用自定义发布时间: %v", parsedTime)
+			} else {
+				log.Printf("[新增文章] 解析自定义发布时间失败: %v", parseErr)
+			}
+		}
+
+		// 解析自定义更新时间
+		var customUpdatedAt *time.Time
+		if req.CustomUpdatedAt != nil && *req.CustomUpdatedAt != "" {
+			if parsedTime, parseErr := time.Parse(time.RFC3339, *req.CustomUpdatedAt); parseErr == nil {
+				customUpdatedAt = &parsedTime
+				log.Printf("[新增文章] 使用自定义更新时间: %v", parsedTime)
+			} else {
+				log.Printf("[新增文章] 解析自定义更新时间失败: %v", parseErr)
+			}
+		}
+
 		params := &model.CreateArticleParams{
 			Title:                req.Title,
 			ContentMd:            req.ContentMd, // 存储Markdown原文
@@ -557,6 +579,8 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 			CopyrightAuthor:      req.CopyrightAuthor,
 			CopyrightAuthorHref:  req.CopyrightAuthorHref,
 			CopyrightURL:         req.CopyrightURL,
+			CustomPublishedAt:    customPublishedAt,
+			CustomUpdatedAt:      customUpdatedAt,
 		}
 		createdArticle, err := repos.Article.Create(ctx, params)
 		if err != nil {

@@ -158,6 +158,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyCommentAnonymousEmail, Value: "", Comment: "收取匿名评论邮箱，为空时使用前台网站拥有者邮箱", IsPublic: true},
 	{Key: constant.KeyCommentShowUA, Value: "true", Comment: "是否显示评论者操作系统和浏览器信息", IsPublic: true},
 	{Key: constant.KeyCommentShowRegion, Value: "true", Comment: "是否显示评论者IP归属地", IsPublic: true},
+	{Key: constant.KeyCommentAllowImageUpload, Value: "true", Comment: "是否允许在评论中上传图片", IsPublic: true},
 	{Key: constant.KeyCommentLimitPerMinute, Value: "5", Comment: "单个IP每分钟允许提交的评论数", IsPublic: false},
 	{Key: constant.KeyCommentLimitLength, Value: "10000", Comment: "单条评论最大字数", IsPublic: true},
 	{Key: constant.KeyCommentForbiddenWords, Value: "习近平,空包,毛泽东,代发", Comment: "违禁词列表，逗号分隔，匹配到的评论将进入待审", IsPublic: false},

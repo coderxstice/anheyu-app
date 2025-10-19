@@ -63,6 +63,8 @@ type CreateArticleRequest struct {
 	CopyrightAuthorHref  string   `json:"copyright_author_href,omitempty"`
 	CopyrightURL         string   `json:"copyright_url,omitempty"`
 	ContentHTML          string   `json:"content_html"`
+	CustomPublishedAt    *string  `json:"custom_published_at,omitempty"`
+	CustomUpdatedAt      *string  `json:"custom_updated_at,omitempty"`
 }
 
 // UpdateArticleRequest 定义了更新文章的请求体
@@ -86,6 +88,8 @@ type UpdateArticleRequest struct {
 	CopyrightAuthorHref  *string  `json:"copyright_author_href"`
 	CopyrightURL         *string  `json:"copyright_url"`
 	ContentHTML          *string  `json:"content_html"`
+	CustomPublishedAt    *string  `json:"custom_published_at,omitempty"`
+	CustomUpdatedAt      *string  `json:"custom_updated_at,omitempty"`
 }
 
 // ArticleResponse 定义了文章信息的标准 API 响应结构
@@ -196,6 +200,8 @@ type CreateArticleParams struct {
 	CopyrightAuthor      string
 	CopyrightAuthorHref  string
 	CopyrightURL         string
+	CustomPublishedAt    *time.Time
+	CustomUpdatedAt      *time.Time
 }
 
 // 用于解析颜色 API 响应的结构体
