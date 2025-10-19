@@ -14,6 +14,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/handler/setting/dto"
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/cdn"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/config"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/utility"
 
@@ -22,9 +23,10 @@ import (
 
 // SettingHandler 封装了站点配置相关的控制器方法
 type SettingHandler struct {
-	settingSvc setting.SettingService
-	emailSvc   utility.EmailService
-	cdnSvc     cdn.CDNService
+	settingSvc      setting.SettingService
+	emailSvc        utility.EmailService
+	cdnSvc          cdn.CDNService
+	configBackupSvc config.BackupService
 }
 
 // NewSettingHandler 是 SettingHandler 的构造函数
@@ -32,11 +34,13 @@ func NewSettingHandler(
 	settingSvc setting.SettingService,
 	emailSvc utility.EmailService,
 	cdnSvc cdn.CDNService,
+	configBackupSvc config.BackupService,
 ) *SettingHandler {
 	return &SettingHandler{
-		settingSvc: settingSvc,
-		emailSvc:   emailSvc,
-		cdnSvc:     cdnSvc,
+		settingSvc:      settingSvc,
+		emailSvc:        emailSvc,
+		cdnSvc:          cdnSvc,
+		configBackupSvc: configBackupSvc,
 	}
 }
 
@@ -129,6 +133,17 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 	if len(settingsToUpdate) == 0 {
 		response.Fail(c, http.StatusBadRequest, "没有需要更新的配置项")
 		return
+	}
+
+	// 在更新配置前，自动创建备份（如果备份服务可用）
+	if h.configBackupSvc != nil {
+		_, err := h.configBackupSvc.CreateBackup(c.Request.Context(), "配置更新前自动备份", true)
+		if err != nil {
+			log.Printf("⚠️ 警告: 创建配置备份失败: %v（将继续更新配置）", err)
+			// 备份失败不应阻止配置更新，只记录警告
+		} else {
+			log.Printf("✅ 已自动创建配置备份")
+		}
 	}
 
 	// 检查是否有影响前端的公开配置被更新

@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-15 11:30:55
- * @LastEditTime: 2025-10-17 14:01:25
+ * @LastEditTime: 2025-10-19 19:40:43
  * @LastEditors: 安知鱼
  */
 // anheyu-app/pkg/router/router.go
@@ -17,6 +17,7 @@ import (
 	article_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/article"
 	auth_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/auth"
 	comment_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/comment"
+	config_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/config"
 	direct_link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/direct_link"
 	file_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/file"
 	link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/link"
@@ -81,6 +82,7 @@ type Router struct {
 	sitemapHandler       *sitemap_handler.Handler
 	versionHandler       *version_handler.Handler
 	notificationHandler  *notification_handler.Handler
+	configBackupHandler  *config_handler.ConfigBackupHandler
 }
 
 // NewRouter 是 Router 的构造函数，通过依赖注入接收所有处理器。
@@ -110,6 +112,7 @@ func NewRouter(
 	sitemapHandler *sitemap_handler.Handler,
 	versionHandler *version_handler.Handler,
 	notificationHandler *notification_handler.Handler,
+	configBackupHandler *config_handler.ConfigBackupHandler,
 ) *Router {
 	return &Router{
 		authHandler:          authHandler,
@@ -137,6 +140,7 @@ func NewRouter(
 		sitemapHandler:       sitemapHandler,
 		versionHandler:       versionHandler,
 		notificationHandler:  notificationHandler,
+		configBackupHandler:  configBackupHandler,
 	}
 }
 
@@ -186,6 +190,7 @@ func (r *Router) Setup(engine *gin.Engine) {
 	r.registerThemeRoutes(apiGroup)
 	r.registerVersionRoutes(apiGroup)
 	r.registerNotificationRoutes(apiGroup)
+	r.registerConfigBackupRoutes(apiGroup)
 	r.registerSitemapRoutes(engine) // 直接注册到engine，不使用/api前缀
 }
 
@@ -686,5 +691,37 @@ func (r *Router) registerNotificationRoutes(api *gin.RouterGroup) {
 	notificationAdminGroup := api.Group("/notification").Use(r.mw.JWTAuth(), r.mw.AdminAuth())
 	{
 		notificationAdminGroup.GET("/types", r.notificationHandler.ListNotificationTypes)
+	}
+}
+
+// registerConfigBackupRoutes 注册配置备份相关路由
+func (r *Router) registerConfigBackupRoutes(api *gin.RouterGroup) {
+	// 配置备份管理路由 - 需要管理员权限
+	configBackupGroup := api.Group("/config/backup").Use(r.mw.JWTAuth(), r.mw.AdminAuth())
+	{
+		// 创建备份
+		configBackupGroup.POST("/create", r.configBackupHandler.CreateBackup)
+
+		// 获取备份列表
+		configBackupGroup.GET("/list", r.configBackupHandler.ListBackups)
+
+		// 恢复备份
+		configBackupGroup.POST("/restore", r.configBackupHandler.RestoreBackup)
+
+		// 删除备份
+		configBackupGroup.POST("/delete", r.configBackupHandler.DeleteBackup)
+
+		// 清理旧备份
+		configBackupGroup.POST("/clean", r.configBackupHandler.CleanOldBackups)
+	}
+
+	// 配置导入导出路由 - 需要管理员权限
+	configGroup := api.Group("/config").Use(r.mw.JWTAuth(), r.mw.AdminAuth())
+	{
+		// 导出配置
+		configGroup.GET("/export", r.configBackupHandler.ExportConfig)
+
+		// 导入配置
+		configGroup.POST("/import", r.configBackupHandler.ImportConfig)
 	}
 }

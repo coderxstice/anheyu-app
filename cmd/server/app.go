@@ -39,6 +39,7 @@ import (
 	article_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/article"
 	auth_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/auth"
 	comment_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/comment"
+	config_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/config"
 	direct_link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/direct_link"
 	file_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/file"
 	link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/link"
@@ -66,6 +67,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/cdn"
 	cleanup_service "github.com/anzhiyu-c/anheyu-app/pkg/service/cleanup"
 	comment_service "github.com/anzhiyu-c/anheyu-app/pkg/service/comment"
+	config_service "github.com/anzhiyu-c/anheyu-app/pkg/service/config"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/direct_link"
 	file_service "github.com/anzhiyu-c/anheyu-app/pkg/service/file"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/file_info"
@@ -372,6 +374,11 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	musicSvc := music.NewMusicService(settingSvc)
 	log.Printf("[DEBUG] MusicService 初始化完成")
 
+	// 初始化配置备份服务
+	log.Printf("[DEBUG] 正在初始化 ConfigBackupService...")
+	configBackupSvc := config_service.NewBackupService("data/conf.ini", settingRepo)
+	log.Printf("[DEBUG] ConfigBackupService 初始化完成")
+
 	// --- Phase 6: 初始化表现层 (Handlers) ---
 	mw := middleware.NewMiddleware(tokenSvc)
 	authHandler := auth_handler.NewAuthHandler(authSvc, tokenSvc, settingSvc)
@@ -379,7 +386,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	albumCategoryHandler := album_category_handler.NewHandler(albumCategorySvc)
 	userHandler := user_handler.NewUserHandler(userSvc, settingSvc)
 	publicHandler := public_handler.NewPublicHandler(albumSvc, albumCategorySvc)
-	settingHandler := setting_handler.NewSettingHandler(settingSvc, emailSvc, cdnSvc)
+	settingHandler := setting_handler.NewSettingHandler(settingSvc, emailSvc, cdnSvc, configBackupSvc)
 	storagePolicyHandler := storage_policy_handler.NewStoragePolicyHandler(storagePolicySvc)
 	fileHandler := file_handler.NewHandler(fileSvc, uploadSvc, settingSvc)
 	directLinkHandler := direct_link_handler.NewDirectLinkHandler(directLinkSvc, storageProviders)
@@ -398,6 +405,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	musicHandler := music_handler.NewMusicHandler(musicSvc)
 	versionHandler := version_handler.NewHandler()
 	notificationHandler := notification_handler.NewHandler(notificationSvc)
+	configBackupHandler := config_handler.NewConfigBackupHandler(configBackupSvc)
 
 	// --- Phase 7: 初始化路由 ---
 	appRouter := router.NewRouter(
@@ -426,6 +434,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		sitemapHandler,
 		versionHandler,
 		notificationHandler,
+		configBackupHandler,
 	)
 
 	// --- Phase 8: 配置 Gin 引擎 ---
