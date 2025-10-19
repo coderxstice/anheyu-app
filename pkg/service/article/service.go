@@ -436,7 +436,10 @@ func (s *serviceImpl) GetPublicBySlugOrID(ctx context.Context, slugOrID string) 
 		log.Printf("[信息] GetPublicBySlugOrID: 当前是最新文章 (ID: %s)，没有更晚的文章（没有上一篇）。", article.ID)
 	}
 
-	mainArticleResponse := s.ToAPIResponse(article, true, true)
+	// 注意：这里 useAbbrlinkAsID 设置为 false，确保返回的 ID 始终是公共ID
+	// 这样PRO版可以正确解码ID获取数据库ID
+	// abbrlink 信息仍然通过 Abbrlink 字段返回
+	mainArticleResponse := s.ToAPIResponse(article, false, true)
 	relatedResponses := make([]*model.SimpleArticleResponse, 0, len(relatedArticles))
 	for _, rel := range relatedArticles {
 		relatedResponses = append(relatedResponses, toSimpleAPIResponse(rel))
