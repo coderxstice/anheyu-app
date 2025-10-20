@@ -271,6 +271,7 @@ func (s *serviceImpl) ToAPIResponse(a *model.Article, useAbbrlinkAsID bool, incl
 		CopyrightAuthor:      a.CopyrightAuthor,
 		CopyrightAuthorHref:  a.CopyrightAuthorHref,
 		CopyrightURL:         a.CopyrightURL,
+		Keywords:             a.Keywords,
 	}
 
 	if includeHTML {
@@ -536,26 +537,45 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 		}
 
 		// 解析自定义发布时间
+		log.Printf("[Service.Create] ========== 解析自定义时间 ==========")
+		log.Printf("[Service.Create] CustomPublishedAt 指针: %v", req.CustomPublishedAt)
+		if req.CustomPublishedAt != nil {
+			log.Printf("[Service.Create] CustomPublishedAt 值: %s", *req.CustomPublishedAt)
+		}
+		log.Printf("[Service.Create] CustomUpdatedAt 指针: %v", req.CustomUpdatedAt)
+		if req.CustomUpdatedAt != nil {
+			log.Printf("[Service.Create] CustomUpdatedAt 值: %s", *req.CustomUpdatedAt)
+		}
+
 		var customPublishedAt *time.Time
 		if req.CustomPublishedAt != nil && *req.CustomPublishedAt != "" {
+			log.Printf("[Service.Create] 开始解析自定义发布时间: %s", *req.CustomPublishedAt)
 			if parsedTime, parseErr := time.Parse(time.RFC3339, *req.CustomPublishedAt); parseErr == nil {
 				customPublishedAt = &parsedTime
-				log.Printf("[新增文章] 使用自定义发布时间: %v", parsedTime)
+				log.Printf("[Service.Create] ✅ 解析自定义发布时间成功: %v", parsedTime)
 			} else {
-				log.Printf("[新增文章] 解析自定义发布时间失败: %v", parseErr)
+				log.Printf("[Service.Create] ❌ 解析自定义发布时间失败: %v", parseErr)
 			}
+		} else {
+			log.Printf("[Service.Create] ⚠️ 未提供自定义发布时间")
 		}
 
 		// 解析自定义更新时间
 		var customUpdatedAt *time.Time
 		if req.CustomUpdatedAt != nil && *req.CustomUpdatedAt != "" {
+			log.Printf("[Service.Create] 开始解析自定义更新时间: %s", *req.CustomUpdatedAt)
 			if parsedTime, parseErr := time.Parse(time.RFC3339, *req.CustomUpdatedAt); parseErr == nil {
 				customUpdatedAt = &parsedTime
-				log.Printf("[新增文章] 使用自定义更新时间: %v", parsedTime)
+				log.Printf("[Service.Create] ✅ 解析自定义更新时间成功: %v", parsedTime)
 			} else {
-				log.Printf("[新增文章] 解析自定义更新时间失败: %v", parseErr)
+				log.Printf("[Service.Create] ❌ 解析自定义更新时间失败: %v", parseErr)
 			}
+		} else {
+			log.Printf("[Service.Create] ⚠️ 未提供自定义更新时间")
 		}
+
+		log.Printf("[Service.Create] 最终传递给Repository的 CustomPublishedAt: %v", customPublishedAt)
+		log.Printf("[Service.Create] 最终传递给Repository的 CustomUpdatedAt: %v", customUpdatedAt)
 
 		params := &model.CreateArticleParams{
 			Title:                req.Title,
@@ -581,6 +601,7 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 			CopyrightURL:         req.CopyrightURL,
 			CustomPublishedAt:    customPublishedAt,
 			CustomUpdatedAt:      customUpdatedAt,
+			Keywords:             req.Keywords,
 		}
 		createdArticle, err := repos.Article.Create(ctx, params)
 		if err != nil {

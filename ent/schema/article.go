@@ -36,8 +36,8 @@ func (Article) Fields() []ent.Field {
 	return []ent.Field{
 		// --- 基础字段 ---
 		field.Uint("id"),
-		field.Time("created_at").Default(time.Now).Immutable(),
-		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
+		field.Time("created_at").Default(time.Now),
+		field.Time("updated_at").Default(time.Now),
 		field.String("title").Comment("文章标题").NotEmpty(),
 		field.Text("content_md").Comment("文章的 Markdown 原文").Optional(),
 		field.Text("content_html").Comment("由 content_md 解析和净化后的 HTML").Optional(),
@@ -84,6 +84,9 @@ func (Article) Fields() []ent.Field {
 			Optional(),
 		field.String("copyright_url").
 			Comment("版权来源链接").
+			Optional(),
+		field.String("keywords").
+			Comment("文章关键词，用于SEO优化").
 			Optional(),
 	}
 }

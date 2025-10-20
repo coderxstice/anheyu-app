@@ -84,6 +84,7 @@ var (
 		{Name: "copyright_author", Type: field.TypeString, Nullable: true},
 		{Name: "copyright_author_href", Type: field.TypeString, Nullable: true},
 		{Name: "copyright_url", Type: field.TypeString, Nullable: true},
+		{Name: "keywords", Type: field.TypeString, Nullable: true},
 	}
 	// ArticlesTable holds the schema information for the "articles" table.
 	ArticlesTable = &schema.Table{

@@ -53,9 +53,31 @@ func (_u *ArticleUpdate) ClearDeletedAt() *ArticleUpdate {
 	return _u
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_u *ArticleUpdate) SetCreatedAt(v time.Time) *ArticleUpdate {
+	_u.mutation.SetCreatedAt(v)
+	return _u
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_u *ArticleUpdate) SetNillableCreatedAt(v *time.Time) *ArticleUpdate {
+	if v != nil {
+		_u.SetCreatedAt(*v)
+	}
+	return _u
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *ArticleUpdate) SetUpdatedAt(v time.Time) *ArticleUpdate {
 	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_u *ArticleUpdate) SetNillableUpdatedAt(v *time.Time) *ArticleUpdate {
+	if v != nil {
+		_u.SetUpdatedAt(*v)
+	}
 	return _u
 }
 
@@ -438,6 +460,26 @@ func (_u *ArticleUpdate) ClearCopyrightURL() *ArticleUpdate {
 	return _u
 }
 
+// SetKeywords sets the "keywords" field.
+func (_u *ArticleUpdate) SetKeywords(v string) *ArticleUpdate {
+	_u.mutation.SetKeywords(v)
+	return _u
+}
+
+// SetNillableKeywords sets the "keywords" field if the given value is not nil.
+func (_u *ArticleUpdate) SetNillableKeywords(v *string) *ArticleUpdate {
+	if v != nil {
+		_u.SetKeywords(*v)
+	}
+	return _u
+}
+
+// ClearKeywords clears the value of the "keywords" field.
+func (_u *ArticleUpdate) ClearKeywords() *ArticleUpdate {
+	_u.mutation.ClearKeywords()
+	return _u
+}
+
 // AddPostTagIDs adds the "post_tags" edge to the PostTag entity by IDs.
 func (_u *ArticleUpdate) AddPostTagIDs(ids ...uint) *ArticleUpdate {
 	_u.mutation.AddPostTagIDs(ids...)
@@ -553,9 +595,6 @@ func (_u *ArticleUpdate) RemoveComments(v ...*Comment) *ArticleUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *ArticleUpdate) Save(ctx context.Context) (int, error) {
-	if err := _u.defaults(); err != nil {
-		return 0, err
-	}
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -579,18 +618,6 @@ func (_u *ArticleUpdate) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
-}
-
-// defaults sets the default values of the builder before save.
-func (_u *ArticleUpdate) defaults() error {
-	if _, ok := _u.mutation.UpdatedAt(); !ok {
-		if article.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized article.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
-		v := article.UpdateDefaultUpdatedAt()
-		_u.mutation.SetUpdatedAt(v)
-	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -656,6 +683,9 @@ func (_u *ArticleUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(article.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.CreatedAt(); ok {
+		_spec.SetField(article.FieldCreatedAt, field.TypeTime, value)
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(article.FieldUpdatedAt, field.TypeTime, value)
@@ -772,6 +802,12 @@ func (_u *ArticleUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.CopyrightURLCleared() {
 		_spec.ClearField(article.FieldCopyrightURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.Keywords(); ok {
+		_spec.SetField(article.FieldKeywords, field.TypeString, value)
+	}
+	if _u.mutation.KeywordsCleared() {
+		_spec.ClearField(article.FieldKeywords, field.TypeString)
 	}
 	if _u.mutation.PostTagsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -950,9 +986,31 @@ func (_u *ArticleUpdateOne) ClearDeletedAt() *ArticleUpdateOne {
 	return _u
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_u *ArticleUpdateOne) SetCreatedAt(v time.Time) *ArticleUpdateOne {
+	_u.mutation.SetCreatedAt(v)
+	return _u
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_u *ArticleUpdateOne) SetNillableCreatedAt(v *time.Time) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetCreatedAt(*v)
+	}
+	return _u
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *ArticleUpdateOne) SetUpdatedAt(v time.Time) *ArticleUpdateOne {
 	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (_u *ArticleUpdateOne) SetNillableUpdatedAt(v *time.Time) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetUpdatedAt(*v)
+	}
 	return _u
 }
 
@@ -1335,6 +1393,26 @@ func (_u *ArticleUpdateOne) ClearCopyrightURL() *ArticleUpdateOne {
 	return _u
 }
 
+// SetKeywords sets the "keywords" field.
+func (_u *ArticleUpdateOne) SetKeywords(v string) *ArticleUpdateOne {
+	_u.mutation.SetKeywords(v)
+	return _u
+}
+
+// SetNillableKeywords sets the "keywords" field if the given value is not nil.
+func (_u *ArticleUpdateOne) SetNillableKeywords(v *string) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetKeywords(*v)
+	}
+	return _u
+}
+
+// ClearKeywords clears the value of the "keywords" field.
+func (_u *ArticleUpdateOne) ClearKeywords() *ArticleUpdateOne {
+	_u.mutation.ClearKeywords()
+	return _u
+}
+
 // AddPostTagIDs adds the "post_tags" edge to the PostTag entity by IDs.
 func (_u *ArticleUpdateOne) AddPostTagIDs(ids ...uint) *ArticleUpdateOne {
 	_u.mutation.AddPostTagIDs(ids...)
@@ -1463,9 +1541,6 @@ func (_u *ArticleUpdateOne) Select(field string, fields ...string) *ArticleUpdat
 
 // Save executes the query and returns the updated Article entity.
 func (_u *ArticleUpdateOne) Save(ctx context.Context) (*Article, error) {
-	if err := _u.defaults(); err != nil {
-		return nil, err
-	}
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -1489,18 +1564,6 @@ func (_u *ArticleUpdateOne) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
-}
-
-// defaults sets the default values of the builder before save.
-func (_u *ArticleUpdateOne) defaults() error {
-	if _, ok := _u.mutation.UpdatedAt(); !ok {
-		if article.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized article.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
-		v := article.UpdateDefaultUpdatedAt()
-		_u.mutation.SetUpdatedAt(v)
-	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -1583,6 +1646,9 @@ func (_u *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err er
 	}
 	if _u.mutation.DeletedAtCleared() {
 		_spec.ClearField(article.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.CreatedAt(); ok {
+		_spec.SetField(article.FieldCreatedAt, field.TypeTime, value)
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(article.FieldUpdatedAt, field.TypeTime, value)
@@ -1699,6 +1765,12 @@ func (_u *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err er
 	}
 	if _u.mutation.CopyrightURLCleared() {
 		_spec.ClearField(article.FieldCopyrightURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.Keywords(); ok {
+		_spec.SetField(article.FieldKeywords, field.TypeString, value)
+	}
+	if _u.mutation.KeywordsCleared() {
+		_spec.ClearField(article.FieldKeywords, field.TypeString)
 	}
 	if _u.mutation.PostTagsCleared() {
 		edge := &sqlgraph.EdgeSpec{

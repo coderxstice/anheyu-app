@@ -64,6 +64,8 @@ type Article struct {
 	CopyrightAuthorHref string `json:"copyright_author_href,omitempty"`
 	// 版权来源链接
 	CopyrightURL string `json:"copyright_url,omitempty"`
+	// 文章关键词，用于SEO优化
+	Keywords string `json:"keywords,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ArticleQuery when eager-loading is set.
 	Edges        ArticleEdges `json:"edges"`
@@ -121,7 +123,7 @@ func (*Article) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case article.FieldID, article.FieldViewCount, article.FieldWordCount, article.FieldReadingTime, article.FieldHomeSort, article.FieldPinSort:
 			values[i] = new(sql.NullInt64)
-		case article.FieldTitle, article.FieldContentMd, article.FieldContentHTML, article.FieldCoverURL, article.FieldStatus, article.FieldIPLocation, article.FieldPrimaryColor, article.FieldTopImgURL, article.FieldAbbrlink, article.FieldCopyrightAuthor, article.FieldCopyrightAuthorHref, article.FieldCopyrightURL:
+		case article.FieldTitle, article.FieldContentMd, article.FieldContentHTML, article.FieldCoverURL, article.FieldStatus, article.FieldIPLocation, article.FieldPrimaryColor, article.FieldTopImgURL, article.FieldAbbrlink, article.FieldCopyrightAuthor, article.FieldCopyrightAuthorHref, article.FieldCopyrightURL, article.FieldKeywords:
 			values[i] = new(sql.NullString)
 		case article.FieldDeletedAt, article.FieldCreatedAt, article.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -288,6 +290,12 @@ func (_m *Article) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.CopyrightURL = value.String
 			}
+		case article.FieldKeywords:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field keywords", values[i])
+			} else if value.Valid {
+				_m.Keywords = value.String
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -411,6 +419,9 @@ func (_m *Article) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("copyright_url=")
 	builder.WriteString(_m.CopyrightURL)
+	builder.WriteString(", ")
+	builder.WriteString("keywords=")
+	builder.WriteString(_m.Keywords)
 	builder.WriteByte(')')
 	return builder.String()
 }

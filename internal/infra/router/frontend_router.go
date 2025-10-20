@@ -784,13 +784,19 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 				"__timestamp__": time.Now().UnixMilli(), // 添加时间戳用于客户端验证数据新鲜度
 			}
 
+			// 确定使用的 keywords：优先使用文章的 keywords，否则使用全站的 keywords
+			keywords := settingSvc.Get(constant.KeySiteKeywords.String())
+			if articleResponse.Keywords != "" {
+				keywords = articleResponse.Keywords
+			}
+
 			// 使用传入的模板实例渲染
 			render := CustomHTMLRender{Templates: templates}
 			c.Render(http.StatusOK, render.Instance("index.html", gin.H{
 				// --- 基础 SEO 和页面信息 ---
 				"pageTitle":       pageTitle,
 				"pageDescription": pageDescription,
-				"keywords":        settingSvc.Get(constant.KeySiteKeywords.String()),
+				"keywords":        keywords,
 				"author":          settingSvc.Get(constant.KeyFrontDeskSiteOwnerName.String()),
 				"themeColor":      articleResponse.PrimaryColor,
 				"favicon":         settingSvc.Get(constant.KeyIconURL.String()),

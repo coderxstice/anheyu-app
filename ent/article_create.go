@@ -331,6 +331,20 @@ func (_c *ArticleCreate) SetNillableCopyrightURL(v *string) *ArticleCreate {
 	return _c
 }
 
+// SetKeywords sets the "keywords" field.
+func (_c *ArticleCreate) SetKeywords(v string) *ArticleCreate {
+	_c.mutation.SetKeywords(v)
+	return _c
+}
+
+// SetNillableKeywords sets the "keywords" field if the given value is not nil.
+func (_c *ArticleCreate) SetNillableKeywords(v *string) *ArticleCreate {
+	if v != nil {
+		_c.SetKeywords(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *ArticleCreate) SetID(v uint) *ArticleCreate {
 	_c.mutation.SetID(v)
@@ -667,6 +681,10 @@ func (_c *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 		_spec.SetField(article.FieldCopyrightURL, field.TypeString, value)
 		_node.CopyrightURL = value
 	}
+	if value, ok := _c.mutation.Keywords(); ok {
+		_spec.SetField(article.FieldKeywords, field.TypeString, value)
+		_node.Keywords = value
+	}
 	if nodes := _c.mutation.PostTagsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -782,6 +800,18 @@ func (u *ArticleUpsert) UpdateDeletedAt() *ArticleUpsert {
 // ClearDeletedAt clears the value of the "deleted_at" field.
 func (u *ArticleUpsert) ClearDeletedAt() *ArticleUpsert {
 	u.SetNull(article.FieldDeletedAt)
+	return u
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (u *ArticleUpsert) SetCreatedAt(v time.Time) *ArticleUpsert {
+	u.Set(article.FieldCreatedAt, v)
+	return u
+}
+
+// UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateCreatedAt() *ArticleUpsert {
+	u.SetExcluded(article.FieldCreatedAt)
 	return u
 }
 
@@ -1133,6 +1163,24 @@ func (u *ArticleUpsert) ClearCopyrightURL() *ArticleUpsert {
 	return u
 }
 
+// SetKeywords sets the "keywords" field.
+func (u *ArticleUpsert) SetKeywords(v string) *ArticleUpsert {
+	u.Set(article.FieldKeywords, v)
+	return u
+}
+
+// UpdateKeywords sets the "keywords" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateKeywords() *ArticleUpsert {
+	u.SetExcluded(article.FieldKeywords)
+	return u
+}
+
+// ClearKeywords clears the value of the "keywords" field.
+func (u *ArticleUpsert) ClearKeywords() *ArticleUpsert {
+	u.SetNull(article.FieldKeywords)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -1149,9 +1197,6 @@ func (u *ArticleUpsertOne) UpdateNewValues() *ArticleUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
 		if _, exists := u.create.mutation.ID(); exists {
 			s.SetIgnore(article.FieldID)
-		}
-		if _, exists := u.create.mutation.CreatedAt(); exists {
-			s.SetIgnore(article.FieldCreatedAt)
 		}
 	}))
 	return u
@@ -1202,6 +1247,20 @@ func (u *ArticleUpsertOne) UpdateDeletedAt() *ArticleUpsertOne {
 func (u *ArticleUpsertOne) ClearDeletedAt() *ArticleUpsertOne {
 	return u.Update(func(s *ArticleUpsert) {
 		s.ClearDeletedAt()
+	})
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (u *ArticleUpsertOne) SetCreatedAt(v time.Time) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetCreatedAt(v)
+	})
+}
+
+// UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateCreatedAt() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateCreatedAt()
 	})
 }
 
@@ -1611,6 +1670,27 @@ func (u *ArticleUpsertOne) ClearCopyrightURL() *ArticleUpsertOne {
 	})
 }
 
+// SetKeywords sets the "keywords" field.
+func (u *ArticleUpsertOne) SetKeywords(v string) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetKeywords(v)
+	})
+}
+
+// UpdateKeywords sets the "keywords" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateKeywords() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateKeywords()
+	})
+}
+
+// ClearKeywords clears the value of the "keywords" field.
+func (u *ArticleUpsertOne) ClearKeywords() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.ClearKeywords()
+	})
+}
+
 // Exec executes the query.
 func (u *ArticleUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
@@ -1793,9 +1873,6 @@ func (u *ArticleUpsertBulk) UpdateNewValues() *ArticleUpsertBulk {
 			if _, exists := b.mutation.ID(); exists {
 				s.SetIgnore(article.FieldID)
 			}
-			if _, exists := b.mutation.CreatedAt(); exists {
-				s.SetIgnore(article.FieldCreatedAt)
-			}
 		}
 	}))
 	return u
@@ -1846,6 +1923,20 @@ func (u *ArticleUpsertBulk) UpdateDeletedAt() *ArticleUpsertBulk {
 func (u *ArticleUpsertBulk) ClearDeletedAt() *ArticleUpsertBulk {
 	return u.Update(func(s *ArticleUpsert) {
 		s.ClearDeletedAt()
+	})
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (u *ArticleUpsertBulk) SetCreatedAt(v time.Time) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetCreatedAt(v)
+	})
+}
+
+// UpdateCreatedAt sets the "created_at" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateCreatedAt() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateCreatedAt()
 	})
 }
 
@@ -2252,6 +2343,27 @@ func (u *ArticleUpsertBulk) UpdateCopyrightURL() *ArticleUpsertBulk {
 func (u *ArticleUpsertBulk) ClearCopyrightURL() *ArticleUpsertBulk {
 	return u.Update(func(s *ArticleUpsert) {
 		s.ClearCopyrightURL()
+	})
+}
+
+// SetKeywords sets the "keywords" field.
+func (u *ArticleUpsertBulk) SetKeywords(v string) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetKeywords(v)
+	})
+}
+
+// UpdateKeywords sets the "keywords" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateKeywords() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateKeywords()
+	})
+}
+
+// ClearKeywords clears the value of the "keywords" field.
+func (u *ArticleUpsertBulk) ClearKeywords() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.ClearKeywords()
 	})
 }
 
