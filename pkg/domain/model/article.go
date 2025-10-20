@@ -38,6 +38,7 @@ type Article struct {
 	CopyrightAuthor      string
 	CopyrightAuthorHref  string
 	CopyrightURL         string
+	Keywords             string
 }
 
 // --- API 数据传输对象 (Data Transfer Objects) ---
@@ -65,6 +66,7 @@ type CreateArticleRequest struct {
 	ContentHTML          string   `json:"content_html"`
 	CustomPublishedAt    *string  `json:"custom_published_at,omitempty"`
 	CustomUpdatedAt      *string  `json:"custom_updated_at,omitempty"`
+	Keywords             string   `json:"keywords,omitempty"`
 }
 
 // UpdateArticleRequest 定义了更新文章的请求体
@@ -90,6 +92,7 @@ type UpdateArticleRequest struct {
 	ContentHTML          *string  `json:"content_html"`
 	CustomPublishedAt    *string  `json:"custom_published_at,omitempty"`
 	CustomUpdatedAt      *string  `json:"custom_updated_at,omitempty"`
+	Keywords             *string  `json:"keywords"`
 }
 
 // ArticleResponse 定义了文章信息的标准 API 响应结构
@@ -119,6 +122,7 @@ type ArticleResponse struct {
 	CopyrightAuthor      string                  `json:"copyright_author"`
 	CopyrightAuthorHref  string                  `json:"copyright_author_href"`
 	CopyrightURL         string                  `json:"copyright_url"`
+	Keywords             string                  `json:"keywords"`
 }
 
 // 用于上一篇/下一篇/相关文章的简化信息响应
@@ -202,6 +206,7 @@ type CreateArticleParams struct {
 	CopyrightURL         string
 	CustomPublishedAt    *time.Time
 	CustomUpdatedAt      *time.Time
+	Keywords             string
 }
 
 // 用于解析颜色 API 响应的结构体

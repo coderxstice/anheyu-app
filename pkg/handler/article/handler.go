@@ -189,22 +189,37 @@ func (h *Handler) GetRandom(c *gin.Context) {
 // @Failure      500 {object} response.Response "服务器内部错误"
 // @Router       /articles [post]
 func (h *Handler) Create(c *gin.Context) {
+	log.Printf("[Handler.Create] ========== 收到创建文章请求 ==========")
 	var req model.CreateArticleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Printf("[Handler.Create] ❌ 请求参数绑定失败: %v", err)
 		response.Fail(c, http.StatusBadRequest, "请求参数无效: "+err.Error())
 		return
+	}
+
+	log.Printf("[Handler.Create] 文章标题: %s", req.Title)
+	log.Printf("[Handler.Create] CustomPublishedAt: %v", req.CustomPublishedAt)
+	if req.CustomPublishedAt != nil {
+		log.Printf("[Handler.Create] CustomPublishedAt 值: %s", *req.CustomPublishedAt)
+	}
+	log.Printf("[Handler.Create] CustomUpdatedAt: %v", req.CustomUpdatedAt)
+	if req.CustomUpdatedAt != nil {
+		log.Printf("[Handler.Create] CustomUpdatedAt 值: %s", *req.CustomUpdatedAt)
 	}
 
 	// 使用改进的IP获取方法，优先检查代理头部
 	clientIP := util.GetRealClientIP(c)
 
 	// 调用 Service 时传递 IP 地址
+	log.Printf("[Handler.Create] 调用 Service.Create...")
 	article, err := h.svc.Create(c.Request.Context(), &req, clientIP)
 	if err != nil {
+		log.Printf("[Handler.Create] ❌ Service.Create 失败: %v", err)
 		response.Fail(c, http.StatusInternalServerError, "创建文章失败: "+err.Error())
 		return
 	}
 
+	log.Printf("[Handler.Create] ✅ 文章创建成功")
 	response.Success(c, article, "创建成功")
 }
 
@@ -293,29 +308,40 @@ func (h *Handler) Get(c *gin.Context) {
 // @Failure      500 {object} response.Response "服务器内部错误"
 // @Router       /articles/{id} [put]
 func (h *Handler) Update(c *gin.Context) {
+	log.Printf("[Handler.Update] ========== 收到更新文章请求 ==========")
 	id := c.Param("id")
 	if id == "" {
 		response.Fail(c, http.StatusBadRequest, "文章ID不能为空")
 		return
 	}
+	log.Printf("[Handler.Update] 文章ID: %s", id)
 
 	var req model.UpdateArticleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Printf("[Handler.Update] ❌ 请求参数绑定失败: %v", err)
 		response.Fail(c, http.StatusBadRequest, "请求参数无效: "+err.Error())
 		return
 	}
 
+	log.Printf("[Handler.Update] CustomUpdatedAt: %v", req.CustomUpdatedAt)
+	if req.CustomUpdatedAt != nil {
+		log.Printf("[Handler.Update] CustomUpdatedAt 值: %s", *req.CustomUpdatedAt)
+	}
+
 	// 使用改进的IP获取方法，优先检查代理头部
 	clientIP := util.GetRealClientIP(c)
-	log.Printf("[DEBUG] 准备更新文章，获取到的真实 IP 是: %s", clientIP)
+	log.Printf("[Handler.Update] 准备更新文章，获取到的真实 IP 是: %s", clientIP)
 
 	// 将 clientIP 传递给 Service 层
+	log.Printf("[Handler.Update] 调用 Service.Update...")
 	article, err := h.svc.Update(c.Request.Context(), id, &req, clientIP)
 	if err != nil {
+		log.Printf("[Handler.Update] ❌ Service.Update 失败: %v", err)
 		response.Fail(c, http.StatusInternalServerError, "更新文章失败: "+err.Error())
 		return
 	}
 
+	log.Printf("[Handler.Update] ✅ 文章更新成功")
 	response.Success(c, article, "更新成功")
 }
 

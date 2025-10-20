@@ -2497,6 +2497,7 @@ type ArticleMutation struct {
 	copyright_author        *string
 	copyright_author_href   *string
 	copyright_url           *string
+	keywords                *string
 	clearedFields           map[string]struct{}
 	post_tags               map[uint]struct{}
 	removedpost_tags        map[uint]struct{}
@@ -3716,6 +3717,55 @@ func (m *ArticleMutation) ResetCopyrightURL() {
 	delete(m.clearedFields, article.FieldCopyrightURL)
 }
 
+// SetKeywords sets the "keywords" field.
+func (m *ArticleMutation) SetKeywords(s string) {
+	m.keywords = &s
+}
+
+// Keywords returns the value of the "keywords" field in the mutation.
+func (m *ArticleMutation) Keywords() (r string, exists bool) {
+	v := m.keywords
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldKeywords returns the old "keywords" field's value of the Article entity.
+// If the Article object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ArticleMutation) OldKeywords(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldKeywords is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldKeywords requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldKeywords: %w", err)
+	}
+	return oldValue.Keywords, nil
+}
+
+// ClearKeywords clears the value of the "keywords" field.
+func (m *ArticleMutation) ClearKeywords() {
+	m.keywords = nil
+	m.clearedFields[article.FieldKeywords] = struct{}{}
+}
+
+// KeywordsCleared returns if the "keywords" field was cleared in this mutation.
+func (m *ArticleMutation) KeywordsCleared() bool {
+	_, ok := m.clearedFields[article.FieldKeywords]
+	return ok
+}
+
+// ResetKeywords resets all changes to the "keywords" field.
+func (m *ArticleMutation) ResetKeywords() {
+	m.keywords = nil
+	delete(m.clearedFields, article.FieldKeywords)
+}
+
 // AddPostTagIDs adds the "post_tags" edge to the PostTag entity by ids.
 func (m *ArticleMutation) AddPostTagIDs(ids ...uint) {
 	if m.post_tags == nil {
@@ -3912,7 +3962,7 @@ func (m *ArticleMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ArticleMutation) Fields() []string {
-	fields := make([]string, 0, 23)
+	fields := make([]string, 0, 24)
 	if m.deleted_at != nil {
 		fields = append(fields, article.FieldDeletedAt)
 	}
@@ -3982,6 +4032,9 @@ func (m *ArticleMutation) Fields() []string {
 	if m.copyright_url != nil {
 		fields = append(fields, article.FieldCopyrightURL)
 	}
+	if m.keywords != nil {
+		fields = append(fields, article.FieldKeywords)
+	}
 	return fields
 }
 
@@ -4036,6 +4089,8 @@ func (m *ArticleMutation) Field(name string) (ent.Value, bool) {
 		return m.CopyrightAuthorHref()
 	case article.FieldCopyrightURL:
 		return m.CopyrightURL()
+	case article.FieldKeywords:
+		return m.Keywords()
 	}
 	return nil, false
 }
@@ -4091,6 +4146,8 @@ func (m *ArticleMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldCopyrightAuthorHref(ctx)
 	case article.FieldCopyrightURL:
 		return m.OldCopyrightURL(ctx)
+	case article.FieldKeywords:
+		return m.OldKeywords(ctx)
 	}
 	return nil, fmt.Errorf("unknown Article field %s", name)
 }
@@ -4261,6 +4318,13 @@ func (m *ArticleMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetCopyrightURL(v)
 		return nil
+	case article.FieldKeywords:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetKeywords(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Article field %s", name)
 }
@@ -4390,6 +4454,9 @@ func (m *ArticleMutation) ClearedFields() []string {
 	if m.FieldCleared(article.FieldCopyrightURL) {
 		fields = append(fields, article.FieldCopyrightURL)
 	}
+	if m.FieldCleared(article.FieldKeywords) {
+		fields = append(fields, article.FieldKeywords)
+	}
 	return fields
 }
 
@@ -4439,6 +4506,9 @@ func (m *ArticleMutation) ClearField(name string) error {
 		return nil
 	case article.FieldCopyrightURL:
 		m.ClearCopyrightURL()
+		return nil
+	case article.FieldKeywords:
+		m.ClearKeywords()
 		return nil
 	}
 	return fmt.Errorf("unknown Article nullable field %s", name)
@@ -4516,6 +4586,9 @@ func (m *ArticleMutation) ResetField(name string) error {
 		return nil
 	case article.FieldCopyrightURL:
 		m.ResetCopyrightURL()
+		return nil
+	case article.FieldKeywords:
+		m.ResetKeywords()
 		return nil
 	}
 	return fmt.Errorf("unknown Article field %s", name)

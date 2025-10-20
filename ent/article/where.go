@@ -160,6 +160,11 @@ func CopyrightURL(v string) predicate.Article {
 	return predicate.Article(sql.FieldEQ(FieldCopyrightURL, v))
 }
 
+// Keywords applies equality check predicate on the "keywords" field. It's identical to KeywordsEQ.
+func Keywords(v string) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldKeywords, v))
+}
+
 // DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
 func DeletedAtEQ(v time.Time) predicate.Article {
 	return predicate.Article(sql.FieldEQ(FieldDeletedAt, v))
@@ -1353,6 +1358,81 @@ func CopyrightURLEqualFold(v string) predicate.Article {
 // CopyrightURLContainsFold applies the ContainsFold predicate on the "copyright_url" field.
 func CopyrightURLContainsFold(v string) predicate.Article {
 	return predicate.Article(sql.FieldContainsFold(FieldCopyrightURL, v))
+}
+
+// KeywordsEQ applies the EQ predicate on the "keywords" field.
+func KeywordsEQ(v string) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldKeywords, v))
+}
+
+// KeywordsNEQ applies the NEQ predicate on the "keywords" field.
+func KeywordsNEQ(v string) predicate.Article {
+	return predicate.Article(sql.FieldNEQ(FieldKeywords, v))
+}
+
+// KeywordsIn applies the In predicate on the "keywords" field.
+func KeywordsIn(vs ...string) predicate.Article {
+	return predicate.Article(sql.FieldIn(FieldKeywords, vs...))
+}
+
+// KeywordsNotIn applies the NotIn predicate on the "keywords" field.
+func KeywordsNotIn(vs ...string) predicate.Article {
+	return predicate.Article(sql.FieldNotIn(FieldKeywords, vs...))
+}
+
+// KeywordsGT applies the GT predicate on the "keywords" field.
+func KeywordsGT(v string) predicate.Article {
+	return predicate.Article(sql.FieldGT(FieldKeywords, v))
+}
+
+// KeywordsGTE applies the GTE predicate on the "keywords" field.
+func KeywordsGTE(v string) predicate.Article {
+	return predicate.Article(sql.FieldGTE(FieldKeywords, v))
+}
+
+// KeywordsLT applies the LT predicate on the "keywords" field.
+func KeywordsLT(v string) predicate.Article {
+	return predicate.Article(sql.FieldLT(FieldKeywords, v))
+}
+
+// KeywordsLTE applies the LTE predicate on the "keywords" field.
+func KeywordsLTE(v string) predicate.Article {
+	return predicate.Article(sql.FieldLTE(FieldKeywords, v))
+}
+
+// KeywordsContains applies the Contains predicate on the "keywords" field.
+func KeywordsContains(v string) predicate.Article {
+	return predicate.Article(sql.FieldContains(FieldKeywords, v))
+}
+
+// KeywordsHasPrefix applies the HasPrefix predicate on the "keywords" field.
+func KeywordsHasPrefix(v string) predicate.Article {
+	return predicate.Article(sql.FieldHasPrefix(FieldKeywords, v))
+}
+
+// KeywordsHasSuffix applies the HasSuffix predicate on the "keywords" field.
+func KeywordsHasSuffix(v string) predicate.Article {
+	return predicate.Article(sql.FieldHasSuffix(FieldKeywords, v))
+}
+
+// KeywordsIsNil applies the IsNil predicate on the "keywords" field.
+func KeywordsIsNil() predicate.Article {
+	return predicate.Article(sql.FieldIsNull(FieldKeywords))
+}
+
+// KeywordsNotNil applies the NotNil predicate on the "keywords" field.
+func KeywordsNotNil() predicate.Article {
+	return predicate.Article(sql.FieldNotNull(FieldKeywords))
+}
+
+// KeywordsEqualFold applies the EqualFold predicate on the "keywords" field.
+func KeywordsEqualFold(v string) predicate.Article {
+	return predicate.Article(sql.FieldEqualFold(FieldKeywords, v))
+}
+
+// KeywordsContainsFold applies the ContainsFold predicate on the "keywords" field.
+func KeywordsContainsFold(v string) predicate.Article {
+	return predicate.Article(sql.FieldContainsFold(FieldKeywords, v))
 }
 
 // HasPostTags applies the HasEdge predicate on the "post_tags" edge.

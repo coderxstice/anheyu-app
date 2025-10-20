@@ -62,6 +62,8 @@ const (
 	FieldCopyrightAuthorHref = "copyright_author_href"
 	// FieldCopyrightURL holds the string denoting the copyright_url field in the database.
 	FieldCopyrightURL = "copyright_url"
+	// FieldKeywords holds the string denoting the keywords field in the database.
+	FieldKeywords = "keywords"
 	// EdgePostTags holds the string denoting the post_tags edge name in mutations.
 	EdgePostTags = "post_tags"
 	// EdgePostCategories holds the string denoting the post_categories edge name in mutations.
@@ -115,6 +117,7 @@ var Columns = []string{
 	FieldCopyrightAuthor,
 	FieldCopyrightAuthorHref,
 	FieldCopyrightURL,
+	FieldKeywords,
 }
 
 var (
@@ -147,8 +150,6 @@ var (
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
 	DefaultUpdatedAt func() time.Time
-	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
-	UpdateDefaultUpdatedAt func() time.Time
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	TitleValidator func(string) error
 	// DefaultViewCount holds the default value on creation for the "view_count" field.
@@ -322,6 +323,11 @@ func ByCopyrightAuthorHref(opts ...sql.OrderTermOption) OrderOption {
 // ByCopyrightURL orders the results by the copyright_url field.
 func ByCopyrightURL(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCopyrightURL, opts...).ToFunc()
+}
+
+// ByKeywords orders the results by the keywords field.
+func ByKeywords(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldKeywords, opts...).ToFunc()
 }
 
 // ByPostTagsCount orders the results by post_tags count.

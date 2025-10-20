@@ -95,6 +95,7 @@ func (r *articleRepo) toModel(a *ent.Article) *model.Article {
 		CopyrightAuthor:      a.CopyrightAuthor,
 		CopyrightAuthorHref:  a.CopyrightAuthorHref,
 		CopyrightURL:         a.CopyrightURL,
+		Keywords:             a.Keywords,
 	}
 }
 
@@ -390,6 +391,11 @@ func (r *articleRepo) IncrementViewCount(ctx context.Context, publicID string) e
 
 // Create 创建新文章
 func (r *articleRepo) Create(ctx context.Context, params *model.CreateArticleParams) (*model.Article, error) {
+	log.Printf("[Repository.Create] ========== 开始创建文章 ==========")
+	log.Printf("[Repository.Create] 标题: %s", params.Title)
+	log.Printf("[Repository.Create] 自定义发布时间 CustomPublishedAt: %v", params.CustomPublishedAt)
+	log.Printf("[Repository.Create] 自定义更新时间 CustomUpdatedAt: %v", params.CustomUpdatedAt)
+
 	topImgURL := params.TopImgURL
 	if topImgURL == "" {
 		topImgURL = params.CoverURL
@@ -414,7 +420,8 @@ func (r *articleRepo) Create(ctx context.Context, params *model.CreateArticlePar
 		SetCopyright(params.Copyright).
 		SetCopyrightAuthor(params.CopyrightAuthor).
 		SetCopyrightAuthorHref(params.CopyrightAuthorHref).
-		SetCopyrightURL(params.CopyrightURL)
+		SetCopyrightURL(params.CopyrightURL).
+		SetKeywords(params.Keywords)
 
 	if params.Abbrlink != "" {
 		creator.SetAbbrlink(params.Abbrlink)
@@ -428,18 +435,30 @@ func (r *articleRepo) Create(ctx context.Context, params *model.CreateArticlePar
 
 	// 支持自定义发布时间
 	if params.CustomPublishedAt != nil {
+		log.Printf("[Repository.Create] ✅ 设置自定义发布时间: %v", *params.CustomPublishedAt)
 		creator.SetCreatedAt(*params.CustomPublishedAt)
+	} else {
+		log.Printf("[Repository.Create] ⚠️ 未提供自定义发布时间，将使用默认值")
 	}
 
 	// 支持自定义更新时间
 	if params.CustomUpdatedAt != nil {
+		log.Printf("[Repository.Create] ✅ 设置自定义更新时间: %v", *params.CustomUpdatedAt)
 		creator.SetUpdatedAt(*params.CustomUpdatedAt)
+	} else {
+		log.Printf("[Repository.Create] ⚠️ 未提供自定义更新时间，将使用默认值")
 	}
 
+	log.Printf("[Repository.Create] 准备调用 Save() 保存到数据库...")
 	newEntity, err := creator.Save(ctx)
 	if err != nil {
+		log.Printf("[Repository.Create] ❌ 保存失败: %v", err)
 		return nil, err
 	}
+
+	log.Printf("[Repository.Create] ✅ 保存成功，数据库ID: %d", newEntity.ID)
+	log.Printf("[Repository.Create] 数据库中的 CreatedAt: %v", newEntity.CreatedAt)
+	log.Printf("[Repository.Create] 数据库中的 UpdatedAt: %v", newEntity.UpdatedAt)
 
 	publicID, _ := idgen.GeneratePublicID(newEntity.ID, idgen.EntityTypeArticle)
 	return r.GetByID(ctx, publicID)
@@ -447,10 +466,22 @@ func (r *articleRepo) Create(ctx context.Context, params *model.CreateArticlePar
 
 // Update 更新文章
 func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.UpdateArticleRequest, computed *model.UpdateArticleComputedParams) (*model.Article, error) {
+	log.Printf("[Repository.Update] ========== 开始更新文章 ==========")
+	log.Printf("[Repository.Update] 公共ID: %s", publicID)
+	log.Printf("[Repository.Update] 自定义发布时间 CustomPublishedAt: %v", req.CustomPublishedAt)
+	if req.CustomPublishedAt != nil {
+		log.Printf("[Repository.Update] 自定义发布时间的值: %s", *req.CustomPublishedAt)
+	}
+	log.Printf("[Repository.Update] 自定义更新时间 CustomUpdatedAt: %v", req.CustomUpdatedAt)
+	if req.CustomUpdatedAt != nil {
+		log.Printf("[Repository.Update] 自定义更新时间的值: %s", *req.CustomUpdatedAt)
+	}
+
 	dbID, _, err := idgen.DecodePublicID(publicID)
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("[Repository.Update] 数据库ID: %d", dbID)
 	updater := r.db.Article.UpdateOneID(dbID)
 	if req.Title != nil {
 		updater.SetTitle(*req.Title)
@@ -515,6 +546,9 @@ func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.Up
 	if req.CopyrightURL != nil {
 		updater.SetCopyrightURL(*req.CopyrightURL)
 	}
+	if req.Keywords != nil {
+		updater.SetKeywords(*req.Keywords)
+	}
 	if computed != nil {
 		if computed.WordCount > 0 || (req.ContentMd != nil && *req.ContentMd == "") {
 			updater.SetWordCount(computed.WordCount)
@@ -528,16 +562,47 @@ func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.Up
 			updater.SetIsPrimaryColorManual(*computed.IsPrimaryColorManual)
 		}
 	}
-	// 支持自定义更新时间
-	if req.CustomUpdatedAt != nil && *req.CustomUpdatedAt != "" {
-		if customTime, parseErr := time.Parse(time.RFC3339, *req.CustomUpdatedAt); parseErr == nil {
-			updater.SetUpdatedAt(customTime)
+	// 处理发布时间（创建时间）：优先使用自定义时间
+	log.Printf("[Repository.Update] 开始处理发布时间...")
+	if req.CustomPublishedAt != nil && *req.CustomPublishedAt != "" {
+		log.Printf("[Repository.Update] 收到自定义发布时间字符串: %s", *req.CustomPublishedAt)
+		if customTime, parseErr := time.Parse(time.RFC3339, *req.CustomPublishedAt); parseErr == nil {
+			log.Printf("[Repository.Update] ✅ 解析成功，设置自定义发布时间: %v", customTime)
+			updater.SetCreatedAt(customTime)
+		} else {
+			log.Printf("[Repository.Update] ❌ 解析自定义发布时间失败: %v", parseErr)
 		}
+	} else {
+		log.Printf("[Repository.Update] ⚠️ 未提供自定义发布时间，保持原值")
 	}
-	_, err = updater.Save(ctx)
+
+	// 处理更新时间：优先使用自定义时间，否则使用当前时间
+	log.Printf("[Repository.Update] 开始处理更新时间...")
+	if req.CustomUpdatedAt != nil && *req.CustomUpdatedAt != "" {
+		log.Printf("[Repository.Update] 收到自定义更新时间字符串: %s", *req.CustomUpdatedAt)
+		if customTime, parseErr := time.Parse(time.RFC3339, *req.CustomUpdatedAt); parseErr == nil {
+			log.Printf("[Repository.Update] ✅ 解析成功，设置自定义更新时间: %v", customTime)
+			updater.SetUpdatedAt(customTime)
+		} else {
+			log.Printf("[Repository.Update] ❌ 解析失败，使用当前时间。错误: %v", parseErr)
+			updater.SetUpdatedAt(time.Now())
+		}
+	} else {
+		log.Printf("[Repository.Update] ⚠️ 未提供自定义更新时间，使用当前时间")
+		updater.SetUpdatedAt(time.Now())
+	}
+
+	log.Printf("[Repository.Update] 准备调用 Save() 保存到数据库...")
+	updatedEntity, err := updater.Save(ctx)
 	if err != nil {
+		log.Printf("[Repository.Update] ❌ 保存失败: %v", err)
 		return nil, err
 	}
+
+	log.Printf("[Repository.Update] ✅ 保存成功")
+	log.Printf("[Repository.Update] 数据库中的 CreatedAt: %v", updatedEntity.CreatedAt)
+	log.Printf("[Repository.Update] 数据库中的 UpdatedAt: %v", updatedEntity.UpdatedAt)
+
 	return r.GetByID(ctx, publicID)
 }
 
