@@ -149,7 +149,13 @@ func (h *DirectLinkHandler) HandleDirectDownload(c *gin.Context) {
 		}
 	} else {
 		// 云存储：重定向到直接下载链接
-		options := storage.DownloadURLOptions{ExpiresIn: 3600}
+		// 获取请求中的查询参数（用于图片处理，如 ?imageMogr2/format/avif）
+		queryParams := c.Request.URL.RawQuery
+
+		options := storage.DownloadURLOptions{
+			ExpiresIn:   3600,
+			QueryParams: queryParams,
+		}
 		downloadURL, err := provider.GetDownloadURL(c.Request.Context(), policy, file.PrimaryEntity.Source.String, options)
 		if err != nil {
 			log.Printf("获取云存储下载链接失败 [FileID: %d]: %v", file.ID, err)

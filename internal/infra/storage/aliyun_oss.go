@@ -366,14 +366,25 @@ func (p *AliOSSProvider) GetDownloadURL(ctx context.Context, policy *model.Stora
 			expiresIn = 3600 // 1小时
 		}
 
+		// 处理图片处理参数
+		var signOptions []oss.Option
+		if options.QueryParams != "" {
+			// 阿里云OSS的图片处理参数格式: x-oss-process=image/format,webp
+			params := strings.TrimSpace(options.QueryParams)
+			params = strings.TrimPrefix(params, "?")
+			if params != "" {
+				signOptions = append(signOptions, oss.Process(params))
+			}
+		}
+
 		// 生成预签名URL
-		signedURL, err := bucket.SignURL(objectKey, oss.HTTPGet, int64(expiresIn))
+		signedURL, err := bucket.SignURL(objectKey, oss.HTTPGet, int64(expiresIn), signOptions...)
 		if err != nil {
 			log.Printf("[阿里云OSS] 生成预签名URL失败: %v", err)
 			return "", fmt.Errorf("生成阿里云OSS预签名URL失败: %w", err)
 		}
 
-		log.Printf("[阿里云OSS] 预签名URL生成成功")
+		log.Printf("[阿里云OSS] 预签名URL生成成功: %s", signedURL)
 		return signedURL, nil
 	} else {
 		log.Printf("[阿里云OSS] 生成公共访问URL")
@@ -409,6 +420,12 @@ func (p *AliOSSProvider) GetDownloadURL(ctx context.Context, policy *model.Stora
 
 		// 构建完整的访问URL
 		fullURL := fmt.Sprintf("%s/%s", baseURL, objectKey)
+
+		// 添加图片处理参数
+		if options.QueryParams != "" {
+			fullURL = appendOSSImageParams(fullURL, options.QueryParams)
+			log.Printf("[阿里云OSS] 添加图片处理参数后的URL: %s", fullURL)
+		}
 
 		log.Printf("[阿里云OSS] 公共访问URL: %s", fullURL)
 		return fullURL, nil
@@ -520,4 +537,47 @@ func (p *AliOSSProvider) Exists(ctx context.Context, policy *model.StoragePolicy
 	}
 
 	return exists, nil
+}
+
+// appendOSSImageParams 智能地将图片处理参数附加到URL中
+// 支持阿里云OSS的图片处理参数格式，如: x-oss-process=image/format,webp
+func appendOSSImageParams(baseURL, params string) string {
+	params = strings.TrimSpace(params)
+	if params == "" {
+		return baseURL
+	}
+
+	// 移除开头的 ? 如果有的话
+	params = strings.TrimPrefix(params, "?")
+	if params == "" {
+		return baseURL
+	}
+
+	// 解析URL
+	parsedURL, err := url.Parse(baseURL)
+	if err != nil {
+		// 如果解析失败，直接拼接
+		if strings.Contains(baseURL, "?") {
+			return baseURL + "&" + params
+		}
+		return baseURL + "?" + params
+	}
+
+	// 阿里云OSS图片处理参数格式检测
+	// 支持两种格式：
+	// 1. x-oss-process=image/format,webp (标准格式)
+	// 2. image/format,webp (简化格式，自动添加x-oss-process=)
+	if !strings.Contains(params, "x-oss-process=") && !strings.Contains(params, "=") {
+		// 简化格式，需要添加 x-oss-process= 前缀
+		params = "x-oss-process=" + params
+	}
+
+	// 将参数添加到URL中
+	if parsedURL.RawQuery != "" {
+		parsedURL.RawQuery += "&" + params
+	} else {
+		parsedURL.RawQuery = params
+	}
+
+	return parsedURL.String()
 }
