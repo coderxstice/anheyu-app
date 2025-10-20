@@ -2,7 +2,7 @@
  * @Description: 腾讯云COS存储提供者实现
  * @Author: 安知鱼
  * @Date: 2025-09-28 12:00:00
- * @LastEditTime: 2025-10-14 12:04:10
+ * @LastEditTime: 2025-10-20 15:28:16
  * @LastEditors: 安知鱼
  */
 package storage
@@ -428,6 +428,19 @@ func (p *TencentCOSProvider) GetDownloadURL(ctx context.Context, policy *model.S
 		}
 
 		finalURL := presignedURL.String()
+
+		// 添加图片处理参数
+		// 注意：对于预签名URL，直接在末尾追加参数即可，腾讯云数据万象支持这种方式
+		if options.QueryParams != "" {
+			params := strings.TrimSpace(options.QueryParams)
+			params = strings.TrimPrefix(params, "?")
+			if params != "" {
+				// 预签名URL已经包含查询参数，使用 & 连接
+				finalURL += "&" + params
+				log.Printf("[腾讯云COS] 在预签名URL后追加图片处理参数")
+			}
+		}
+
 		log.Printf("[腾讯云COS] 生成的预签名URL: %s", finalURL)
 		return finalURL, nil
 	} else {
@@ -444,6 +457,12 @@ func (p *TencentCOSProvider) GetDownloadURL(ctx context.Context, policy *model.S
 			baseURL := strings.TrimSuffix(policy.Server, "/")
 			finalURL = fmt.Sprintf("%s/%s", baseURL, objectKey)
 			log.Printf("[腾讯云COS] 使用Server域名生成URL: %s", finalURL)
+		}
+
+		// 添加图片处理参数
+		if options.QueryParams != "" {
+			finalURL = appendImageParams(finalURL, options.QueryParams)
+			log.Printf("[腾讯云COS] 添加图片处理参数后的公开URL: %s", finalURL)
 		}
 
 		return finalURL, nil
@@ -633,4 +652,27 @@ func (p *TencentCOSProvider) GetCORSConfig(ctx context.Context, policy *model.St
 	}
 
 	return result, nil
+}
+
+// appendImageParams 智能地将图片处理参数附加到URL中
+// 支持腾讯云COS数据万象的参数格式，如: imageMogr2/format/avif
+// 使用标准查询参数模式：https://domain.com/image.jpg?imageMogr2/format/avif
+func appendImageParams(baseURL, params string) string {
+	params = strings.TrimSpace(params)
+	if params == "" {
+		return baseURL
+	}
+
+	// 移除开头的 ? 如果有的话
+	params = strings.TrimPrefix(params, "?")
+	if params == "" {
+		return baseURL
+	}
+
+	// 简单的字符串拼接方式，避免URL编码
+	// 腾讯云数据万象的参数格式不需要编码
+	if strings.Contains(baseURL, "?") {
+		return baseURL + "&" + params
+	}
+	return baseURL + "?" + params
 }

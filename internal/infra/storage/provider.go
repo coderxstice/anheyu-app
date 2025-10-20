@@ -35,8 +35,9 @@ type UploadResult struct {
 
 // DownloadURLOptions 包含了生成下载链接时可能需要的额外参数
 type DownloadURLOptions struct {
-	PublicID  string // 文件的公共ID，用于本地存储签名
-	ExpiresIn int64  // 链接的有效时长（秒）
+	PublicID    string // 文件的公共ID，用于本地存储签名
+	ExpiresIn   int64  // 链接的有效时长（秒）
+	QueryParams string // 图片处理参数（如 imageMogr2/format/avif 或 x-oss-process=image/format,webp）
 }
 
 // 定义一个错误，用于表示某个功能不被当前 Provider 支持
