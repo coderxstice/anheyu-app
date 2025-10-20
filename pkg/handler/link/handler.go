@@ -526,6 +526,39 @@ func (h *Handler) ImportLinks(c *gin.Context) {
 	response.SuccessWithStatus(c, http.StatusCreated, result, "导入完成")
 }
 
+// ExportLinks 处理后台管理员导出友链的请求。
+// @Summary      导出友链
+// @Description  根据筛选条件导出友链数据（JSON格式）
+// @Tags         友链管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        name         query  string  false  "网站名称（模糊搜索）"
+// @Param        url          query  string  false  "网站URL（模糊搜索）"
+// @Param        description  query  string  false  "网站描述（模糊搜索）"
+// @Param        status       query  string  false  "友链状态"  Enums(PENDING, APPROVED, REJECTED, INVALID)
+// @Param        category_id  query  int     false  "分类ID"
+// @Param        tag_id       query  int     false  "标签ID"
+// @Success      200  {object}  response.Response{data=model.ExportLinksResponse}  "导出成功"
+// @Failure      400  {object}  response.Response  "参数无效"
+// @Failure      500  {object}  response.Response  "导出失败"
+// @Router       /links/export [get]
+func (h *Handler) ExportLinks(c *gin.Context) {
+	var req model.ExportLinksRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		response.Fail(c, http.StatusBadRequest, "参数无效: "+err.Error())
+		return
+	}
+
+	result, err := h.linkSvc.ExportLinks(c.Request.Context(), &req)
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, "导出失败: "+err.Error())
+		return
+	}
+
+	response.Success(c, result, "导出成功")
+}
+
 // CheckLinksHealth 处理后台管理员手动触发友链健康检查的请求。
 // 该操作为异步执行，不会阻塞请求，立即返回任务已启动的响应。
 // @Summary      检查友链健康状态

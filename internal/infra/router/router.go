@@ -511,6 +511,7 @@ func (r *Router) registerLinkRoutes(api *gin.RouterGroup) {
 		linksAdmin.DELETE("/:id", r.linkHandler.AdminDeleteLink)                   // DELETE /api/links/:id
 		linksAdmin.PUT("/:id/review", r.linkHandler.ReviewLink)                    // PUT /api/links/:id/review
 		linksAdmin.POST("/import", r.linkHandler.ImportLinks)                      // POST /api/links/import
+		linksAdmin.GET("/export", r.linkHandler.ExportLinks)                       // GET /api/links/export
 		linksAdmin.POST("/health-check", r.linkHandler.CheckLinksHealth)           // POST /api/links/health-check
 		linksAdmin.GET("/health-check/status", r.linkHandler.GetHealthCheckStatus) // GET /api/links/health-check/status
 		linksAdmin.PUT("/sort", r.linkHandler.BatchUpdateLinkSort)                 // PUT /api/links/sort

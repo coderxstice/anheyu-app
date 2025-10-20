@@ -207,3 +207,19 @@ type LinkSortItem struct {
 type BatchUpdateLinkSortRequest struct {
 	Items []LinkSortItem `json:"items" binding:"required,min=1"`
 }
+
+// ExportLinksRequest 是导出友链的请求结构（与 ListLinksRequest 使用相同的筛选条件）
+type ExportLinksRequest struct {
+	Name        *string `form:"name"`
+	URL         *string `form:"url"`
+	Description *string `form:"description"`
+	Status      *string `form:"status" binding:"omitempty,oneof=PENDING APPROVED REJECTED INVALID"`
+	CategoryID  *int    `form:"category_id"`
+	TagID       *int    `form:"tag_id"`
+}
+
+// ExportLinksResponse 是导出友链的响应结构。
+type ExportLinksResponse struct {
+	Links []ImportLinkItem `json:"links"` // 使用与导入相同的数据格式
+	Total int              `json:"total"` // 导出的友链总数
+}
