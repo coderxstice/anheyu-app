@@ -294,6 +294,11 @@ var AllSettings = []Definition{
   </div>
 </details>`, Comment: "申请友链自定义 HTML 内容 (用于前台展示)", IsPublic: true},
 	{Key: constant.KeyFriendLinkDefaultCategory, Value: "2", Comment: "友链默认分类", IsPublic: true},
+	{Key: constant.KeyFriendLinkPlaceholderName, Value: "例如：安知鱼", Comment: "友链申请表单-网站名称输入框提示文字", IsPublic: true},
+	{Key: constant.KeyFriendLinkPlaceholderURL, Value: "https://blog.anheyu.com/", Comment: "友链申请表单-网站链接输入框提示文字", IsPublic: true},
+	{Key: constant.KeyFriendLinkPlaceholderLogo, Value: "https://npm.elemecdn.com/anzhiyu-blog-static@1.0.4/img/avatar.jpg", Comment: "友链申请表单-网站LOGO输入框提示文字", IsPublic: true},
+	{Key: constant.KeyFriendLinkPlaceholderDescription, Value: "生活明朗，万物可爱", Comment: "友链申请表单-网站描述输入框提示文字", IsPublic: true},
+	{Key: constant.KeyFriendLinkPlaceholderSiteshot, Value: "https://example.com/siteshot.png (可选)", Comment: "友链申请表单-网站快照输入框提示文字", IsPublic: true},
 	{Key: constant.KeyFriendLinkNotifyAdmin, Value: "false", Comment: "是否在收到友链申请时通知站长", IsPublic: false},
 	{Key: constant.KeyFriendLinkScMailNotify, Value: "false", Comment: "是否同时通过邮件和IM通知站长（友链申请）", IsPublic: false},
 	{Key: constant.KeyFriendLinkPushooChannel, Value: "", Comment: "友链申请即时消息推送平台名称，支持：bark, webhook", IsPublic: false},
