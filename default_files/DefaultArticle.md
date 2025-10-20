@@ -705,6 +705,216 @@ console.log("Hello World");
 
 :::
 
+## 图片组
+
+图片组插件可以创建美观的网格布局图片展示，非常适合展示作品集、相册、产品图等。
+
+:::tabs active=3
+
+== tab 标签语法
+
+```markdown
+:::gallery
+![图片1](https://upload-bbs.miyoushe.com/upload/2025/10/20/125766904/d9bd6eaa4bd95b4a3822697d2a02b9fe_3838888873972014349.jpg "图片标题1")
+![图片2](https://upload-bbs.miyoushe.com/upload/2025/10/20/125766904/70dd78e6ccdebf05ea6cca4926dab2f3_3988741683324456483.jpg "图片标题2")
+![图片3](https://upload-bbs.miyoushe.com/upload/2025/10/20/125766904/c2c03f1e052d0cb67867a780d2d2a367_7241546671181857520.jpg "图片标题3")
+:::
+```
+
+**带参数**：
+
+```markdown
+:::gallery cols=列数 gap=间距 ratio=宽高比
+![图片1](https://upload-bbs.miyoushe.com/upload/2025/10/20/125766904/d9bd6eaa4bd95b4a3822697d2a02b9fe_3838888873972014349.jpg "标题1")
+![图片2](https://upload-bbs.miyoushe.com/upload/2025/10/20/125766904/70dd78e6ccdebf05ea6cca4926dab2f3_3988741683324456483.jpg "标题2")
+:::
+```
+
+== tab 配置参数
+
+**容器参数**（在 `:::gallery` 后指定）：
+
+- `cols`: 列数，默认为 3，范围 1-6
+- `gap`: 图片间距，默认为 10px（支持 px、rem、em 单位）
+- `ratio`: 图片宽高比（如 16:9、1:1），不设置则自适应图片原始尺寸
+
+**图片格式支持**：
+
+1. **Markdown 图片语法**（推荐）
+
+   ```markdown
+   ![替代文本](图片URL "图片标题")
+   ```
+
+2. **HTML img 标签**
+
+   ```markdown
+   <img src="图片URL" alt="替代文本" title="图片标题" />
+   ```
+
+3. **参数格式**
+   ```markdown
+   url=图片 URL alt=替代文本 title=图片标题 desc=图片描述
+   ```
+
+**常用宽高比**：
+
+- `1:1` - 正方形
+- `16:9` - 宽屏
+- `4:3` - 传统屏幕
+- `3:2` - 照片常用比例
+
+== tab 样式预览
+
+**基础三列图片组**
+
+:::gallery
+![示例图片1](https://picsum.photos/800/600?random=1 "随机图片 1")
+![示例图片2](https://picsum.photos/800/600?random=2 "随机图片 2")
+![示例图片3](https://picsum.photos/800/600?random=3 "随机图片 3")
+:::
+
+**四列照片墙**
+
+:::gallery cols=4 gap=8px
+![照片1](https://picsum.photos/600/400?random=4)
+![照片2](https://picsum.photos/600/400?random=5)
+![照片3](https://picsum.photos/600/400?random=6)
+![照片4](https://picsum.photos/600/400?random=7)
+![照片5](https://picsum.photos/600/400?random=8)
+![照片6](https://picsum.photos/600/400?random=9)
+![照片7](https://picsum.photos/600/400?random=10)
+![照片8](https://picsum.photos/600/400?random=11)
+:::
+
+**正方形图片组（1:1）**
+
+:::gallery cols=3 ratio=1:1
+![方形图1](https://picsum.photos/800/800?random=12 "正方形图片 1")
+![方形图2](https://picsum.photos/800/800?random=13 "正方形图片 2")
+![方形图3](https://picsum.photos/800/800?random=14 "正方形图片 3")
+![方形图4](https://picsum.photos/800/800?random=15 "正方形图片 4")
+![方形图5](https://picsum.photos/800/800?random=16 "正方形图片 5")
+![方形图6](https://picsum.photos/800/800?random=17 "正方形图片 6")
+:::
+
+**宽屏比例（16:9）**
+
+:::gallery cols=2 ratio=16:9 gap=20px
+![宽屏图1](https://picsum.photos/1920/1080?random=18 "宽屏图片 1")
+![宽屏图2](https://picsum.photos/1920/1080?random=19 "宽屏图片 2")
+![宽屏图3](https://picsum.photos/1920/1080?random=20 "宽屏图片 3")
+![宽屏图4](https://picsum.photos/1920/1080?random=21 "宽屏图片 4")
+:::
+
+**单列大图展示**
+
+:::gallery cols=1
+![大图1](https://picsum.photos/1600/900?random=22 "单列大图 1")
+![大图2](https://picsum.photos/1600/900?random=23 "单列大图 2")
+:::
+
+== tab 使用示例
+
+**示例 1：作品集展示**
+
+```markdown
+:::gallery cols=3 ratio=1:1
+![作品1](https://example.com/work1.jpg "设计作品A")
+![作品2](https://example.com/work2.jpg "设计作品B")
+![作品3](https://example.com/work3.jpg "设计作品C")
+![作品4](https://example.com/work4.jpg "设计作品D")
+![作品5](https://example.com/work5.jpg "设计作品E")
+![作品6](https://example.com/work6.jpg "设计作品F")
+:::
+```
+
+**示例 2：视频封面展示**
+
+```markdown
+:::gallery cols=2 ratio=16:9 gap=20px
+![视频1](url1 "教程视频第一集")
+![视频2](url2 "教程视频第二集")
+![视频3](url3 "教程视频第三集")
+![视频4](url4 "教程视频第四集")
+:::
+```
+
+**示例 3：产品展示**
+
+```markdown
+:::gallery cols=4
+![产品1](url1 "产品名称A")
+![产品2](url2 "产品名称B")
+![产品3](url3 "产品名称C")
+![产品4](url4 "产品名称D")
+:::
+```
+
+**示例 4：活动海报**
+
+```markdown
+:::gallery cols=1
+![海报1](url1 "活动海报")
+![海报2](url2 "宣传图片")
+:::
+```
+
+== tab 最佳实践
+
+**1. 列数选择**
+
+- **1 列**: 适合横幅图、大图展示
+- **2 列**: 适合宽屏图片、视频封面
+- **3 列**: 最常用的布局，适合作品集、相册
+- **4 列**: 适合产品展示、照片墙
+- **5-6 列**: 适合小图标、图标集合
+
+**2. 宽高比使用**
+
+- **不设置**: 图片保持原始比例，适合尺寸不一的图片
+- **1:1**: 正方形，适合头像、LOGO、产品图
+- **16:9**: 宽屏，适合视频封面、横幅
+- **4:3**: 传统照片比例
+- **3:2**: 相机照片常用比例
+
+**3. 间距设置**
+
+- **8-10px**: 紧凑布局，适合照片墙
+- **15-20px**: 标准布局，最常用
+- **25-30px**: 宽松布局，突出单张图片
+
+**4. 响应式设计**
+
+图片组会根据屏幕尺寸自动调整：
+
+- **桌面端（>768px）**: 保持设定的列数
+- **平板端（≤768px）**: 4-6 列自动调整为 3 列
+- **手机端（≤500px）**: 3-6 列自动调整为 2 列，2 列自动调整为 1 列
+
+**5. 交互特性**
+
+- ✅ 悬停效果：图片轻微上浮并放大
+- ✅ 显示标题：鼠标悬停显示图片标题
+- ✅ 点击放大：集成 Fancybox，支持全屏查看
+- ✅ 懒加载：自动启用图片懒加载优化性能
+
+**6. 性能优化**
+
+- 单个图片组建议不超过 20 张
+- 使用适当的图片尺寸（不要过大）
+- 移动端建议使用较少的列数（2-3 列）
+- 图片会自动懒加载，提升首屏性能
+
+**7. 注意事项**
+
+- 确保图片 URL 有效且可访问
+- 使用相同尺寸的图片效果更佳
+- 建议添加有意义的图片标题
+- 测试移动端显示效果
+
+:::
+
 ## LinkCard
 
 LinkCard 插件可以创建美观的链接卡片，用于展示外部链接信息。
