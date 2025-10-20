@@ -450,10 +450,24 @@ func (s *PrimaryColorService) buildOSSURL(file *model.File, policy *model.Storag
 // getColorFromMiyoushe 从米游社图片获取主色调
 func (s *PrimaryColorService) getColorFromMiyoushe(ctx context.Context, imageURL string) string {
 	// 米游社使用阿里云OSS，支持通过添加 x-oss-process=image/average-hue 参数获取主色调
+	// 需要处理URL中已有的x-oss-process参数，避免参数冲突
 	var averageHueURL string
-	if strings.Contains(imageURL, "?") {
+
+	// 检查URL中是否已经包含x-oss-process参数
+	if strings.Contains(imageURL, "x-oss-process=") {
+		// 找到问号位置，移除原有的x-oss-process参数
+		if idx := strings.Index(imageURL, "?"); idx != -1 {
+			// 只保留问号之前的部分（即原始图片URL）
+			averageHueURL = imageURL[:idx] + "?x-oss-process=image/average-hue"
+		} else {
+			// 理论上不会走到这里，因为x-oss-process必定在查询参数中
+			averageHueURL = imageURL + "?x-oss-process=image/average-hue"
+		}
+	} else if strings.Contains(imageURL, "?") {
+		// URL有查询参数但没有x-oss-process，直接添加
 		averageHueURL = imageURL + "&x-oss-process=image/average-hue"
 	} else {
+		// URL没有任何查询参数
 		averageHueURL = imageURL + "?x-oss-process=image/average-hue"
 	}
 
