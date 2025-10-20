@@ -45,6 +45,7 @@ type Service interface {
 	ListLinks(ctx context.Context, req *model.ListLinksRequest) (*model.LinkListResponse, error)
 	AdminListAllTags(ctx context.Context) ([]*model.LinkTagDTO, error)
 	ImportLinks(ctx context.Context, req *model.ImportLinksRequest) (*model.ImportLinksResponse, error)
+	ExportLinks(ctx context.Context, req *model.ExportLinksRequest) (*model.ExportLinksResponse, error)
 	CheckLinksHealth(ctx context.Context) (*model.LinkHealthCheckResponse, error)
 	BatchUpdateLinkSort(ctx context.Context, req *model.BatchUpdateLinkSortRequest) error
 }
@@ -480,6 +481,59 @@ func (s *service) ImportLinks(ctx context.Context, req *model.ImportLinksRequest
 	}
 
 	return response, nil
+}
+
+// ExportLinks 导出友链数据，支持根据筛选条件导出特定的友链。
+func (s *service) ExportLinks(ctx context.Context, req *model.ExportLinksRequest) (*model.ExportLinksResponse, error) {
+	// 构建查询请求（复用 ListLinksRequest 的筛选逻辑）
+	listReq := &model.ListLinksRequest{
+		PaginationInput: model.PaginationInput{
+			Page:     1,
+			PageSize: 10000, // 设置一个足够大的数字以导出所有符合条件的友链
+		},
+		Name:        req.Name,
+		URL:         req.URL,
+		Description: req.Description,
+		Status:      req.Status,
+		CategoryID:  req.CategoryID,
+		TagID:       req.TagID,
+	}
+
+	// 获取友链列表
+	links, total, err := s.linkRepo.List(ctx, listReq)
+	if err != nil {
+		return nil, fmt.Errorf("获取友链列表失败: %w", err)
+	}
+
+	// 转换为导出格式（与导入格式兼容）
+	exportLinks := make([]model.ImportLinkItem, 0, len(links))
+	for _, link := range links {
+		exportItem := model.ImportLinkItem{
+			Name:        link.Name,
+			URL:         link.URL,
+			Logo:        link.Logo,
+			Description: link.Description,
+			Siteshot:    link.Siteshot,
+			Status:      link.Status,
+		}
+
+		// 添加分类名称
+		if link.Category != nil {
+			exportItem.CategoryName = link.Category.Name
+		}
+
+		// 添加标签名称
+		if link.Tag != nil {
+			exportItem.TagName = link.Tag.Name
+		}
+
+		exportLinks = append(exportLinks, exportItem)
+	}
+
+	return &model.ExportLinksResponse{
+		Links: exportLinks,
+		Total: total,
+	}, nil
 }
 
 // CheckLinksHealth 检查所有友链的健康状态，将无法访问的友链标记为 INVALID，将恢复的友链标记为 APPROVED。
