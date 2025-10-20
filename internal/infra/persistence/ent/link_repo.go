@@ -54,6 +54,12 @@ func (r *linkRepo) List(ctx context.Context, req *model.ListLinksRequest) ([]*mo
 	if req.Name != nil && *req.Name != "" {
 		query = query.Where(link.NameContains(*req.Name))
 	}
+	if req.URL != nil && *req.URL != "" {
+		query = query.Where(link.URLContains(*req.URL))
+	}
+	if req.Description != nil && *req.Description != "" {
+		query = query.Where(link.DescriptionContains(*req.Description))
+	}
 	if req.Status != nil && *req.Status != "" {
 		query = query.Where(link.StatusEQ(link.Status(*req.Status)))
 	}
