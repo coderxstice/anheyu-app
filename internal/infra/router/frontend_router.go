@@ -732,6 +732,78 @@ func ensureScriptTagsClosed(html string) string {
 	return html
 }
 
+// convertImagesToLazyLoad 将HTML中的图片转换为懒加载格式
+// 在服务端渲染时直接生成懒加载HTML，避免浏览器在解析时就开始加载图片
+func convertImagesToLazyLoad(html string) string {
+	if html == "" {
+		return html
+	}
+
+	// 占位符图片 - 1x1 透明像素的 base64 编码
+	const placeholderImage = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB2aWV3Qm94PSIwIDAgMSAxIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSJ0cmFuc3BhcmVudCIvPgo8L3N2Zz4="
+
+	// 匹配 <img> 标签，包括自闭合和非自闭合格式
+	// 排除已经有 data-src 的图片（避免重复处理）
+	imgRegex := regexp.MustCompile(`<img\s+([^>]*?)\s*\/?>`)
+
+	result := imgRegex.ReplaceAllStringFunc(html, func(match string) string {
+		// 如果已经包含 data-src 或 data-lazy-processed，跳过处理
+		if strings.Contains(match, "data-src") || strings.Contains(match, "data-lazy-processed") {
+			return match
+		}
+
+		// 如果已经是占位符图片，跳过处理
+		if strings.Contains(match, placeholderImage) {
+			return match
+		}
+
+		// 提取 src 属性
+		srcRegex := regexp.MustCompile(`src=["']([^"']+)["']`)
+		srcMatch := srcRegex.FindStringSubmatch(match)
+
+		if len(srcMatch) < 2 {
+			// 没有 src 属性，保持原样
+			return match
+		}
+
+		originalSrc := srcMatch[1]
+
+		// 跳过 data: URL（这些通常是占位符或内联图片）
+		if strings.HasPrefix(originalSrc, "data:") {
+			return match
+		}
+
+		// 构建新的 img 标签
+		// 1. 将原始 src 替换为占位符
+		newMatch := srcRegex.ReplaceAllString(match, fmt.Sprintf(`src="%s"`, placeholderImage))
+
+		// 2. 添加 data-src 属性（在 src 之后插入）
+		newMatch = strings.Replace(newMatch, fmt.Sprintf(`src="%s"`, placeholderImage),
+			fmt.Sprintf(`src="%s" data-src="%s"`, placeholderImage, originalSrc), 1)
+
+		// 3. 添加懒加载相关的 class
+		classRegex := regexp.MustCompile(`class=["']([^"']+)["']`)
+		if classMatch := classRegex.FindStringSubmatch(newMatch); len(classMatch) >= 2 {
+			// 已有 class，追加新的类名
+			existingClasses := classMatch[1]
+			if !strings.Contains(existingClasses, "lazy-image") {
+				newClasses := existingClasses + " lazy-image"
+				newMatch = classRegex.ReplaceAllString(newMatch, fmt.Sprintf(`class="%s"`, newClasses))
+			}
+		} else {
+			// 没有 class，添加新的 class 属性
+			newMatch = strings.Replace(newMatch, "<img", `<img class="lazy-image"`, 1)
+		}
+
+		// 4. 添加 data-lazy-processed 标记
+		newMatch = strings.Replace(newMatch, "<img", `<img data-lazy-processed="true"`, 1)
+
+		return newMatch
+	})
+
+	return result
+}
+
 // renderHTMLPage 渲染HTML页面的通用函数（版本）
 func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSvc article_service.Service, templates *template.Template) {
 	// 🚫 强制禁用HTML页面的所有缓存
@@ -773,6 +845,9 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 			for i, tag := range articleResponse.PostTags {
 				articleTags[i] = tag.Name
 			}
+
+			// 🖼️ 关键修复：在服务端渲染时将图片转换为懒加载格式，避免浏览器解析HTML时自动加载
+			articleResponse.ContentHTML = convertImagesToLazyLoad(articleResponse.ContentHTML)
 
 			// 处理自定义HTML，确保script标签正确闭合
 			customHeaderHTML := ensureScriptTagsClosed(settingSvc.Get(constant.KeyCustomHeaderHTML.String()))
