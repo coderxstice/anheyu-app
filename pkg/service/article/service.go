@@ -44,6 +44,13 @@ type Service interface {
 	GetRandom(ctx context.Context) (*model.ArticleResponse, error)
 	ToAPIResponse(a *model.Article, useAbbrlinkAsID bool, includeHTML bool) *model.ArticleResponse
 	GetPrimaryColorFromURL(ctx context.Context, imageURL string) (string, error)
+
+	// 导入导出功能
+	ExportArticles(ctx context.Context, articleIDs []string) (*ExportArticleData, error)
+	ExportArticlesToZip(ctx context.Context, articleIDs []string) ([]byte, error)
+	ImportArticles(ctx context.Context, req *ImportArticleRequest) (*ImportResult, error)
+	ImportArticlesFromJSON(ctx context.Context, jsonData []byte, req *ImportArticleRequest) (*ImportResult, error)
+	ImportArticlesFromZip(ctx context.Context, zipData []byte, req *ImportArticleRequest) (*ImportResult, error)
 }
 
 type serviceImpl struct {

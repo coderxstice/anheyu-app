@@ -2,9 +2,13 @@ package article
 
 import (
 	"errors"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"path/filepath"
 	"strconv"
+	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/ent"
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/auth"
@@ -465,4 +469,168 @@ func (h *Handler) GetPrimaryColor(c *gin.Context) {
 	response.Success(c, gin.H{
 		"primary_color": primaryColor,
 	}, "获取主色调成功")
+}
+
+// ExportArticles 处理文章导出请求
+// @Summary      导出文章
+// @Description  导出指定的文章为 ZIP 压缩包，包含 JSON 数据和 Markdown 文件
+// @Tags         文章管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      application/zip
+// @Param        body body object{article_ids=[]string} true "要导出的文章ID列表"
+// @Success      200 {file} application/zip "导出成功"
+// @Failure      400 {object} response.Response "请求参数错误"
+// @Failure      401 {object} response.Response "未授权"
+// @Failure      500 {object} response.Response "导出失败"
+// @Router       /articles/export [post]
+func (h *Handler) ExportArticles(c *gin.Context) {
+	log.Printf("[Handler.ExportArticles] 开始处理文章导出请求")
+
+	// 1. 验证用户登录状态
+	_, err := getClaims(c)
+	if err != nil {
+		log.Printf("[Handler.ExportArticles] 认证失败: %v", err)
+		response.Fail(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	// 2. 解析请求参数
+	var req struct {
+		ArticleIDs []string `json:"article_ids" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Printf("[Handler.ExportArticles] 参数解析失败: %v", err)
+		response.Fail(c, http.StatusBadRequest, "请求参数无效: "+err.Error())
+		return
+	}
+
+	if len(req.ArticleIDs) == 0 {
+		response.Fail(c, http.StatusBadRequest, "文章ID列表不能为空")
+		return
+	}
+
+	log.Printf("[Handler.ExportArticles] 准备导出 %d 篇文章", len(req.ArticleIDs))
+
+	// 3. 调用Service层导出文章
+	zipData, err := h.svc.ExportArticlesToZip(c.Request.Context(), req.ArticleIDs)
+	if err != nil {
+		log.Printf("[Handler.ExportArticles] 导出失败: %v", err)
+		response.Fail(c, http.StatusInternalServerError, "导出文章失败: "+err.Error())
+		return
+	}
+
+	// 4. 返回 ZIP 文件
+	filename := fmt.Sprintf("articles_export_%s.zip", time.Now().Format("20060102_150405"))
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
+	c.Header("Content-Type", "application/zip")
+	c.Header("Content-Length", strconv.Itoa(len(zipData)))
+
+	log.Printf("[Handler.ExportArticles] 导出成功，文件大小: %d bytes", len(zipData))
+	c.Data(http.StatusOK, "application/zip", zipData)
+}
+
+// ImportArticles 处理文章导入请求
+// @Summary      导入文章
+// @Description  从上传的 JSON 或 ZIP 文件导入文章
+// @Tags         文章管理
+// @Security     BearerAuth
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        file formData file true "导入文件（JSON 或 ZIP）"
+// @Param        create_categories formData bool false "是否自动创建不存在的分类" default(true)
+// @Param        create_tags formData bool false "是否自动创建不存在的标签" default(true)
+// @Param        skip_existing formData bool false "是否跳过已存在的文章" default(true)
+// @Param        default_status formData string false "默认文章状态" default("DRAFT")
+// @Success      200 {object} response.Response{data=articleSvc.ImportResult} "导入成功"
+// @Failure      400 {object} response.Response "请求参数错误"
+// @Failure      401 {object} response.Response "未授权"
+// @Failure      500 {object} response.Response "导入失败"
+// @Router       /articles/import [post]
+func (h *Handler) ImportArticles(c *gin.Context) {
+	log.Printf("[Handler.ImportArticles] 开始处理文章导入请求")
+
+	// 1. 验证用户登录状态
+	claims, err := getClaims(c)
+	if err != nil {
+		log.Printf("[Handler.ImportArticles] 认证失败: %v", err)
+		response.Fail(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	// 解析用户ID
+	ownerID, _, err := idgen.DecodePublicID(claims.UserID)
+	if err != nil {
+		log.Printf("[Handler.ImportArticles] 解析用户ID失败: %v", err)
+		response.Fail(c, http.StatusUnauthorized, "无效的用户凭证")
+		return
+	}
+
+	// 2. 获取上传的文件
+	fileHeader, err := c.FormFile("file")
+	if err != nil {
+		log.Printf("[Handler.ImportArticles] 获取上传文件失败: %v", err)
+		response.Fail(c, http.StatusBadRequest, "无效的文件上传请求")
+		return
+	}
+
+	log.Printf("[Handler.ImportArticles] 接收到文件: %s, 大小: %d bytes", fileHeader.Filename, fileHeader.Size)
+
+	// 3. 读取文件内容
+	file, err := fileHeader.Open()
+	if err != nil {
+		log.Printf("[Handler.ImportArticles] 打开文件失败: %v", err)
+		response.Fail(c, http.StatusInternalServerError, "无法处理上传的文件")
+		return
+	}
+	defer file.Close()
+
+	fileData, err := io.ReadAll(file)
+	if err != nil {
+		log.Printf("[Handler.ImportArticles] 读取文件失败: %v", err)
+		response.Fail(c, http.StatusInternalServerError, "读取文件失败")
+		return
+	}
+
+	// 4. 解析导入选项
+	createCategories := c.DefaultPostForm("create_categories", "true") == "true"
+	createTags := c.DefaultPostForm("create_tags", "true") == "true"
+	skipExisting := c.DefaultPostForm("skip_existing", "true") == "true"
+	defaultStatus := c.DefaultPostForm("default_status", "DRAFT")
+
+	importReq := &articleSvc.ImportArticleRequest{
+		OwnerID:          ownerID,
+		CreateCategories: createCategories,
+		CreateTags:       createTags,
+		SkipExisting:     skipExisting,
+		DefaultStatus:    defaultStatus,
+	}
+
+	log.Printf("[Handler.ImportArticles] 导入选项 - 创建分类: %v, 创建标签: %v, 跳过已存在: %v, 默认状态: %s",
+		createCategories, createTags, skipExisting, defaultStatus)
+
+	// 5. 根据文件类型调用不同的导入方法
+	var result *articleSvc.ImportResult
+	ext := filepath.Ext(fileHeader.Filename)
+
+	switch ext {
+	case ".json":
+		result, err = h.svc.ImportArticlesFromJSON(c.Request.Context(), fileData, importReq)
+	case ".zip":
+		result, err = h.svc.ImportArticlesFromZip(c.Request.Context(), fileData, importReq)
+	default:
+		response.Fail(c, http.StatusBadRequest, "不支持的文件格式，仅支持 .json 和 .zip 文件")
+		return
+	}
+
+	if err != nil {
+		log.Printf("[Handler.ImportArticles] 导入失败: %v", err)
+		response.Fail(c, http.StatusInternalServerError, "导入文章失败: "+err.Error())
+		return
+	}
+
+	log.Printf("[Handler.ImportArticles] 导入完成 - 总数: %d, 成功: %d, 跳过: %d, 失败: %d",
+		result.TotalCount, result.SuccessCount, result.SkippedCount, result.FailedCount)
+
+	response.Success(c, result, "导入完成")
 }
