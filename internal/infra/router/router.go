@@ -267,6 +267,9 @@ func (r *Router) registerArticleRoutes(api *gin.RouterGroup) {
 		articlesAdmin.DELETE("/:id", r.articleHandler.Delete)
 		articlesAdmin.POST("/upload", r.articleHandler.UploadImage)
 		articlesAdmin.POST("/primary-color", r.articleHandler.GetPrimaryColor)
+		// 文章导入导出功能
+		articlesAdmin.POST("/export", r.articleHandler.ExportArticles)
+		articlesAdmin.POST("/import", r.articleHandler.ImportArticles)
 	}
 
 	articlesPublic := api.Group("/public/articles")
