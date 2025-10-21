@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/anzhiyu-c/anheyu-app/internal/infra/storage"
@@ -98,25 +99,60 @@ func (s *PrimaryColorService) isSystemImage(imageURL string) (bool, string) {
 	}
 	trimmedSiteURL := strings.TrimSuffix(siteURL, "/")
 
-	// 检查是否是代理URL格式: /api/v1/pro/images/{fileID}
-	if strings.HasPrefix(imageURL, trimmedSiteURL+"/api/v1/pro/images/") {
-		filePublicID := strings.TrimPrefix(imageURL, trimmedSiteURL+"/api/v1/pro/images/")
-		// 移除可能的查询参数
-		if idx := strings.Index(filePublicID, "?"); idx != -1 {
-			filePublicID = filePublicID[:idx]
-		}
+	// 使用正则表达式匹配系统图片URL模式，支持任意域名
+	// 支持的模式：
+	// 1. /api/pro/images/{fileID} - anheyu-pro项目的图片
+	// 2. /api/f/{publicID}/{filename} - anheyu-app项目的直链
+	// 3. /api/file/content?sign={token} - anheyu-app项目的签名内容
+
+	// 模式1: anheyu-pro项目的图片API
+	proImagePattern := regexp.MustCompile(`^https?://[^/]+/api/pro/images/([^?]+)`)
+	if matches := proImagePattern.FindStringSubmatch(imageURL); matches != nil {
+		filePublicID := matches[1]
+		log.Printf("[主色调服务] 匹配到anheyu-pro图片URL，FileID: %s", filePublicID)
 		return true, filePublicID
 	}
 
-	// 检查是否是直链URL格式: /api/f/{linkID}/{filename}
-	if strings.HasPrefix(imageURL, trimmedSiteURL+"/api/f/") {
-		pathParts := strings.Split(strings.TrimPrefix(imageURL, trimmedSiteURL+"/api/f/"), "/")
-		if len(pathParts) >= 1 {
-			linkPublicID := pathParts[0]
-			// 通过linkID获取文件ID（这里需要查询direct_links表）
-			// 暂时返回false，使用HTTP下载方式
-			log.Printf("[主色调服务] 检测到直链格式，LinkID: %s，暂使用HTTP方式", linkPublicID)
-			return false, ""
+	// 模式2: anheyu-app项目的直链格式 /api/f/{publicID}/{filename}
+	directLinkPattern := regexp.MustCompile(`^https?://[^/]+/api/f/([^/?]+)`)
+	if matches := directLinkPattern.FindStringSubmatch(imageURL); matches != nil {
+		publicID := matches[1]
+		log.Printf("[主色调服务] 匹配到anheyu-app直链URL，PublicID: %s", publicID)
+		return true, publicID
+	}
+
+	// 模式3: anheyu-app项目的签名内容格式 /api/file/content?sign={token}
+	signedContentPattern := regexp.MustCompile(`^https?://[^/]+/api/file/content\?.*sign=([^&]+)`)
+	if matches := signedContentPattern.FindStringSubmatch(imageURL); matches != nil {
+		token := matches[1]
+		log.Printf("[主色调服务] 匹配到anheyu-app签名内容URL，Token: %s", token)
+		// 对于签名内容，我们不能直接提取fileID，需要通过HTTP下载
+		return false, ""
+	}
+
+	// 备选方案：检查配置的站点URL（向后兼容）
+	if trimmedSiteURL != "" {
+		patterns := []string{
+			trimmedSiteURL + "/api/pro/images/",
+			trimmedSiteURL + "/api/f/",
+		}
+
+		for _, pattern := range patterns {
+			if strings.HasPrefix(imageURL, pattern) {
+				remaining := strings.TrimPrefix(imageURL, pattern)
+				// 移除可能的查询参数
+				if idx := strings.Index(remaining, "?"); idx != -1 {
+					remaining = remaining[:idx]
+				}
+				// 对于 /api/f/ 格式，只取第一部分作为publicID
+				if strings.Contains(pattern, "/api/f/") {
+					if parts := strings.Split(remaining, "/"); len(parts) > 0 {
+						remaining = parts[0]
+					}
+				}
+				log.Printf("[主色调服务] 匹配到配置站点URL模式: %s -> ID: %s", pattern, remaining)
+				return true, remaining
+			}
 		}
 	}
 
