@@ -1002,6 +1002,53 @@ LinkCard 插件可以创建美观的链接卡片，用于展示外部链接信�
 - 卡片具有悬停效果和点击反馈
 - 适合用于推荐相关链接或引用外部资源
 
+## 🎬 视频画廊
+
+视频画廊插件可以创建美观的视频展示区域，非常适合展示教程视频、作品集、产品演示等。
+
+### 基础用法
+
+:::video-gallery
+url=https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/wuhan/1.mp4 title=武汉风光 1
+url=https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/wuhan/2.mp4 title=武汉风光 2
+:::
+
+```markdown
+:::video-gallery
+url=视频地址 1 title=视频标题 1
+url=视频地址 2 title=视频标题 2
+:::
+```
+
+### 自定义列数和比例
+
+:::video-gallery cols=1 ratio=16:9
+url=https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/wuhan/1.mp4 title=单列展示 desc=武汉城市风光
+:::
+
+```markdown
+:::video-gallery cols=1 ratio=16:9
+url=视频地址 title=视频标题 desc=视频描述
+:::
+```
+
+### 参数说明
+
+- `cols`: 列数，默认为 2，范围 1-4
+- `gap`: 视频间距，默认为 16px
+- `ratio`: 视频宽高比，默认为 16:9（也可设置 4:3、1:1 等）
+- `url`: 视频地址（必填）
+- `poster`: 视频封面图（可选）
+- `title`: 视频标题（可选）
+- `desc`: 视频描述（可选）
+
+### 特性
+
+- ✅ 响应式设计，自动适配移动端
+- ✅ 悬停效果，显示播放按钮
+- ✅ 原生视频控制器，支持全屏播放
+- ✅ 支持多种视频格式（MP4、WebM、OGG 等）
+
 ## ☘️ 占个坑@！
 
 没了
