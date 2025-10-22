@@ -1,5 +1,30 @@
 basePath: /api
 definitions:
+  article.ImportResult:
+    properties:
+      created_ids:
+        description: 创建的文章ID列表
+        items:
+          type: string
+        type: array
+      errors:
+        description: 错误信息列表
+        items:
+          type: string
+        type: array
+      failed_count:
+        description: 失败数
+        type: integer
+      skipped_count:
+        description: 跳过数
+        type: integer
+      success_count:
+        description: 成功数
+        type: integer
+      total_count:
+        description: 总数
+        type: integer
+    type: object
   auth_handler.LoginRequest:
     properties:
       email:
@@ -73,6 +98,55 @@ definitions:
         description: 用户组名称
         type: string
     type: object
+  config.BackupInfo:
+    properties:
+      created_at:
+        description: 创建时间
+        type: string
+      description:
+        description: 备份描述
+        type: string
+      filename:
+        description: 备份文件名
+        type: string
+      is_auto:
+        description: 是否自动备份
+        type: boolean
+      size:
+        description: 文件大小（字节）
+        type: integer
+    type: object
+  config_handler.CleanBackupsRequest:
+    properties:
+      keep_count:
+        description: 保留的备份数量
+        minimum: 1
+        type: integer
+    required:
+    - keep_count
+    type: object
+  config_handler.CreateBackupRequest:
+    properties:
+      description:
+        description: 备份描述（可选）
+        type: string
+    type: object
+  config_handler.DeleteBackupRequest:
+    properties:
+      filename:
+        description: 要删除的备份文件名
+        type: string
+    required:
+    - filename
+    type: object
+  config_handler.RestoreBackupRequest:
+    properties:
+      filename:
+        description: 要恢复的备份文件名
+        type: string
+    required:
+    - filename
+    type: object
   direct_link.CreateDirectLinksRequest:
     properties:
       file_ids:
@@ -92,9 +166,6 @@ definitions:
     type: object
   dto.CreateRequest:
     properties:
-      allow_notification:
-        description: 是否允许接收邮件通知。
-        type: boolean
       content:
         description: 评论的 Markdown 原文内容。
         maxLength: 1000
@@ -150,6 +221,10 @@ definitions:
       pageSize:
         type: integer
       total:
+        description: 根评论总数（用于分页）
+        type: integer
+      total_with_children:
+        description: 包含所有子评论的总数（用于前端显示）
         type: integer
     type: object
   dto.Response:
@@ -218,6 +293,16 @@ definitions:
         type: string
     required:
     - to_email
+    type: object
+  dto.UpdateContentRequest:
+    properties:
+      content:
+        description: 更新后的 Markdown 内容
+        maxLength: 1000
+        minLength: 1
+        type: string
+    required:
+    - content
     type: object
   dto.UpdateStatusRequest:
     properties:
@@ -327,6 +412,17 @@ definitions:
     - status
     - url
     type: object
+  model.AlbumCategoryDTO:
+    properties:
+      description:
+        type: string
+      displayOrder:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   model.ApplyLinkRequest:
     properties:
       description:
@@ -388,6 +484,8 @@ definitions:
         type: string
       is_primary_color_manual:
         type: boolean
+      keywords:
+        type: string
       next_article:
         $ref: '#/definitions/model.SimpleArticleResponse'
       pin_sort:
@@ -468,6 +566,8 @@ definitions:
         type: string
       is_primary_color_manual:
         type: boolean
+      keywords:
+        type: string
       pin_sort:
         type: integer
       post_categories:
@@ -573,6 +673,17 @@ definitions:
       country:
         type: string
     type: object
+  model.CreateAlbumCategoryRequest:
+    properties:
+      description:
+        type: string
+      displayOrder:
+        type: integer
+      name:
+        type: string
+    required:
+    - name
+    type: object
   model.CreateArticleRequest:
     properties:
       abbrlink:
@@ -591,12 +702,18 @@ definitions:
         type: string
       cover_url:
         type: string
+      custom_published_at:
+        type: string
+      custom_updated_at:
+        type: string
       home_sort:
         type: integer
       ip_location:
         type: string
       is_primary_color_manual:
         type: boolean
+      keywords:
+        type: string
       pin_sort:
         type: integer
       post_category_ids:
@@ -731,6 +848,17 @@ definitions:
         type: integer
       device:
         type: string
+    type: object
+  model.ExportLinksResponse:
+    properties:
+      links:
+        description: 使用与导入相同的数据格式
+        items:
+          $ref: '#/definitions/model.ImportLinkItem'
+        type: array
+      total:
+        description: 导出的友链总数
+        type: integer
     type: object
   model.ImportLinkFailure:
     properties:
@@ -1095,6 +1223,17 @@ definitions:
       url_path:
         type: string
     type: object
+  model.UpdateAlbumCategoryRequest:
+    properties:
+      description:
+        type: string
+      displayOrder:
+        type: integer
+      name:
+        type: string
+    required:
+    - name
+    type: object
   model.UpdateArticleRequest:
     properties:
       abbrlink:
@@ -1113,12 +1252,18 @@ definitions:
         type: string
       cover_url:
         type: string
+      custom_published_at:
+        type: string
+      custom_updated_at:
+        type: string
       home_sort:
         type: integer
       ip_location:
         type: string
       is_primary_color_manual:
         type: boolean
+      keywords:
+        type: string
       pin_sort:
         type: integer
       post_category_ids:
@@ -1342,6 +1487,67 @@ definitions:
         type: string
     required:
     - neteaseId
+    type: object
+  notification.NotificationTypeDTO:
+    properties:
+      category:
+        type: string
+      code:
+        type: string
+      createdAt:
+        type: string
+      defaultEnabled:
+        type: boolean
+      description:
+        type: string
+      id:
+        type: integer
+      isActive:
+        type: boolean
+      name:
+        type: string
+      supportedChannels:
+        items:
+          type: string
+        type: array
+      updatedAt:
+        type: string
+    type: object
+  notification.SimpleUserNotificationSettingsRequest:
+    properties:
+      allowCommentReplyNotification:
+        type: boolean
+    type: object
+  notification.SimpleUserNotificationSettingsResponse:
+    properties:
+      allowCommentReplyNotification:
+        type: boolean
+    type: object
+  notification.UserNotificationConfigDTO:
+    properties:
+      createdAt:
+        type: string
+      customSettings:
+        additionalProperties: true
+        type: object
+      enabledChannels:
+        items:
+          type: string
+        type: array
+      id:
+        type: integer
+      isEnabled:
+        type: boolean
+      notificationEmail:
+        type: string
+      notificationType:
+        $ref: '#/definitions/notification.NotificationTypeDTO'
+      notificationTypeId:
+        type: integer
+      updatedAt:
+        type: string
+      userId:
+        type: integer
     type: object
   response.Response:
     properties:
@@ -2043,9 +2249,176 @@ paths:
       summary: 管理员更新用户状态
       tags:
       - 管理员-用户管理
+  /album-categories:
+    get:
+      description: 获取所有相册分类列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.AlbumCategoryDTO'
+                  type: array
+              type: object
+        "500":
+          description: 获取失败
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取相册分类列表
+      tags:
+      - 相册分类管理
+    post:
+      consumes:
+      - application/json
+      description: 创建新的相册分类
+      parameters:
+      - description: 分类信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateAlbumCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AlbumCategoryDTO'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 创建失败
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建相册分类
+      tags:
+      - 相册分类管理
+  /album-categories/{id}:
+    delete:
+      description: 删除相册分类
+      parameters:
+      - description: 分类ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: 参数错误或删除失败
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 删除失败
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 删除相册分类
+      tags:
+      - 相册分类管理
+    get:
+      description: 根据ID获取相册分类详情
+      parameters:
+      - description: 分类ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AlbumCategoryDTO'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 分类不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 获取失败
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取相册分类详情
+      tags:
+      - 相册分类管理
+    put:
+      consumes:
+      - application/json
+      description: 更新相册分类信息
+      parameters:
+      - description: 分类ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 分类信息
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateAlbumCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AlbumCategoryDTO'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 更新失败
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新相册分类
+      tags:
+      - 相册分类管理
   /albums:
     get:
-      description: 获取相册图片列表，支持分页、标签筛选、时间筛选和排序
+      description: 获取相册图片列表，支持分页、分类筛选、标签筛选、时间筛选和排序
       parameters:
       - default: 1
         description: 页码
@@ -2056,6 +2429,10 @@ paths:
         description: 每页数量
         in: query
         name: pageSize
+        type: integer
+      - description: 分类ID筛选
+        in: query
+        name: categoryId
         type: integer
       - description: 标签筛选
         in: query
@@ -2226,6 +2603,53 @@ paths:
       security:
       - BearerAuth: []
       summary: 更新相册图片
+      tags:
+      - 相册管理
+  /albums/batch-import:
+    post:
+      consumes:
+      - application/json
+      description: 批量导入图片到相册，后端自动获取图片元数据
+      parameters:
+      - description: 批量导入信息
+        in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            bigParam:
+              type: string
+            displayOrder:
+              type: integer
+            tags:
+              items:
+                type: string
+              type: array
+            thumbParam:
+              type: string
+            urls:
+              items:
+                type: string
+              type: array
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 导入完成
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 导入失败
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 批量导入相册图片
       tags:
       - 相册管理
   /articles:
@@ -2402,6 +2826,154 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       summary: 更新文章
+      tags:
+      - 文章管理
+  /articles/export:
+    post:
+      consumes:
+      - application/json
+      description: 导出指定的文章为 ZIP 压缩包，包含 JSON 数据和 Markdown 文件
+      parameters:
+      - description: 要导出的文章ID列表
+        in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            article_ids:
+              items:
+                type: string
+              type: array
+          type: object
+      produces:
+      - application/zip
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 导出失败
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 导出文章
+      tags:
+      - 文章管理
+  /articles/import:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 从上传的 JSON 或 ZIP 文件导入文章
+      parameters:
+      - description: 导入文件（JSON 或 ZIP）
+        in: formData
+        name: file
+        required: true
+        type: file
+      - default: true
+        description: 是否自动创建不存在的分类
+        in: formData
+        name: create_categories
+        type: boolean
+      - default: true
+        description: 是否自动创建不存在的标签
+        in: formData
+        name: create_tags
+        type: boolean
+      - default: true
+        description: 是否跳过已存在的文章
+        in: formData
+        name: skip_existing
+        type: boolean
+      - default: '"DRAFT"'
+        description: 默认文章状态
+        in: formData
+        name: default_status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 导入成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/article.ImportResult'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 导入失败
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 导入文章
+      tags:
+      - 文章管理
+  /articles/primary-color:
+    post:
+      consumes:
+      - application/json
+      description: 根据图片URL获取主色调
+      parameters:
+      - description: 图片URL
+        in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            image_url:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  properties:
+                    primary_color:
+                      type: string
+                  type: object
+              type: object
+        "400":
+          description: 无效的请求参数
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 获取主色调失败
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取图片主色调
       tags:
       - 文章管理
   /articles/upload:
@@ -2819,6 +3391,52 @@ paths:
       summary: 管理员查询评论列表
       tags:
       - 评论管理
+  /comments/{id}:
+    put:
+      consumes:
+      - application/json
+      description: 根据评论ID更新评论的内容
+      parameters:
+      - description: 评论公共ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 更新请求，包含新的内容
+        in: body
+        name: update_request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateContentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.Response'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 管理员更新评论内容
+      tags:
+      - 评论管理
   /comments/{id}/pin:
     put:
       consumes:
@@ -2919,6 +3537,210 @@ paths:
       summary: 管理员更新评论状态
       tags:
       - 评论管理
+  /config/backup/clean:
+    post:
+      consumes:
+      - application/json
+      description: 清理旧的配置备份，只保留指定数量的最新备份
+      parameters:
+      - description: 保留数量
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/config_handler.CleanBackupsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 清理成功
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 清理失败
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 清理旧备份
+      tags:
+      - 配置备份管理
+  /config/backup/create:
+    post:
+      consumes:
+      - application/json
+      description: 手动创建配置文件的备份
+      parameters:
+      - description: 备份描述
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/config_handler.CreateBackupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/config.BackupInfo'
+              type: object
+        "500":
+          description: 创建失败
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建配置备份
+      tags:
+      - 配置备份管理
+  /config/backup/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除指定的配置备份文件
+      parameters:
+      - description: 备份文件名
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/config_handler.DeleteBackupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 删除失败
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 删除配置备份
+      tags:
+      - 配置备份管理
+  /config/backup/list:
+    get:
+      description: 获取所有配置文件的备份列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/config.BackupInfo'
+                  type: array
+              type: object
+        "500":
+          description: 获取失败
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取备份列表
+      tags:
+      - 配置备份管理
+  /config/backup/restore:
+    post:
+      consumes:
+      - application/json
+      description: 从指定的备份文件恢复配置（恢复前会自动创建当前配置的备份）
+      parameters:
+      - description: 备份文件名
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/config_handler.RestoreBackupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 恢复成功
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 恢复失败
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 恢复配置备份
+      tags:
+      - 配置备份管理
+  /config/export:
+    get:
+      description: 导出数据库中的所有配置项（JSON 格式）
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 配置文件
+          schema:
+            type: file
+        "500":
+          description: 导出失败
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 导出配置数据
+      tags:
+      - 配置管理
+  /config/import:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 导入配置数据到数据库（JSON 格式）
+      parameters:
+      - description: 配置文件（JSON格式）
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 导入成功
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 导入失败
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 导入配置数据
+      tags:
+      - 配置管理
   /direct-links:
     post:
       consumes:
@@ -3828,10 +4650,22 @@ paths:
         in: query
         name: page_size
         type: integer
+      - description: 友链名称（模糊搜索）
+        in: query
+        name: name
+        type: string
       - description: 审核状态
         in: query
         name: status
         type: string
+      - description: 分类ID
+        in: query
+        name: category_id
+        type: integer
+      - description: 标签ID
+        in: query
+        name: tag_id
+        type: integer
       produces:
       - application/json
       responses:
@@ -4124,6 +4958,66 @@ paths:
       summary: 更新分类
       tags:
       - 友链管理
+  /links/export:
+    get:
+      consumes:
+      - application/json
+      description: 根据筛选条件导出友链数据（JSON格式）
+      parameters:
+      - description: 网站名称（模糊搜索）
+        in: query
+        name: name
+        type: string
+      - description: 网站URL（模糊搜索）
+        in: query
+        name: url
+        type: string
+      - description: 网站描述（模糊搜索）
+        in: query
+        name: description
+        type: string
+      - description: 友链状态
+        enum:
+        - PENDING
+        - APPROVED
+        - REJECTED
+        - INVALID
+        in: query
+        name: status
+        type: string
+      - description: 分类ID
+        in: query
+        name: category_id
+        type: integer
+      - description: 标签ID
+        in: query
+        name: tag_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 导出成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ExportLinksResponse'
+              type: object
+        "400":
+          description: 参数无效
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 导出失败
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 导出友链
+      tags:
+      - 友链管理
   /links/health-check:
     post:
       description: 异步检查所有友链的可访问性（后台执行）
@@ -4394,6 +5288,28 @@ paths:
       summary: 下载文件（带签名）
       tags:
       - 文件管理
+  /notification/types:
+    get:
+      consumes:
+      - application/json
+      description: 获取系统支持的所有通知类型列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/notification.NotificationTypeDTO'
+                  type: array
+              type: object
+      summary: 获取所有通知类型
+      tags:
+      - 通知管理
   /pages:
     get:
       description: 获取页面列表，支持分页和搜索
@@ -4983,6 +5899,23 @@ paths:
       summary: 测试代理服务
       tags:
       - 代理服务
+  /public/album-categories:
+    get:
+      description: 获取所有相册分类列表，无需认证
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 获取失败
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取公开相册分类列表
+      tags:
+      - 公共接口
   /public/albums:
     get:
       description: 获取公开的相册图片列表，支持分页和筛选
@@ -4996,6 +5929,10 @@ paths:
         description: 每页数量
         in: query
         name: pageSize
+        type: integer
+      - description: 分类ID筛选
+        in: query
+        name: categoryId
         type: integer
       - description: 标签筛选
         in: query
@@ -6950,6 +7887,80 @@ paths:
       summary: 获取当前用户信息
       tags:
       - 用户管理
+  /user/notification-configs:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前用户的所有通知配置详情
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/notification.UserNotificationConfigDTO'
+                  type: array
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取用户通知配置详情
+      tags:
+      - 用户通知
+  /user/notification-settings:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前用户的通知偏好设置
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/notification.SimpleUserNotificationSettingsResponse'
+              type: object
+      security:
+      - Bearer: []
+      summary: 获取用户通知设置
+      tags:
+      - 用户通知
+    put:
+      consumes:
+      - application/json
+      description: 更新当前用户的通知偏好设置
+      parameters:
+      - description: 通知设置
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/notification.SimpleUserNotificationSettingsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/notification.SimpleUserNotificationSettingsResponse'
+              type: object
+      security:
+      - Bearer: []
+      summary: 更新用户通知设置
+      tags:
+      - 用户通知
   /user/profile:
     put:
       consumes:

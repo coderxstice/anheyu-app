@@ -430,6 +430,286 @@ const docTemplate = `{
                 }
             }
         },
+        "/album-categories": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "获取所有相册分类列表",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "相册分类管理"
+                ],
+                "summary": "获取相册分类列表",
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/model.AlbumCategoryDTO"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "获取失败",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "创建新的相册分类",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "相册分类管理"
+                ],
+                "summary": "创建相册分类",
+                "parameters": [
+                    {
+                        "description": "分类信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CreateAlbumCategoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "创建成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.AlbumCategoryDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "创建失败",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/album-categories/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据ID获取相册分类详情",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "相册分类管理"
+                ],
+                "summary": "获取相册分类详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "分类ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.AlbumCategoryDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "分类不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "获取失败",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "更新相册分类信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "相册分类管理"
+                ],
+                "summary": "更新相册分类",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "分类ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "分类信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UpdateAlbumCategoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.AlbumCategoryDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "更新失败",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "删除相册分类",
+                "tags": [
+                    "相册分类管理"
+                ],
+                "summary": "删除相册分类",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "分类ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误或删除失败",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "删除失败",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/albums": {
             "get": {
                 "security": [
@@ -437,7 +717,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "获取相册图片列表，支持分页、标签筛选、时间筛选和排序",
+                "description": "获取相册图片列表，支持分页、分类筛选、标签筛选、时间筛选和排序",
                 "produces": [
                     "application/json"
                 ],
@@ -458,6 +738,12 @@ const docTemplate = `{
                         "default": 10,
                         "description": "每页数量",
                         "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "分类ID筛选",
+                        "name": "categoryId",
                         "in": "query"
                     },
                     {
@@ -585,6 +871,80 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "添加失败",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/albums/batch-import": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "批量导入图片到相册，后端自动获取图片元数据",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "相册管理"
+                ],
+                "summary": "批量导入相册图片",
+                "parameters": [
+                    {
+                        "description": "批量导入信息",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "bigParam": {
+                                    "type": "string"
+                                },
+                                "displayOrder": {
+                                    "type": "integer"
+                                },
+                                "tags": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "thumbParam": {
+                                    "type": "string"
+                                },
+                                "urls": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "导入完成",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "导入失败",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -837,6 +1197,245 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/articles/export": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "导出指定的文章为 ZIP 压缩包，包含 JSON 数据和 Markdown 文件",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/zip"
+                ],
+                "tags": [
+                    "文章管理"
+                ],
+                "summary": "导出文章",
+                "parameters": [
+                    {
+                        "description": "要导出的文章ID列表",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "article_ids": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "导出失败",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/articles/import": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "从上传的 JSON 或 ZIP 文件导入文章",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "文章管理"
+                ],
+                "summary": "导入文章",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "导入文件（JSON 或 ZIP）",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "是否自动创建不存在的分类",
+                        "name": "create_categories",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "是否自动创建不存在的标签",
+                        "name": "create_tags",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "是否跳过已存在的文章",
+                        "name": "skip_existing",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "default": "\"DRAFT\"",
+                        "description": "默认文章状态",
+                        "name": "default_status",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "导入成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/article.ImportResult"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "导入失败",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/articles/primary-color": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据图片URL获取主色调",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "文章管理"
+                ],
+                "summary": "获取图片主色调",
+                "parameters": [
+                    {
+                        "description": "图片URL",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "image_url": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "primary_color": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "无效的请求参数",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "获取主色调失败",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -1668,6 +2267,82 @@ const docTemplate = `{
                 }
             }
         },
+        "/comments/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据评论ID更新评论的内容",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "评论管理"
+                ],
+                "summary": "管理员更新评论内容",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "评论公共ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新请求，包含新的内容",
+                        "name": "update_request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateContentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.Response"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/comments/{id}/pin": {
             "put": {
                 "security": [
@@ -1825,6 +2500,341 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/config/backup/clean": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "清理旧的配置备份，只保留指定数量的最新备份",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置备份管理"
+                ],
+                "summary": "清理旧备份",
+                "parameters": [
+                    {
+                        "description": "保留数量",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/config_handler.CleanBackupsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "清理成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "清理失败",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/config/backup/create": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "手动创建配置文件的备份",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置备份管理"
+                ],
+                "summary": "创建配置备份",
+                "parameters": [
+                    {
+                        "description": "备份描述",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/config_handler.CreateBackupRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/config.BackupInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "创建失败",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/config/backup/delete": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "删除指定的配置备份文件",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置备份管理"
+                ],
+                "summary": "删除配置备份",
+                "parameters": [
+                    {
+                        "description": "备份文件名",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/config_handler.DeleteBackupRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "删除失败",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/config/backup/list": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "获取所有配置文件的备份列表",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置备份管理"
+                ],
+                "summary": "获取备份列表",
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/config.BackupInfo"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "获取失败",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/config/backup/restore": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "从指定的备份文件恢复配置（恢复前会自动创建当前配置的备份）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置备份管理"
+                ],
+                "summary": "恢复配置备份",
+                "parameters": [
+                    {
+                        "description": "备份文件名",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/config_handler.RestoreBackupRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "恢复成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "恢复失败",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/config/export": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "导出数据库中的所有配置项（JSON 格式）",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置管理"
+                ],
+                "summary": "导出配置数据",
+                "responses": {
+                    "200": {
+                        "description": "配置文件",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "500": {
+                        "description": "导出失败",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/config/import": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "导入配置数据到数据库（JSON 格式）",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置管理"
+                ],
+                "summary": "导入配置数据",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "配置文件（JSON格式）",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "导入成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "导入失败",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -3267,8 +4277,26 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "友链名称（模糊搜索）",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
                         "description": "审核状态",
                         "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "分类ID",
+                        "name": "category_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "标签ID",
+                        "name": "tag_id",
                         "in": "query"
                     }
                 ],
@@ -3572,6 +4600,102 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "参数无效或删除失败",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/links/export": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据筛选条件导出友链数据（JSON格式）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "友链管理"
+                ],
+                "summary": "导出友链",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "网站名称（模糊搜索）",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "网站URL（模糊搜索）",
+                        "name": "url",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "网站描述（模糊搜索）",
+                        "name": "description",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "PENDING",
+                            "APPROVED",
+                            "REJECTED",
+                            "INVALID"
+                        ],
+                        "type": "string",
+                        "description": "友链状态",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "分类ID",
+                        "name": "category_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "标签ID",
+                        "name": "tag_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "导出成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ExportLinksResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数无效",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "导出失败",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
                         }
@@ -4191,6 +5315,44 @@ const docTemplate = `{
                         "description": "下载失败",
                         "schema": {
                             "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/notification/types": {
+            "get": {
+                "description": "获取系统支持的所有通知类型列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "通知管理"
+                ],
+                "summary": "获取所有通知类型",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/notification.NotificationTypeDTO"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -5158,6 +6320,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/public/album-categories": {
+            "get": {
+                "description": "获取所有相册分类列表，无需认证",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "公共接口"
+                ],
+                "summary": "获取公开相册分类列表",
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "获取失败",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/public/albums": {
             "get": {
                 "description": "获取公开的相册图片列表，支持分页和筛选",
@@ -5181,6 +6369,12 @@ const docTemplate = `{
                         "default": 12,
                         "description": "每页数量",
                         "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "分类ID筛选",
+                        "name": "categoryId",
                         "in": "query"
                     },
                     {
@@ -8356,6 +9550,138 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/notification-configs": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取当前用户的所有通知配置详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户通知"
+                ],
+                "summary": "获取用户通知配置详情",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/notification.UserNotificationConfigDTO"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/user/notification-settings": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "获取当前用户的通知偏好设置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户通知"
+                ],
+                "summary": "获取用户通知设置",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/notification.SimpleUserNotificationSettingsResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "更新当前用户的通知偏好设置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户通知"
+                ],
+                "summary": "更新用户通知设置",
+                "parameters": [
+                    {
+                        "description": "通知设置",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/notification.SimpleUserNotificationSettingsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/notification.SimpleUserNotificationSettingsResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/user/profile": {
             "put": {
                 "security": [
@@ -8460,6 +9786,41 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "article.ImportResult": {
+            "type": "object",
+            "properties": {
+                "created_ids": {
+                    "description": "创建的文章ID列表",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "errors": {
+                    "description": "错误信息列表",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "failed_count": {
+                    "description": "失败数",
+                    "type": "integer"
+                },
+                "skipped_count": {
+                    "description": "跳过数",
+                    "type": "integer"
+                },
+                "success_count": {
+                    "description": "成功数",
+                    "type": "integer"
+                },
+                "total_count": {
+                    "description": "总数",
+                    "type": "integer"
+                }
+            }
+        },
         "auth_handler.LoginRequest": {
             "type": "object",
             "required": [
@@ -8565,6 +9926,77 @@ const docTemplate = `{
                 }
             }
         },
+        "config.BackupInfo": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "备份描述",
+                    "type": "string"
+                },
+                "filename": {
+                    "description": "备份文件名",
+                    "type": "string"
+                },
+                "is_auto": {
+                    "description": "是否自动备份",
+                    "type": "boolean"
+                },
+                "size": {
+                    "description": "文件大小（字节）",
+                    "type": "integer"
+                }
+            }
+        },
+        "config_handler.CleanBackupsRequest": {
+            "type": "object",
+            "required": [
+                "keep_count"
+            ],
+            "properties": {
+                "keep_count": {
+                    "description": "保留的备份数量",
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
+        "config_handler.CreateBackupRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "备份描述（可选）",
+                    "type": "string"
+                }
+            }
+        },
+        "config_handler.DeleteBackupRequest": {
+            "type": "object",
+            "required": [
+                "filename"
+            ],
+            "properties": {
+                "filename": {
+                    "description": "要删除的备份文件名",
+                    "type": "string"
+                }
+            }
+        },
+        "config_handler.RestoreBackupRequest": {
+            "type": "object",
+            "required": [
+                "filename"
+            ],
+            "properties": {
+                "filename": {
+                    "description": "要恢复的备份文件名",
+                    "type": "string"
+                }
+            }
+        },
         "direct_link.CreateDirectLinksRequest": {
             "type": "object",
             "required": [
@@ -8599,10 +10031,6 @@ const docTemplate = `{
                 "target_path"
             ],
             "properties": {
-                "allow_notification": {
-                    "description": "是否允许接收邮件通知。",
-                    "type": "boolean"
-                },
                 "content": {
                     "description": "评论的 Markdown 原文内容。",
                     "type": "string",
@@ -8673,6 +10101,11 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "total": {
+                    "description": "根评论总数（用于分页）",
+                    "type": "integer"
+                },
+                "total_with_children": {
+                    "description": "包含所有子评论的总数（用于前端显示）",
                     "type": "integer"
                 }
             }
@@ -8774,6 +10207,20 @@ const docTemplate = `{
             "properties": {
                 "to_email": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.UpdateContentRequest": {
+            "type": "object",
+            "required": [
+                "content"
+            ],
+            "properties": {
+                "content": {
+                    "description": "更新后的 Markdown 内容",
+                    "type": "string",
+                    "maxLength": 1000,
+                    "minLength": 1
                 }
             }
         },
@@ -8934,6 +10381,23 @@ const docTemplate = `{
                 }
             }
         },
+        "model.AlbumCategoryDTO": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "displayOrder": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "model.ApplyLinkRequest": {
             "type": "object",
             "required": [
@@ -9025,6 +10489,9 @@ const docTemplate = `{
                 },
                 "is_primary_color_manual": {
                     "type": "boolean"
+                },
+                "keywords": {
+                    "type": "string"
                 },
                 "next_article": {
                     "$ref": "#/definitions/model.SimpleArticleResponse"
@@ -9146,6 +10613,9 @@ const docTemplate = `{
                 },
                 "is_primary_color_manual": {
                     "type": "boolean"
+                },
+                "keywords": {
+                    "type": "string"
                 },
                 "pin_sort": {
                     "type": "integer"
@@ -9296,6 +10766,23 @@ const docTemplate = `{
                 }
             }
         },
+        "model.CreateAlbumCategoryRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "displayOrder": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "model.CreateArticleRequest": {
             "type": "object",
             "required": [
@@ -9326,6 +10813,12 @@ const docTemplate = `{
                 "cover_url": {
                     "type": "string"
                 },
+                "custom_published_at": {
+                    "type": "string"
+                },
+                "custom_updated_at": {
+                    "type": "string"
+                },
                 "home_sort": {
                     "type": "integer"
                 },
@@ -9334,6 +10827,9 @@ const docTemplate = `{
                 },
                 "is_primary_color_manual": {
                     "type": "boolean"
+                },
+                "keywords": {
+                    "type": "string"
                 },
                 "pin_sort": {
                     "type": "integer"
@@ -9532,6 +11028,22 @@ const docTemplate = `{
                 },
                 "device": {
                     "type": "string"
+                }
+            }
+        },
+        "model.ExportLinksResponse": {
+            "type": "object",
+            "properties": {
+                "links": {
+                    "description": "使用与导入相同的数据格式",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ImportLinkItem"
+                    }
+                },
+                "total": {
+                    "description": "导出的友链总数",
+                    "type": "integer"
                 }
             }
         },
@@ -10073,6 +11585,23 @@ const docTemplate = `{
                 }
             }
         },
+        "model.UpdateAlbumCategoryRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "displayOrder": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "model.UpdateArticleRequest": {
             "type": "object",
             "properties": {
@@ -10100,6 +11629,12 @@ const docTemplate = `{
                 "cover_url": {
                     "type": "string"
                 },
+                "custom_published_at": {
+                    "type": "string"
+                },
+                "custom_updated_at": {
+                    "type": "string"
+                },
                 "home_sort": {
                     "type": "integer"
                 },
@@ -10108,6 +11643,9 @@ const docTemplate = `{
                 },
                 "is_primary_color_manual": {
                     "type": "boolean"
+                },
+                "keywords": {
+                    "type": "string"
                 },
                 "pin_sort": {
                     "type": "integer"
@@ -10435,6 +11973,99 @@ const docTemplate = `{
             "properties": {
                 "neteaseId": {
                     "type": "string"
+                }
+            }
+        },
+        "notification.NotificationTypeDTO": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "code": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "defaultEnabled": {
+                    "type": "boolean"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "supportedChannels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "notification.SimpleUserNotificationSettingsRequest": {
+            "type": "object",
+            "properties": {
+                "allowCommentReplyNotification": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "notification.SimpleUserNotificationSettingsResponse": {
+            "type": "object",
+            "properties": {
+                "allowCommentReplyNotification": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "notification.UserNotificationConfigDTO": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "customSettings": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "enabledChannels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isEnabled": {
+                    "type": "boolean"
+                },
+                "notificationEmail": {
+                    "type": "string"
+                },
+                "notificationType": {
+                    "$ref": "#/definitions/notification.NotificationTypeDTO"
+                },
+                "notificationTypeId": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "integer"
                 }
             }
         },
