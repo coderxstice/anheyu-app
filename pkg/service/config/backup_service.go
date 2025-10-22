@@ -51,6 +51,12 @@ type BackupService interface {
 
 	// ImportConfig 导入配置文件
 	ImportConfig(ctx context.Context, content io.Reader) error
+
+	// SetMaxBackupCount 设置最大备份数量
+	SetMaxBackupCount(maxCount int) error
+
+	// GetMaxBackupCount 获取最大备份数量
+	GetMaxBackupCount() int
 }
 
 // backupService 是 BackupService 接口的实现
@@ -58,10 +64,16 @@ type backupService struct {
 	configFilePath string                       // 配置文件路径
 	backupDir      string                       // 备份目录
 	settingRepo    repository.SettingRepository // 配置仓库
+	maxBackupCount int                          // 最大备份数量，0表示无限制
 }
 
 // NewBackupService 创建一个新的配置备份服务实例
 func NewBackupService(configFilePath string, settingRepo repository.SettingRepository) BackupService {
+	return NewBackupServiceWithLimit(configFilePath, settingRepo, 10) // 默认保留10个备份
+}
+
+// NewBackupServiceWithLimit 创建一个新的配置备份服务实例，可指定最大备份数量
+func NewBackupServiceWithLimit(configFilePath string, settingRepo repository.SettingRepository, maxBackupCount int) BackupService {
 	backupDir := filepath.Join(filepath.Dir(configFilePath), "backup")
 
 	// 确保备份目录存在
@@ -69,10 +81,17 @@ func NewBackupService(configFilePath string, settingRepo repository.SettingRepos
 		log.Printf("警告: 创建备份目录失败: %v", err)
 	}
 
+	// 验证最大备份数量
+	if maxBackupCount < 0 {
+		log.Printf("警告: 最大备份数量不能为负数，设置为默认值10")
+		maxBackupCount = 10
+	}
+
 	return &backupService{
 		configFilePath: configFilePath,
 		backupDir:      backupDir,
 		settingRepo:    settingRepo,
+		maxBackupCount: maxBackupCount,
 	}
 }
 
@@ -115,6 +134,15 @@ func (s *backupService) CreateBackup(ctx context.Context, description string, is
 	}
 
 	log.Printf("✅ 配置备份成功: %s (大小: %d 字节)", backupFilename, metadata.Size)
+
+	// 自动清理超出限制的旧备份
+	if s.maxBackupCount > 0 {
+		if err := s.CleanOldBackups(ctx, s.maxBackupCount); err != nil {
+			log.Printf("警告: 自动清理旧备份失败: %v", err)
+			// 不影响备份创建的成功
+		}
+	}
+
 	return &metadata, nil
 }
 
@@ -361,4 +389,29 @@ func (s *backupService) ImportConfig(ctx context.Context, content io.Reader) err
 
 	log.Printf("✅ 配置数据导入成功，共导入 %d 项配置", len(configMap))
 	return nil
+}
+
+// SetMaxBackupCount 设置最大备份数量
+func (s *backupService) SetMaxBackupCount(maxCount int) error {
+	if maxCount < 0 {
+		return fmt.Errorf("最大备份数量不能为负数")
+	}
+
+	s.maxBackupCount = maxCount
+	log.Printf("✅ 最大备份数量已设置为: %d", maxCount)
+
+	// 如果设置了新的限制，立即清理超出限制的备份
+	if maxCount > 0 {
+		ctx := context.Background()
+		if err := s.CleanOldBackups(ctx, maxCount); err != nil {
+			log.Printf("警告: 应用新的备份限制时清理失败: %v", err)
+		}
+	}
+
+	return nil
+}
+
+// GetMaxBackupCount 获取最大备份数量
+func (s *backupService) GetMaxBackupCount() int {
+	return s.maxBackupCount
 }
