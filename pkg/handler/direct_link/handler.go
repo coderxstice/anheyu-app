@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/auth"
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/utils"
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/direct_link"
@@ -152,6 +154,23 @@ func (h *DirectLinkHandler) HandleDirectDownload(c *gin.Context) {
 		// 获取请求中的查询参数（用于图片处理，如 ?imageMogr2/format/avif）
 		queryParams := c.Request.URL.RawQuery
 
+		// 提取URL路径中的样式分隔符（如果有）
+		// URL格式：/api/f/:publicID/filename 或 /api/f/:publicID/filename/StyleName
+		fullPath := c.Param("filename") // 可能包含 /filename 或 /filename/StyleName
+		styleSeparator := h.extractStyleSeparatorFromPath(fullPath, filename, policy)
+
+		// 如果从路径中提取到样式分隔符，需要拼接到queryParams中
+		if styleSeparator != "" {
+			log.Printf("[直链下载] 从URL路径中提取到样式分隔符: %s", styleSeparator)
+			// 将样式分隔符作为路径参数传递（不是查询参数）
+			// 对于腾讯云COS和阿里云OSS，样式分隔符应该追加到URL路径末尾
+			if queryParams != "" {
+				queryParams = styleSeparator + "?" + queryParams
+			} else {
+				queryParams = styleSeparator
+			}
+		}
+
 		options := storage.DownloadURLOptions{
 			ExpiresIn:   3600,
 			QueryParams: queryParams,
@@ -163,7 +182,54 @@ func (h *DirectLinkHandler) HandleDirectDownload(c *gin.Context) {
 			return
 		}
 
+		log.Printf("[直链下载] 重定向到云存储URL: %s", downloadURL)
 		// 302重定向到云存储的直接下载链接
 		c.Redirect(http.StatusFound, downloadURL)
 	}
+}
+
+// extractStyleSeparatorFromPath 从URL路径中提取样式分隔符
+// 支持多种分隔符格式：
+// - /ArticleImage  =>  /ArticleImage
+// - !ArticleImage  =>  !ArticleImage
+// - ?ArticleImage  =>  ?ArticleImage
+// - |ArticleImage  =>  |ArticleImage
+// - -ArticleImage  =>  -ArticleImage
+func (h *DirectLinkHandler) extractStyleSeparatorFromPath(fullPath, filename string, policy *model.StoragePolicy) string {
+	// 移除开头的斜杠
+	fullPath = strings.TrimPrefix(fullPath, "/")
+
+	// 如果路径就是文件名本身，说明没有样式分隔符
+	if fullPath == filename {
+		return ""
+	}
+
+	// 检查是否是支持样式分隔符的存储类型
+	if policy.Type != constant.PolicyTypeTencentCOS && policy.Type != constant.PolicyTypeAliOSS {
+		return ""
+	}
+
+	// 检查路径是否以文件名开头
+	if !strings.HasPrefix(fullPath, filename) {
+		return ""
+	}
+
+	// 提取文件名后面的部分作为样式分隔符
+	styleSeparator := strings.TrimPrefix(fullPath, filename)
+
+	// 支持的分隔符字符
+	validSeparatorChars := []string{"/", "!", "?", "|", "-"}
+
+	// 检查样式分隔符是否以有效字符开头
+	if styleSeparator != "" {
+		for _, validChar := range validSeparatorChars {
+			if strings.HasPrefix(styleSeparator, validChar) {
+				log.Printf("[直链下载] 从路径中提取到样式分隔符: %s (fullPath=%s, filename=%s)", styleSeparator, fullPath, filename)
+				return styleSeparator
+			}
+		}
+		log.Printf("[直链下载] 警告：检测到无效的样式分隔符格式: %s", styleSeparator)
+	}
+
+	return ""
 }

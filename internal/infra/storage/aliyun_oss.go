@@ -347,7 +347,13 @@ func (p *AliOSSProvider) GetDownloadURL(ctx context.Context, policy *model.Stora
 		sourceAuth = val
 	}
 
-	log.Printf("[阿里云OSS] 配置信息 - cdnDomain: %s, sourceAuth: %v", cdnDomain, sourceAuth)
+	// 获取样式分隔符配置
+	styleSeparator := ""
+	if val, ok := policy.Settings["style_separator"].(string); ok {
+		styleSeparator = val
+	}
+
+	log.Printf("[阿里云OSS] 配置信息 - cdnDomain: %s, sourceAuth: %v, styleSeparator: %s", cdnDomain, sourceAuth, styleSeparator)
 
 	// 根据是否为私有存储策略决定URL类型
 	if policy.IsPrivate && !sourceAuth {
@@ -423,7 +429,7 @@ func (p *AliOSSProvider) GetDownloadURL(ctx context.Context, policy *model.Stora
 
 		// 添加图片处理参数
 		if options.QueryParams != "" {
-			fullURL = appendOSSImageParams(fullURL, options.QueryParams)
+			fullURL = appendOSSImageParams(fullURL, options.QueryParams, styleSeparator)
 			log.Printf("[阿里云OSS] 添加图片处理参数后的URL: %s", fullURL)
 		}
 
@@ -541,16 +547,37 @@ func (p *AliOSSProvider) Exists(ctx context.Context, policy *model.StoragePolicy
 
 // appendOSSImageParams 智能地将图片处理参数附加到URL中
 // 支持阿里云OSS的图片处理参数格式，如: x-oss-process=image/format,webp
-func appendOSSImageParams(baseURL, params string) string {
+// 也支持样式分隔符格式，如: !ArticleImage 或 /ArticleImage
+// params 可能的格式：
+// - "x-oss-process=image/format,webp" (纯查询参数)
+// - "!ArticleImage" (纯样式分隔符)
+// - "!ArticleImage?x-oss-process=image/format,webp" (样式分隔符 + 查询参数)
+func appendOSSImageParams(baseURL, params, separator string) string {
 	params = strings.TrimSpace(params)
 	if params == "" {
 		return baseURL
 	}
 
-	// 移除开头的 ? 如果有的话
+	// 检查是否以样式分隔符开头（!、/、|、-）
+	// 如果是，直接拼接，不做任何处理
+	styleSeparatorChars := []string{"!", "/", "|", "-"}
+	for _, sep := range styleSeparatorChars {
+		if strings.HasPrefix(params, sep) {
+			// 这是一个样式分隔符或包含样式分隔符的完整参数
+			// 直接拼接到URL后面
+			return baseURL + params
+		}
+	}
+
+	// 移除开头的 ? 如果有的话（传统的查询参数格式）
 	params = strings.TrimPrefix(params, "?")
 	if params == "" {
 		return baseURL
+	}
+
+	// 如果没有指定分隔符，使用默认的 ? 分隔符
+	if separator == "" {
+		separator = "?"
 	}
 
 	// 解析URL
@@ -560,7 +587,7 @@ func appendOSSImageParams(baseURL, params string) string {
 		if strings.Contains(baseURL, "?") {
 			return baseURL + "&" + params
 		}
-		return baseURL + "?" + params
+		return baseURL + separator + params
 	}
 
 	// 阿里云OSS图片处理参数格式检测
@@ -576,6 +603,12 @@ func appendOSSImageParams(baseURL, params string) string {
 	if parsedURL.RawQuery != "" {
 		parsedURL.RawQuery += "&" + params
 	} else {
+		// 使用配置的样式分隔符
+		// 注意：如果使用了非标准分隔符（如!），需要构建特殊的URL格式
+		if separator != "?" {
+			// 对于非标准分隔符，直接拼接字符串
+			return baseURL + separator + params
+		}
 		parsedURL.RawQuery = params
 	}
 
