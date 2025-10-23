@@ -397,7 +397,13 @@ func (p *TencentCOSProvider) GetDownloadURL(ctx context.Context, policy *model.S
 		sourceAuth = val
 	}
 
-	log.Printf("[腾讯云COS] 配置信息 - cdnDomain: %s, sourceAuth: %v", cdnDomain, sourceAuth)
+	// 获取样式分隔符配置
+	styleSeparator := ""
+	if val, ok := policy.Settings["style_separator"].(string); ok {
+		styleSeparator = val
+	}
+
+	log.Printf("[腾讯云COS] 配置信息 - cdnDomain: %s, sourceAuth: %v, styleSeparator: %s", cdnDomain, sourceAuth, styleSeparator)
 
 	// 根据是否为私有存储策略决定URL类型
 	if policy.IsPrivate && !sourceAuth {
@@ -461,7 +467,7 @@ func (p *TencentCOSProvider) GetDownloadURL(ctx context.Context, policy *model.S
 
 		// 添加图片处理参数
 		if options.QueryParams != "" {
-			finalURL = appendImageParams(finalURL, options.QueryParams)
+			finalURL = appendImageParams(finalURL, options.QueryParams, styleSeparator)
 			log.Printf("[腾讯云COS] 添加图片处理参数后的公开URL: %s", finalURL)
 		}
 
@@ -656,17 +662,37 @@ func (p *TencentCOSProvider) GetCORSConfig(ctx context.Context, policy *model.St
 
 // appendImageParams 智能地将图片处理参数附加到URL中
 // 支持腾讯云COS数据万象的参数格式，如: imageMogr2/format/avif
-// 使用标准查询参数模式：https://domain.com/image.jpg?imageMogr2/format/avif
-func appendImageParams(baseURL, params string) string {
+// 也支持样式分隔符格式，如: !ArticleImage 或 /ArticleImage
+// params 可能的格式：
+// - "imageMogr2/format/avif" (纯查询参数)
+// - "!ArticleImage" (纯样式分隔符)
+// - "!ArticleImage?imageMogr2/format/avif" (样式分隔符 + 查询参数)
+func appendImageParams(baseURL, params, separator string) string {
 	params = strings.TrimSpace(params)
 	if params == "" {
 		return baseURL
 	}
 
-	// 移除开头的 ? 如果有的话
+	// 检查是否以样式分隔符开头（!、/、|、-）
+	// 如果是，直接拼接，不做任何处理
+	styleSeparatorChars := []string{"!", "/", "|", "-"}
+	for _, sep := range styleSeparatorChars {
+		if strings.HasPrefix(params, sep) {
+			// 这是一个样式分隔符或包含样式分隔符的完整参数
+			// 直接拼接到URL后面
+			return baseURL + params
+		}
+	}
+
+	// 移除开头的 ? 如果有的话（传统的查询参数格式）
 	params = strings.TrimPrefix(params, "?")
 	if params == "" {
 		return baseURL
+	}
+
+	// 如果没有指定分隔符，使用默认的 ? 分隔符
+	if separator == "" {
+		separator = "?"
 	}
 
 	// 简单的字符串拼接方式，避免URL编码
@@ -674,5 +700,5 @@ func appendImageParams(baseURL, params string) string {
 	if strings.Contains(baseURL, "?") {
 		return baseURL + "&" + params
 	}
-	return baseURL + "?" + params
+	return baseURL + separator + params
 }

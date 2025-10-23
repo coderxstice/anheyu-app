@@ -140,8 +140,24 @@ func (s *serviceImpl) UploadArticleImage(ctx context.Context, ownerID uint, file
 		return "", "", fmt.Errorf("获取直链URL失败")
 	}
 
-	// 5. 直接使用 service 返回的、已经构建好的完整 URL
+	// 5. 获取文章图片存储策略的样式分隔符配置
 	finalURL := linkResult.URL
+
+	// 查询标记为 article_image 的存储策略
+	policy, err := s.fileSvc.GetPolicyByFlag(ctx, constant.PolicyFlagArticleImage)
+	if err != nil {
+		log.Printf("[文章图片上传] 获取文章图片存储策略失败: %v，使用原始URL", err)
+	} else if policy != nil && policy.Settings != nil {
+		// 从存储策略配置中获取样式分隔符
+		if styleSeparator, ok := policy.Settings[constant.StyleSeparatorSettingKey].(string); ok && styleSeparator != "" {
+			// 只有腾讯云COS和阿里云OSS支持样式分隔符
+			if policy.Type == constant.PolicyTypeTencentCOS || policy.Type == constant.PolicyTypeAliOSS {
+				finalURL = finalURL + styleSeparator
+				log.Printf("[文章图片上传] 已拼接样式分隔符: %s，最终URL: %s", styleSeparator, finalURL)
+			}
+		}
+	}
+
 	log.Printf("[文章图片上传] 成功获取最终直链URL: %s", finalURL)
 
 	return finalURL, fileItem.ID, nil

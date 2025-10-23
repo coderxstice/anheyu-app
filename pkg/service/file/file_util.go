@@ -426,6 +426,11 @@ func (s *serviceImpl) GetProviderForPolicy(policy *model.StoragePolicy) (storage
 	return provider, nil
 }
 
+// GetPolicyByFlag 根据策略标志（如 article_image）获取存储策略。
+func (s *serviceImpl) GetPolicyByFlag(ctx context.Context, policyFlag string) (*model.StoragePolicy, error) {
+	return s.storagePolicyRepo.FindByFlag(ctx, policyFlag)
+}
+
 // FindAndValidateFile 查找文件并验证所有权。
 func (s *serviceImpl) FindAndValidateFile(ctx context.Context, publicID string, ownerID uint) (*model.File, error) {
 	dbID, entityType, err := idgen.DecodePublicID(publicID)

@@ -24,6 +24,8 @@ const (
 	DriveTypeSettingKey = "drive_type"
 	// AllowedExtensionsSettingKey 是存储策略中定义允许扩展名列表的键
 	AllowedExtensionsSettingKey = "allowed_extensions"
+	// StyleSeparatorSettingKey 是存储策略中定义样式分隔符的键（用于腾讯云COS和阿里云OSS的图片处理参数）
+	StyleSeparatorSettingKey = "style_separator"
 
 	// UploadMethodServer 代表服务端中转上传
 	UploadMethodServer = "server"

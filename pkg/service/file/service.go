@@ -74,6 +74,9 @@ type FileService interface {
 
 	// GetProviderForPolicy 根据存储策略获取对应的存储提供者实例
 	GetProviderForPolicy(policy *model.StoragePolicy) (storage.IStorageProvider, error)
+
+	// GetPolicyByFlag 根据策略标志（如 article_image）获取存储策略
+	GetPolicyByFlag(ctx context.Context, policyFlag string) (*model.StoragePolicy, error)
 }
 
 // serviceImpl 是 FileService 接口的实现。

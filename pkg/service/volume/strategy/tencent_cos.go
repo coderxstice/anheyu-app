@@ -79,6 +79,19 @@ func (s *TencentCOSStrategy) ValidateSettings(settings map[string]interface{}) e
 		}
 	}
 
+	// 验证样式分隔符（可选，用于图片处理参数）
+	if styleSeparator, ok := settings[constant.StyleSeparatorSettingKey]; ok {
+		sep, isString := styleSeparator.(string)
+		if !isString {
+			return errors.New("settings 中的 'style_separator' 字段必须是字符串")
+		}
+		// 验证样式分隔符的有效性
+		// 支持单个字符分隔符（如 ?, !, |, -）或完整样式路径（如 /ArticleImage）
+		if sep != "" && !s.isValidStyleSeparator(sep) {
+			return fmt.Errorf("无效的样式分隔符格式: %s。支持单个字符（?, !, |, -）或样式路径（如 /ArticleImage）", sep)
+		}
+	}
+
 	return nil
 }
 
@@ -120,4 +133,39 @@ func (s *TencentCOSStrategy) isValidTencentRegion(region string) bool {
 	}
 
 	return true
+}
+
+// isValidStyleSeparator 验证样式分隔符是否有效
+// 腾讯云COS支持的分隔符格式：
+// 1. 单个字符分隔符: ?, !, |, -
+// 2. 样式路径格式: /样式名 (例如 /ArticleImage)
+func (s *TencentCOSStrategy) isValidStyleSeparator(separator string) bool {
+	if separator == "" {
+		return true
+	}
+
+	// 检查是否为单个字符分隔符
+	validSingleChars := []string{"?", "!", "|", "-"}
+	for _, valid := range validSingleChars {
+		if separator == valid {
+			return true
+		}
+	}
+
+	// 检查是否为样式路径格式 (以 / 开头的路径)
+	if strings.HasPrefix(separator, "/") && len(separator) > 1 {
+		// 样式名应该只包含字母、数字、下划线和连字符
+		styleName := separator[1:]
+		if len(styleName) > 0 && len(styleName) <= 100 {
+			for _, r := range styleName {
+				if !((r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') ||
+					(r >= '0' && r <= '9') || r == '_' || r == '-') {
+					return false
+				}
+			}
+			return true
+		}
+	}
+
+	return false
 }
