@@ -71,6 +71,8 @@ func NewService(settingSvc setting.SettingService, bus *event.EventBus) *Service
 	policy.AllowAttrs("style").OnElements(
 		"div", "span", "p", "font", "th", "td", "rect", "blockquote", "img", "h1", "h2", "h3", "h4", "h5", "h6", "a", "strong", "b", "em", "i", "u", "s", "strike", "del", "pre", "code", "sub", "sup", "mark", "ul", "ol", "li", "table", "thead", "tbody", "tfoot", "tr", "section", "article", "header", "footer", "nav", "aside", "main", "hr", "figure", "figcaption", "svg", "path", "circle", "line", "g", "text", "summary", "details", "button", "video",
 	)
+	// 图片相关属性
+	policy.AllowAttrs("src", "alt", "title", "width", "height").OnElements("img")
 	policy.AllowAttrs("ontoggle").OnElements("details")
 	policy.AllowAttrs("onmouseover", "onmouseout").OnElements("summary")
 	policy.AllowAttrs("onclick").OnElements("button", "div", "i", "span")
