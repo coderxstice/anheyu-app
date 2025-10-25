@@ -34,6 +34,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyApiURL, Value: "/", Comment: "API地址", IsPublic: true},
 	{Key: constant.KeyAboutLink, Value: "https://github.com/anzhiyu-c/anheyu-app", Comment: "关于链接", IsPublic: true},
 	{Key: constant.KeyIcpNumber, Value: "湘ICP备2023015794号-2", Comment: "ICP备案号", IsPublic: true},
+	{Key: constant.KeyPoliceRecordNumber, Value: "", Comment: "公安联网备案号", IsPublic: true},
 	{Key: constant.KeyUserAvatar, Value: "/static/img/avatar.jpg", Comment: "用户默认头像URL", IsPublic: true},
 	{Key: constant.KeyLogoURL, Value: "/static/img/logo.svg", Comment: "Logo图片URL (通用)", IsPublic: true},
 	{Key: constant.KeyLogoURL192, Value: "/static/img/logo-192x192.png", Comment: "Logo图片URL (192x192)", IsPublic: true},

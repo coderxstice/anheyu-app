@@ -25,6 +25,7 @@ const (
 	KeyApiURL                    SettingKey = "API_URL"
 	KeyAboutLink                 SettingKey = "ABOUT_LINK"
 	KeyIcpNumber                 SettingKey = "ICP_NUMBER"
+	KeyPoliceRecordNumber        SettingKey = "POLICE_RECORD_NUMBER"
 	KeySiteKeywords              SettingKey = "SITE_KEYWORDS"
 	KeySiteDescription           SettingKey = "SITE_DESCRIPTION"
 	KeyUserAvatar                SettingKey = "USER_AVATAR"
