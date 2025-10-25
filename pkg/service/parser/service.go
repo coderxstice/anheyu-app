@@ -107,8 +107,16 @@ func NewService(settingSvc setting.SettingService, bus *event.EventBus) *Service
 	policy.AllowAttrs("role").OnElements("div")
 	policy.AllowAttrs("aria-hidden").OnElements("div")
 
-	// 密码保护内容相关属性
-	policy.AllowAttrs("data-content-id", "data-title", "data-hint", "data-placeholder").OnElements("div", "input", "button")
+	// PRO 版内容保护相关属性
+	// 密码保护内容
+	policy.AllowAttrs("data-content-id", "data-title", "data-hint", "data-placeholder", "data-password", "data-content-length").OnElements("div", "input", "button")
+	// 付费内容
+	policy.AllowAttrs("data-price", "data-original-price", "data-currency", "data-section-id").OnElements("div", "span", "button")
+	// 登录后可见内容
+	policy.AllowAttrs("data-login-action").OnElements("button")
+	// 全文隐藏
+	policy.AllowAttrs("data-enabled", "data-button-text", "data-initial-height").OnElements("div")
+	// 通用
 	policy.AllowAttrs("placeholder").OnElements("input")
 	policy.AllowAttrs("xmlns", "width", "height", "viewBox", "fill", "stroke", "stroke-width", "stroke-linecap", "stroke-linejoin", "preserveAspectRatio", "aria-roledescription", "role", "style", "xmlns:xlink", "id", "t").OnElements("svg")
 	policy.AllowAttrs("cx", "cy", "r").OnElements("circle")
