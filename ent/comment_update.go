@@ -130,6 +130,33 @@ func (_u *CommentUpdate) ClearParentID() *CommentUpdate {
 	return _u
 }
 
+// SetReplyToID sets the "reply_to_id" field.
+func (_u *CommentUpdate) SetReplyToID(v uint) *CommentUpdate {
+	_u.mutation.ResetReplyToID()
+	_u.mutation.SetReplyToID(v)
+	return _u
+}
+
+// SetNillableReplyToID sets the "reply_to_id" field if the given value is not nil.
+func (_u *CommentUpdate) SetNillableReplyToID(v *uint) *CommentUpdate {
+	if v != nil {
+		_u.SetReplyToID(*v)
+	}
+	return _u
+}
+
+// AddReplyToID adds value to the "reply_to_id" field.
+func (_u *CommentUpdate) AddReplyToID(v int) *CommentUpdate {
+	_u.mutation.AddReplyToID(v)
+	return _u
+}
+
+// ClearReplyToID clears the value of the "reply_to_id" field.
+func (_u *CommentUpdate) ClearReplyToID() *CommentUpdate {
+	_u.mutation.ClearReplyToID()
+	return _u
+}
+
 // SetNickname sets the "nickname" field.
 func (_u *CommentUpdate) SetNickname(v string) *CommentUpdate {
 	_u.mutation.SetNickname(v)
@@ -590,6 +617,15 @@ func (_u *CommentUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.TargetTitleCleared() {
 		_spec.ClearField(comment.FieldTargetTitle, field.TypeString)
 	}
+	if value, ok := _u.mutation.ReplyToID(); ok {
+		_spec.SetField(comment.FieldReplyToID, field.TypeUint, value)
+	}
+	if value, ok := _u.mutation.AddedReplyToID(); ok {
+		_spec.AddField(comment.FieldReplyToID, field.TypeUint, value)
+	}
+	if _u.mutation.ReplyToIDCleared() {
+		_spec.ClearField(comment.FieldReplyToID, field.TypeUint)
+	}
 	if value, ok := _u.mutation.Nickname(); ok {
 		_spec.SetField(comment.FieldNickname, field.TypeString, value)
 	}
@@ -875,6 +911,33 @@ func (_u *CommentUpdateOne) SetNillableParentID(v *uint) *CommentUpdateOne {
 // ClearParentID clears the value of the "parent_id" field.
 func (_u *CommentUpdateOne) ClearParentID() *CommentUpdateOne {
 	_u.mutation.ClearParentID()
+	return _u
+}
+
+// SetReplyToID sets the "reply_to_id" field.
+func (_u *CommentUpdateOne) SetReplyToID(v uint) *CommentUpdateOne {
+	_u.mutation.ResetReplyToID()
+	_u.mutation.SetReplyToID(v)
+	return _u
+}
+
+// SetNillableReplyToID sets the "reply_to_id" field if the given value is not nil.
+func (_u *CommentUpdateOne) SetNillableReplyToID(v *uint) *CommentUpdateOne {
+	if v != nil {
+		_u.SetReplyToID(*v)
+	}
+	return _u
+}
+
+// AddReplyToID adds value to the "reply_to_id" field.
+func (_u *CommentUpdateOne) AddReplyToID(v int) *CommentUpdateOne {
+	_u.mutation.AddReplyToID(v)
+	return _u
+}
+
+// ClearReplyToID clears the value of the "reply_to_id" field.
+func (_u *CommentUpdateOne) ClearReplyToID() *CommentUpdateOne {
+	_u.mutation.ClearReplyToID()
 	return _u
 }
 
@@ -1367,6 +1430,15 @@ func (_u *CommentUpdateOne) sqlSave(ctx context.Context) (_node *Comment, err er
 	}
 	if _u.mutation.TargetTitleCleared() {
 		_spec.ClearField(comment.FieldTargetTitle, field.TypeString)
+	}
+	if value, ok := _u.mutation.ReplyToID(); ok {
+		_spec.SetField(comment.FieldReplyToID, field.TypeUint, value)
+	}
+	if value, ok := _u.mutation.AddedReplyToID(); ok {
+		_spec.AddField(comment.FieldReplyToID, field.TypeUint, value)
+	}
+	if _u.mutation.ReplyToIDCleared() {
+		_spec.ClearField(comment.FieldReplyToID, field.TypeUint)
 	}
 	if value, ok := _u.mutation.Nickname(); ok {
 		_spec.SetField(comment.FieldNickname, field.TypeString, value)

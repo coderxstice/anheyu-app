@@ -32,6 +32,8 @@ type Comment struct {
 	UserID *uint `json:"user_id,omitempty"`
 	// 父评论ID (用于嵌套回复)
 	ParentID *uint `json:"parent_id,omitempty"`
+	// 回复目标评论ID (用于构建对话链，直接回复顶级评论时与parent_id相同)
+	ReplyToID *uint `json:"reply_to_id,omitempty"`
 	// 评论者昵称
 	Nickname string `json:"nickname,omitempty"`
 	// 评论者邮箱 (用于接收回复通知)
@@ -118,7 +120,7 @@ func (*Comment) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case comment.FieldIsAdminComment, comment.FieldIsAnonymous:
 			values[i] = new(sql.NullBool)
-		case comment.FieldID, comment.FieldUserID, comment.FieldParentID, comment.FieldStatus, comment.FieldLikeCount:
+		case comment.FieldID, comment.FieldUserID, comment.FieldParentID, comment.FieldReplyToID, comment.FieldStatus, comment.FieldLikeCount:
 			values[i] = new(sql.NullInt64)
 		case comment.FieldTargetPath, comment.FieldTargetTitle, comment.FieldNickname, comment.FieldEmail, comment.FieldEmailMd5, comment.FieldWebsite, comment.FieldContent, comment.FieldContentHTML, comment.FieldUserAgent, comment.FieldIPAddress, comment.FieldIPLocation:
 			values[i] = new(sql.NullString)
@@ -192,6 +194,13 @@ func (_m *Comment) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.ParentID = new(uint)
 				*_m.ParentID = uint(value.Int64)
+			}
+		case comment.FieldReplyToID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field reply_to_id", values[i])
+			} else if value.Valid {
+				_m.ReplyToID = new(uint)
+				*_m.ReplyToID = uint(value.Int64)
 			}
 		case comment.FieldNickname:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -366,6 +375,11 @@ func (_m *Comment) String() string {
 	builder.WriteString(", ")
 	if v := _m.ParentID; v != nil {
 		builder.WriteString("parent_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.ReplyToID; v != nil {
+		builder.WriteString("reply_to_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")

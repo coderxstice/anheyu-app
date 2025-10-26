@@ -4741,6 +4741,8 @@ type CommentMutation struct {
 	updated_at       *time.Time
 	target_path      *string
 	target_title     *string
+	reply_to_id      *uint
+	addreply_to_id   *int
 	nickname         *string
 	email            *string
 	email_md5        *string
@@ -5176,6 +5178,76 @@ func (m *CommentMutation) ParentIDCleared() bool {
 func (m *CommentMutation) ResetParentID() {
 	m.children = nil
 	delete(m.clearedFields, comment.FieldParentID)
+}
+
+// SetReplyToID sets the "reply_to_id" field.
+func (m *CommentMutation) SetReplyToID(u uint) {
+	m.reply_to_id = &u
+	m.addreply_to_id = nil
+}
+
+// ReplyToID returns the value of the "reply_to_id" field in the mutation.
+func (m *CommentMutation) ReplyToID() (r uint, exists bool) {
+	v := m.reply_to_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReplyToID returns the old "reply_to_id" field's value of the Comment entity.
+// If the Comment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CommentMutation) OldReplyToID(ctx context.Context) (v *uint, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReplyToID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReplyToID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReplyToID: %w", err)
+	}
+	return oldValue.ReplyToID, nil
+}
+
+// AddReplyToID adds u to the "reply_to_id" field.
+func (m *CommentMutation) AddReplyToID(u int) {
+	if m.addreply_to_id != nil {
+		*m.addreply_to_id += u
+	} else {
+		m.addreply_to_id = &u
+	}
+}
+
+// AddedReplyToID returns the value that was added to the "reply_to_id" field in this mutation.
+func (m *CommentMutation) AddedReplyToID() (r int, exists bool) {
+	v := m.addreply_to_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearReplyToID clears the value of the "reply_to_id" field.
+func (m *CommentMutation) ClearReplyToID() {
+	m.reply_to_id = nil
+	m.addreply_to_id = nil
+	m.clearedFields[comment.FieldReplyToID] = struct{}{}
+}
+
+// ReplyToIDCleared returns if the "reply_to_id" field was cleared in this mutation.
+func (m *CommentMutation) ReplyToIDCleared() bool {
+	_, ok := m.clearedFields[comment.FieldReplyToID]
+	return ok
+}
+
+// ResetReplyToID resets all changes to the "reply_to_id" field.
+func (m *CommentMutation) ResetReplyToID() {
+	m.reply_to_id = nil
+	m.addreply_to_id = nil
+	delete(m.clearedFields, comment.FieldReplyToID)
 }
 
 // SetNickname sets the "nickname" field.
@@ -5942,7 +6014,7 @@ func (m *CommentMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CommentMutation) Fields() []string {
-	fields := make([]string, 0, 21)
+	fields := make([]string, 0, 22)
 	if m.deleted_at != nil {
 		fields = append(fields, comment.FieldDeletedAt)
 	}
@@ -5963,6 +6035,9 @@ func (m *CommentMutation) Fields() []string {
 	}
 	if m.children != nil {
 		fields = append(fields, comment.FieldParentID)
+	}
+	if m.reply_to_id != nil {
+		fields = append(fields, comment.FieldReplyToID)
 	}
 	if m.nickname != nil {
 		fields = append(fields, comment.FieldNickname)
@@ -6028,6 +6103,8 @@ func (m *CommentMutation) Field(name string) (ent.Value, bool) {
 		return m.UserID()
 	case comment.FieldParentID:
 		return m.ParentID()
+	case comment.FieldReplyToID:
+		return m.ReplyToID()
 	case comment.FieldNickname:
 		return m.Nickname()
 	case comment.FieldEmail:
@@ -6079,6 +6156,8 @@ func (m *CommentMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldUserID(ctx)
 	case comment.FieldParentID:
 		return m.OldParentID(ctx)
+	case comment.FieldReplyToID:
+		return m.OldReplyToID(ctx)
 	case comment.FieldNickname:
 		return m.OldNickname(ctx)
 	case comment.FieldEmail:
@@ -6164,6 +6243,13 @@ func (m *CommentMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetParentID(v)
+		return nil
+	case comment.FieldReplyToID:
+		v, ok := value.(uint)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReplyToID(v)
 		return nil
 	case comment.FieldNickname:
 		v, ok := value.(string)
@@ -6271,6 +6357,9 @@ func (m *CommentMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *CommentMutation) AddedFields() []string {
 	var fields []string
+	if m.addreply_to_id != nil {
+		fields = append(fields, comment.FieldReplyToID)
+	}
 	if m.addstatus != nil {
 		fields = append(fields, comment.FieldStatus)
 	}
@@ -6285,6 +6374,8 @@ func (m *CommentMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *CommentMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
+	case comment.FieldReplyToID:
+		return m.AddedReplyToID()
 	case comment.FieldStatus:
 		return m.AddedStatus()
 	case comment.FieldLikeCount:
@@ -6298,6 +6389,13 @@ func (m *CommentMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *CommentMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case comment.FieldReplyToID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddReplyToID(v)
+		return nil
 	case comment.FieldStatus:
 		v, ok := value.(int)
 		if !ok {
@@ -6331,6 +6429,9 @@ func (m *CommentMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(comment.FieldParentID) {
 		fields = append(fields, comment.FieldParentID)
+	}
+	if m.FieldCleared(comment.FieldReplyToID) {
+		fields = append(fields, comment.FieldReplyToID)
 	}
 	if m.FieldCleared(comment.FieldEmail) {
 		fields = append(fields, comment.FieldEmail)
@@ -6372,6 +6473,9 @@ func (m *CommentMutation) ClearField(name string) error {
 		return nil
 	case comment.FieldParentID:
 		m.ClearParentID()
+		return nil
+	case comment.FieldReplyToID:
+		m.ClearReplyToID()
 		return nil
 	case comment.FieldEmail:
 		m.ClearEmail()
@@ -6416,6 +6520,9 @@ func (m *CommentMutation) ResetField(name string) error {
 		return nil
 	case comment.FieldParentID:
 		m.ResetParentID()
+		return nil
+	case comment.FieldReplyToID:
+		m.ResetReplyToID()
 		return nil
 	case comment.FieldNickname:
 		m.ResetNickname()

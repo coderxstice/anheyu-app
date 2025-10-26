@@ -90,6 +90,11 @@ func ParentID(v uint) predicate.Comment {
 	return predicate.Comment(sql.FieldEQ(FieldParentID, v))
 }
 
+// ReplyToID applies equality check predicate on the "reply_to_id" field. It's identical to ReplyToIDEQ.
+func ReplyToID(v uint) predicate.Comment {
+	return predicate.Comment(sql.FieldEQ(FieldReplyToID, v))
+}
+
 // Nickname applies equality check predicate on the "nickname" field. It's identical to NicknameEQ.
 func Nickname(v string) predicate.Comment {
 	return predicate.Comment(sql.FieldEQ(FieldNickname, v))
@@ -488,6 +493,56 @@ func ParentIDIsNil() predicate.Comment {
 // ParentIDNotNil applies the NotNil predicate on the "parent_id" field.
 func ParentIDNotNil() predicate.Comment {
 	return predicate.Comment(sql.FieldNotNull(FieldParentID))
+}
+
+// ReplyToIDEQ applies the EQ predicate on the "reply_to_id" field.
+func ReplyToIDEQ(v uint) predicate.Comment {
+	return predicate.Comment(sql.FieldEQ(FieldReplyToID, v))
+}
+
+// ReplyToIDNEQ applies the NEQ predicate on the "reply_to_id" field.
+func ReplyToIDNEQ(v uint) predicate.Comment {
+	return predicate.Comment(sql.FieldNEQ(FieldReplyToID, v))
+}
+
+// ReplyToIDIn applies the In predicate on the "reply_to_id" field.
+func ReplyToIDIn(vs ...uint) predicate.Comment {
+	return predicate.Comment(sql.FieldIn(FieldReplyToID, vs...))
+}
+
+// ReplyToIDNotIn applies the NotIn predicate on the "reply_to_id" field.
+func ReplyToIDNotIn(vs ...uint) predicate.Comment {
+	return predicate.Comment(sql.FieldNotIn(FieldReplyToID, vs...))
+}
+
+// ReplyToIDGT applies the GT predicate on the "reply_to_id" field.
+func ReplyToIDGT(v uint) predicate.Comment {
+	return predicate.Comment(sql.FieldGT(FieldReplyToID, v))
+}
+
+// ReplyToIDGTE applies the GTE predicate on the "reply_to_id" field.
+func ReplyToIDGTE(v uint) predicate.Comment {
+	return predicate.Comment(sql.FieldGTE(FieldReplyToID, v))
+}
+
+// ReplyToIDLT applies the LT predicate on the "reply_to_id" field.
+func ReplyToIDLT(v uint) predicate.Comment {
+	return predicate.Comment(sql.FieldLT(FieldReplyToID, v))
+}
+
+// ReplyToIDLTE applies the LTE predicate on the "reply_to_id" field.
+func ReplyToIDLTE(v uint) predicate.Comment {
+	return predicate.Comment(sql.FieldLTE(FieldReplyToID, v))
+}
+
+// ReplyToIDIsNil applies the IsNil predicate on the "reply_to_id" field.
+func ReplyToIDIsNil() predicate.Comment {
+	return predicate.Comment(sql.FieldIsNull(FieldReplyToID))
+}
+
+// ReplyToIDNotNil applies the NotNil predicate on the "reply_to_id" field.
+func ReplyToIDNotNil() predicate.Comment {
+	return predicate.Comment(sql.FieldNotNull(FieldReplyToID))
 }
 
 // NicknameEQ applies the EQ predicate on the "nickname" field.

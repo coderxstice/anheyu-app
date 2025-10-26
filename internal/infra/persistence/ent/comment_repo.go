@@ -43,6 +43,7 @@ func toDomain(c *ent.Comment) *model.Comment {
 		TargetPath:    c.TargetPath,
 		TargetTitle:   c.TargetTitle,
 		ParentID:      c.ParentID,
+		ReplyToID:     c.ReplyToID, // 添加 reply_to_id 映射
 		UserID:        c.UserID,
 		Author:        model.Author{Nickname: c.Nickname, Email: c.Email, Website: c.Website, IP: c.IPAddress, UserAgent: ua, Location: loc},
 		Content:       c.Content,
@@ -79,6 +80,9 @@ func (r *commentRepo) Create(ctx context.Context, params *repository.CreateComme
 	}
 	if params.ParentID != nil {
 		creator.SetParentID(*params.ParentID)
+	}
+	if params.ReplyToID != nil {
+		creator.SetReplyToID(*params.ReplyToID)
 	}
 	if params.Email != nil {
 		creator.SetEmail(*params.Email)

@@ -28,8 +28,9 @@ type Comment struct {
 	TargetTitle *string // 目标页面的标题 (可选, 用于后台展示和通知)
 
 	// --- 关系 ---
-	ParentID *uint
-	UserID   *uint
+	ParentID  *uint
+	ReplyToID *uint // 回复目标评论ID，用于构建对话链
+	UserID    *uint
 
 	// --- 评论者信息 ---
 	Author Author
