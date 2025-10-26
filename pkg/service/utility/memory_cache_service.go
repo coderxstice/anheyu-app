@@ -415,3 +415,72 @@ func (s *memoryCacheService) LRange(ctx context.Context, key string, start, stop
 
 	return values[start : stop+1], nil
 }
+
+// SAdd 向 Set 集合中添加成员（内存缓存实现）
+// 返回成功添加的新成员数量（已存在的成员不会被重复添加，返回0）
+func (s *memoryCacheService) SAdd(ctx context.Context, key string, members ...interface{}) (int64, error) {
+	// 将成员转换为字符串
+	var memberStrs []string
+	for _, m := range members {
+		memberStrs = append(memberStrs, fmt.Sprintf("%v", m))
+	}
+
+	value, ok := s.data.Load(key)
+	if !ok {
+		// 新建集合
+		item := &cacheItem{
+			value:     strings.Join(memberStrs, "\n"),
+			hasExpiry: false,
+		}
+		s.data.Store(key, item)
+		return int64(len(memberStrs)), nil
+	}
+
+	item := value.(*cacheItem)
+	if item.isExpired() {
+		// 过期了，重新创建
+		item = &cacheItem{
+			value:     strings.Join(memberStrs, "\n"),
+			hasExpiry: false,
+		}
+		s.data.Store(key, item)
+		return int64(len(memberStrs)), nil
+	}
+
+	// 获取现有成员集合
+	existingMembers := make(map[string]bool)
+	if item.value != "" {
+		for _, member := range strings.Split(item.value, "\n") {
+			existingMembers[member] = true
+		}
+	}
+
+	// 统计新增的成员数
+	newCount := int64(0)
+	for _, member := range memberStrs {
+		if !existingMembers[member] {
+			existingMembers[member] = true
+			newCount++
+		}
+	}
+
+	// 如果没有新成员，直接返回
+	if newCount == 0 {
+		return 0, nil
+	}
+
+	// 更新集合
+	var allMembers []string
+	for member := range existingMembers {
+		allMembers = append(allMembers, member)
+	}
+
+	newItem := &cacheItem{
+		value:      strings.Join(allMembers, "\n"),
+		expiration: item.expiration,
+		hasExpiry:  item.hasExpiry,
+	}
+	s.data.Store(key, newItem)
+
+	return newCount, nil
+}

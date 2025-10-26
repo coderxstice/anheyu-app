@@ -2,7 +2,7 @@
  * @Description: 访问统计服务
  * @Author: 安知鱼
  * @Date: 2025-01-20 15:30:00
- * @LastEditTime: 2025-08-21 11:07:35
+ * @LastEditTime: 2025-10-26 21:22:33
  * @LastEditors: 安知鱼
  */
 package statistics
@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/ent"
@@ -23,6 +24,27 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+// 性能日志开关（生产环境建议设置为false）
+const enablePerfLog = true // 设置为 false 可关闭性能日志，提升约0.01-0.02ms
+
+// visitTask 访问任务结构
+type visitTask struct {
+	ctx       context.Context
+	clientIP  string
+	userAgent string
+	visitorID string
+	req       *model.VisitorLogRequest
+	timestamp time.Time
+}
+
+// userAgentCache UA解析缓存项
+type userAgentCache struct {
+	browser   string
+	os        string
+	device    string
+	timestamp time.Time
+}
 
 // VisitorStatService 访问统计服务接口
 type VisitorStatService interface {
@@ -63,7 +85,24 @@ type visitorStatService struct {
 	urlStatRepo     repository.URLStatRepository
 	geoipService    utility.GeoIPService
 	cacheService    utility.CacheService
+
+	// 性能优化相关
+	workerPool     chan struct{}   // Worker 池，控制并发数
+	visitQueue     chan *visitTask // 访问任务队列
+	userAgentCache *sync.Map       // User-Agent解析缓存
+	requestDedup   *sync.Map       // 请求去重Map
 }
+
+// 性能优化配置常量
+const (
+	// Worker池配置
+	MaxWorkers     = 50   // 最大并发worker数量
+	VisitQueueSize = 1000 // 访问任务队列大小
+
+	// 缓存配置
+	UACacheExpire = 12 * time.Hour  // User-Agent缓存过期时间
+	DedupExpire   = 3 * time.Second // 请求去重过期时间
+)
 
 // NewVisitorStatService 创建访问统计服务实例
 func NewVisitorStatService(
@@ -73,13 +112,27 @@ func NewVisitorStatService(
 	cacheService utility.CacheService,
 	geoipService utility.GeoIPService,
 ) (VisitorStatService, error) {
-	return &visitorStatService{
+	svc := &visitorStatService{
 		visitorStatRepo: visitorStatRepo,
 		visitorLogRepo:  visitorLogRepo,
 		urlStatRepo:     urlStatRepo,
 		cacheService:    cacheService,
 		geoipService:    geoipService,
-	}, nil
+
+		// 初始化性能优化组件
+		workerPool:     make(chan struct{}, MaxWorkers),
+		visitQueue:     make(chan *visitTask, VisitQueueSize),
+		userAgentCache: &sync.Map{},
+		requestDedup:   &sync.Map{},
+	}
+
+	// 启动worker池处理访问任务
+	go svc.startWorkerPool()
+
+	// 启动定期清理缓存的任务
+	go svc.cleanupCaches()
+
+	return svc, nil
 }
 
 // 获取最后一次成功聚合的日期
@@ -97,75 +150,303 @@ func (s *visitorStatService) GetVisitorLogs(ctx context.Context, startDate, endD
 	return s.visitorLogRepo.GetByTimeRange(ctx, startDate, endDate)
 }
 
-func (s *visitorStatService) RecordVisit(ctx context.Context, c *gin.Context, req *model.VisitorLogRequest) error {
-	// 获取客户端IP
-	clientIP := s.getClientIP(c)
+// startWorkerPool 启动worker池处理访问任务
+func (s *visitorStatService) startWorkerPool() {
+	for task := range s.visitQueue {
+		// 获取worker许可（限制并发数）
+		s.workerPool <- struct{}{}
 
-	// 生成访客ID（基于IP和UserAgent的hash）
-	visitorID := s.generateVisitorID(clientIP, c.GetHeader("User-Agent"))
+		go func(t *visitTask) {
+			defer func() {
+				<-s.workerPool // 释放worker许可
+				if r := recover(); r != nil {
+					fmt.Printf("[统计] Worker panic: %v\n", r)
+				}
+			}()
 
-	// 获取地理位置信息
-	country, region, city := s.getGeoLocation(clientIP)
+			s.processVisitTask(t)
+		}(task)
+	}
+}
 
-	// 解析User-Agent
-	browser, os, device := s.parseUserAgent(c.GetHeader("User-Agent"))
+// processVisitTask 处理单个访问任务（异步处理所有统计）
+func (s *visitorStatService) processVisitTask(task *visitTask) {
+	var taskStartTime, redisStart, t1, t2, t3, t4, t5, t6 time.Time
+	var uaStart, logCreateStart, dbStart, urlStatStart time.Time
 
-	// 检查是否为新访客（今日内未访问过）
-	recentLogs, _ := s.visitorLogRepo.GetByVisitorID(ctx, visitorID, 1)
+	if enablePerfLog {
+		taskStartTime = time.Now()
+		redisStart = time.Now()
+	}
 
-	// 获取今日开始时间（UTC时区）
-	now := time.Now().UTC()
-	todayStart := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+	ctx := task.ctx
+	now := task.timestamp
+	today := now.Format("2006-01-02")
 
-	// 判断是否为新访客：没有访问记录，或者最近访问时间在今天之前
-	// 这样确保每天都会重新计算访客数，而不是基于24小时窗口
-	isUnique := len(recentLogs) == 0 || recentLogs[0].CreatedAt.Before(todayStart)
+	// 1. Redis批量操作（判断新访客 + 更新计数）
+	isUnique := false
+	if s.cacheService != nil {
+		if enablePerfLog {
+			t1 = time.Now()
+		}
 
-	// 创建访问日志
-	userAgent := c.GetHeader("User-Agent")
+		visitorSetKey := "stats:visitors:set:" + today
+		isNew, err := s.cacheService.SAdd(ctx, visitorSetKey, task.visitorID)
+
+		if enablePerfLog {
+			fmt.Printf("[性能-异步] Redis.SAdd耗时: %v\n", time.Since(t1))
+		}
+
+		if err == nil {
+			if isNew > 0 {
+				isUnique = true
+
+				if enablePerfLog {
+					t2 = time.Now()
+				}
+				s.cacheService.Expire(ctx, visitorSetKey, 48*time.Hour)
+				if enablePerfLog {
+					fmt.Printf("[性能-异步] Redis.Expire(visitor)耗时: %v\n", time.Since(t2))
+					t3 = time.Now()
+				}
+
+				todayVisitorsKey := "stats:today:visitors:" + today
+				s.cacheService.Increment(ctx, todayVisitorsKey)
+
+				if enablePerfLog {
+					fmt.Printf("[性能-异步] Redis.Increment(visitors)耗时: %v\n", time.Since(t3))
+					t4 = time.Now()
+				}
+
+				s.cacheService.Expire(ctx, todayVisitorsKey, CacheExpireToday)
+
+				if enablePerfLog {
+					fmt.Printf("[性能-异步] Redis.Expire(visitors)耗时: %v\n", time.Since(t4))
+				}
+			}
+
+			if enablePerfLog {
+				t5 = time.Now()
+			}
+			todayViewsKey := CacheKeyTodayViews + today
+			s.cacheService.Increment(ctx, todayViewsKey)
+
+			if enablePerfLog {
+				fmt.Printf("[性能-异步] Redis.Increment(views)耗时: %v\n", time.Since(t5))
+				t6 = time.Now()
+			}
+
+			s.cacheService.Expire(ctx, todayViewsKey, CacheExpireToday)
+
+			if enablePerfLog {
+				fmt.Printf("[性能-异步] Redis.Expire(views)耗时: %v\n", time.Since(t6))
+			}
+
+			// 异步删除缓存，避免阻塞主流程（这是优化项，Delete操作较慢）
+			go func() {
+				t7 := time.Now()
+				s.cacheService.Delete(context.Background(), CacheKeyBasicStats)
+				if enablePerfLog {
+					fmt.Printf("[性能-异步] Redis.Delete(cache)耗时: %v\n", time.Since(t7))
+				}
+			}()
+		} else if enablePerfLog {
+			fmt.Printf("[性能-异步] Redis操作失败: %v\n", err)
+		}
+	}
+
+	if enablePerfLog {
+		fmt.Printf("[性能-异步] Redis操作总耗时: %v\n", time.Since(redisStart))
+		uaStart = time.Now()
+	}
+
+	// 2. 解析User-Agent（带缓存）
+	browser, os, device := s.parseUserAgentCached(task.userAgent)
+
+	if enablePerfLog {
+		fmt.Printf("[性能-异步] UA解析耗时: %v\n", time.Since(uaStart))
+		logCreateStart = time.Now()
+	}
+
+	// 3. 创建访问日志
 	log := &ent.VisitorLog{
-		VisitorID: visitorID,
-		IPAddress: clientIP,
-		UserAgent: &userAgent,
-		Referer:   &req.Referer,
-		URLPath:   req.URLPath,
-		Country:   &country,
-		Region:    &region,
-		City:      &city,
+		VisitorID: task.visitorID,
+		IPAddress: task.clientIP,
+		UserAgent: &task.userAgent,
+		Referer:   &task.req.Referer,
+		URLPath:   task.req.URLPath,
+		Country:   nil,
+		Region:    nil,
+		City:      nil,
 		Browser:   &browser,
 		Os:        &os,
 		Device:    &device,
-		Duration:  req.Duration,
-		IsBounce:  req.Duration < 10, // 停留时间少于10秒认为是跳出
-		CreatedAt: time.Now(),
+		Duration:  task.req.Duration,
+		IsBounce:  task.req.Duration < 10,
+		CreatedAt: now,
 	}
 
-	// 保存访问日志
+	if enablePerfLog {
+		fmt.Printf("[性能-异步] 创建日志对象耗时: %v\n", time.Since(logCreateStart))
+		dbStart = time.Now()
+	}
+
+	// 4. 保存访问日志（不重试）
 	if err := s.visitorLogRepo.Create(ctx, log); err != nil {
-		return fmt.Errorf("保存访问日志失败: %w", err)
-	}
-
-	// 更新URL统计
-	if err := s.urlStatRepo.IncrementViews(ctx, req.URLPath, isUnique, req.Duration); err != nil {
-		return fmt.Errorf("更新URL统计失败: %w", err)
-	}
-
-	// 更新Redis实时计数缓存
-	if s.cacheService != nil {
-		// 增加今日访问量
-		todayViewsKey := CacheKeyTodayViews + time.Now().Format("2006-01-02")
-		s.cacheService.Increment(ctx, todayViewsKey)
-		s.cacheService.Expire(ctx, todayViewsKey, CacheExpireToday)
-
-		// 如果是新访客，增加访客计数
-		if isUnique {
-			todayVisitorsKey := "stats:today:visitors:" + time.Now().Format("2006-01-02")
-			s.cacheService.Increment(ctx, todayVisitorsKey)
-			s.cacheService.Expire(ctx, todayVisitorsKey, CacheExpireToday)
+		if !strings.Contains(err.Error(), "duplicate key") {
+			fmt.Printf("[统计] 保存访问日志失败: %v\n", err)
 		}
+		if enablePerfLog {
+			fmt.Printf("[性能-异步] 数据库写入耗时(失败): %v\n", time.Since(dbStart))
+		}
+		return
+	}
 
-		// 清除基础统计缓存，确保数据一致性
-		s.cacheService.Delete(ctx, CacheKeyBasicStats)
+	if enablePerfLog {
+		fmt.Printf("[性能-异步] 数据库写入耗时: %v\n", time.Since(dbStart))
+		urlStatStart = time.Now()
+	}
+
+	// 5. 更新URL统计
+	if err := s.urlStatRepo.IncrementViews(ctx, task.req.URLPath, isUnique, task.req.Duration); err != nil {
+		fmt.Printf("[统计] 更新URL统计失败: %v\n", err)
+	}
+
+	if enablePerfLog {
+		fmt.Printf("[性能-异步] URL统计更新耗时: %v\n", time.Since(urlStatStart))
+
+		totalTaskTime := time.Since(taskStartTime)
+		fmt.Printf("[性能-异步] ✅ Worker任务总耗时: %v\n", totalTaskTime)
+
+		if totalTaskTime > 100*time.Millisecond {
+			fmt.Printf("[性能警告-异步] Worker任务耗时超过100ms: %v\n", totalTaskTime)
+		}
+	}
+}
+
+// cleanupCaches 定期清理过期缓存
+func (s *visitorStatService) cleanupCaches() {
+	ticker := time.NewTicker(30 * time.Minute) // 每30分钟清理一次
+	defer ticker.Stop()
+
+	for range ticker.C {
+		now := time.Now()
+
+		// 清理User-Agent缓存
+		s.userAgentCache.Range(func(key, value interface{}) bool {
+			if cache, ok := value.(*userAgentCache); ok {
+				if now.Sub(cache.timestamp) > UACacheExpire {
+					s.userAgentCache.Delete(key)
+				}
+			}
+			return true
+		})
+
+		// 清理请求去重Map
+		s.requestDedup.Range(func(key, value interface{}) bool {
+			if timestamp, ok := value.(time.Time); ok {
+				if now.Sub(timestamp) > DedupExpire {
+					s.requestDedup.Delete(key)
+				}
+			}
+			return true
+		})
+	}
+}
+
+// parseUserAgentCached 解析User-Agent（带缓存）
+func (s *visitorStatService) parseUserAgentCached(userAgent string) (browser, os, device string) {
+	// 生成缓存键（使用MD5避免过长）
+	hash := md5.Sum([]byte(userAgent))
+	cacheKey := fmt.Sprintf("%x", hash)
+
+	// 从缓存获取
+	if cached, ok := s.userAgentCache.Load(cacheKey); ok {
+		if uaCache, ok := cached.(*userAgentCache); ok {
+			// 检查是否过期
+			if time.Since(uaCache.timestamp) < UACacheExpire {
+				return uaCache.browser, uaCache.os, uaCache.device
+			}
+		}
+	}
+
+	// 缓存未命中或过期，解析User-Agent
+	browser, os, device = s.parseUserAgent(userAgent)
+
+	// 存入缓存
+	s.userAgentCache.Store(cacheKey, &userAgentCache{
+		browser:   browser,
+		os:        os,
+		device:    device,
+		timestamp: time.Now(),
+	})
+
+	return browser, os, device
+}
+
+func (s *visitorStatService) RecordVisit(ctx context.Context, c *gin.Context, req *model.VisitorLogRequest) error {
+	var startTime, t1, t2, t3, t4 time.Time
+	if enablePerfLog {
+		startTime = time.Now()
+		t1 = time.Now()
+	}
+
+	// === 极致优化：完全异步处理，只做最小化验证 ===
+	clientIP := s.getClientIP(c)
+	userAgent := c.GetHeader("User-Agent")
+	visitorID := s.generateVisitorID(clientIP, userAgent)
+
+	if enablePerfLog {
+		fmt.Printf("[性能] 获取基本信息耗时: %v\n", time.Since(t1))
+		t2 = time.Now()
+	}
+
+	// 请求去重检查（内存操作，极快）
+	requestKey := fmt.Sprintf("%s:%s:%d", visitorID, req.URLPath, time.Now().Unix()/int64(DedupExpire.Seconds()))
+	if _, exists := s.requestDedup.LoadOrStore(requestKey, time.Now()); exists {
+		if enablePerfLog {
+			fmt.Printf("[性能] 去重检查(重复)耗时: %v, 总耗时: %v\n", time.Since(t2), time.Since(startTime))
+		}
+		return nil // 重复请求，直接返回
+	}
+
+	if enablePerfLog {
+		fmt.Printf("[性能] 去重检查耗时: %v\n", time.Since(t2))
+		t3 = time.Now()
+	}
+
+	// 创建访问任务
+	task := &visitTask{
+		ctx:       context.Background(),
+		clientIP:  clientIP,
+		userAgent: userAgent,
+		visitorID: visitorID,
+		req:       req,
+		timestamp: time.Now(),
+	}
+
+	if enablePerfLog {
+		fmt.Printf("[性能] 创建任务耗时: %v\n", time.Since(t3))
+		t4 = time.Now()
+	}
+
+	// 非阻塞入队
+	select {
+	case s.visitQueue <- task:
+		if enablePerfLog {
+			fmt.Printf("[性能] 入队耗时: %v\n", time.Since(t4))
+		}
+	default:
+		fmt.Printf("[统计警告] 访问任务队列已满，当前任务被丢弃\n")
+	}
+
+	if enablePerfLog {
+		totalTime := time.Since(startTime)
+		fmt.Printf("[性能] ✅ RecordVisit总耗时: %v\n", totalTime)
+
+		if totalTime > 10*time.Millisecond {
+			fmt.Printf("[性能警告] RecordVisit耗时超过10ms: %v\n", totalTime)
+		}
 	}
 
 	return nil
