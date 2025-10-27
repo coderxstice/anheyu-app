@@ -100,6 +100,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "target_path", Type: field.TypeString, Size: 255},
 		{Name: "target_title", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "reply_to_id", Type: field.TypeUint, Nullable: true},
 		{Name: "nickname", Type: field.TypeString, Size: 50},
 		{Name: "email", Type: field.TypeString, Nullable: true, Size: 100},
 		{Name: "email_md5", Type: field.TypeString, Size: 32},
@@ -126,19 +127,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "comments_articles_comments",
-				Columns:    []*schema.Column{CommentsColumns[20]},
+				Columns:    []*schema.Column{CommentsColumns[21]},
 				RefColumns: []*schema.Column{ArticlesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "comments_comments_parent",
-				Columns:    []*schema.Column{CommentsColumns[21]},
+				Columns:    []*schema.Column{CommentsColumns[22]},
 				RefColumns: []*schema.Column{CommentsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "comments_users_comments",
-				Columns:    []*schema.Column{CommentsColumns[22]},
+				Columns:    []*schema.Column{CommentsColumns[23]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -147,22 +148,22 @@ var (
 			{
 				Name:    "comment_target_path_status",
 				Unique:  false,
-				Columns: []*schema.Column{CommentsColumns[4], CommentsColumns[12]},
+				Columns: []*schema.Column{CommentsColumns[4], CommentsColumns[13]},
 			},
 			{
 				Name:    "comment_parent_id",
 				Unique:  false,
-				Columns: []*schema.Column{CommentsColumns[21]},
+				Columns: []*schema.Column{CommentsColumns[22]},
 			},
 			{
 				Name:    "comment_user_id",
 				Unique:  false,
-				Columns: []*schema.Column{CommentsColumns[22]},
+				Columns: []*schema.Column{CommentsColumns[23]},
 			},
 			{
 				Name:    "comment_email",
 				Unique:  false,
-				Columns: []*schema.Column{CommentsColumns[7]},
+				Columns: []*schema.Column{CommentsColumns[8]},
 			},
 		},
 	}

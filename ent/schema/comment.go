@@ -57,6 +57,10 @@ func (Comment) Fields() []ent.Field {
 			Optional().
 			Nillable().
 			Comment("父评论ID (用于嵌套回复)"),
+		field.Uint("reply_to_id").
+			Optional().
+			Nillable().
+			Comment("回复目标评论ID (用于构建对话链，直接回复顶级评论时与parent_id相同)"),
 
 		// --- 评论者信息 ---
 		field.String("nickname").

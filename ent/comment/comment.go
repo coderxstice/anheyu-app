@@ -29,6 +29,8 @@ const (
 	FieldUserID = "user_id"
 	// FieldParentID holds the string denoting the parent_id field in the database.
 	FieldParentID = "parent_id"
+	// FieldReplyToID holds the string denoting the reply_to_id field in the database.
+	FieldReplyToID = "reply_to_id"
 	// FieldNickname holds the string denoting the nickname field in the database.
 	FieldNickname = "nickname"
 	// FieldEmail holds the string denoting the email field in the database.
@@ -92,6 +94,7 @@ var Columns = []string{
 	FieldTargetTitle,
 	FieldUserID,
 	FieldParentID,
+	FieldReplyToID,
 	FieldNickname,
 	FieldEmail,
 	FieldEmailMd5,
@@ -217,6 +220,11 @@ func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 // ByParentID orders the results by the parent_id field.
 func ByParentID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldParentID, opts...).ToFunc()
+}
+
+// ByReplyToID orders the results by the reply_to_id field.
+func ByReplyToID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldReplyToID, opts...).ToFunc()
 }
 
 // ByNickname orders the results by the nickname field.

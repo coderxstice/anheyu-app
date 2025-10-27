@@ -113,6 +113,20 @@ func (_c *CommentCreate) SetNillableParentID(v *uint) *CommentCreate {
 	return _c
 }
 
+// SetReplyToID sets the "reply_to_id" field.
+func (_c *CommentCreate) SetReplyToID(v uint) *CommentCreate {
+	_c.mutation.SetReplyToID(v)
+	return _c
+}
+
+// SetNillableReplyToID sets the "reply_to_id" field if the given value is not nil.
+func (_c *CommentCreate) SetNillableReplyToID(v *uint) *CommentCreate {
+	if v != nil {
+		_c.SetReplyToID(*v)
+	}
+	return _c
+}
+
 // SetNickname sets the "nickname" field.
 func (_c *CommentCreate) SetNickname(v string) *CommentCreate {
 	_c.mutation.SetNickname(v)
@@ -535,6 +549,10 @@ func (_c *CommentCreate) createSpec() (*Comment, *sqlgraph.CreateSpec) {
 		_spec.SetField(comment.FieldTargetTitle, field.TypeString, value)
 		_node.TargetTitle = &value
 	}
+	if value, ok := _c.mutation.ReplyToID(); ok {
+		_spec.SetField(comment.FieldReplyToID, field.TypeUint, value)
+		_node.ReplyToID = &value
+	}
 	if value, ok := _c.mutation.Nickname(); ok {
 		_spec.SetField(comment.FieldNickname, field.TypeString, value)
 		_node.Nickname = value
@@ -786,6 +804,30 @@ func (u *CommentUpsert) UpdateParentID() *CommentUpsert {
 // ClearParentID clears the value of the "parent_id" field.
 func (u *CommentUpsert) ClearParentID() *CommentUpsert {
 	u.SetNull(comment.FieldParentID)
+	return u
+}
+
+// SetReplyToID sets the "reply_to_id" field.
+func (u *CommentUpsert) SetReplyToID(v uint) *CommentUpsert {
+	u.Set(comment.FieldReplyToID, v)
+	return u
+}
+
+// UpdateReplyToID sets the "reply_to_id" field to the value that was provided on create.
+func (u *CommentUpsert) UpdateReplyToID() *CommentUpsert {
+	u.SetExcluded(comment.FieldReplyToID)
+	return u
+}
+
+// AddReplyToID adds v to the "reply_to_id" field.
+func (u *CommentUpsert) AddReplyToID(v uint) *CommentUpsert {
+	u.Add(comment.FieldReplyToID, v)
+	return u
+}
+
+// ClearReplyToID clears the value of the "reply_to_id" field.
+func (u *CommentUpsert) ClearReplyToID() *CommentUpsert {
+	u.SetNull(comment.FieldReplyToID)
 	return u
 }
 
@@ -1159,6 +1201,34 @@ func (u *CommentUpsertOne) UpdateParentID() *CommentUpsertOne {
 func (u *CommentUpsertOne) ClearParentID() *CommentUpsertOne {
 	return u.Update(func(s *CommentUpsert) {
 		s.ClearParentID()
+	})
+}
+
+// SetReplyToID sets the "reply_to_id" field.
+func (u *CommentUpsertOne) SetReplyToID(v uint) *CommentUpsertOne {
+	return u.Update(func(s *CommentUpsert) {
+		s.SetReplyToID(v)
+	})
+}
+
+// AddReplyToID adds v to the "reply_to_id" field.
+func (u *CommentUpsertOne) AddReplyToID(v uint) *CommentUpsertOne {
+	return u.Update(func(s *CommentUpsert) {
+		s.AddReplyToID(v)
+	})
+}
+
+// UpdateReplyToID sets the "reply_to_id" field to the value that was provided on create.
+func (u *CommentUpsertOne) UpdateReplyToID() *CommentUpsertOne {
+	return u.Update(func(s *CommentUpsert) {
+		s.UpdateReplyToID()
+	})
+}
+
+// ClearReplyToID clears the value of the "reply_to_id" field.
+func (u *CommentUpsertOne) ClearReplyToID() *CommentUpsertOne {
+	return u.Update(func(s *CommentUpsert) {
+		s.ClearReplyToID()
 	})
 }
 
@@ -1733,6 +1803,34 @@ func (u *CommentUpsertBulk) UpdateParentID() *CommentUpsertBulk {
 func (u *CommentUpsertBulk) ClearParentID() *CommentUpsertBulk {
 	return u.Update(func(s *CommentUpsert) {
 		s.ClearParentID()
+	})
+}
+
+// SetReplyToID sets the "reply_to_id" field.
+func (u *CommentUpsertBulk) SetReplyToID(v uint) *CommentUpsertBulk {
+	return u.Update(func(s *CommentUpsert) {
+		s.SetReplyToID(v)
+	})
+}
+
+// AddReplyToID adds v to the "reply_to_id" field.
+func (u *CommentUpsertBulk) AddReplyToID(v uint) *CommentUpsertBulk {
+	return u.Update(func(s *CommentUpsert) {
+		s.AddReplyToID(v)
+	})
+}
+
+// UpdateReplyToID sets the "reply_to_id" field to the value that was provided on create.
+func (u *CommentUpsertBulk) UpdateReplyToID() *CommentUpsertBulk {
+	return u.Update(func(s *CommentUpsert) {
+		s.UpdateReplyToID()
+	})
+}
+
+// ClearReplyToID clears the value of the "reply_to_id" field.
+func (u *CommentUpsertBulk) ClearReplyToID() *CommentUpsertBulk {
+	return u.Update(func(s *CommentUpsert) {
+		s.ClearReplyToID()
 	})
 }
 

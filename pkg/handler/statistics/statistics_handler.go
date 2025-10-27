@@ -11,7 +11,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
@@ -53,7 +52,7 @@ func (h *StatisticsHandler) GetBasicStatistics(c *gin.Context) {
 
 // RecordVisit 记录访问（前台接口）
 // @Summary      记录访问
-// @Description  记录用户访问行为
+// @Description  记录用户访问行为（异步处理，快速响应）
 // @Tags         访问统计
 // @Accept       json
 // @Produce      json
@@ -69,34 +68,15 @@ func (h *StatisticsHandler) RecordVisit(c *gin.Context) {
 		return
 	}
 
-	// 添加重试机制处理并发冲突
-	maxRetries := 3
-	var lastErr error
-
-	for i := 0; i < maxRetries; i++ {
-		if err := h.statService.RecordVisit(c.Request.Context(), c, &req); err != nil {
-			lastErr = err
-
-			// 检查是否是唯一约束冲突，如果是则重试
-			if strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
-				log.Printf("[statistics] RecordVisit retry %d due to constraint conflict: %v", i+1, err)
-				// 短暂延迟后重试
-				time.Sleep(time.Duration(i+1) * 10 * time.Millisecond)
-				continue
-			}
-
-			// 其他错误直接返回
-			break
-		}
-
-		// 成功则直接返回
-		response.Success(c, nil, "记录访问成功")
+	// 调用优化后的服务方法（异步处理，立即返回）
+	if err := h.statService.RecordVisit(c.Request.Context(), c, &req); err != nil {
+		log.Printf("[statistics] RecordVisit service error: %v", err)
+		response.Fail(c, http.StatusInternalServerError, "记录访问失败")
 		return
 	}
 
-	// 所有重试都失败了
-	log.Printf("[statistics] RecordVisit service error after %d retries: %v", maxRetries, lastErr)
-	response.Fail(c, http.StatusInternalServerError, "记录访问失败")
+	// 快速响应（数据持久化在后台异步处理）
+	response.Success(c, nil, "记录访问成功")
 }
 
 // GetVisitorAnalytics 获取访客分析数据（后台接口）

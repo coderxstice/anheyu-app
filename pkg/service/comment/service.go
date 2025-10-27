@@ -110,24 +110,33 @@ func (s *Service) ListLatest(ctx context.Context, page, pageSize int) (*dto.List
 		}
 	}
 
-	parentMap := make(map[uint]*model.Comment)
-	if len(parentIDs) > 0 {
-		// 将 map 的 key 转换为 slice
-		ids := make([]uint, 0, len(parentIDs))
-		for id := range parentIDs {
+	// 收集所有需要查询的评论ID（父评论 + 回复目标评论）
+	allNeededIDs := make(map[uint]bool)
+	for id := range parentIDs {
+		allNeededIDs[id] = true
+	}
+
+	// 收集所有 reply_to_id
+	for _, comment := range comments {
+		if comment.ReplyToID != nil {
+			allNeededIDs[*comment.ReplyToID] = true
+		}
+	}
+
+	// 批量查询所有需要的评论
+	commentMap := make(map[uint]*model.Comment)
+	if len(allNeededIDs) > 0 {
+		ids := make([]uint, 0, len(allNeededIDs))
+		for id := range allNeededIDs {
 			ids = append(ids, id)
 		}
 
-		// 使用 FindManyByIDs 一次性批量查询所有父评论
-		parents, err := s.repo.FindManyByIDs(ctx, ids)
+		comments_batch, err := s.repo.FindManyByIDs(ctx, ids)
 		if err != nil {
-			// 即便查询失败，也不应中断整个请求，仅记录日志。
-			// 这样即使父评论信息丢失，主评论列表依然可以展示。
-			log.Printf("警告：批量获取父评论失败: %v", err)
+			log.Printf("警告：批量获取评论失败: %v", err)
 		} else {
-			// 将查询结果转换为 map 以便后续快速查找
-			for _, parent := range parents {
-				parentMap[parent.ID] = parent
+			for _, c := range comments_batch {
+				commentMap[c.ID] = c
 			}
 		}
 	}
@@ -135,11 +144,20 @@ func (s *Service) ListLatest(ctx context.Context, page, pageSize int) (*dto.List
 	responses := make([]*dto.Response, len(comments))
 	for i, comment := range comments {
 		var parent *model.Comment
+		var replyTo *model.Comment
+
 		if comment.ParentID != nil {
-			// 从 map 中安全地获取父评论
-			parent = parentMap[*comment.ParentID]
+			parent = commentMap[*comment.ParentID]
 		}
-		responses[i] = s.toResponseDTO(ctx, comment, parent, false)
+
+		// 优先使用 reply_to_id，如果没有则向后兼容使用 parent
+		if comment.ReplyToID != nil {
+			replyTo = commentMap[*comment.ReplyToID]
+		} else if parent != nil {
+			replyTo = parent // 向后兼容旧数据
+		}
+
+		responses[i] = s.toResponseDTO(ctx, comment, parent, replyTo, false)
 	}
 
 	return &dto.ListResponse{
@@ -184,6 +202,22 @@ func (s *Service) Create(ctx context.Context, req *dto.CreateRequest, ip, ua str
 			return nil, errors.New("回复的评论与当前页面不匹配")
 		}
 		parentDBID = &pID
+	}
+
+	// 处理回复目标评论（用于构建对话链）
+	var replyToComment *model.Comment
+	if req.ReplyToID != nil && *req.ReplyToID != "" {
+		rID, _, err := idgen.DecodePublicID(*req.ReplyToID)
+		if err != nil {
+			return nil, errors.New("无效的回复目标评论ID")
+		}
+		replyToComment, err = s.repo.FindByID(ctx, rID)
+		if err != nil {
+			return nil, errors.New("回复目标评论不存在")
+		}
+		if replyToComment.TargetPath != req.TargetPath {
+			return nil, errors.New("回复目标评论与当前页面不匹配")
+		}
 	}
 
 	// 从 Markdown 内容生成 HTML
@@ -255,11 +289,19 @@ func (s *Service) Create(ctx context.Context, req *dto.CreateRequest, ip, ua str
 		}
 	}
 
+	// 获取 replyToComment 的数据库ID
+	var replyToDBID *uint
+	if replyToComment != nil {
+		rid := replyToComment.ID
+		replyToDBID = &rid
+	}
+
 	params := &repository.CreateCommentParams{
 		TargetPath:     req.TargetPath,
 		TargetTitle:    req.TargetTitle,
 		UserID:         userID,
 		ParentID:       parentDBID,
+		ReplyToID:      replyToDBID, // 保存回复目标评论ID到数据库
 		Nickname:       req.Nickname,
 		Email:          req.Email,
 		EmailMD5:       emailMD5,
@@ -401,7 +443,7 @@ func (s *Service) Create(ctx context.Context, req *dto.CreateRequest, ip, ua str
 		log.Printf("[DEBUG] 评论未发布，跳过所有通知逻辑")
 	}
 
-	return s.toResponseDTO(ctx, newComment, parentComment, false), nil
+	return s.toResponseDTO(ctx, newComment, parentComment, replyToComment, false), nil
 }
 
 // ListByPath
@@ -486,23 +528,83 @@ func (s *Service) ListByPath(ctx context.Context, path string, page, pageSize in
 	const previewLimit = 3
 	rootResponses := make([]*dto.Response, len(paginatedRootComments))
 	for i, root := range paginatedRootComments {
-		rootResp := s.toResponseDTO(ctx, root, nil, false)
+		rootResp := s.toResponseDTO(ctx, root, nil, nil, false)
 		descendants := descendantsMap[root.ID]
 
 		rootResp.TotalChildren = int64(len(descendants))
 
-		// descendants 已经按时间降序排列（从新到旧），直接取前 N 个即可
-		var previewChildren []*model.Comment
-		if len(descendants) > previewLimit {
-			previewChildren = descendants[:previewLimit]
+		// 预览逻辑：只返回前 N 个链头（直接回复顶级评论的评论）
+		// 而不是简单地取前 N 条评论（可能会导致前端找不到父评论）
+		var chainHeads []*model.Comment
+		for _, child := range descendants {
+			// 链头：reply_to_id 指向顶级评论（或为空，向后兼容）
+			if child.ReplyToID == nil || *child.ReplyToID == root.ID {
+				chainHeads = append(chainHeads, child)
+			}
+		}
+
+		// 取前 N 个链头
+		var previewChainHeads []*model.Comment
+		if len(chainHeads) > previewLimit {
+			previewChainHeads = chainHeads[:previewLimit]
 		} else {
-			previewChildren = descendants
+			previewChainHeads = chainHeads
+		}
+
+		// 将这些链头及其回复链都返回
+		var previewChildren []*model.Comment
+		selectedIDs := make(map[uint]bool)
+
+		// 递归添加链头及其所有回复
+		var collectChain func(commentID uint)
+		collectChain = func(commentID uint) {
+			if selectedIDs[commentID] {
+				return // 已添加
+			}
+			selectedIDs[commentID] = true
+
+			// 找到这个评论
+			var comment *model.Comment
+			for _, c := range descendants {
+				if c.ID == commentID {
+					comment = c
+					break
+				}
+			}
+			if comment != nil {
+				previewChildren = append(previewChildren, comment)
+			}
+
+			// 递归添加所有回复它的评论
+			for _, child := range descendants {
+				if child.ReplyToID != nil && *child.ReplyToID == commentID {
+					collectChain(child.ID)
+				}
+			}
+		}
+
+		// 收集每个链头的完整对话链
+		for _, head := range previewChainHeads {
+			collectChain(head.ID)
 		}
 
 		childResponses := make([]*dto.Response, len(previewChildren))
 		for j, child := range previewChildren {
-			parent, _ := commentMap[*child.ParentID]
-			childResponses[j] = s.toResponseDTO(ctx, child, parent, false)
+			var parent *model.Comment
+			var replyTo *model.Comment
+
+			if child.ParentID != nil {
+				parent, _ = commentMap[*child.ParentID]
+			}
+
+			// 优先使用 reply_to_id，如果没有则向后兼容使用 parent
+			if child.ReplyToID != nil {
+				replyTo, _ = commentMap[*child.ReplyToID]
+			} else if parent != nil {
+				replyTo = parent // 向后兼容旧数据
+			}
+
+			childResponses[j] = s.toResponseDTO(ctx, child, parent, replyTo, false)
 		}
 		rootResp.Children = childResponses
 		rootResponses[i] = rootResp
@@ -555,34 +657,114 @@ func (s *Service) ListChildren(ctx context.Context, parentPublicID string, page,
 	}
 	findChildren(parentDBID)
 
-	// 4. 对所有后代按时间倒序重新排序 (从新到旧)
-	sort.Slice(allDescendants, func(i, j int) bool {
-		return allDescendants[i].CreatedAt.After(allDescendants[j].CreatedAt)
-	})
-
-	// 5. 对所有后代进行分页
+	// 4. 实现预览逻辑：返回前N个链头+完整对话链
 	total := int64(len(allDescendants))
-	start := (page - 1) * pageSize
-	end := start + pageSize
-	if start >= len(allDescendants) {
-		return &dto.ListResponse{
-			List:              []*dto.Response{},
-			Total:             total,
-			TotalWithChildren: total, // 对于子评论列表，total 和 totalWithChildren 相同（因为返回的是扁平列表）
-			Page:              page,
-			PageSize:          pageSize,
-		}, nil
+
+	// 预览模式（第一页且 pageSize 较小，如 3）
+	const previewLimit = 3
+	isPreviewMode := page == 1 && pageSize <= previewLimit
+
+	var paginatedDescendants []*model.Comment
+
+	if isPreviewMode {
+		// 预览逻辑：只返回前 N 个链头（直接回复顶级评论的评论）
+		var chainHeads []*model.Comment
+		for _, child := range allDescendants {
+			// 链头：reply_to_id 指向顶级评论（或为空，向后兼容）
+			if child.ReplyToID == nil || *child.ReplyToID == parentDBID {
+				chainHeads = append(chainHeads, child)
+			}
+		}
+
+		// 对链头按时间倒序排序（最新的在前）
+		sort.Slice(chainHeads, func(i, j int) bool {
+			return chainHeads[i].CreatedAt.After(chainHeads[j].CreatedAt)
+		})
+
+		// 取前 N 个链头
+		var previewChainHeads []*model.Comment
+		if len(chainHeads) > previewLimit {
+			previewChainHeads = chainHeads[:previewLimit]
+		} else {
+			previewChainHeads = chainHeads
+		}
+
+		// 将这些链头及其回复链都返回
+		selectedIDs := make(map[uint]bool)
+
+		// 递归添加链头及其所有回复
+		var collectChain func(commentID uint)
+		collectChain = func(commentID uint) {
+			if selectedIDs[commentID] {
+				return // 已添加
+			}
+			selectedIDs[commentID] = true
+
+			// 找到这个评论
+			var comment *model.Comment
+			for _, c := range allDescendants {
+				if c.ID == commentID {
+					comment = c
+					break
+				}
+			}
+			if comment != nil {
+				paginatedDescendants = append(paginatedDescendants, comment)
+			}
+
+			// 递归添加所有回复它的评论
+			for _, child := range allDescendants {
+				if child.ReplyToID != nil && *child.ReplyToID == commentID {
+					collectChain(child.ID)
+				}
+			}
+		}
+
+		// 收集每个链头的完整对话链
+		for _, head := range previewChainHeads {
+			collectChain(head.ID)
+		}
+	} else {
+		// 正常分页模式：按时间倒序，返回所有评论
+		sort.Slice(allDescendants, func(i, j int) bool {
+			return allDescendants[i].CreatedAt.After(allDescendants[j].CreatedAt)
+		})
+
+		start := (page - 1) * pageSize
+		end := start + pageSize
+		if start >= len(allDescendants) {
+			return &dto.ListResponse{
+				List:              []*dto.Response{},
+				Total:             total,
+				TotalWithChildren: total,
+				Page:              page,
+				PageSize:          pageSize,
+			}, nil
+		}
+		if end > len(allDescendants) {
+			end = len(allDescendants)
+		}
+		paginatedDescendants = allDescendants[start:end]
 	}
-	if end > len(allDescendants) {
-		end = len(allDescendants)
-	}
-	paginatedDescendants := allDescendants[start:end]
 
 	// 6. 组装响应
 	childResponses := make([]*dto.Response, len(paginatedDescendants))
 	for i, child := range paginatedDescendants {
-		parent, _ := commentMap[*child.ParentID]
-		childResponses[i] = s.toResponseDTO(ctx, child, parent, false)
+		var parent *model.Comment
+		var replyTo *model.Comment
+
+		if child.ParentID != nil {
+			parent, _ = commentMap[*child.ParentID]
+		}
+
+		// 优先使用 reply_to_id，如果没有则向后兼容使用 parent
+		if child.ReplyToID != nil {
+			replyTo, _ = commentMap[*child.ReplyToID]
+		} else if parent != nil {
+			replyTo = parent // 向后兼容旧数据
+		}
+
+		childResponses[i] = s.toResponseDTO(ctx, child, parent, replyTo, false)
 	}
 
 	return &dto.ListResponse{
@@ -595,7 +777,9 @@ func (s *Service) ListChildren(ctx context.Context, parentPublicID string, page,
 }
 
 // toResponseDTO 将领域模型 comment 转换为API响应的DTO。
-func (s *Service) toResponseDTO(ctx context.Context, c *model.Comment, parent *model.Comment, isAdminView bool) *dto.Response {
+// parent: 父评论（用于设置 ParentID）
+// replyTo: 回复目标评论（用于设置 ReplyToID 和 ReplyToNick）
+func (s *Service) toResponseDTO(ctx context.Context, c *model.Comment, parent *model.Comment, replyTo *model.Comment, isAdminView bool) *dto.Response {
 	if c == nil {
 		return nil
 	}
@@ -625,12 +809,19 @@ func (s *Service) toResponseDTO(ctx context.Context, c *model.Comment, parent *m
 		emailMD5 = fmt.Sprintf("%x", md5.Sum([]byte(strings.ToLower(*c.Author.Email))))
 	}
 	var parentPublicID *string
-	var replyToNick *string
 	if parent != nil {
 		pID, _ := idgen.GeneratePublicID(parent.ID, idgen.EntityTypeComment)
 		parentPublicID = &pID
-		replyToNick = &parent.Author.Nickname
 	}
+
+	var replyToPublicID *string
+	var replyToNick *string
+	if replyTo != nil {
+		rID, _ := idgen.GeneratePublicID(replyTo.ID, idgen.EntityTypeComment)
+		replyToPublicID = &rID
+		replyToNick = &replyTo.Author.Nickname
+	}
+
 	showUA := s.settingSvc.GetBool(constant.KeyCommentShowUA.String())
 	showRegion := s.settingSvc.GetBool(constant.KeyCommentShowRegion.String())
 
@@ -646,6 +837,7 @@ func (s *Service) toResponseDTO(ctx context.Context, c *model.Comment, parent *m
 		TargetPath:     c.TargetPath,
 		TargetTitle:    c.TargetTitle,
 		ParentID:       parentPublicID,
+		ReplyToID:      replyToPublicID,
 		ReplyToNick:    replyToNick,
 		LikeCount:      c.LikeCount,
 		Children:       []*dto.Response{},
@@ -767,7 +959,7 @@ func (s *Service) AdminList(ctx context.Context, req *dto.AdminListRequest) (*dt
 
 	responses := make([]*dto.Response, len(comments))
 	for i, comment := range comments {
-		responses[i] = s.toResponseDTO(ctx, comment, nil, true)
+		responses[i] = s.toResponseDTO(ctx, comment, nil, nil, true)
 	}
 
 	return &dto.ListResponse{
@@ -813,7 +1005,7 @@ func (s *Service) UpdateStatus(ctx context.Context, publicID string, status int)
 	if err != nil {
 		return nil, fmt.Errorf("更新评论状态失败: %w", err)
 	}
-	return s.toResponseDTO(ctx, updatedComment, nil, true), nil
+	return s.toResponseDTO(ctx, updatedComment, nil, nil, true), nil
 }
 
 // SetPin 设置或取消评论的置顶状态。
@@ -831,7 +1023,7 @@ func (s *Service) SetPin(ctx context.Context, publicID string, isPinned bool) (*
 	if err != nil {
 		return nil, fmt.Errorf("设置评论置顶状态失败: %w", err)
 	}
-	return s.toResponseDTO(ctx, updatedComment, nil, true), nil
+	return s.toResponseDTO(ctx, updatedComment, nil, nil, true), nil
 }
 
 // UpdateContent 更新评论的内容（仅限管理员）。
@@ -858,7 +1050,7 @@ func (s *Service) UpdateContent(ctx context.Context, publicID string, newContent
 		return nil, fmt.Errorf("更新评论内容失败: %w", err)
 	}
 
-	return s.toResponseDTO(ctx, updatedComment, nil, true), nil
+	return s.toResponseDTO(ctx, updatedComment, nil, nil, true), nil
 }
 
 // UpdatePath 是一项内部服务，用于在文章或页面的路径（slug）变更时，同步更新所有相关评论的路径。

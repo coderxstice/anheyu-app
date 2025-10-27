@@ -15,6 +15,9 @@ type CreateRequest struct {
 	// 父评论的公共ID，用于实现回复功能。如果为顶级评论，则此项为 null。
 	ParentID *string `json:"parent_id"`
 
+	// 回复目标评论的公共ID，用于构建对话链。如果直接回复顶级评论，可以与 ParentID 相同或为 null。
+	ReplyToID *string `json:"reply_to_id"`
+
 	// 评论者的昵称。
 	Nickname string `json:"nickname" binding:"required,min=2,max=50"`
 
@@ -92,6 +95,7 @@ type Response struct {
 	TargetPath     string      `json:"target_path"`            // 返回评论所属的路径
 	TargetTitle    *string     `json:"target_title,omitempty"` // 返回目标页面的标题
 	ParentID       *string     `json:"parent_id,omitempty"`
+	ReplyToID      *string     `json:"reply_to_id,omitempty"`
 	ReplyToNick    *string     `json:"reply_to_nick,omitempty"`
 	LikeCount      int         `json:"like_count"`
 	TotalChildren  int64       `json:"total_children"`

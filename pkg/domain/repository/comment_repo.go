@@ -20,6 +20,7 @@ type CreateCommentParams struct {
 	TargetTitle    *string
 	UserID         *uint
 	ParentID       *uint
+	ReplyToID      *uint // 回复目标评论的数据库ID
 	Nickname       string
 	Email          *string
 	EmailMD5       string

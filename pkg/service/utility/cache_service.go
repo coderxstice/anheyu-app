@@ -2,7 +2,7 @@
  * @Description: Redis 缓存服务
  * @Author: 安知鱼
  * @Date: 2025-06-20 15:17:47
- * @LastEditTime: 2025-08-20 15:28:34
+ * @LastEditTime: 2025-10-26 20:57:56
  * @LastEditors: 安知鱼
  */
 package utility
@@ -36,6 +36,9 @@ type CacheService interface {
 	LIndex(ctx context.Context, key string, index int64) (string, error)
 	LRange(ctx context.Context, key string, start, stop int64) ([]string, error)
 	Del(ctx context.Context, keys ...string) error
+
+	// Redis Set 操作（用于去重统计）
+	SAdd(ctx context.Context, key string, members ...interface{}) (int64, error)
 }
 
 // redisCacheService 是 CacheService 的 Redis 实现
@@ -159,4 +162,10 @@ func (s *redisCacheService) GetAndDeleteMany(ctx context.Context, keys []string)
 		}
 	}
 	return results, nil
+}
+
+// SAdd 实现了向 Set 集合中添加成员的方法
+// 返回成功添加的新成员数量（已存在的成员不会被重复添加，返回0）
+func (s *redisCacheService) SAdd(ctx context.Context, key string, members ...interface{}) (int64, error) {
+	return s.client.SAdd(ctx, key, members...).Result()
 }
