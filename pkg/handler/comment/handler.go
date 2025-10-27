@@ -258,7 +258,16 @@ func (h *Handler) Create(c *gin.Context) {
 	// 使用改进的IP获取方法，优先检查代理头部
 	ip := util.GetRealClientIP(c)
 	log.Printf("[DEBUG]   最终获取的IP: %s", ip)
+
+	// 获取完整的 User-Agent 信息，包括 UA-CH (User-Agent Client Hints)
+	// 用于准确识别 Windows 11
 	ua := c.Request.UserAgent()
+	uaPlatformVersion := c.GetHeader("Sec-CH-UA-Platform-Version")
+	if uaPlatformVersion != "" {
+		// 将 Platform Version 附加到 UA 字符串中，用特殊标记分隔
+		ua = ua + " |PV:" + uaPlatformVersion
+		log.Printf("[DEBUG]   UA-CH Platform Version: %s", uaPlatformVersion)
+	}
 
 	var claims *auth.CustomClaims
 	if userClaim, exists := c.Get(auth.ClaimsKey); exists {
