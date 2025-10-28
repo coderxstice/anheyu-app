@@ -27,6 +27,7 @@ type Article struct {
 	IPLocation           string
 	PrimaryColor         string
 	IsPrimaryColorManual bool
+	ShowOnHome           bool
 	PostTags             []*PostTag
 	PostCategories       []*PostCategory
 	HomeSort             int
@@ -52,6 +53,7 @@ type CreateArticleRequest struct {
 	PostTagIDs           []string `json:"post_tag_ids"`
 	PostCategoryIDs      []string `json:"post_category_ids"`
 	IPLocation           string   `json:"ip_location,omitempty"`
+	ShowOnHome           *bool    `json:"show_on_home,omitempty"`
 	HomeSort             int      `json:"home_sort"`
 	PinSort              int      `json:"pin_sort"`
 	TopImgURL            string   `json:"top_img_url"`
@@ -78,6 +80,7 @@ type UpdateArticleRequest struct {
 	PostTagIDs           []string `json:"post_tag_ids"`
 	PostCategoryIDs      []string `json:"post_category_ids"`
 	IPLocation           *string  `json:"ip_location"`
+	ShowOnHome           *bool    `json:"show_on_home"`
 	HomeSort             *int     `json:"home_sort"`
 	PinSort              *int     `json:"pin_sort"`
 	TopImgURL            *string  `json:"top_img_url"`
@@ -111,6 +114,7 @@ type ArticleResponse struct {
 	IPLocation           string                  `json:"ip_location"`
 	PrimaryColor         string                  `json:"primary_color"`
 	IsPrimaryColorManual bool                    `json:"is_primary_color_manual"`
+	ShowOnHome           bool                    `json:"show_on_home"`
 	PostTags             []*PostTagResponse      `json:"post_tags"`
 	PostCategories       []*PostCategoryResponse `json:"post_categories"`
 	HomeSort             int                     `json:"home_sort"`
@@ -195,6 +199,7 @@ type CreateArticleParams struct {
 	IPLocation           string
 	PrimaryColor         string
 	IsPrimaryColorManual bool
+	ShowOnHome           bool
 	HomeSort             int
 	PinSort              int
 	TopImgURL            string

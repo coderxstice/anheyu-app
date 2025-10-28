@@ -84,6 +84,7 @@ func (r *articleRepo) toModel(a *ent.Article) *model.Article {
 		IPLocation:           a.IPLocation,
 		PrimaryColor:         a.PrimaryColor,
 		IsPrimaryColorManual: a.IsPrimaryColorManual,
+		ShowOnHome:           a.ShowOnHome,
 		PostTags:             tags,
 		PostCategories:       categories,
 		HomeSort:             a.HomeSort,
@@ -413,6 +414,7 @@ func (r *articleRepo) Create(ctx context.Context, params *model.CreateArticlePar
 		SetIPLocation(params.IPLocation).
 		SetPrimaryColor(params.PrimaryColor).
 		SetIsPrimaryColorManual(params.IsPrimaryColorManual).
+		SetShowOnHome(params.ShowOnHome).
 		SetHomeSort(params.HomeSort).
 		SetPinSort(params.PinSort).
 		SetTopImgURL(topImgURL).
@@ -512,6 +514,9 @@ func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.Up
 	if req.IPLocation != nil {
 		updater.SetIPLocation(*req.IPLocation)
 	}
+	if req.ShowOnHome != nil {
+		updater.SetShowOnHome(*req.ShowOnHome)
+	}
 	if req.HomeSort != nil {
 		updater.SetHomeSort(*req.HomeSort)
 	}
@@ -608,10 +613,18 @@ func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.Up
 
 // ListPublic 获取公开的文章列表
 func (r *articleRepo) ListPublic(ctx context.Context, options *model.ListPublicArticlesOptions) ([]*model.Article, int, error) {
+	// 基础查询条件：已发布且未删除
 	baseQuery := r.db.Article.Query().Where(
 		article.StatusEQ(article.StatusPUBLISHED),
 		article.DeletedAtIsNil(),
 	)
+
+	// 只在普通列表（没有指定分类、标签、年份、月份）时应用 show_on_home 过滤
+	// 分类页、标签页、归档页应该显示所有文章
+	isFilteredView := options.CategoryName != "" || options.TagName != "" || options.Year > 0 || options.Month > 0
+	if !isFilteredView {
+		baseQuery = baseQuery.Where(article.ShowOnHomeEQ(true))
+	}
 
 	if options.CategoryName != "" {
 		baseQuery = baseQuery.Where(article.HasPostCategoriesWith(postcategory.NameEQ(options.CategoryName)))
@@ -654,7 +667,7 @@ func (r *articleRepo) ListPublic(ctx context.Context, options *model.ListPublicA
 		article.FieldTitle, article.FieldCoverURL, article.FieldStatus,
 		article.FieldViewCount, article.FieldWordCount, article.FieldReadingTime,
 		article.FieldIPLocation, article.FieldPrimaryColor, article.FieldIsPrimaryColorManual,
-		article.FieldHomeSort, article.FieldPinSort, article.FieldTopImgURL,
+		article.FieldShowOnHome, article.FieldHomeSort, article.FieldPinSort, article.FieldTopImgURL,
 		article.FieldSummaries, article.FieldAbbrlink, article.FieldCopyright,
 		article.FieldCopyrightAuthor, article.FieldCopyrightAuthorHref, article.FieldCopyrightURL,
 	).All(ctx)
@@ -694,7 +707,7 @@ func (r *articleRepo) List(ctx context.Context, options *model.ListArticlesOptio
 			article.FieldTitle, article.FieldCoverURL, article.FieldStatus,
 			article.FieldViewCount, article.FieldWordCount, article.FieldReadingTime,
 			article.FieldIPLocation, article.FieldPrimaryColor, article.FieldIsPrimaryColorManual,
-			article.FieldHomeSort, article.FieldPinSort, article.FieldTopImgURL,
+			article.FieldShowOnHome, article.FieldHomeSort, article.FieldPinSort, article.FieldTopImgURL,
 			article.FieldSummaries, article.FieldAbbrlink, article.FieldCopyright,
 			article.FieldCopyrightAuthor, article.FieldCopyrightAuthorHref, article.FieldCopyrightURL,
 		).All(ctx)
@@ -712,6 +725,7 @@ func (r *articleRepo) List(ctx context.Context, options *model.ListArticlesOptio
 func (r *articleRepo) ListHome(ctx context.Context) ([]*model.Article, error) {
 	entities, err := r.db.Article.Query().
 		Where(
+			article.ShowOnHomeEQ(true),
 			article.HomeSortGT(0),
 			article.StatusEQ(article.StatusPUBLISHED),
 			article.DeletedAtIsNil(),

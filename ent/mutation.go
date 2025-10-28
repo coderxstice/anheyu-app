@@ -2485,6 +2485,7 @@ type ArticleMutation struct {
 	ip_location             *string
 	primary_color           *string
 	is_primary_color_manual *bool
+	show_on_home            *bool
 	home_sort               *int
 	addhome_sort            *int
 	pin_sort                *int
@@ -3259,6 +3260,42 @@ func (m *ArticleMutation) ResetIsPrimaryColorManual() {
 	m.is_primary_color_manual = nil
 }
 
+// SetShowOnHome sets the "show_on_home" field.
+func (m *ArticleMutation) SetShowOnHome(b bool) {
+	m.show_on_home = &b
+}
+
+// ShowOnHome returns the value of the "show_on_home" field in the mutation.
+func (m *ArticleMutation) ShowOnHome() (r bool, exists bool) {
+	v := m.show_on_home
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldShowOnHome returns the old "show_on_home" field's value of the Article entity.
+// If the Article object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ArticleMutation) OldShowOnHome(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldShowOnHome is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldShowOnHome requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldShowOnHome: %w", err)
+	}
+	return oldValue.ShowOnHome, nil
+}
+
+// ResetShowOnHome resets all changes to the "show_on_home" field.
+func (m *ArticleMutation) ResetShowOnHome() {
+	m.show_on_home = nil
+}
+
 // SetHomeSort sets the "home_sort" field.
 func (m *ArticleMutation) SetHomeSort(i int) {
 	m.home_sort = &i
@@ -3962,7 +3999,7 @@ func (m *ArticleMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ArticleMutation) Fields() []string {
-	fields := make([]string, 0, 24)
+	fields := make([]string, 0, 25)
 	if m.deleted_at != nil {
 		fields = append(fields, article.FieldDeletedAt)
 	}
@@ -4004,6 +4041,9 @@ func (m *ArticleMutation) Fields() []string {
 	}
 	if m.is_primary_color_manual != nil {
 		fields = append(fields, article.FieldIsPrimaryColorManual)
+	}
+	if m.show_on_home != nil {
+		fields = append(fields, article.FieldShowOnHome)
 	}
 	if m.home_sort != nil {
 		fields = append(fields, article.FieldHomeSort)
@@ -4071,6 +4111,8 @@ func (m *ArticleMutation) Field(name string) (ent.Value, bool) {
 		return m.PrimaryColor()
 	case article.FieldIsPrimaryColorManual:
 		return m.IsPrimaryColorManual()
+	case article.FieldShowOnHome:
+		return m.ShowOnHome()
 	case article.FieldHomeSort:
 		return m.HomeSort()
 	case article.FieldPinSort:
@@ -4128,6 +4170,8 @@ func (m *ArticleMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldPrimaryColor(ctx)
 	case article.FieldIsPrimaryColorManual:
 		return m.OldIsPrimaryColorManual(ctx)
+	case article.FieldShowOnHome:
+		return m.OldShowOnHome(ctx)
 	case article.FieldHomeSort:
 		return m.OldHomeSort(ctx)
 	case article.FieldPinSort:
@@ -4254,6 +4298,13 @@ func (m *ArticleMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetIsPrimaryColorManual(v)
+		return nil
+	case article.FieldShowOnHome:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetShowOnHome(v)
 		return nil
 	case article.FieldHomeSort:
 		v, ok := value.(int)
@@ -4559,6 +4610,9 @@ func (m *ArticleMutation) ResetField(name string) error {
 		return nil
 	case article.FieldIsPrimaryColorManual:
 		m.ResetIsPrimaryColorManual()
+		return nil
+	case article.FieldShowOnHome:
+		m.ResetShowOnHome()
 		return nil
 	case article.FieldHomeSort:
 		m.ResetHomeSort()

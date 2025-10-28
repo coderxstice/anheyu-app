@@ -46,6 +46,8 @@ type Article struct {
 	PrimaryColor string `json:"primary_color,omitempty"`
 	// 主色调是否为手动设置
 	IsPrimaryColorManual bool `json:"is_primary_color_manual,omitempty"`
+	// 是否在首页显示，发布后默认显示在首页
+	ShowOnHome bool `json:"show_on_home,omitempty"`
 	// 首页推荐文章排序，0 表示不展示，>0 表示展示，数值越小越靠前
 	HomeSort int `json:"home_sort,omitempty"`
 	// 置顶排序，0 表示不置顶，>0 表示置顶，数值越小越靠前
@@ -119,7 +121,7 @@ func (*Article) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case article.FieldSummaries:
 			values[i] = new([]byte)
-		case article.FieldIsPrimaryColorManual, article.FieldCopyright:
+		case article.FieldIsPrimaryColorManual, article.FieldShowOnHome, article.FieldCopyright:
 			values[i] = new(sql.NullBool)
 		case article.FieldID, article.FieldViewCount, article.FieldWordCount, article.FieldReadingTime, article.FieldHomeSort, article.FieldPinSort:
 			values[i] = new(sql.NullInt64)
@@ -232,6 +234,12 @@ func (_m *Article) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field is_primary_color_manual", values[i])
 			} else if value.Valid {
 				_m.IsPrimaryColorManual = value.Bool
+			}
+		case article.FieldShowOnHome:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field show_on_home", values[i])
+			} else if value.Valid {
+				_m.ShowOnHome = value.Bool
 			}
 		case article.FieldHomeSort:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -390,6 +398,9 @@ func (_m *Article) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("is_primary_color_manual=")
 	builder.WriteString(fmt.Sprintf("%v", _m.IsPrimaryColorManual))
+	builder.WriteString(", ")
+	builder.WriteString("show_on_home=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ShowOnHome))
 	builder.WriteString(", ")
 	builder.WriteString("home_sort=")
 	builder.WriteString(fmt.Sprintf("%v", _m.HomeSort))

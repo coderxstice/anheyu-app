@@ -44,6 +44,8 @@ const (
 	FieldPrimaryColor = "primary_color"
 	// FieldIsPrimaryColorManual holds the string denoting the is_primary_color_manual field in the database.
 	FieldIsPrimaryColorManual = "is_primary_color_manual"
+	// FieldShowOnHome holds the string denoting the show_on_home field in the database.
+	FieldShowOnHome = "show_on_home"
 	// FieldHomeSort holds the string denoting the home_sort field in the database.
 	FieldHomeSort = "home_sort"
 	// FieldPinSort holds the string denoting the pin_sort field in the database.
@@ -108,6 +110,7 @@ var Columns = []string{
 	FieldIPLocation,
 	FieldPrimaryColor,
 	FieldIsPrimaryColorManual,
+	FieldShowOnHome,
 	FieldHomeSort,
 	FieldPinSort,
 	FieldTopImgURL,
@@ -168,6 +171,8 @@ var (
 	DefaultPrimaryColor string
 	// DefaultIsPrimaryColorManual holds the default value on creation for the "is_primary_color_manual" field.
 	DefaultIsPrimaryColorManual bool
+	// DefaultShowOnHome holds the default value on creation for the "show_on_home" field.
+	DefaultShowOnHome bool
 	// DefaultHomeSort holds the default value on creation for the "home_sort" field.
 	DefaultHomeSort int
 	// HomeSortValidator is a validator for the "home_sort" field. It is called by the builders before save.
@@ -283,6 +288,11 @@ func ByPrimaryColor(opts ...sql.OrderTermOption) OrderOption {
 // ByIsPrimaryColorManual orders the results by the is_primary_color_manual field.
 func ByIsPrimaryColorManual(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsPrimaryColorManual, opts...).ToFunc()
+}
+
+// ByShowOnHome orders the results by the show_on_home field.
+func ByShowOnHome(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldShowOnHome, opts...).ToFunc()
 }
 
 // ByHomeSort orders the results by the home_sort field.

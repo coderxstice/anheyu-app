@@ -169,20 +169,24 @@ func init() {
 	articleDescIsPrimaryColorManual := articleFields[13].Descriptor()
 	// article.DefaultIsPrimaryColorManual holds the default value on creation for the is_primary_color_manual field.
 	article.DefaultIsPrimaryColorManual = articleDescIsPrimaryColorManual.Default.(bool)
+	// articleDescShowOnHome is the schema descriptor for show_on_home field.
+	articleDescShowOnHome := articleFields[14].Descriptor()
+	// article.DefaultShowOnHome holds the default value on creation for the show_on_home field.
+	article.DefaultShowOnHome = articleDescShowOnHome.Default.(bool)
 	// articleDescHomeSort is the schema descriptor for home_sort field.
-	articleDescHomeSort := articleFields[14].Descriptor()
+	articleDescHomeSort := articleFields[15].Descriptor()
 	// article.DefaultHomeSort holds the default value on creation for the home_sort field.
 	article.DefaultHomeSort = articleDescHomeSort.Default.(int)
 	// article.HomeSortValidator is a validator for the "home_sort" field. It is called by the builders before save.
 	article.HomeSortValidator = articleDescHomeSort.Validators[0].(func(int) error)
 	// articleDescPinSort is the schema descriptor for pin_sort field.
-	articleDescPinSort := articleFields[15].Descriptor()
+	articleDescPinSort := articleFields[16].Descriptor()
 	// article.DefaultPinSort holds the default value on creation for the pin_sort field.
 	article.DefaultPinSort = articleDescPinSort.Default.(int)
 	// article.PinSortValidator is a validator for the "pin_sort" field. It is called by the builders before save.
 	article.PinSortValidator = articleDescPinSort.Validators[0].(func(int) error)
 	// articleDescCopyright is the schema descriptor for copyright field.
-	articleDescCopyright := articleFields[19].Descriptor()
+	articleDescCopyright := articleFields[20].Descriptor()
 	// article.DefaultCopyright holds the default value on creation for the copyright field.
 	article.DefaultCopyright = articleDescCopyright.Default.(bool)
 	commentMixin := schema.Comment{}.Mixin()
