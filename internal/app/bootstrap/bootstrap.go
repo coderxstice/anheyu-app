@@ -327,8 +327,8 @@ func (b *Bootstrapper) initDefaultPages() {
 		{
 			title: "隐私政策",
 			path:  "/privacy",
-			content: `<div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">隐私政策</h1>
+			content: `<div class="container px-4 py-8 mx-auto">
+    <h1 class="mb-6 text-3xl font-bold">隐私政策</h1>
     <div class="prose max-w-none">
         <p>本隐私政策描述了本站如何收集、使用和保护您的个人信息。</p>
         <h2>信息收集</h2>
@@ -356,8 +356,8 @@ func (b *Bootstrapper) initDefaultPages() {
 		{
 			title: "Cookie 政策",
 			path:  "/cookies",
-			content: `<div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">Cookie 政策</h1>
+			content: `<div class="container px-4 py-8 mx-auto">
+    <h1 class="mb-6 text-3xl font-bold">Cookie 政策</h1>
     <div class="prose max-w-none">
         <p>本Cookie政策说明了本站如何使用Cookie和类似技术。</p>
         <h2>什么是Cookie</h2>
@@ -379,8 +379,8 @@ func (b *Bootstrapper) initDefaultPages() {
 		{
 			title: "版权声明",
 			path:  "/copyright",
-			content: `<div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">版权声明</h1>
+			content: `<div class="container px-4 py-8 mx-auto">
+    <h1 class="mb-6 text-3xl font-bold">版权声明</h1>
     <div class="prose max-w-none">
         <p>本版权声明适用于本站的所有内容。</p>
         <h2>版权保护</h2>
