@@ -54,6 +54,9 @@ func (Article) Fields() []ent.Field {
 		field.Bool("is_primary_color_manual").
 			Comment("主色调是否为手动设置").
 			Default(false),
+		field.Bool("show_on_home").
+			Comment("是否在首页显示，发布后默认显示在首页").
+			Default(true),
 		field.Int("home_sort").
 			Comment("首页推荐文章排序，0 表示不展示，>0 表示展示，数值越小越靠前").
 			Default(0).

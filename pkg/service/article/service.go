@@ -283,6 +283,7 @@ func (s *serviceImpl) ToAPIResponse(a *model.Article, useAbbrlinkAsID bool, incl
 		IPLocation:           a.IPLocation,
 		PrimaryColor:         a.PrimaryColor,
 		IsPrimaryColorManual: a.IsPrimaryColorManual,
+		ShowOnHome:           a.ShowOnHome,
 		PostTags:             tags,
 		PostCategories:       categories,
 		HomeSort:             a.HomeSort,
@@ -551,6 +552,11 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 			copyright = *req.Copyright
 		}
 
+		showOnHome := true
+		if req.ShowOnHome != nil {
+			showOnHome = *req.ShowOnHome
+		}
+
 		// 过滤空的摘要字符串
 		filteredSummaries := make([]string, 0, len(req.Summaries))
 		for _, summary := range req.Summaries {
@@ -617,6 +623,7 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 			Summaries:            filteredSummaries,
 			PrimaryColor:         primaryColor,
 			IsPrimaryColorManual: isManual,
+			ShowOnHome:           showOnHome,
 			Abbrlink:             req.Abbrlink,
 			Copyright:            copyright,
 			CopyrightAuthor:      req.CopyrightAuthor,

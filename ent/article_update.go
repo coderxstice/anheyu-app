@@ -286,6 +286,20 @@ func (_u *ArticleUpdate) SetNillableIsPrimaryColorManual(v *bool) *ArticleUpdate
 	return _u
 }
 
+// SetShowOnHome sets the "show_on_home" field.
+func (_u *ArticleUpdate) SetShowOnHome(v bool) *ArticleUpdate {
+	_u.mutation.SetShowOnHome(v)
+	return _u
+}
+
+// SetNillableShowOnHome sets the "show_on_home" field if the given value is not nil.
+func (_u *ArticleUpdate) SetNillableShowOnHome(v *bool) *ArticleUpdate {
+	if v != nil {
+		_u.SetShowOnHome(*v)
+	}
+	return _u
+}
+
 // SetHomeSort sets the "home_sort" field.
 func (_u *ArticleUpdate) SetHomeSort(v int) *ArticleUpdate {
 	_u.mutation.ResetHomeSort()
@@ -746,6 +760,9 @@ func (_u *ArticleUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.IsPrimaryColorManual(); ok {
 		_spec.SetField(article.FieldIsPrimaryColorManual, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.ShowOnHome(); ok {
+		_spec.SetField(article.FieldShowOnHome, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.HomeSort(); ok {
 		_spec.SetField(article.FieldHomeSort, field.TypeInt, value)
@@ -1215,6 +1232,20 @@ func (_u *ArticleUpdateOne) SetIsPrimaryColorManual(v bool) *ArticleUpdateOne {
 func (_u *ArticleUpdateOne) SetNillableIsPrimaryColorManual(v *bool) *ArticleUpdateOne {
 	if v != nil {
 		_u.SetIsPrimaryColorManual(*v)
+	}
+	return _u
+}
+
+// SetShowOnHome sets the "show_on_home" field.
+func (_u *ArticleUpdateOne) SetShowOnHome(v bool) *ArticleUpdateOne {
+	_u.mutation.SetShowOnHome(v)
+	return _u
+}
+
+// SetNillableShowOnHome sets the "show_on_home" field if the given value is not nil.
+func (_u *ArticleUpdateOne) SetNillableShowOnHome(v *bool) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetShowOnHome(*v)
 	}
 	return _u
 }
@@ -1709,6 +1740,9 @@ func (_u *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err er
 	}
 	if value, ok := _u.mutation.IsPrimaryColorManual(); ok {
 		_spec.SetField(article.FieldIsPrimaryColorManual, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.ShowOnHome(); ok {
+		_spec.SetField(article.FieldShowOnHome, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.HomeSort(); ok {
 		_spec.SetField(article.FieldHomeSort, field.TypeInt, value)

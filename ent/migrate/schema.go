@@ -75,6 +75,7 @@ var (
 		{Name: "ip_location", Type: field.TypeString, Nullable: true},
 		{Name: "primary_color", Type: field.TypeString, Nullable: true, Default: "#b4bfe2"},
 		{Name: "is_primary_color_manual", Type: field.TypeBool, Default: false},
+		{Name: "show_on_home", Type: field.TypeBool, Default: true},
 		{Name: "home_sort", Type: field.TypeInt, Default: 0},
 		{Name: "pin_sort", Type: field.TypeInt, Default: 0},
 		{Name: "top_img_url", Type: field.TypeString, Nullable: true},

@@ -120,6 +120,11 @@ func IsPrimaryColorManual(v bool) predicate.Article {
 	return predicate.Article(sql.FieldEQ(FieldIsPrimaryColorManual, v))
 }
 
+// ShowOnHome applies equality check predicate on the "show_on_home" field. It's identical to ShowOnHomeEQ.
+func ShowOnHome(v bool) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldShowOnHome, v))
+}
+
 // HomeSort applies equality check predicate on the "home_sort" field. It's identical to HomeSortEQ.
 func HomeSort(v int) predicate.Article {
 	return predicate.Article(sql.FieldEQ(FieldHomeSort, v))
@@ -883,6 +888,16 @@ func IsPrimaryColorManualEQ(v bool) predicate.Article {
 // IsPrimaryColorManualNEQ applies the NEQ predicate on the "is_primary_color_manual" field.
 func IsPrimaryColorManualNEQ(v bool) predicate.Article {
 	return predicate.Article(sql.FieldNEQ(FieldIsPrimaryColorManual, v))
+}
+
+// ShowOnHomeEQ applies the EQ predicate on the "show_on_home" field.
+func ShowOnHomeEQ(v bool) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldShowOnHome, v))
+}
+
+// ShowOnHomeNEQ applies the NEQ predicate on the "show_on_home" field.
+func ShowOnHomeNEQ(v bool) predicate.Article {
+	return predicate.Article(sql.FieldNEQ(FieldShowOnHome, v))
 }
 
 // HomeSortEQ applies the EQ predicate on the "home_sort" field.

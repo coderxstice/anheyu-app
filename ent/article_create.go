@@ -213,6 +213,20 @@ func (_c *ArticleCreate) SetNillableIsPrimaryColorManual(v *bool) *ArticleCreate
 	return _c
 }
 
+// SetShowOnHome sets the "show_on_home" field.
+func (_c *ArticleCreate) SetShowOnHome(v bool) *ArticleCreate {
+	_c.mutation.SetShowOnHome(v)
+	return _c
+}
+
+// SetNillableShowOnHome sets the "show_on_home" field if the given value is not nil.
+func (_c *ArticleCreate) SetNillableShowOnHome(v *bool) *ArticleCreate {
+	if v != nil {
+		_c.SetShowOnHome(*v)
+	}
+	return _c
+}
+
 // SetHomeSort sets the "home_sort" field.
 func (_c *ArticleCreate) SetHomeSort(v int) *ArticleCreate {
 	_c.mutation.SetHomeSort(v)
@@ -471,6 +485,10 @@ func (_c *ArticleCreate) defaults() error {
 		v := article.DefaultIsPrimaryColorManual
 		_c.mutation.SetIsPrimaryColorManual(v)
 	}
+	if _, ok := _c.mutation.ShowOnHome(); !ok {
+		v := article.DefaultShowOnHome
+		_c.mutation.SetShowOnHome(v)
+	}
 	if _, ok := _c.mutation.HomeSort(); !ok {
 		v := article.DefaultHomeSort
 		_c.mutation.SetHomeSort(v)
@@ -536,6 +554,9 @@ func (_c *ArticleCreate) check() error {
 	}
 	if _, ok := _c.mutation.IsPrimaryColorManual(); !ok {
 		return &ValidationError{Name: "is_primary_color_manual", err: errors.New(`ent: missing required field "Article.is_primary_color_manual"`)}
+	}
+	if _, ok := _c.mutation.ShowOnHome(); !ok {
+		return &ValidationError{Name: "show_on_home", err: errors.New(`ent: missing required field "Article.show_on_home"`)}
 	}
 	if _, ok := _c.mutation.HomeSort(); !ok {
 		return &ValidationError{Name: "home_sort", err: errors.New(`ent: missing required field "Article.home_sort"`)}
@@ -644,6 +665,10 @@ func (_c *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.IsPrimaryColorManual(); ok {
 		_spec.SetField(article.FieldIsPrimaryColorManual, field.TypeBool, value)
 		_node.IsPrimaryColorManual = value
+	}
+	if value, ok := _c.mutation.ShowOnHome(); ok {
+		_spec.SetField(article.FieldShowOnHome, field.TypeBool, value)
+		_node.ShowOnHome = value
 	}
 	if value, ok := _c.mutation.HomeSort(); ok {
 		_spec.SetField(article.FieldHomeSort, field.TypeInt, value)
@@ -1004,6 +1029,18 @@ func (u *ArticleUpsert) SetIsPrimaryColorManual(v bool) *ArticleUpsert {
 // UpdateIsPrimaryColorManual sets the "is_primary_color_manual" field to the value that was provided on create.
 func (u *ArticleUpsert) UpdateIsPrimaryColorManual() *ArticleUpsert {
 	u.SetExcluded(article.FieldIsPrimaryColorManual)
+	return u
+}
+
+// SetShowOnHome sets the "show_on_home" field.
+func (u *ArticleUpsert) SetShowOnHome(v bool) *ArticleUpsert {
+	u.Set(article.FieldShowOnHome, v)
+	return u
+}
+
+// UpdateShowOnHome sets the "show_on_home" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateShowOnHome() *ArticleUpsert {
+	u.SetExcluded(article.FieldShowOnHome)
 	return u
 }
 
@@ -1485,6 +1522,20 @@ func (u *ArticleUpsertOne) SetIsPrimaryColorManual(v bool) *ArticleUpsertOne {
 func (u *ArticleUpsertOne) UpdateIsPrimaryColorManual() *ArticleUpsertOne {
 	return u.Update(func(s *ArticleUpsert) {
 		s.UpdateIsPrimaryColorManual()
+	})
+}
+
+// SetShowOnHome sets the "show_on_home" field.
+func (u *ArticleUpsertOne) SetShowOnHome(v bool) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetShowOnHome(v)
+	})
+}
+
+// UpdateShowOnHome sets the "show_on_home" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateShowOnHome() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateShowOnHome()
 	})
 }
 
@@ -2161,6 +2212,20 @@ func (u *ArticleUpsertBulk) SetIsPrimaryColorManual(v bool) *ArticleUpsertBulk {
 func (u *ArticleUpsertBulk) UpdateIsPrimaryColorManual() *ArticleUpsertBulk {
 	return u.Update(func(s *ArticleUpsert) {
 		s.UpdateIsPrimaryColorManual()
+	})
+}
+
+// SetShowOnHome sets the "show_on_home" field.
+func (u *ArticleUpsertBulk) SetShowOnHome(v bool) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetShowOnHome(v)
+	})
+}
+
+// UpdateShowOnHome sets the "show_on_home" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateShowOnHome() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateShowOnHome()
 	})
 }
 
