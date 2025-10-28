@@ -280,7 +280,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		return nil, tempCleanup, fmt.Errorf("初始化统计服务失败: %w", err)
 	}
 
-	// ✅ 将 NotificationService 和 EmailService 移到这里，在 taskBroker 之前初始化
+	//将 NotificationService 和 EmailService 移到这里，在 taskBroker 之前初始化
 	log.Printf("[DEBUG] 正在初始化 NotificationService...")
 	notificationSvc := notification.NewNotificationService(notificationTypeRepo, userNotificationConfigRepo)
 	log.Printf("[DEBUG] NotificationService 初始化完成")
@@ -475,11 +475,11 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		directLinkService:    directLinkSvc,
 		storagePolicyRepo:    storagePolicyRepo,
 		storagePolicyService: storagePolicySvc,
-		fileService:          fileSvc, // ✅ 新增：暴露给 PRO 版使用
+		fileService:          fileSvc, //新增：暴露给 PRO 版使用
 		mw:                   mw,
 		settingSvc:           settingSvc,
-		tokenSvc:             tokenSvc, // ✅ 新增：暴露给 PRO 版使用
-		userSvc:              userSvc,  // ✅ 新增：暴露给 PRO 版使用
+		tokenSvc:             tokenSvc, //新增：暴露给 PRO 版使用
+		userSvc:              userSvc,  //新增：暴露给 PRO 版使用
 		fileRepo:             fileRepo,
 		entityRepo:           entityRepo,
 		cacheSvc:             cacheSvc,

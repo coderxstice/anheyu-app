@@ -90,7 +90,7 @@ func (b *Bootstrapper) syncSettings() {
 			if createErr != nil {
 				log.Printf("⚠️ 失败: 新增默认配置项 '%s' 失败: %v", def.Key, createErr)
 			} else {
-				log.Printf("    - ✅ 新增配置项: '%s' 已写入数据库。", def.Key)
+				log.Printf("    -新增配置项: '%s' 已写入数据库。", def.Key)
 				newlyAdded++
 			}
 		}
@@ -226,7 +226,7 @@ func (b *Bootstrapper) initLinks() {
 	if catShuoban.ID != 2 {
 		log.Printf("🔥 严重警告: 默认分类 '小伙伴' 创建后的 ID 不是 2 (而是 %d)。申请友链的默认分类功能可能不正常。", catShuoban.ID)
 	}
-	log.Println("    - ✅ 默认分类 '推荐' 和 '小伙伴' 创建成功。")
+	log.Println("    -默认分类 '推荐' 和 '小伙伴' 创建成功。")
 
 	// --- 2. 创建默认标签 ---
 	tagTech, err := tx.LinkTag.Create().
@@ -245,7 +245,7 @@ func (b *Bootstrapper) initLinks() {
 		log.Printf("⚠️ 失败: 创建默认友链标签 '生活' 失败: %v", tx.Rollback())
 		return
 	}
-	log.Println("    - ✅ 默认标签 '技术' 和 '生活' 创建成功。")
+	log.Println("    -默认标签 '技术' 和 '生活' 创建成功。")
 
 	// --- 3. 创建默认友链并关联 ---
 	_, err = tx.Link.Create().
@@ -262,7 +262,7 @@ func (b *Bootstrapper) initLinks() {
 		log.Printf("⚠️ 失败: 创建默认友链 '安知鱼' 失败: %v", tx.Rollback())
 		return
 	}
-	log.Println("    - ✅ 默认友链 '安知鱼' (卡片样式) 创建成功。")
+	log.Println("    -默认友链 '安知鱼' (卡片样式) 创建成功。")
 
 	// 创建第二个默认友链，使用list样式的分类
 	_, err = tx.Link.Create().
@@ -278,7 +278,7 @@ func (b *Bootstrapper) initLinks() {
 		log.Printf("⚠️ 失败: 创建默认友链 '安知鱼' (list样式) 失败: %v", tx.Rollback())
 		return
 	}
-	log.Println("    - ✅ 默认友链 '安知鱼' (列表样式) 创建成功。")
+	log.Println("    -默认友链 '安知鱼' (列表样式) 创建成功。")
 
 	if err := tx.Commit(); err != nil {
 		log.Printf("⚠️ 失败: 提交友链初始化事务失败: %v", err)
@@ -418,7 +418,7 @@ func (b *Bootstrapper) initDefaultPages() {
 		if err != nil {
 			log.Printf("⚠️ 失败: 创建默认页面 '%s' 失败: %v", pageData.title, err)
 		} else {
-			log.Printf("    - ✅ 默认页面 '%s' (%s) 创建成功。", pageData.title, pageData.path)
+			log.Printf("    -默认页面 '%s' (%s) 创建成功。", pageData.title, pageData.path)
 			createdCount++
 		}
 	}

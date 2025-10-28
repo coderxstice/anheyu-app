@@ -492,7 +492,7 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 
 		if req.IPLocation != "" {
 			ipLocation = req.IPLocation
-			log.Printf("[新增文章] ✅ 使用请求中提供的IP属地 - 结果: %s", ipLocation)
+			log.Printf("[新增文章]使用请求中提供的IP属地 - 结果: %s", ipLocation)
 		} else {
 			log.Printf("[新增文章] 请求中未提供IP属地，开始自动获取...")
 			ipLocation = "未知"
@@ -506,7 +506,7 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 				location, err := s.geoService.Lookup(ip)
 				if err == nil {
 					ipLocation = location
-					log.Printf("[新增文章] ✅ IP属地自动获取成功 - IP: %s, 结果: %s", ip, ipLocation)
+					log.Printf("[新增文章]IP属地自动获取成功 - IP: %s, 结果: %s", ip, ipLocation)
 				} else {
 					log.Printf("[新增文章] ❌ IP属地最终设为'未知' - IP: %s, GeoIP查询失败: %v", ip, err)
 				}
@@ -575,7 +575,7 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 			log.Printf("[Service.Create] 开始解析自定义发布时间: %s", *req.CustomPublishedAt)
 			if parsedTime, parseErr := time.Parse(time.RFC3339, *req.CustomPublishedAt); parseErr == nil {
 				customPublishedAt = &parsedTime
-				log.Printf("[Service.Create] ✅ 解析自定义发布时间成功: %v", parsedTime)
+				log.Printf("[Service.Create]解析自定义发布时间成功: %v", parsedTime)
 			} else {
 				log.Printf("[Service.Create] ❌ 解析自定义发布时间失败: %v", parseErr)
 			}
@@ -589,7 +589,7 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 			log.Printf("[Service.Create] 开始解析自定义更新时间: %s", *req.CustomUpdatedAt)
 			if parsedTime, parseErr := time.Parse(time.RFC3339, *req.CustomUpdatedAt); parseErr == nil {
 				customUpdatedAt = &parsedTime
-				log.Printf("[Service.Create] ✅ 解析自定义更新时间成功: %v", parsedTime)
+				log.Printf("[Service.Create]解析自定义更新时间成功: %v", parsedTime)
 			} else {
 				log.Printf("[Service.Create] ❌ 解析自定义更新时间失败: %v", parseErr)
 			}
@@ -739,7 +739,7 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 					return fmt.Errorf("分类ID %d 不存在，请刷新页面重新选择分类", categoryDBID)
 				}
 			}
-			log.Printf("[更新文章] ✅ 所有分类ID验证通过")
+			log.Printf("[更新文章]所有分类ID验证通过")
 
 			// 如果文章被分配到多个分类，则检查其中是否包含"系列"分类
 			if len(newCategoryDBIDs) > 1 {
@@ -827,7 +827,7 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 				fetchedLocation, err := s.geoService.Lookup(ip)
 				if err == nil {
 					location = fetchedLocation
-					log.Printf("[更新文章] ✅ IP属地自动获取成功 - IP: %s, 结果: %s", ip, location)
+					log.Printf("[更新文章]IP属地自动获取成功 - IP: %s, 结果: %s", ip, location)
 				} else {
 					log.Printf("[更新文章] ❌ IP属地最终设为'未知' - IP: %s, GeoIP查询失败: %v", ip, err)
 				}
@@ -863,7 +863,7 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 					return fmt.Errorf("标签ID %d 不存在，请刷新页面重新选择标签", tagDBID)
 				}
 			}
-			log.Printf("[更新文章] ✅ 所有标签ID验证通过")
+			log.Printf("[更新文章]所有标签ID验证通过")
 		}
 
 		// 计算需要增加和减少计数的标签/分类

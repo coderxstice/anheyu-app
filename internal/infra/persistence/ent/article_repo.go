@@ -435,7 +435,7 @@ func (r *articleRepo) Create(ctx context.Context, params *model.CreateArticlePar
 
 	// 支持自定义发布时间
 	if params.CustomPublishedAt != nil {
-		log.Printf("[Repository.Create] ✅ 设置自定义发布时间: %v", *params.CustomPublishedAt)
+		log.Printf("[Repository.Create]设置自定义发布时间: %v", *params.CustomPublishedAt)
 		creator.SetCreatedAt(*params.CustomPublishedAt)
 	} else {
 		log.Printf("[Repository.Create] ⚠️ 未提供自定义发布时间，将使用默认值")
@@ -443,7 +443,7 @@ func (r *articleRepo) Create(ctx context.Context, params *model.CreateArticlePar
 
 	// 支持自定义更新时间
 	if params.CustomUpdatedAt != nil {
-		log.Printf("[Repository.Create] ✅ 设置自定义更新时间: %v", *params.CustomUpdatedAt)
+		log.Printf("[Repository.Create]设置自定义更新时间: %v", *params.CustomUpdatedAt)
 		creator.SetUpdatedAt(*params.CustomUpdatedAt)
 	} else {
 		log.Printf("[Repository.Create] ⚠️ 未提供自定义更新时间，将使用默认值")
@@ -456,7 +456,7 @@ func (r *articleRepo) Create(ctx context.Context, params *model.CreateArticlePar
 		return nil, err
 	}
 
-	log.Printf("[Repository.Create] ✅ 保存成功，数据库ID: %d", newEntity.ID)
+	log.Printf("[Repository.Create]保存成功，数据库ID: %d", newEntity.ID)
 	log.Printf("[Repository.Create] 数据库中的 CreatedAt: %v", newEntity.CreatedAt)
 	log.Printf("[Repository.Create] 数据库中的 UpdatedAt: %v", newEntity.UpdatedAt)
 
@@ -567,7 +567,7 @@ func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.Up
 	if req.CustomPublishedAt != nil && *req.CustomPublishedAt != "" {
 		log.Printf("[Repository.Update] 收到自定义发布时间字符串: %s", *req.CustomPublishedAt)
 		if customTime, parseErr := time.Parse(time.RFC3339, *req.CustomPublishedAt); parseErr == nil {
-			log.Printf("[Repository.Update] ✅ 解析成功，设置自定义发布时间: %v", customTime)
+			log.Printf("[Repository.Update]解析成功，设置自定义发布时间: %v", customTime)
 			updater.SetCreatedAt(customTime)
 		} else {
 			log.Printf("[Repository.Update] ❌ 解析自定义发布时间失败: %v", parseErr)
@@ -581,7 +581,7 @@ func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.Up
 	if req.CustomUpdatedAt != nil && *req.CustomUpdatedAt != "" {
 		log.Printf("[Repository.Update] 收到自定义更新时间字符串: %s", *req.CustomUpdatedAt)
 		if customTime, parseErr := time.Parse(time.RFC3339, *req.CustomUpdatedAt); parseErr == nil {
-			log.Printf("[Repository.Update] ✅ 解析成功，设置自定义更新时间: %v", customTime)
+			log.Printf("[Repository.Update]解析成功，设置自定义更新时间: %v", customTime)
 			updater.SetUpdatedAt(customTime)
 		} else {
 			log.Printf("[Repository.Update] ❌ 解析失败，使用当前时间。错误: %v", parseErr)
@@ -599,7 +599,7 @@ func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.Up
 		return nil, err
 	}
 
-	log.Printf("[Repository.Update] ✅ 保存成功")
+	log.Printf("[Repository.Update]保存成功")
 	log.Printf("[Repository.Update] 数据库中的 CreatedAt: %v", updatedEntity.CreatedAt)
 	log.Printf("[Repository.Update] 数据库中的 UpdatedAt: %v", updatedEntity.UpdatedAt)
 

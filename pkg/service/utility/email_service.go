@@ -160,7 +160,7 @@ func (s *emailService) SendCommentNotification(newComment *model.Comment, parent
 
 	log.Printf("[DEBUG] 场景二检查: notifyReply=%t, shouldSendReplyEmail=%t", notifyReply, shouldSendReplyEmail)
 
-	// ✅ 核心修改：检查被回复用户的实时通知设置，而不是评论创建时的设置
+	//核心修改：检查被回复用户的实时通知设置，而不是评论创建时的设置
 	userAllowNotification := true // 默认允许（游客评论）
 	if shouldSendReplyEmail && parentComment != nil && parentComment.Author.Email != nil && *parentComment.Author.Email != "" {
 		// 如果父评论有关联的用户ID，查询该用户的实时通知设置
