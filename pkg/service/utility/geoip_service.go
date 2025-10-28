@@ -75,7 +75,7 @@ func (s *smartGeoIPService) Lookup(ipStr string) (string, error) {
 		return "未知", err
 	}
 
-	log.Printf("[IP属地查询] ✅ IP属地查询成功 - IP: %s, 结果: %s", ipStr, location)
+	log.Printf("[IP属地查询]IP属地查询成功 - IP: %s, 结果: %s", ipStr, location)
 	return location, nil
 }
 

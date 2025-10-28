@@ -316,7 +316,7 @@ func (s *visitorStatService) processVisitTask(task *visitTask) {
 		fmt.Printf("[性能-异步] URL统计更新耗时: %v\n", time.Since(urlStatStart))
 
 		totalTaskTime := time.Since(taskStartTime)
-		fmt.Printf("[性能-异步] ✅ Worker任务总耗时: %v\n", totalTaskTime)
+		fmt.Printf("[性能-异步]Worker任务总耗时: %v\n", totalTaskTime)
 
 		if totalTaskTime > 100*time.Millisecond {
 			fmt.Printf("[性能警告-异步] Worker任务耗时超过100ms: %v\n", totalTaskTime)
@@ -442,7 +442,7 @@ func (s *visitorStatService) RecordVisit(ctx context.Context, c *gin.Context, re
 
 	if enablePerfLog {
 		totalTime := time.Since(startTime)
-		fmt.Printf("[性能] ✅ RecordVisit总耗时: %v\n", totalTime)
+		fmt.Printf("[性能]RecordVisit总耗时: %v\n", totalTime)
 
 		if totalTime > 10*time.Millisecond {
 			fmt.Printf("[性能警告] RecordVisit耗时超过10ms: %v\n", totalTime)

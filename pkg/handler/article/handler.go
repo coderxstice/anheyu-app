@@ -223,7 +223,7 @@ func (h *Handler) Create(c *gin.Context) {
 		return
 	}
 
-	log.Printf("[Handler.Create] ✅ 文章创建成功")
+	log.Printf("[Handler.Create]文章创建成功")
 	response.Success(c, article, "创建成功")
 }
 
@@ -345,7 +345,7 @@ func (h *Handler) Update(c *gin.Context) {
 		return
 	}
 
-	log.Printf("[Handler.Update] ✅ 文章更新成功")
+	log.Printf("[Handler.Update]文章更新成功")
 	response.Success(c, article, "更新成功")
 }
 

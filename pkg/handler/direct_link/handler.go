@@ -21,7 +21,7 @@ import (
 
 // DirectLinkHandler 负责处理直链相关的HTTP请求。
 type DirectLinkHandler struct {
-	// ✅ 修正 #1: 将这里的字段类型从 *direct_link.Service (结构体指针)
+	//修正 #1: 将这里的字段类型从 *direct_link.Service (结构体指针)
 	// 修改为 direct_link.Service (接口)。
 	svc              direct_link.Service
 	storageProviders map[constant.StoragePolicyType]storage.IStorageProvider

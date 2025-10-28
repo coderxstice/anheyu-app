@@ -272,7 +272,7 @@ var AllSettings = []Definition{
 </details><h2 data-line="26" id="友情链接申请">友情链接申请</h2>
 <p data-line="28">很高兴能和非常多的朋友们交流，如果你也想加入友链，可以在下方留言，我会在不忙的时候统一添加。<strong>（从历史经验上看，90%的友链在3个工作日内被添加）</strong></p>
 <details class="folding-tag" open="">
-  <summary> ✅ 友链相关须知 </summary>
+  <summary>友链相关须知 </summary>
   <div class="content">
 <h2 data-line="0" id="你提交的信息有可能被修改">你提交的信息有可能被修改</h2>
 <ol data-line="2">
