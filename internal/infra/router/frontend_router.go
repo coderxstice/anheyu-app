@@ -732,6 +732,132 @@ func ensureScriptTagsClosed(html string) string {
 	return html
 }
 
+// MenuItem 定义导航菜单项结构
+type MenuItem struct {
+	Title      string     `json:"title"`
+	Path       string     `json:"path"`
+	Icon       string     `json:"icon"`
+	IsExternal bool       `json:"isExternal"`
+	Items      []MenuItem `json:"items"`
+}
+
+// generateBreadcrumbList 根据当前路径生成面包屑导航的结构化数据
+// 返回符合 Schema.org BreadcrumbList 规范的 JSON 数据
+func generateBreadcrumbList(path string, baseURL string, settingSvc setting.SettingService) []map[string]interface{} {
+	siteName := settingSvc.Get(constant.KeyAppName.String())
+
+	breadcrumbs := []map[string]interface{}{
+		{
+			"@type":    "ListItem",
+			"position": 1,
+			"name":     siteName,
+			"item":     baseURL,
+		},
+	}
+
+	// 如果是首页，只返回首页项
+	if path == "/" || path == "" {
+		return breadcrumbs
+	}
+
+	// 从配置中读取导航菜单
+	menuJSON := settingSvc.Get(constant.KeyHeaderMenu.String())
+	var menuGroups []MenuItem
+	if err := json.Unmarshal([]byte(menuJSON), &menuGroups); err != nil {
+		log.Printf("解析导航菜单配置失败: %v", err)
+		// 解析失败时返回基础面包屑
+		return breadcrumbs
+	}
+
+	// 构建路径到菜单项的映射
+	navItems := make(map[string]string)
+	for _, group := range menuGroups {
+		for _, item := range group.Items {
+			if item.Path != "" && !item.IsExternal {
+				navItems[item.Path] = item.Title
+			}
+		}
+	}
+
+	// 处理文章详情页 /posts/{slug}
+	if strings.HasPrefix(path, "/posts/") {
+		// 添加"全部文章"面包屑（如果在菜单中存在）
+		archivesTitle := "全部文章"
+		if title, exists := navItems["/archives"]; exists {
+			archivesTitle = title
+		}
+		breadcrumbs = append(breadcrumbs, map[string]interface{}{
+			"@type":    "ListItem",
+			"position": 2,
+			"name":     archivesTitle,
+			"item":     baseURL + "/archives",
+		})
+		// 当前文章页（不需要 item 属性）
+		slug := strings.TrimPrefix(path, "/posts/")
+		breadcrumbs = append(breadcrumbs, map[string]interface{}{
+			"@type":    "ListItem",
+			"position": 3,
+			"name":     slug, // 实际渲染时会被文章标题替换
+		})
+		return breadcrumbs
+	}
+
+	// 处理导航菜单中的页面
+	if title, exists := navItems[path]; exists {
+		breadcrumbs = append(breadcrumbs, map[string]interface{}{
+			"@type":    "ListItem",
+			"position": 2,
+			"name":     title,
+		})
+		return breadcrumbs
+	}
+
+	// 处理分类详情页 /categories/{slug}
+	if strings.HasPrefix(path, "/categories/") {
+		categoriesTitle := "分类列表"
+		if title, exists := navItems["/categories"]; exists {
+			categoriesTitle = title
+		}
+		breadcrumbs = append(breadcrumbs, map[string]interface{}{
+			"@type":    "ListItem",
+			"position": 2,
+			"name":     categoriesTitle,
+			"item":     baseURL + "/categories",
+		})
+		categorySlug := strings.TrimPrefix(path, "/categories/")
+		breadcrumbs = append(breadcrumbs, map[string]interface{}{
+			"@type":    "ListItem",
+			"position": 3,
+			"name":     categorySlug,
+		})
+		return breadcrumbs
+	}
+
+	// 处理标签详情页 /tags/{slug}
+	if strings.HasPrefix(path, "/tags/") {
+		tagsTitle := "标签列表"
+		if title, exists := navItems["/tags"]; exists {
+			tagsTitle = title
+		}
+		breadcrumbs = append(breadcrumbs, map[string]interface{}{
+			"@type":    "ListItem",
+			"position": 2,
+			"name":     tagsTitle,
+			"item":     baseURL + "/tags",
+		})
+		tagSlug := strings.TrimPrefix(path, "/tags/")
+		breadcrumbs = append(breadcrumbs, map[string]interface{}{
+			"@type":    "ListItem",
+			"position": 3,
+			"name":     tagSlug,
+		})
+		return breadcrumbs
+	}
+
+	// 默认情况，只返回首页
+	return breadcrumbs
+}
+
 // convertImagesToLazyLoad 将HTML中的图片转换为懒加载格式
 // 在服务端渲染时直接生成懒加载HTML，避免浏览器在解析时就开始加载图片
 func convertImagesToLazyLoad(html string) string {
@@ -804,6 +930,53 @@ func convertImagesToLazyLoad(html string) string {
 	return result
 }
 
+// SocialLink 定义社交链接结构
+type SocialLink struct {
+	Title string `json:"title"`
+	Link  string `json:"link"`
+	Icon  string `json:"icon"`
+}
+
+// generateSocialMediaLinks 从配置中提取社交媒体链接用于结构化数据
+func generateSocialMediaLinks(settingSvc setting.SettingService) []string {
+	var allLinks []string
+
+	// 获取左侧社交链接
+	leftLinksJSON := settingSvc.Get(constant.KeyFooterSocialBarLeft.String())
+	var leftLinks []SocialLink
+	if err := json.Unmarshal([]byte(leftLinksJSON), &leftLinks); err == nil {
+		for _, link := range leftLinks {
+			if link.Link != "" && !strings.HasSuffix(link.Link, ".xml") {
+				// 过滤掉 RSS 链接和相对路径
+				if strings.HasPrefix(link.Link, "http://") || strings.HasPrefix(link.Link, "https://") {
+					allLinks = append(allLinks, link.Link)
+				}
+			}
+		}
+	}
+
+	// 获取右侧社交链接
+	rightLinksJSON := settingSvc.Get(constant.KeyFooterSocialBarRight.String())
+	var rightLinks []SocialLink
+	if err := json.Unmarshal([]byte(rightLinksJSON), &rightLinks); err == nil {
+		for _, link := range rightLinks {
+			if link.Link != "" {
+				// 过滤掉相对路径
+				if strings.HasPrefix(link.Link, "http://") || strings.HasPrefix(link.Link, "https://") {
+					allLinks = append(allLinks, link.Link)
+				}
+			}
+		}
+	}
+
+	// 如果没有社交链接，返回空数组
+	if len(allLinks) == 0 {
+		return []string{}
+	}
+
+	return allLinks
+}
+
 // renderHTMLPage 渲染HTML页面的通用函数（版本）
 func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSvc article_service.Service, templates *template.Template) {
 	// 🚫 强制禁用HTML页面的所有缓存
@@ -865,6 +1038,17 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 				keywords = articleResponse.Keywords
 			}
 
+			// 生成面包屑导航数据
+			baseURL := settingSvc.Get(constant.KeySiteURL.String())
+			breadcrumbList := generateBreadcrumbList(c.Request.URL.Path, baseURL, settingSvc)
+			// 将文章标题更新到面包屑的最后一项
+			if len(breadcrumbList) > 0 {
+				breadcrumbList[len(breadcrumbList)-1]["name"] = articleResponse.Title
+			}
+
+			// 生成社交媒体链接
+			socialMediaLinks := generateSocialMediaLinks(settingSvc)
+
 			// 使用传入的模板实例渲染
 			render := CustomHTMLRender{Templates: templates}
 			c.Render(http.StatusOK, render.Instance("index.html", gin.H{
@@ -889,6 +1073,10 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 				"articleModifiedTime":  articleResponse.UpdatedAt.Format(time.RFC3339),
 				"articleAuthor":        articleResponse.CopyrightAuthor,
 				"articleTags":          articleTags,
+				// --- 面包屑导航数据 ---
+				"breadcrumbList": breadcrumbList,
+				// --- 社交媒体链接 ---
+				"socialMediaLinks": socialMediaLinks,
 				// --- 自定义HTML（包含CSS/JS） ---
 				"customHeaderHTML": template.HTML(customHeaderHTML),
 				"customFooterHTML": template.HTML(customFooterHTML),
@@ -905,6 +1093,13 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 	// 处理自定义HTML，确保script标签正确闭合
 	customHeaderHTML := ensureScriptTagsClosed(settingSvc.Get(constant.KeyCustomHeaderHTML.String()))
 	customFooterHTML := ensureScriptTagsClosed(settingSvc.Get(constant.KeyCustomFooterHTML.String()))
+
+	// 生成面包屑导航数据
+	baseURL := settingSvc.Get(constant.KeySiteURL.String())
+	breadcrumbList := generateBreadcrumbList(c.Request.URL.Path, baseURL, settingSvc)
+
+	// 生成社交媒体链接
+	socialMediaLinks := generateSocialMediaLinks(settingSvc)
 
 	// 使用传入的模板实例渲染
 	render := CustomHTMLRender{Templates: templates}
@@ -930,6 +1125,10 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 		"articleModifiedTime":  nil,
 		"articleAuthor":        nil,
 		"articleTags":          nil,
+		// --- 面包屑导航数据 ---
+		"breadcrumbList": breadcrumbList,
+		// --- 社交媒体链接 ---
+		"socialMediaLinks": socialMediaLinks,
 		// --- 自定义HTML（包含CSS/JS） ---
 		"customHeaderHTML": template.HTML(customHeaderHTML),
 		"customFooterHTML": template.HTML(customFooterHTML),
