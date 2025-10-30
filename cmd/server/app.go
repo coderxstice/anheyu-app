@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-10-17 10:35:28
- * @LastEditTime: 2025-10-17 14:10:25
+ * @LastEditTime: 2025-10-30 13:58:24
  * @LastEditors: 安知鱼
  */
 // anheyu-app/cmd/server/app.go
@@ -461,7 +461,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	}
 	engine.ForwardedByClientIP = true
 	engine.Use(middleware.Cors())
-	router.SetupFrontend(engine, settingSvc, articleSvc, cacheSvc, content)
+	router.SetupFrontend(engine, settingSvc, articleSvc, cacheSvc, content, cfg)
 	appRouter.Setup(engine)
 
 	// 将所有初始化好的组件装配到 App 实例中
@@ -475,11 +475,11 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		directLinkService:    directLinkSvc,
 		storagePolicyRepo:    storagePolicyRepo,
 		storagePolicyService: storagePolicySvc,
-		fileService:          fileSvc, //新增：暴露给 PRO 版使用
+		fileService:          fileSvc,
 		mw:                   mw,
 		settingSvc:           settingSvc,
-		tokenSvc:             tokenSvc, //新增：暴露给 PRO 版使用
-		userSvc:              userSvc,  //新增：暴露给 PRO 版使用
+		tokenSvc:             tokenSvc,
+		userSvc:              userSvc,
 		fileRepo:             fileRepo,
 		entityRepo:           entityRepo,
 		cacheSvc:             cacheSvc,
