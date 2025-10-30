@@ -3,7 +3,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-21 17:18:09
- * @LastEditTime: 2025-10-17 15:01:53
+ * @LastEditTime: 2025-10-30 10:48:37
  * @LastEditors: 安知鱼
  */
 package constant
@@ -250,6 +250,8 @@ const (
 	KeyAboutPageCareers              SettingKey = "about.page.careers"
 	KeyAboutPageSkillsTips           SettingKey = "about.page.skills_tips"
 	KeyAboutPageStatisticsBackground SettingKey = "about.page.statistics_background"
+	KeyAboutPageCustomCode           SettingKey = "about.page.custom_code"
+	KeyAboutPageCustomCodeHtml       SettingKey = "about.page.custom_code_html"
 
 	KeyMusicPlayerEnable         SettingKey = "music.player.enable"
 	KeyMusicPlayerPlaylistID     SettingKey = "music.player.playlist_id"
