@@ -17,6 +17,7 @@ import (
 
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/parser"
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/strutil"
+	"github.com/anzhiyu-c/anheyu-app/pkg/config"
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
 	"github.com/anzhiyu-c/anheyu-app/pkg/handler/rss"
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
@@ -33,6 +34,16 @@ type CustomHTMLRender struct{ Templates *template.Template }
 
 func (r CustomHTMLRender) Instance(name string, data interface{}) render.Render {
 	return render.HTML{Template: r.Templates, Name: name, Data: data}
+}
+
+// 全局 Debug 标志
+var isDebugMode bool
+
+// debugLog 根据 Debug 配置条件性地打印日志
+func debugLog(format string, v ...interface{}) {
+	if isDebugMode {
+		log.Printf(format, v...)
+	}
 }
 
 // ：生成内容ETag
@@ -355,11 +366,11 @@ func tryServeStaticFile(c *gin.Context, filePath string, staticMode bool, distFS
 			c.Header("Vary", "Accept-Encoding")
 			c.Header("Content-Type", getContentType(filePath))
 
-			// log.Printf("提供外部原始静态文件: %s", fullPath)
+			// debugLog("提供外部原始静态文件: %s", fullPath)
 			c.File(fullPath)
 			return true
 		} else {
-			log.Printf("外部文件未找到: %s, 错误: %v", fullPath, err)
+			debugLog("外部文件未找到: %s, 错误: %v", fullPath, err)
 		}
 	} else {
 		// 内嵌主题模式：从内嵌文件系统查找文件
@@ -388,12 +399,12 @@ func tryServeStaticFile(c *gin.Context, filePath string, staticMode bool, distFS
 				c.Header("Vary", "Accept-Encoding")
 				c.Header("Content-Type", getContentType(filePath))
 
-				// log.Printf("提供内嵌原始静态文件: %s", filePath)
+				// debugLog("提供内嵌原始静态文件: %s", filePath)
 				http.ServeFileFS(c.Writer, c.Request, distFS, filePath)
 				return true
 			}
 		} else {
-			log.Printf("内嵌文件未找到: %s, 错误: %v", filePath, err)
+			debugLog("内嵌文件未找到: %s, 错误: %v", filePath, err)
 		}
 	}
 	return false
@@ -471,7 +482,7 @@ func isStaticModeActive() bool {
 	// 额外检查：确保 index.html 不是空文件
 	if fileInfo, err := os.Stat(indexPath); err == nil {
 		if fileInfo.Size() == 0 {
-			log.Printf("警告：发现空的 index.html 文件，视为非静态模式")
+			debugLog("警告：发现空的 index.html 文件，视为非静态模式")
 			return false
 		}
 	}
@@ -495,7 +506,7 @@ func isStaticModeActive() bool {
 		// 简单检查是否包含基本的 HTML 结构
 		if !strings.Contains(strings.ToLower(contentStr), "<html") &&
 			!strings.Contains(strings.ToLower(contentStr), "<!doctype") {
-			log.Printf("警告：index.html 似乎不是有效的 HTML 文件，视为非静态模式")
+			debugLog("警告：index.html 似乎不是有效的 HTML 文件，视为非静态模式")
 			return false
 		}
 	}
@@ -504,8 +515,11 @@ func isStaticModeActive() bool {
 }
 
 // SetupFrontend 封装了所有与前端静态资源和模板相关的配置（动态模式）
-func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articleSvc article_service.Service, cacheSvc utility.CacheService, embeddedFS embed.FS) {
-	log.Println("正在配置动态前端路由系统...")
+func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articleSvc article_service.Service, cacheSvc utility.CacheService, embeddedFS embed.FS, cfg *config.Config) {
+	// 从配置中读取 Debug 模式
+	isDebugMode = cfg.GetBool(config.KeyServerDebug)
+
+	debugLog("正在配置动态前端路由系统...")
 
 	// 配置 RSS feed
 	rssSvc := rss_service.NewService(articleSvc, settingSvc, cacheSvc)
@@ -513,7 +527,7 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 	engine.GET("/rss.xml", rssHandler.GetRSSFeed)
 	engine.GET("/feed.xml", rssHandler.GetRSSFeed)
 	engine.GET("/atom.xml", rssHandler.GetRSSFeed)
-	log.Println("RSS feed 路由已配置: /rss.xml, /feed.xml 和 /atom.xml")
+	debugLog("RSS feed 路由已配置: /rss.xml, /feed.xml 和 /atom.xml")
 
 	// 准备一个通用的模板函数映射
 	funcMap := template.FuncMap{
@@ -563,10 +577,10 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 			c.Header("Vary", "Accept-Encoding")
 
 			if staticMode {
-				log.Printf("动态路由：使用外部主题压缩文件 %s", compressedPath)
+				debugLog("动态路由：使用外部主题压缩文件 %s", compressedPath)
 				c.File(compressedPath)
 			} else {
-				log.Printf("动态路由：使用内嵌压缩文件 %s", compressedPath)
+				debugLog("动态路由：使用内嵌压缩文件 %s", compressedPath)
 				http.ServeFileFS(c.Writer, c.Request, distFS, compressedPath)
 			}
 			return
@@ -601,7 +615,7 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 				c.Header("Vary", "Accept-Encoding")
 				c.Header("Content-Type", getContentType(filePath))
 
-				log.Printf("动态路由：使用外部主题原始文件 %s", c.Param("filepath"))
+				debugLog("动态路由：使用外部主题原始文件 %s", c.Param("filepath"))
 				staticHandler := http.StripPrefix("/static", http.FileServer(http.Dir(filepath.Join(overrideDir, "static"))))
 				staticHandler.ServeHTTP(c.Writer, c.Request)
 			} else {
@@ -635,7 +649,7 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 					c.Header("Vary", "Accept-Encoding")
 					c.Header("Content-Type", getContentType(filePath))
 
-					log.Printf("动态路由：使用内嵌原始文件 %s", c.Param("filepath"))
+					debugLog("动态路由：使用内嵌原始文件 %s", c.Param("filepath"))
 					http.ServeFileFS(c.Writer, c.Request, distFS, staticFilePath)
 				} else {
 					c.Status(http.StatusNotFound)
@@ -658,25 +672,25 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 
 		// 判断是否应该返回 index.html 让前端路由处理
 		if shouldReturnIndexHTML(path) {
-			log.Printf("SPA路由请求: %s，返回index.html让前端处理", path)
+			debugLog("SPA路由请求: %s，返回index.html让前端处理", path)
 
 			// 渲染HTML页面
 			staticMode := isStaticModeActive()
 			var templateInstance *template.Template
 
 			if staticMode {
-				log.Printf("动态路由：当前使用外部主题模式，路径: %s", path)
+				debugLog("动态路由：当前使用外部主题模式，路径: %s", path)
 				// 每次都重新解析外部模板，确保获取最新内容
 				overrideDir := "static"
 				parsedTemplates, err := template.New("index.html").Funcs(funcMap).ParseFiles(filepath.Join(overrideDir, "index.html"))
 				if err != nil {
-					log.Printf("解析外部HTML模板失败: %v，回退到内嵌模板", err)
+					debugLog("解析外部HTML模板失败: %v，回退到内嵌模板", err)
 					templateInstance = embeddedTemplates
 				} else {
 					templateInstance = parsedTemplates
 				}
 			} else {
-				log.Printf("动态路由：当前使用内嵌主题模式，路径: %s", path)
+				debugLog("动态路由：当前使用内嵌主题模式，路径: %s", path)
 				templateInstance = embeddedTemplates
 			}
 
@@ -693,17 +707,17 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 
 		// 如果是静态文件请求但找不到文件，返回404
 		if filePath != "" && isStaticFileRequest(filePath) {
-			log.Printf("静态文件请求未找到: %s", filePath)
+			debugLog("静态文件请求未找到: %s", filePath)
 			response.Fail(c, http.StatusNotFound, "文件未找到")
 			return
 		}
 
 		// 其他未知请求，返回404
-		log.Printf("未知请求: %s", path)
+		debugLog("未知请求: %s", path)
 		response.Fail(c, http.StatusNotFound, "页面未找到")
 	})
 
-	log.Println("动态前端路由系统配置完成")
+	debugLog("动态前端路由系统配置完成")
 }
 
 // ensureScriptTagsClosed 确保HTML中的script标签正确闭合
@@ -726,7 +740,7 @@ func ensureScriptTagsClosed(html string) string {
 		for i := 0; i < missingCloseTags; i++ {
 			html += "</script>"
 		}
-		log.Printf("⚠️ 检测到 %d 个未闭合的 script 标签，已自动补全", missingCloseTags)
+		debugLog("⚠️ 检测到 %d 个未闭合的 script 标签，已自动补全", missingCloseTags)
 	}
 
 	return html
@@ -764,7 +778,7 @@ func generateBreadcrumbList(path string, baseURL string, settingSvc setting.Sett
 	menuJSON := settingSvc.Get(constant.KeyHeaderMenu.String())
 	var menuGroups []MenuItem
 	if err := json.Unmarshal([]byte(menuJSON), &menuGroups); err != nil {
-		log.Printf("解析导航菜单配置失败: %v", err)
+		debugLog("解析导航菜单配置失败: %v", err)
 		// 解析失败时返回基础面包屑
 		return breadcrumbs
 	}
@@ -993,7 +1007,7 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 		articleResponse, err := articleSvc.GetPublicBySlugOrID(c.Request.Context(), slug)
 		if err != nil {
 			// 文章不存在或已删除，返回404
-			log.Printf("文章未找到或已删除: %s, 错误: %v", slug, err)
+			debugLog("文章未找到或已删除: %s, 错误: %v", slug, err)
 			response.Fail(c, http.StatusNotFound, "文章未找到")
 			return
 		}
