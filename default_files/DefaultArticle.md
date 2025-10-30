@@ -57,7 +57,7 @@ p 标签支持写 自定义 css
 
 ### 🤖 基本演示
 
-**加粗**，<u>下划线</u>，_斜体_，~~删除线~~，上标^26^，下标~1~，`inline code`，[超链接](https://github.com/imzbf)
+**加粗**，<u>下划线</u>，_斜体_，~~删除线~~，上标^26^，下标~1~，`inline code`，[超链接](https://github.com/anzhiyu-c)
 
 > 引用：《I Have a Dream》
 
