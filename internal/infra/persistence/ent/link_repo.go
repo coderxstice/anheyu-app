@@ -109,9 +109,16 @@ func (r *linkRepo) AdminCreate(ctx context.Context, req *model.AdminCreateLinkRe
 		SetSortOrder(req.SortOrder).
 		SetSkipHealthCheck(req.SkipHealthCheck)
 
-	// 处理单个标签
+	// 处理单个标签，验证标签是否存在
 	if req.TagID != nil {
-		create.AddTagIDs(*req.TagID)
+		exists, err := r.client.LinkTag.Query().Where(linktag.ID(*req.TagID)).Exist(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if exists {
+			create.AddTagIDs(*req.TagID)
+		}
+		// 如果标签不存在，静默忽略（不添加标签）
 	}
 
 	if req.Logo != "" {
@@ -154,9 +161,16 @@ func (r *linkRepo) Update(ctx context.Context, id int, req *model.AdminUpdateLin
 		SetSkipHealthCheck(req.SkipHealthCheck).
 		ClearTags()
 
-	// 处理单个标签
+	// 处理单个标签，验证标签是否存在
 	if req.TagID != nil {
-		updater.AddTagIDs(*req.TagID)
+		exists, err := r.client.LinkTag.Query().Where(linktag.ID(*req.TagID)).Exist(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if exists {
+			updater.AddTagIDs(*req.TagID)
+		}
+		// 如果标签不存在，静默忽略（不添加标签）
 	}
 
 	_, err := updater.Save(ctx)
