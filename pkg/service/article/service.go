@@ -57,6 +57,7 @@ type serviceImpl struct {
 	repo             repository.ArticleRepository
 	postTagRepo      repository.PostTagRepository
 	postCategoryRepo repository.PostCategoryRepository
+	commentRepo      repository.CommentRepository
 	txManager        repository.TransactionManager
 	cacheSvc         utility.CacheService
 	geoService       utility.GeoIPService
@@ -75,6 +76,7 @@ func NewService(
 	repo repository.ArticleRepository,
 	postTagRepo repository.PostTagRepository,
 	postCategoryRepo repository.PostCategoryRepository,
+	commentRepo repository.CommentRepository,
 	txManager repository.TransactionManager,
 	cacheSvc utility.CacheService,
 	geoService utility.GeoIPService,
@@ -91,6 +93,7 @@ func NewService(
 		repo:             repo,
 		postTagRepo:      postTagRepo,
 		postCategoryRepo: postCategoryRepo,
+		commentRepo:      commentRepo,
 		txManager:        txManager,
 		cacheSvc:         cacheSvc,
 		geoService:       geoService,
@@ -1049,6 +1052,34 @@ func (s *serviceImpl) ListPublic(ctx context.Context, options *model.ListPublicA
 		a.ContentMd = ""
 		list[i] = *s.ToAPIResponse(a, true, false)
 	}
+
+	// 批量查询评论数量
+	if len(articles) > 0 {
+		targetPaths := make([]string, len(articles))
+		for i, a := range articles {
+			// 构造target_path：优先使用abbrlink，如果没有则使用公共ID
+			if a.Abbrlink != "" {
+				targetPaths[i] = fmt.Sprintf("/posts/%s", a.Abbrlink)
+			} else {
+				targetPaths[i] = fmt.Sprintf("/posts/%s", a.ID)
+			}
+		}
+
+		commentCounts, err := s.commentRepo.CountByTargetPaths(ctx, targetPaths)
+		if err != nil {
+			log.Printf("[ListPublic] 查询评论数量失败: %v", err)
+			// 即使查询失败也继续返回文章列表，只是评论数量为0
+		} else {
+			// 将评论数量设置到每篇文章
+			for i := range list {
+				targetPath := targetPaths[i]
+				if count, ok := commentCounts[targetPath]; ok {
+					list[i].CommentCount = count
+				}
+			}
+		}
+	}
+
 	return &model.ArticleListResponse{List: list, Total: int64(total), Page: options.Page, PageSize: options.PageSize}, nil
 }
 

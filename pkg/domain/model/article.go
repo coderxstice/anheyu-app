@@ -127,6 +127,7 @@ type ArticleResponse struct {
 	CopyrightAuthorHref  string                  `json:"copyright_author_href"`
 	CopyrightURL         string                  `json:"copyright_url"`
 	Keywords             string                  `json:"keywords"`
+	CommentCount         int                     `json:"comment_count"`
 }
 
 // 用于上一篇/下一篇/相关文章的简化信息响应

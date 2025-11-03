@@ -1006,12 +1006,10 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 		slug := strings.TrimPrefix(c.Request.URL.Path, "/posts/")
 		articleResponse, err := articleSvc.GetPublicBySlugOrID(c.Request.Context(), slug)
 		if err != nil {
-			// 文章不存在或已删除，返回404
-			debugLog("文章未找到或已删除: %s, 错误: %v", slug, err)
-			response.Fail(c, http.StatusNotFound, "文章未找到")
-			return
-		}
-		if articleResponse != nil {
+			// 文章不存在或已删除，返回 index.html 让前端处理404
+			debugLog("文章未找到或已删除: %s, 错误: %v，交给前端处理", slug, err)
+			// 不返回 JSON 错误，继续执行到默认页面渲染逻辑
+		} else if articleResponse != nil {
 
 			pageTitle := fmt.Sprintf("%s - %s", articleResponse.Title, settingSvc.Get(constant.KeyAppName.String()))
 
