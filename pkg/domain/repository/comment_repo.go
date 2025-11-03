@@ -91,4 +91,7 @@ type CommentRepository interface {
 
 	// 分页查找所有已发布的评论，按创建时间降序
 	FindAllPublishedPaginated(ctx context.Context, page, pageSize int) ([]*model.Comment, int64, error)
+
+	// 批量统计多个文章的评论数量
+	CountByTargetPaths(ctx context.Context, targetPaths []string) (map[string]int, error)
 }

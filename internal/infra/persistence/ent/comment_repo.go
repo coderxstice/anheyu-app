@@ -371,3 +371,42 @@ func min(a, b int) int {
 	}
 	return b
 }
+
+// CountByTargetPaths 批量统计多个文章的评论数量
+func (r *commentRepo) CountByTargetPaths(ctx context.Context, targetPaths []string) (map[string]int, error) {
+	if len(targetPaths) == 0 {
+		return make(map[string]int), nil
+	}
+
+	// 查询所有已发布的评论，按target_path分组统计数量
+	var results []struct {
+		TargetPath string `json:"target_path"`
+		Count      int    `json:"count"`
+	}
+
+	err := r.db.Comment.Query().
+		Where(
+			entcomment.TargetPathIn(targetPaths...),
+			entcomment.StatusEQ(int(model.StatusPublished)),
+			entcomment.DeletedAtIsNil(),
+		).
+		Modify(func(s *sql.Selector) {
+			s.Select(entcomment.FieldTargetPath, "COUNT(*) as count").
+				GroupBy(entcomment.FieldTargetPath)
+		}).
+		Scan(ctx, &results)
+
+	if err != nil {
+		log.Printf("[ERROR] CountByTargetPaths: 查询失败: %v", err)
+		return nil, err
+	}
+
+	// 转换为map
+	countMap := make(map[string]int)
+	for _, result := range results {
+		countMap[result.TargetPath] = result.Count
+	}
+
+	log.Printf("[DEBUG] CountByTargetPaths: 统计结果: %+v", countMap)
+	return countMap, nil
+}
