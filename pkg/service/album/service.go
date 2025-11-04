@@ -1,9 +1,12 @@
 package album
 
 import (
+	"archive/zip"
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"image"
 	_ "image/gif"
@@ -88,6 +91,52 @@ type BatchImportParams struct {
 	DisplayOrder int
 }
 
+// ExportAlbumData 定义导出的相册数据结构
+type ExportAlbumData struct {
+	Version  string                 `json:"version"`   // 导出格式版本
+	ExportAt time.Time              `json:"export_at"` // 导出时间
+	Albums   []ExportAlbumItem      `json:"albums"`    // 相册列表
+	Meta     map[string]interface{} `json:"meta"`      // 元数据信息
+}
+
+// ExportAlbumItem 单个相册的导出数据
+type ExportAlbumItem struct {
+	CategoryID   *uint     `json:"category_id"`
+	ImageUrl     string    `json:"image_url"`
+	BigImageUrl  string    `json:"big_image_url"`
+	DownloadUrl  string    `json:"download_url"`
+	ThumbParam   string    `json:"thumb_param"`
+	BigParam     string    `json:"big_param"`
+	Tags         string    `json:"tags"`
+	Width        int       `json:"width"`
+	Height       int       `json:"height"`
+	FileSize     int64     `json:"file_size"`
+	Format       string    `json:"format"`
+	AspectRatio  string    `json:"aspect_ratio"`
+	FileHash     string    `json:"file_hash"`
+	DisplayOrder int       `json:"display_order"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+// ImportAlbumRequest 导入相册的请求
+type ImportAlbumRequest struct {
+	Data              ExportAlbumData `json:"data"`                // 导入的数据
+	OverwriteExisting bool            `json:"overwrite_existing"`  // 是否覆盖已存在的相册
+	SkipExisting      bool            `json:"skip_existing"`       // 是否跳过已存在的相册
+	DefaultCategoryID *uint           `json:"default_category_id"` // 默认分类ID（如果数据中没有指定）
+}
+
+// ImportAlbumResult 导入结果
+type ImportAlbumResult struct {
+	TotalCount   int      `json:"total_count"`   // 总数
+	SuccessCount int      `json:"success_count"` // 成功数
+	SkippedCount int      `json:"skipped_count"` // 跳过数
+	FailedCount  int      `json:"failed_count"`  // 失败数
+	Errors       []string `json:"errors"`        // 错误信息列表
+	CreatedIDs   []uint   `json:"created_ids"`   // 创建的相册ID列表
+}
+
 // AlbumService 定义了相册相关的业务逻辑接口
 type AlbumService interface {
 	CreateAlbum(ctx context.Context, params CreateAlbumParams) (*model.Album, error)
@@ -96,6 +145,11 @@ type AlbumService interface {
 	UpdateAlbum(ctx context.Context, id uint, params UpdateAlbumParams) (*model.Album, error)
 	FindAlbums(ctx context.Context, params FindAlbumsParams) (*repository.PageResult[model.Album], error)
 	IncrementAlbumStat(ctx context.Context, id uint, statType string) error
+	ExportAlbums(ctx context.Context, albumIDs []uint) (*ExportAlbumData, error)
+	ExportAlbumsToZip(ctx context.Context, albumIDs []uint) ([]byte, error)
+	ImportAlbums(ctx context.Context, req *ImportAlbumRequest) (*ImportAlbumResult, error)
+	ImportAlbumsFromJSON(ctx context.Context, jsonData []byte, req *ImportAlbumRequest) (*ImportAlbumResult, error)
+	ImportAlbumsFromZip(ctx context.Context, zipData []byte, req *ImportAlbumRequest) (*ImportAlbumResult, error)
 }
 
 // albumService 是 AlbumService 接口的实现
@@ -447,4 +501,260 @@ func (s *albumService) applyDefaultAlbumParams(album *model.Album) {
 	if album.BigParam == "" {
 		album.BigParam = s.settingSvc.Get(constant.KeyDefaultBigParam.String())
 	}
+}
+
+// ExportAlbums 导出相册为 JSON 格式
+func (s *albumService) ExportAlbums(ctx context.Context, albumIDs []uint) (*ExportAlbumData, error) {
+	log.Printf("[导出相册] 开始导出 %d 个相册", len(albumIDs))
+
+	exportData := &ExportAlbumData{
+		Version:  "1.0",
+		ExportAt: time.Now(),
+		Albums:   make([]ExportAlbumItem, 0, len(albumIDs)),
+		Meta: map[string]interface{}{
+			"total_albums": len(albumIDs),
+			"export_by":    "anheyu-app",
+		},
+	}
+
+	for _, albumID := range albumIDs {
+		// 获取相册详情
+		album, err := s.albumRepo.FindByID(ctx, albumID)
+		if err != nil {
+			log.Printf("[导出相册] 获取相册 %d 失败: %v", albumID, err)
+			continue
+		}
+		if album == nil {
+			log.Printf("[导出相册] 相册 %d 不存在", albumID)
+			continue
+		}
+
+		// 构建导出项
+		exportItem := ExportAlbumItem{
+			CategoryID:   album.CategoryID,
+			ImageUrl:     album.ImageUrl,
+			BigImageUrl:  album.BigImageUrl,
+			DownloadUrl:  album.DownloadUrl,
+			ThumbParam:   album.ThumbParam,
+			BigParam:     album.BigParam,
+			Tags:         album.Tags,
+			Width:        album.Width,
+			Height:       album.Height,
+			FileSize:     album.FileSize,
+			Format:       album.Format,
+			AspectRatio:  album.AspectRatio,
+			FileHash:     album.FileHash,
+			DisplayOrder: album.DisplayOrder,
+			CreatedAt:    album.CreatedAt,
+			UpdatedAt:    album.UpdatedAt,
+		}
+
+		exportData.Albums = append(exportData.Albums, exportItem)
+	}
+
+	log.Printf("[导出相册] 成功导出 %d 个相册", len(exportData.Albums))
+	return exportData, nil
+}
+
+// ExportAlbumsToZip 导出相册为 ZIP 压缩包
+func (s *albumService) ExportAlbumsToZip(ctx context.Context, albumIDs []uint) ([]byte, error) {
+	// 先导出为 JSON
+	exportData, err := s.ExportAlbums(ctx, albumIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	// 创建 ZIP buffer
+	buf := new(bytes.Buffer)
+	zipWriter := zip.NewWriter(buf)
+
+	// 添加 JSON 数据文件
+	jsonData, err := json.MarshalIndent(exportData, "", "  ")
+	if err != nil {
+		return nil, fmt.Errorf("序列化 JSON 失败: %w", err)
+	}
+
+	jsonFile, err := zipWriter.Create("albums.json")
+	if err != nil {
+		return nil, fmt.Errorf("创建 ZIP 文件失败: %w", err)
+	}
+	if _, err := jsonFile.Write(jsonData); err != nil {
+		return nil, fmt.Errorf("写入 JSON 数据失败: %w", err)
+	}
+
+	// 添加 README 文件
+	readme, err := zipWriter.Create("README.md")
+	if err == nil {
+		readmeContent := fmt.Sprintf(`# 相册导出包
+
+- 导出时间: %s
+- 导出版本: %s
+- 相册总数: %d
+
+## 文件说明
+
+- albums.json: 包含所有相册的完整数据（JSON格式）
+
+## 导入说明
+
+使用本系统的导入功能，选择 albums.json 文件即可导入所有相册。
+`,
+			exportData.ExportAt.Format("2006-01-02 15:04:05"),
+			exportData.Version,
+			len(exportData.Albums),
+		)
+		readme.Write([]byte(readmeContent))
+	}
+
+	// 关闭 ZIP writer
+	if err := zipWriter.Close(); err != nil {
+		return nil, fmt.Errorf("关闭 ZIP 文件失败: %w", err)
+	}
+
+	return buf.Bytes(), nil
+}
+
+// ImportAlbums 从导出的数据导入相册
+func (s *albumService) ImportAlbums(ctx context.Context, req *ImportAlbumRequest) (*ImportAlbumResult, error) {
+	log.Printf("[导入相册] 开始导入 %d 个相册", len(req.Data.Albums))
+
+	result := &ImportAlbumResult{
+		TotalCount: len(req.Data.Albums),
+		Errors:     make([]string, 0),
+		CreatedIDs: make([]uint, 0),
+	}
+
+	// 获取现有的所有相册哈希，用于去重
+	existingHashesMap := make(map[string]uint)
+	if req.SkipExisting {
+		allExisting, err := s.albumRepo.FindListByOptions(ctx, repository.AlbumQueryOptions{
+			PageQuery: repository.PageQuery{
+				Page:     1,
+				PageSize: 100000, // 获取所有记录用于去重
+			},
+		})
+		if err != nil {
+			log.Printf("获取现有相册列表失败: %v", err)
+		} else {
+			for _, album := range allExisting.Items {
+				if album.FileHash != "" {
+					existingHashesMap[album.FileHash] = album.ID
+				}
+			}
+		}
+	}
+
+	for idx, albumData := range req.Data.Albums {
+		log.Printf("[导入相册] 处理第 %d/%d 个相册", idx+1, result.TotalCount)
+
+		// 检查是否已存在（通过 FileHash）
+		if req.SkipExisting && albumData.FileHash != "" {
+			if existingID, exists := existingHashesMap[albumData.FileHash]; exists {
+				log.Printf("[导入相册] 跳过已存在的相册: ID=%d, FileHash=%s", existingID, albumData.FileHash)
+				result.SkippedCount++
+				continue
+			}
+		}
+
+		// 确定分类ID
+		categoryID := albumData.CategoryID
+		if categoryID == nil && req.DefaultCategoryID != nil {
+			categoryID = req.DefaultCategoryID
+		}
+
+		// 解析标签
+		var tags []string
+		if albumData.Tags != "" {
+			tags = strings.Split(albumData.Tags, ",")
+		}
+
+		// 创建相册
+		createdAlbum, err := s.CreateAlbum(ctx, CreateAlbumParams{
+			CategoryID:   categoryID,
+			ImageUrl:     albumData.ImageUrl,
+			BigImageUrl:  albumData.BigImageUrl,
+			DownloadUrl:  albumData.DownloadUrl,
+			ThumbParam:   albumData.ThumbParam,
+			BigParam:     albumData.BigParam,
+			Tags:         tags,
+			Width:        albumData.Width,
+			Height:       albumData.Height,
+			FileSize:     albumData.FileSize,
+			Format:       albumData.Format,
+			FileHash:     albumData.FileHash,
+			DisplayOrder: albumData.DisplayOrder,
+		})
+
+		if err != nil {
+			// 检查是否为重复错误
+			if strings.Contains(err.Error(), "已存在") || strings.Contains(err.Error(), "重复") {
+				result.SkippedCount++
+				log.Printf("[导入相册] 跳过重复相册: %v", err)
+			} else {
+				errMsg := fmt.Sprintf("导入相册失败 (索引 %d): %v", idx+1, err)
+				log.Printf("[导入相册] %s", errMsg)
+				result.Errors = append(result.Errors, errMsg)
+				result.FailedCount++
+			}
+			continue
+		}
+
+		log.Printf("[导入相册] 成功导入相册: ID=%d", createdAlbum.ID)
+		result.CreatedIDs = append(result.CreatedIDs, createdAlbum.ID)
+		result.SuccessCount++
+
+		// 将新添加的哈希值加入集合，防止本批次内重复
+		if albumData.FileHash != "" {
+			existingHashesMap[albumData.FileHash] = createdAlbum.ID
+		}
+	}
+
+	log.Printf("[导入相册] 导入完成 - 总数: %d, 成功: %d, 跳过: %d, 失败: %d",
+		result.TotalCount, result.SuccessCount, result.SkippedCount, result.FailedCount)
+
+	return result, nil
+}
+
+// ImportAlbumsFromJSON 从 JSON 数据导入相册
+func (s *albumService) ImportAlbumsFromJSON(ctx context.Context, jsonData []byte, req *ImportAlbumRequest) (*ImportAlbumResult, error) {
+	var exportData ExportAlbumData
+	if err := json.Unmarshal(jsonData, &exportData); err != nil {
+		return nil, fmt.Errorf("解析 JSON 数据失败: %w", err)
+	}
+
+	req.Data = exportData
+	return s.ImportAlbums(ctx, req)
+}
+
+// ImportAlbumsFromZip 从 ZIP 压缩包导入相册
+func (s *albumService) ImportAlbumsFromZip(ctx context.Context, zipData []byte, req *ImportAlbumRequest) (*ImportAlbumResult, error) {
+	// 读取 ZIP 内容
+	zipReader, err := zip.NewReader(bytes.NewReader(zipData), int64(len(zipData)))
+	if err != nil {
+		return nil, fmt.Errorf("读取 ZIP 文件失败: %w", err)
+	}
+
+	// 查找 albums.json 文件
+	var jsonData []byte
+	for _, file := range zipReader.File {
+		if file.Name == "albums.json" {
+			rc, err := file.Open()
+			if err != nil {
+				return nil, fmt.Errorf("打开 albums.json 失败: %w", err)
+			}
+			defer rc.Close()
+
+			jsonData, err = io.ReadAll(rc)
+			if err != nil {
+				return nil, fmt.Errorf("读取 albums.json 失败: %w", err)
+			}
+			break
+		}
+	}
+
+	if jsonData == nil {
+		return nil, fmt.Errorf("ZIP 文件中未找到 albums.json")
+	}
+
+	return s.ImportAlbumsFromJSON(ctx, jsonData, req)
 }
