@@ -322,6 +322,9 @@ func (r *Router) registerAlbumRoutes(api *gin.RouterGroup) {
 		albums.POST("/batch-import", r.albumHandler.BatchImportAlbums)
 		albums.PUT("/update/:id", r.albumHandler.UpdateAlbum)
 		albums.DELETE("/delete/:id", r.albumHandler.DeleteAlbum)
+		// 相册导入导出功能
+		albums.POST("/export", r.albumHandler.ExportAlbums)
+		albums.POST("/import", r.albumHandler.ImportAlbums)
 	}
 }
 

@@ -2,8 +2,12 @@ package album_handler
 
 import (
 	"fmt"
+	"io"
+	"log"
 	"net/http"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
@@ -347,6 +351,168 @@ func (h *AlbumHandler) BatchImportAlbums(c *gin.Context) {
 
 	message := fmt.Sprintf("批量导入完成！成功 %d 张，失败 %d 张，跳过 %d 张",
 		result.SuccessCount, result.FailCount, result.SkipCount)
+
+	response.Success(c, responseData, message)
+}
+
+// ExportAlbums 处理导出相册的请求
+// @Summary      导出相册
+// @Description  导出选定的相册数据，支持 JSON 和 ZIP 格式
+// @Tags         相册管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json,application/zip
+// @Param        body  body  object{album_ids=[]int,format=string}  true  "导出信息"
+// @Success      200  {file}  file  "导出文件"
+// @Failure      400  {object}  response.Response  "参数错误"
+// @Failure      500  {object}  response.Response  "导出失败"
+// @Router       /albums/export [post]
+func (h *AlbumHandler) ExportAlbums(c *gin.Context) {
+	var req struct {
+		AlbumIDs []uint `json:"album_ids" binding:"required"`
+		Format   string `json:"format"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Fail(c, http.StatusBadRequest, "参数错误: "+err.Error())
+		return
+	}
+
+	// 如果没有指定格式，默认为 JSON
+	if req.Format == "" {
+		req.Format = "json"
+	}
+
+	// 根据格式导出
+	if strings.ToLower(req.Format) == "zip" {
+		// 导出为 ZIP
+		zipData, err := h.albumSvc.ExportAlbumsToZip(c.Request.Context(), req.AlbumIDs)
+		if err != nil {
+			log.Printf("导出相册为 ZIP 失败: %v", err)
+			response.Fail(c, http.StatusInternalServerError, "导出失败: "+err.Error())
+			return
+		}
+
+		// 设置文件下载响应头
+		filename := fmt.Sprintf("albums-export-%s.zip", time.Now().Format("20060102-150405"))
+		c.Header("Content-Description", "File Transfer")
+		c.Header("Content-Disposition", "attachment; filename="+filename)
+		c.Header("Content-Type", "application/zip")
+		c.Header("Content-Transfer-Encoding", "binary")
+		c.Data(http.StatusOK, "application/zip", zipData)
+	} else {
+		// 导出为 JSON
+		exportData, err := h.albumSvc.ExportAlbums(c.Request.Context(), req.AlbumIDs)
+		if err != nil {
+			log.Printf("导出相册失败: %v", err)
+			response.Fail(c, http.StatusInternalServerError, "导出失败: "+err.Error())
+			return
+		}
+
+		// 设置文件下载响应头
+		filename := fmt.Sprintf("albums-export-%s.json", time.Now().Format("20060102-150405"))
+		c.Header("Content-Description", "File Transfer")
+		c.Header("Content-Disposition", "attachment; filename="+filename)
+		c.Header("Content-Type", "application/json")
+		c.Header("Content-Transfer-Encoding", "binary")
+		c.JSON(http.StatusOK, exportData)
+	}
+}
+
+// ImportAlbums 处理导入相册的请求
+// @Summary      导入相册
+// @Description  从 JSON 或 ZIP 文件导入相册数据
+// @Tags         相册管理
+// @Security     BearerAuth
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        file formData file true "相册数据文件（JSON或ZIP格式）"
+// @Param        skip_existing formData bool false "是否跳过已存在的相册"
+// @Param        overwrite_existing formData bool false "是否覆盖已存在的相册"
+// @Param        default_category_id formData int false "默认分类ID"
+// @Success      200  {object}  response.Response  "导入成功"
+// @Failure      400  {object}  response.Response  "参数错误"
+// @Failure      500  {object}  response.Response  "导入失败"
+// @Router       /albums/import [post]
+func (h *AlbumHandler) ImportAlbums(c *gin.Context) {
+	file, err := c.FormFile("file")
+	if err != nil {
+		response.Fail(c, http.StatusBadRequest, "请上传相册数据文件")
+		return
+	}
+
+	// 读取文件内容
+	fileContent, err := file.Open()
+	if err != nil {
+		log.Printf("读取上传文件失败: %v", err)
+		response.Fail(c, http.StatusInternalServerError, "读取文件失败: "+err.Error())
+		return
+	}
+	defer fileContent.Close()
+
+	data, err := io.ReadAll(fileContent)
+	if err != nil {
+		log.Printf("读取文件数据失败: %v", err)
+		response.Fail(c, http.StatusInternalServerError, "读取文件数据失败: "+err.Error())
+		return
+	}
+
+	// 解析参数
+	skipExisting := c.DefaultPostForm("skip_existing", "true") == "true"
+	overwriteExisting := c.DefaultPostForm("overwrite_existing", "false") == "true"
+
+	var defaultCategoryID *uint
+	if catIDStr := c.PostForm("default_category_id"); catIDStr != "" {
+		if id, err := strconv.ParseUint(catIDStr, 10, 32); err == nil {
+			categoryIDVal := uint(id)
+			defaultCategoryID = &categoryIDVal
+		}
+	}
+
+	// 构建导入请求
+	req := &album.ImportAlbumRequest{
+		SkipExisting:      skipExisting,
+		OverwriteExisting: overwriteExisting,
+		DefaultCategoryID: defaultCategoryID,
+	}
+
+	// 根据文件扩展名判断格式
+	var result *album.ImportAlbumResult
+	ext := strings.ToLower(filepath.Ext(file.Filename))
+
+	if ext == ".zip" {
+		// 从 ZIP 导入
+		result, err = h.albumSvc.ImportAlbumsFromZip(c.Request.Context(), data, req)
+	} else if ext == ".json" {
+		// 从 JSON 导入
+		result, err = h.albumSvc.ImportAlbumsFromJSON(c.Request.Context(), data, req)
+	} else {
+		response.Fail(c, http.StatusBadRequest, "不支持的文件格式，仅支持 .json 和 .zip 文件")
+		return
+	}
+
+	if err != nil {
+		log.Printf("导入相册失败: %v", err)
+		response.Fail(c, http.StatusInternalServerError, "导入失败: "+err.Error())
+		return
+	}
+
+	// 构造响应数据
+	responseData := gin.H{
+		"total_count":   result.TotalCount,
+		"success_count": result.SuccessCount,
+		"skipped_count": result.SkippedCount,
+		"failed_count":  result.FailedCount,
+		"created_ids":   result.CreatedIDs,
+	}
+
+	// 如果有错误，添加错误详情
+	if len(result.Errors) > 0 {
+		responseData["errors"] = result.Errors
+	}
+
+	message := fmt.Sprintf("导入完成！成功 %d 个，跳过 %d 个，失败 %d 个",
+		result.SuccessCount, result.SkippedCount, result.FailedCount)
 
 	response.Success(c, responseData, message)
 }
