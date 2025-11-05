@@ -3,7 +3,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-21 17:18:09
- * @LastEditTime: 2025-10-30 10:48:37
+ * @LastEditTime: 2025-11-05 16:29:05
  * @LastEditors: 安知鱼
  */
 package constant
@@ -143,6 +143,7 @@ const (
 	KeyPostDefaultDoubleColumn   SettingKey = "post.default.double_column"
 	KeyPostDefaultPageSize       SettingKey = "post.default.page_size"
 	KeyPostExpirationTime        SettingKey = "post.expiration_time"
+	Key404PageDefaultImage       SettingKey = "post.page404.default_image"
 	KeyPostRewardEnable          SettingKey = "post.reward.enable"
 	KeyPostRewardWeChatQR        SettingKey = "post.reward.wechat_qr"
 	KeyPostRewardAlipayQR        SettingKey = "post.reward.alipay_qr"
@@ -256,6 +257,11 @@ const (
 	KeyMusicPlayerEnable         SettingKey = "music.player.enable"
 	KeyMusicPlayerPlaylistID     SettingKey = "music.player.playlist_id"
 	KeyMusicPlayerCustomPlaylist SettingKey = "music.player.custom_playlist"
+	KeyMusicVinylBackground      SettingKey = "music.vinyl.background"
+	KeyMusicVinylOuter           SettingKey = "music.vinyl.outer"
+	KeyMusicVinylInner           SettingKey = "music.vinyl.inner"
+	KeyMusicVinylNeedle          SettingKey = "music.vinyl.needle"
+	KeyMusicVinylGroove          SettingKey = "music.vinyl.groove"
 
 	// --- CDN缓存清除配置 ---
 	KeyCDNEnable    SettingKey = "cdn.enable"

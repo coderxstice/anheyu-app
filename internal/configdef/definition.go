@@ -133,6 +133,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyPostDefaultDoubleColumn, Value: "true", Comment: "文章默认双栏", IsPublic: true},
 	{Key: constant.KeyPostDefaultPageSize, Value: "12", Comment: "文章默认分页大小", IsPublic: true},
 	{Key: constant.KeyPostExpirationTime, Value: "365", Comment: "文章过期时间(单位天)", IsPublic: true},
+	{Key: constant.Key404PageDefaultImage, Value: "/static/img/background-effect.gif", Comment: "404页面默认图片", IsPublic: true},
 	{Key: constant.KeyPostRewardEnable, Value: "true", Comment: "文章打赏功能是否启用", IsPublic: true},
 	{Key: constant.KeyPostRewardWeChatQR, Value: "https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png", Comment: "微信打赏二维码图片URL", IsPublic: true},
 	{Key: constant.KeyPostRewardAlipayQR, Value: "https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png", Comment: "支付宝打赏二维码图片URL", IsPublic: true},
@@ -353,6 +354,11 @@ var AllSettings = []Definition{
 	{Key: constant.KeyMusicPlayerEnable, Value: "false", Comment: "是否启用音乐播放器功能 (true/false)", IsPublic: true},
 	{Key: constant.KeyMusicPlayerPlaylistID, Value: "8152976493", Comment: "音乐播放器播放列表ID (网易云歌单ID)", IsPublic: true},
 	{Key: constant.KeyMusicPlayerCustomPlaylist, Value: "", Comment: "自定义音乐歌单JSON文件链接", IsPublic: true},
+	{Key: constant.KeyMusicVinylBackground, Value: "/static/img/music-vinyl-background.png", Comment: "音乐播放器唱片背景图", IsPublic: true},
+	{Key: constant.KeyMusicVinylOuter, Value: "/static/img/music-vinyl-outer.png", Comment: "音乐播放器唱片外圈图", IsPublic: true},
+	{Key: constant.KeyMusicVinylInner, Value: "/static/img/music-vinyl-inner.png", Comment: "音乐播放器唱片内圈图", IsPublic: true},
+	{Key: constant.KeyMusicVinylNeedle, Value: "/static/img/music-vinyl-needle.png", Comment: "音乐播放器撞针图", IsPublic: true},
+	{Key: constant.KeyMusicVinylGroove, Value: "/static/img/music-vinyl-groove.png", Comment: "音乐播放器凹槽背景图", IsPublic: true},
 
 	// --- CDN缓存清除配置 ---
 	{Key: constant.KeyCDNEnable, Value: "false", Comment: "是否启用CDN缓存清除功能 (true/false)", IsPublic: false},
