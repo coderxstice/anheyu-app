@@ -108,6 +108,9 @@ func (s *authService) createDefaultArticle(ctx context.Context) {
 
 // Login 实现了用户登录的完整业务逻辑
 func (s *authService) Login(ctx context.Context, email, password string) (*model.User, error) {
+	// 统一将email转换为小写
+	email = strings.ToLower(strings.TrimSpace(email))
+	
 	user, err := s.userRepo.FindByEmail(ctx, email)
 	if err != nil {
 		return nil, fmt.Errorf("数据库查询失败: %w", err)
