@@ -44,6 +44,15 @@ func (r *linkRepo) Create(ctx context.Context, req *model.ApplyLinkRequest, cate
 	if req.Email != "" {
 		create.SetEmail(req.Email)
 	}
+	if req.Type != "" {
+		create.SetType(link.Type(req.Type))
+	}
+	if req.OriginalURL != "" {
+		create.SetOriginalURL(req.OriginalURL)
+	}
+	if req.UpdateReason != "" {
+		create.SetUpdateReason(req.UpdateReason)
+	}
 
 	savedLink, err := create.Save(ctx)
 	if err != nil {
@@ -136,6 +145,18 @@ func (r *linkRepo) AdminCreate(ctx context.Context, req *model.AdminCreateLinkRe
 		create.SetEmail(req.Email)
 	}
 
+	if req.Type != "" {
+		create.SetType(link.Type(req.Type))
+	}
+
+	if req.OriginalURL != "" {
+		create.SetOriginalURL(req.OriginalURL)
+	}
+
+	if req.UpdateReason != "" {
+		create.SetUpdateReason(req.UpdateReason)
+	}
+
 	savedLink, err := create.Save(ctx)
 	if err != nil {
 		return nil, err
@@ -168,6 +189,17 @@ func (r *linkRepo) Update(ctx context.Context, id int, req *model.AdminUpdateLin
 		SetSortOrder(req.SortOrder).
 		SetSkipHealthCheck(req.SkipHealthCheck).
 		ClearTags()
+
+	// 设置申请类型相关字段
+	if req.Type != "" {
+		updater.SetType(link.Type(req.Type))
+	}
+	if req.OriginalURL != "" {
+		updater.SetOriginalURL(req.OriginalURL)
+	}
+	if req.UpdateReason != "" {
+		updater.SetUpdateReason(req.UpdateReason)
+	}
 
 	// 处理单个标签，验证标签是否存在
 	if req.TagID != nil {
@@ -259,6 +291,9 @@ func mapEntLinkToDTO(entLink *ent.Link) *model.LinkDTO {
 		Status:          string(entLink.Status),
 		Siteshot:        entLink.Siteshot,
 		Email:           entLink.Email,
+		Type:            string(entLink.Type),
+		OriginalURL:     entLink.OriginalURL,
+		UpdateReason:    entLink.UpdateReason,
 		SortOrder:       entLink.SortOrder,
 		SkipHealthCheck: entLink.SkipHealthCheck,
 	}

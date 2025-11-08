@@ -306,6 +306,9 @@ var (
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"PENDING", "APPROVED", "REJECTED", "INVALID"}, Default: "PENDING"},
 		{Name: "siteshot", Type: field.TypeString, Nullable: true},
 		{Name: "email", Type: field.TypeString, Nullable: true},
+		{Name: "type", Type: field.TypeEnum, Nullable: true, Enums: []string{"NEW", "UPDATE"}},
+		{Name: "original_url", Type: field.TypeString, Nullable: true},
+		{Name: "update_reason", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "sort_order", Type: field.TypeInt, Default: 0},
 		{Name: "skip_health_check", Type: field.TypeBool, Default: false},
 		{Name: "link_category_links", Type: field.TypeInt},
@@ -318,7 +321,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "links_link_categories_links",
-				Columns:    []*schema.Column{LinksColumns[10]},
+				Columns:    []*schema.Column{LinksColumns[13]},
 				RefColumns: []*schema.Column{LinkCategoriesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

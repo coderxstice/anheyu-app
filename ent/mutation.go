@@ -11305,6 +11305,9 @@ type LinkMutation struct {
 	status            *link.Status
 	siteshot          *string
 	email             *string
+	_type             *link.Type
+	original_url      *string
+	update_reason     *string
 	sort_order        *int
 	addsort_order     *int
 	skip_health_check *bool
@@ -11721,6 +11724,153 @@ func (m *LinkMutation) ResetEmail() {
 	delete(m.clearedFields, link.FieldEmail)
 }
 
+// SetType sets the "type" field.
+func (m *LinkMutation) SetType(l link.Type) {
+	m._type = &l
+}
+
+// GetType returns the value of the "type" field in the mutation.
+func (m *LinkMutation) GetType() (r link.Type, exists bool) {
+	v := m._type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldType returns the old "type" field's value of the Link entity.
+// If the Link object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LinkMutation) OldType(ctx context.Context) (v link.Type, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldType: %w", err)
+	}
+	return oldValue.Type, nil
+}
+
+// ClearType clears the value of the "type" field.
+func (m *LinkMutation) ClearType() {
+	m._type = nil
+	m.clearedFields[link.FieldType] = struct{}{}
+}
+
+// TypeCleared returns if the "type" field was cleared in this mutation.
+func (m *LinkMutation) TypeCleared() bool {
+	_, ok := m.clearedFields[link.FieldType]
+	return ok
+}
+
+// ResetType resets all changes to the "type" field.
+func (m *LinkMutation) ResetType() {
+	m._type = nil
+	delete(m.clearedFields, link.FieldType)
+}
+
+// SetOriginalURL sets the "original_url" field.
+func (m *LinkMutation) SetOriginalURL(s string) {
+	m.original_url = &s
+}
+
+// OriginalURL returns the value of the "original_url" field in the mutation.
+func (m *LinkMutation) OriginalURL() (r string, exists bool) {
+	v := m.original_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOriginalURL returns the old "original_url" field's value of the Link entity.
+// If the Link object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LinkMutation) OldOriginalURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOriginalURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOriginalURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOriginalURL: %w", err)
+	}
+	return oldValue.OriginalURL, nil
+}
+
+// ClearOriginalURL clears the value of the "original_url" field.
+func (m *LinkMutation) ClearOriginalURL() {
+	m.original_url = nil
+	m.clearedFields[link.FieldOriginalURL] = struct{}{}
+}
+
+// OriginalURLCleared returns if the "original_url" field was cleared in this mutation.
+func (m *LinkMutation) OriginalURLCleared() bool {
+	_, ok := m.clearedFields[link.FieldOriginalURL]
+	return ok
+}
+
+// ResetOriginalURL resets all changes to the "original_url" field.
+func (m *LinkMutation) ResetOriginalURL() {
+	m.original_url = nil
+	delete(m.clearedFields, link.FieldOriginalURL)
+}
+
+// SetUpdateReason sets the "update_reason" field.
+func (m *LinkMutation) SetUpdateReason(s string) {
+	m.update_reason = &s
+}
+
+// UpdateReason returns the value of the "update_reason" field in the mutation.
+func (m *LinkMutation) UpdateReason() (r string, exists bool) {
+	v := m.update_reason
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdateReason returns the old "update_reason" field's value of the Link entity.
+// If the Link object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LinkMutation) OldUpdateReason(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdateReason is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdateReason requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdateReason: %w", err)
+	}
+	return oldValue.UpdateReason, nil
+}
+
+// ClearUpdateReason clears the value of the "update_reason" field.
+func (m *LinkMutation) ClearUpdateReason() {
+	m.update_reason = nil
+	m.clearedFields[link.FieldUpdateReason] = struct{}{}
+}
+
+// UpdateReasonCleared returns if the "update_reason" field was cleared in this mutation.
+func (m *LinkMutation) UpdateReasonCleared() bool {
+	_, ok := m.clearedFields[link.FieldUpdateReason]
+	return ok
+}
+
+// ResetUpdateReason resets all changes to the "update_reason" field.
+func (m *LinkMutation) ResetUpdateReason() {
+	m.update_reason = nil
+	delete(m.clearedFields, link.FieldUpdateReason)
+}
+
 // SetSortOrder sets the "sort_order" field.
 func (m *LinkMutation) SetSortOrder(i int) {
 	m.sort_order = &i
@@ -11940,7 +12090,7 @@ func (m *LinkMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *LinkMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 12)
 	if m.name != nil {
 		fields = append(fields, link.FieldName)
 	}
@@ -11961,6 +12111,15 @@ func (m *LinkMutation) Fields() []string {
 	}
 	if m.email != nil {
 		fields = append(fields, link.FieldEmail)
+	}
+	if m._type != nil {
+		fields = append(fields, link.FieldType)
+	}
+	if m.original_url != nil {
+		fields = append(fields, link.FieldOriginalURL)
+	}
+	if m.update_reason != nil {
+		fields = append(fields, link.FieldUpdateReason)
 	}
 	if m.sort_order != nil {
 		fields = append(fields, link.FieldSortOrder)
@@ -11990,6 +12149,12 @@ func (m *LinkMutation) Field(name string) (ent.Value, bool) {
 		return m.Siteshot()
 	case link.FieldEmail:
 		return m.Email()
+	case link.FieldType:
+		return m.GetType()
+	case link.FieldOriginalURL:
+		return m.OriginalURL()
+	case link.FieldUpdateReason:
+		return m.UpdateReason()
 	case link.FieldSortOrder:
 		return m.SortOrder()
 	case link.FieldSkipHealthCheck:
@@ -12017,6 +12182,12 @@ func (m *LinkMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldSiteshot(ctx)
 	case link.FieldEmail:
 		return m.OldEmail(ctx)
+	case link.FieldType:
+		return m.OldType(ctx)
+	case link.FieldOriginalURL:
+		return m.OldOriginalURL(ctx)
+	case link.FieldUpdateReason:
+		return m.OldUpdateReason(ctx)
 	case link.FieldSortOrder:
 		return m.OldSortOrder(ctx)
 	case link.FieldSkipHealthCheck:
@@ -12078,6 +12249,27 @@ func (m *LinkMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetEmail(v)
+		return nil
+	case link.FieldType:
+		v, ok := value.(link.Type)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetType(v)
+		return nil
+	case link.FieldOriginalURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOriginalURL(v)
+		return nil
+	case link.FieldUpdateReason:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdateReason(v)
 		return nil
 	case link.FieldSortOrder:
 		v, ok := value.(int)
@@ -12150,6 +12342,15 @@ func (m *LinkMutation) ClearedFields() []string {
 	if m.FieldCleared(link.FieldEmail) {
 		fields = append(fields, link.FieldEmail)
 	}
+	if m.FieldCleared(link.FieldType) {
+		fields = append(fields, link.FieldType)
+	}
+	if m.FieldCleared(link.FieldOriginalURL) {
+		fields = append(fields, link.FieldOriginalURL)
+	}
+	if m.FieldCleared(link.FieldUpdateReason) {
+		fields = append(fields, link.FieldUpdateReason)
+	}
 	return fields
 }
 
@@ -12175,6 +12376,15 @@ func (m *LinkMutation) ClearField(name string) error {
 		return nil
 	case link.FieldEmail:
 		m.ClearEmail()
+		return nil
+	case link.FieldType:
+		m.ClearType()
+		return nil
+	case link.FieldOriginalURL:
+		m.ClearOriginalURL()
+		return nil
+	case link.FieldUpdateReason:
+		m.ClearUpdateReason()
 		return nil
 	}
 	return fmt.Errorf("unknown Link nullable field %s", name)
@@ -12204,6 +12414,15 @@ func (m *LinkMutation) ResetField(name string) error {
 		return nil
 	case link.FieldEmail:
 		m.ResetEmail()
+		return nil
+	case link.FieldType:
+		m.ResetType()
+		return nil
+	case link.FieldOriginalURL:
+		m.ResetOriginalURL()
+		return nil
+	case link.FieldUpdateReason:
+		m.ResetUpdateReason()
 		return nil
 	case link.FieldSortOrder:
 		m.ResetSortOrder()

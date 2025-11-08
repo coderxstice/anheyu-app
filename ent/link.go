@@ -31,6 +31,12 @@ type Link struct {
 	Siteshot string `json:"siteshot,omitempty"`
 	// 联系邮箱
 	Email string `json:"email,omitempty"`
+	// 申请类型
+	Type link.Type `json:"type,omitempty"`
+	// 修改类型时的原友链URL
+	OriginalURL string `json:"original_url,omitempty"`
+	// 修改类型时的修改原因
+	UpdateReason string `json:"update_reason,omitempty"`
 	// 排序权重，数字越小越靠前
 	SortOrder int `json:"sort_order,omitempty"`
 	// 是否跳过健康检查
@@ -82,7 +88,7 @@ func (*Link) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case link.FieldID, link.FieldSortOrder:
 			values[i] = new(sql.NullInt64)
-		case link.FieldName, link.FieldURL, link.FieldLogo, link.FieldDescription, link.FieldStatus, link.FieldSiteshot, link.FieldEmail:
+		case link.FieldName, link.FieldURL, link.FieldLogo, link.FieldDescription, link.FieldStatus, link.FieldSiteshot, link.FieldEmail, link.FieldType, link.FieldOriginalURL, link.FieldUpdateReason:
 			values[i] = new(sql.NullString)
 		case link.ForeignKeys[0]: // link_category_links
 			values[i] = new(sql.NullInt64)
@@ -148,6 +154,24 @@ func (_m *Link) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field email", values[i])
 			} else if value.Valid {
 				_m.Email = value.String
+			}
+		case link.FieldType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field type", values[i])
+			} else if value.Valid {
+				_m.Type = link.Type(value.String)
+			}
+		case link.FieldOriginalURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field original_url", values[i])
+			} else if value.Valid {
+				_m.OriginalURL = value.String
+			}
+		case link.FieldUpdateReason:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field update_reason", values[i])
+			} else if value.Valid {
+				_m.UpdateReason = value.String
 			}
 		case link.FieldSortOrder:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -234,6 +258,15 @@ func (_m *Link) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("email=")
 	builder.WriteString(_m.Email)
+	builder.WriteString(", ")
+	builder.WriteString("type=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Type))
+	builder.WriteString(", ")
+	builder.WriteString("original_url=")
+	builder.WriteString(_m.OriginalURL)
+	builder.WriteString(", ")
+	builder.WriteString("update_reason=")
+	builder.WriteString(_m.UpdateReason)
 	builder.WriteString(", ")
 	builder.WriteString("sort_order=")
 	builder.WriteString(fmt.Sprintf("%v", _m.SortOrder))
