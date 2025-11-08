@@ -31,4 +31,6 @@ type LinkRepository interface {
 	BatchUpdateStatus(ctx context.Context, linkIDs []int, status string) error
 	// 批量更新友链排序
 	BatchUpdateSortOrder(ctx context.Context, items []model.LinkSortItem) error
+	// 获取所有友链申请（公开接口）
+	ListAllApplications(ctx context.Context, req *model.ListPublicLinksRequest) ([]*model.LinkDTO, int, error)
 }

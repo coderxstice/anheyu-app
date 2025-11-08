@@ -27,6 +27,7 @@ type Service interface {
 	// --- 前台接口 ---
 	ApplyLink(ctx context.Context, req *model.ApplyLinkRequest) (*model.LinkDTO, error)
 	ListPublicLinks(ctx context.Context, req *model.ListPublicLinksRequest) (*model.LinkListResponse, error)
+	ListAllApplications(ctx context.Context, req *model.ListPublicLinksRequest) (*model.LinkListResponse, error) // 获取所有友链申请列表（公开）
 	ListCategories(ctx context.Context) ([]*model.LinkCategoryDTO, error)
 	ListPublicCategories(ctx context.Context) ([]*model.LinkCategoryDTO, error) // 只返回有已审核通过友链的分类
 	GetRandomLinks(ctx context.Context, num int) ([]*model.LinkDTO, error)
@@ -182,6 +183,21 @@ func (s *service) ApplyLink(ctx context.Context, req *model.ApplyLinkRequest) (*
 // ListPublicLinks 获取公开的友链列表。
 func (s *service) ListPublicLinks(ctx context.Context, req *model.ListPublicLinksRequest) (*model.LinkListResponse, error) {
 	links, total, err := s.linkRepo.ListPublic(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.LinkListResponse{
+		List:     links,
+		Total:    int64(total),
+		Page:     req.GetPage(),
+		PageSize: req.GetPageSize(),
+	}, nil
+}
+
+// ListAllApplications 获取所有友链申请列表（公开接口，显示所有状态）
+func (s *service) ListAllApplications(ctx context.Context, req *model.ListPublicLinksRequest) (*model.LinkListResponse, error) {
+	links, total, err := s.linkRepo.ListAllApplications(ctx, req)
 	if err != nil {
 		return nil, err
 	}

@@ -499,6 +499,9 @@ func (r *Router) registerLinkRoutes(api *gin.RouterGroup) {
 
 		// 获取随机友链: GET /api/public/links/random
 		linksPublic.GET("/random", r.linkHandler.GetRandomLinks)
+
+		// 获取所有友链申请列表: GET /api/public/links/applications
+		linksPublic.GET("/applications", r.linkHandler.ListAllApplications)
 	}
 
 	linkCategoriesPublic := api.Group("/public/link-categories")

@@ -276,6 +276,34 @@ func (r *linkRepo) UpdateStatus(ctx context.Context, id int, status string, site
 	return err
 }
 
+// ListAllApplications 获取所有友链申请（公开接口，按创建时间倒序，显示所有状态）
+func (r *linkRepo) ListAllApplications(ctx context.Context, req *model.ListPublicLinksRequest) ([]*model.LinkDTO, int, error) {
+	query := r.client.Link.Query().
+		WithCategory().
+		WithTags()
+
+	if req.CategoryID != nil {
+		query = query.Where(link.HasCategoryWith(linkcategory.ID(*req.CategoryID)))
+	}
+
+	total, err := query.Count(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// 按ID倒序排列，显示最新的申请（ID越大，创建时间越晚）
+	results, err := query.
+		Offset((req.GetPage() - 1) * req.GetPageSize()).
+		Limit(req.GetPageSize()).
+		Order(ent.Desc(link.FieldID)).
+		All(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return mapEntLinksToDTOs(results), total, nil
+}
+
 // --- 辅助函数 ---
 
 func mapEntLinkToDTO(entLink *ent.Link) *model.LinkDTO {
