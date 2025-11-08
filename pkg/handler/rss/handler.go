@@ -2,7 +2,7 @@
  * @Description: RSS Feed 处理器
  * @Author: 安知鱼
  * @Date: 2025-09-30 00:00:00
- * @LastEditTime: 2025-09-30 00:00:00
+ * @LastEditTime: 2025-11-08 18:48:25
  * @LastEditors: 安知鱼
  */
 package rss
@@ -11,22 +11,27 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
+	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/rss"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 	"github.com/gin-gonic/gin"
 )
 
 // Handler RSS 处理器
 type Handler struct {
 	rssService rss.Service
+	settingSvc setting.SettingService
 }
 
 // NewHandler 创建 RSS 处理器
-func NewHandler(rssService rss.Service) *Handler {
+func NewHandler(rssService rss.Service, settingSvc setting.SettingService) *Handler {
 	return &Handler{
 		rssService: rssService,
+		settingSvc: settingSvc,
 	}
 }
 
@@ -72,6 +77,13 @@ func (h *Handler) GetRSSFeed(c *gin.Context) {
 
 // getSiteURL 获取站点 URL
 func (h *Handler) getSiteURL(c *gin.Context) string {
+	// 优先从配置中获取站点 URL
+	if siteURL := h.settingSvc.Get(constant.KeySiteURL.String()); siteURL != "" {
+		// 移除末尾的斜杠
+		return strings.TrimRight(siteURL, "/")
+	}
+
+	// 如果配置中没有，则从请求中获取
 	scheme := "http"
 	if c.Request.TLS != nil {
 		scheme = "https"

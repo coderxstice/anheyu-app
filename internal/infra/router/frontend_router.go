@@ -523,7 +523,7 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 
 	// 配置 RSS feed
 	rssSvc := rss_service.NewService(articleSvc, settingSvc, cacheSvc)
-	rssHandler := rss.NewHandler(rssSvc)
+	rssHandler := rss.NewHandler(rssSvc, settingSvc)
 	engine.GET("/rss.xml", rssHandler.GetRSSFeed)
 	engine.GET("/feed.xml", rssHandler.GetRSSFeed)
 	engine.GET("/atom.xml", rssHandler.GetRSSFeed)
