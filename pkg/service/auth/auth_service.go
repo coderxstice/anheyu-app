@@ -108,6 +108,9 @@ func (s *authService) createDefaultArticle(ctx context.Context) {
 
 // Login 实现了用户登录的完整业务逻辑
 func (s *authService) Login(ctx context.Context, email, password string) (*model.User, error) {
+	// 统一将email转换为小写
+	email = strings.ToLower(strings.TrimSpace(email))
+	
 	user, err := s.userRepo.FindByEmail(ctx, email)
 	if err != nil {
 		return nil, fmt.Errorf("数据库查询失败: %w", err)
@@ -139,6 +142,9 @@ func (s *authService) Login(ctx context.Context, email, password string) (*model
 // Register 实现了最终的用户注册逻辑
 // 它会为新用户创建根目录，并在首次注册时初始化系统内置的存储策略及其关联的虚拟目录。
 func (s *authService) Register(ctx context.Context, email, password string) (bool, error) {
+	// email转为小写
+	email = strings.ToLower(strings.TrimSpace(email))
+	
 	if existing, err := s.userRepo.FindByEmail(ctx, email); err != nil {
 		return false, fmt.Errorf("查询邮箱时数据库出错: %w", err)
 	} else if existing != nil {
@@ -157,7 +163,7 @@ func (s *authService) Register(ctx context.Context, email, password string) (boo
 	hashedPassword, _ := security.HashPassword(password)
 	nickname := strings.Split(email, "@")[0]
 	hasher := md5.New()
-	hasher.Write([]byte(strings.ToLower(strings.TrimSpace(email))))
+	hasher.Write([]byte(email))
 	avatarURL := "avatar/" + hex.EncodeToString(hasher.Sum(nil)) + "?d=identicon"
 	newUser := &model.User{
 		Username:     email,
