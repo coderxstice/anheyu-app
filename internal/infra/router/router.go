@@ -491,14 +491,17 @@ func (r *Router) registerLinkRoutes(api *gin.RouterGroup) {
 	// --- 前台公开接口 ---
 	linksPublic := api.Group("/public/links")
 	{
-		// 申请友链: POST /api/public/links
-		linksPublic.POST("", r.linkHandler.ApplyLink)
+		// 申请友链: POST /api/public/links (带频率限制)
+		linksPublic.POST("", middleware.LinkApplyRateLimit(), r.linkHandler.ApplyLink)
 
 		// 获取公开友链列表: GET /api/public/links
 		linksPublic.GET("", r.linkHandler.ListPublicLinks)
 
 		// 获取随机友链: GET /api/public/links/random
 		linksPublic.GET("/random", r.linkHandler.GetRandomLinks)
+
+		// 获取所有友链申请列表: GET /api/public/links/applications
+		linksPublic.GET("/applications", r.linkHandler.ListAllApplications)
 	}
 
 	linkCategoriesPublic := api.Group("/public/link-categories")

@@ -78,6 +78,21 @@ func Siteshot(v string) predicate.Link {
 	return predicate.Link(sql.FieldEQ(FieldSiteshot, v))
 }
 
+// Email applies equality check predicate on the "email" field. It's identical to EmailEQ.
+func Email(v string) predicate.Link {
+	return predicate.Link(sql.FieldEQ(FieldEmail, v))
+}
+
+// OriginalURL applies equality check predicate on the "original_url" field. It's identical to OriginalURLEQ.
+func OriginalURL(v string) predicate.Link {
+	return predicate.Link(sql.FieldEQ(FieldOriginalURL, v))
+}
+
+// UpdateReason applies equality check predicate on the "update_reason" field. It's identical to UpdateReasonEQ.
+func UpdateReason(v string) predicate.Link {
+	return predicate.Link(sql.FieldEQ(FieldUpdateReason, v))
+}
+
 // SortOrder applies equality check predicate on the "sort_order" field. It's identical to SortOrderEQ.
 func SortOrder(v int) predicate.Link {
 	return predicate.Link(sql.FieldEQ(FieldSortOrder, v))
@@ -461,6 +476,261 @@ func SiteshotEqualFold(v string) predicate.Link {
 // SiteshotContainsFold applies the ContainsFold predicate on the "siteshot" field.
 func SiteshotContainsFold(v string) predicate.Link {
 	return predicate.Link(sql.FieldContainsFold(FieldSiteshot, v))
+}
+
+// EmailEQ applies the EQ predicate on the "email" field.
+func EmailEQ(v string) predicate.Link {
+	return predicate.Link(sql.FieldEQ(FieldEmail, v))
+}
+
+// EmailNEQ applies the NEQ predicate on the "email" field.
+func EmailNEQ(v string) predicate.Link {
+	return predicate.Link(sql.FieldNEQ(FieldEmail, v))
+}
+
+// EmailIn applies the In predicate on the "email" field.
+func EmailIn(vs ...string) predicate.Link {
+	return predicate.Link(sql.FieldIn(FieldEmail, vs...))
+}
+
+// EmailNotIn applies the NotIn predicate on the "email" field.
+func EmailNotIn(vs ...string) predicate.Link {
+	return predicate.Link(sql.FieldNotIn(FieldEmail, vs...))
+}
+
+// EmailGT applies the GT predicate on the "email" field.
+func EmailGT(v string) predicate.Link {
+	return predicate.Link(sql.FieldGT(FieldEmail, v))
+}
+
+// EmailGTE applies the GTE predicate on the "email" field.
+func EmailGTE(v string) predicate.Link {
+	return predicate.Link(sql.FieldGTE(FieldEmail, v))
+}
+
+// EmailLT applies the LT predicate on the "email" field.
+func EmailLT(v string) predicate.Link {
+	return predicate.Link(sql.FieldLT(FieldEmail, v))
+}
+
+// EmailLTE applies the LTE predicate on the "email" field.
+func EmailLTE(v string) predicate.Link {
+	return predicate.Link(sql.FieldLTE(FieldEmail, v))
+}
+
+// EmailContains applies the Contains predicate on the "email" field.
+func EmailContains(v string) predicate.Link {
+	return predicate.Link(sql.FieldContains(FieldEmail, v))
+}
+
+// EmailHasPrefix applies the HasPrefix predicate on the "email" field.
+func EmailHasPrefix(v string) predicate.Link {
+	return predicate.Link(sql.FieldHasPrefix(FieldEmail, v))
+}
+
+// EmailHasSuffix applies the HasSuffix predicate on the "email" field.
+func EmailHasSuffix(v string) predicate.Link {
+	return predicate.Link(sql.FieldHasSuffix(FieldEmail, v))
+}
+
+// EmailIsNil applies the IsNil predicate on the "email" field.
+func EmailIsNil() predicate.Link {
+	return predicate.Link(sql.FieldIsNull(FieldEmail))
+}
+
+// EmailNotNil applies the NotNil predicate on the "email" field.
+func EmailNotNil() predicate.Link {
+	return predicate.Link(sql.FieldNotNull(FieldEmail))
+}
+
+// EmailEqualFold applies the EqualFold predicate on the "email" field.
+func EmailEqualFold(v string) predicate.Link {
+	return predicate.Link(sql.FieldEqualFold(FieldEmail, v))
+}
+
+// EmailContainsFold applies the ContainsFold predicate on the "email" field.
+func EmailContainsFold(v string) predicate.Link {
+	return predicate.Link(sql.FieldContainsFold(FieldEmail, v))
+}
+
+// TypeEQ applies the EQ predicate on the "type" field.
+func TypeEQ(v Type) predicate.Link {
+	return predicate.Link(sql.FieldEQ(FieldType, v))
+}
+
+// TypeNEQ applies the NEQ predicate on the "type" field.
+func TypeNEQ(v Type) predicate.Link {
+	return predicate.Link(sql.FieldNEQ(FieldType, v))
+}
+
+// TypeIn applies the In predicate on the "type" field.
+func TypeIn(vs ...Type) predicate.Link {
+	return predicate.Link(sql.FieldIn(FieldType, vs...))
+}
+
+// TypeNotIn applies the NotIn predicate on the "type" field.
+func TypeNotIn(vs ...Type) predicate.Link {
+	return predicate.Link(sql.FieldNotIn(FieldType, vs...))
+}
+
+// TypeIsNil applies the IsNil predicate on the "type" field.
+func TypeIsNil() predicate.Link {
+	return predicate.Link(sql.FieldIsNull(FieldType))
+}
+
+// TypeNotNil applies the NotNil predicate on the "type" field.
+func TypeNotNil() predicate.Link {
+	return predicate.Link(sql.FieldNotNull(FieldType))
+}
+
+// OriginalURLEQ applies the EQ predicate on the "original_url" field.
+func OriginalURLEQ(v string) predicate.Link {
+	return predicate.Link(sql.FieldEQ(FieldOriginalURL, v))
+}
+
+// OriginalURLNEQ applies the NEQ predicate on the "original_url" field.
+func OriginalURLNEQ(v string) predicate.Link {
+	return predicate.Link(sql.FieldNEQ(FieldOriginalURL, v))
+}
+
+// OriginalURLIn applies the In predicate on the "original_url" field.
+func OriginalURLIn(vs ...string) predicate.Link {
+	return predicate.Link(sql.FieldIn(FieldOriginalURL, vs...))
+}
+
+// OriginalURLNotIn applies the NotIn predicate on the "original_url" field.
+func OriginalURLNotIn(vs ...string) predicate.Link {
+	return predicate.Link(sql.FieldNotIn(FieldOriginalURL, vs...))
+}
+
+// OriginalURLGT applies the GT predicate on the "original_url" field.
+func OriginalURLGT(v string) predicate.Link {
+	return predicate.Link(sql.FieldGT(FieldOriginalURL, v))
+}
+
+// OriginalURLGTE applies the GTE predicate on the "original_url" field.
+func OriginalURLGTE(v string) predicate.Link {
+	return predicate.Link(sql.FieldGTE(FieldOriginalURL, v))
+}
+
+// OriginalURLLT applies the LT predicate on the "original_url" field.
+func OriginalURLLT(v string) predicate.Link {
+	return predicate.Link(sql.FieldLT(FieldOriginalURL, v))
+}
+
+// OriginalURLLTE applies the LTE predicate on the "original_url" field.
+func OriginalURLLTE(v string) predicate.Link {
+	return predicate.Link(sql.FieldLTE(FieldOriginalURL, v))
+}
+
+// OriginalURLContains applies the Contains predicate on the "original_url" field.
+func OriginalURLContains(v string) predicate.Link {
+	return predicate.Link(sql.FieldContains(FieldOriginalURL, v))
+}
+
+// OriginalURLHasPrefix applies the HasPrefix predicate on the "original_url" field.
+func OriginalURLHasPrefix(v string) predicate.Link {
+	return predicate.Link(sql.FieldHasPrefix(FieldOriginalURL, v))
+}
+
+// OriginalURLHasSuffix applies the HasSuffix predicate on the "original_url" field.
+func OriginalURLHasSuffix(v string) predicate.Link {
+	return predicate.Link(sql.FieldHasSuffix(FieldOriginalURL, v))
+}
+
+// OriginalURLIsNil applies the IsNil predicate on the "original_url" field.
+func OriginalURLIsNil() predicate.Link {
+	return predicate.Link(sql.FieldIsNull(FieldOriginalURL))
+}
+
+// OriginalURLNotNil applies the NotNil predicate on the "original_url" field.
+func OriginalURLNotNil() predicate.Link {
+	return predicate.Link(sql.FieldNotNull(FieldOriginalURL))
+}
+
+// OriginalURLEqualFold applies the EqualFold predicate on the "original_url" field.
+func OriginalURLEqualFold(v string) predicate.Link {
+	return predicate.Link(sql.FieldEqualFold(FieldOriginalURL, v))
+}
+
+// OriginalURLContainsFold applies the ContainsFold predicate on the "original_url" field.
+func OriginalURLContainsFold(v string) predicate.Link {
+	return predicate.Link(sql.FieldContainsFold(FieldOriginalURL, v))
+}
+
+// UpdateReasonEQ applies the EQ predicate on the "update_reason" field.
+func UpdateReasonEQ(v string) predicate.Link {
+	return predicate.Link(sql.FieldEQ(FieldUpdateReason, v))
+}
+
+// UpdateReasonNEQ applies the NEQ predicate on the "update_reason" field.
+func UpdateReasonNEQ(v string) predicate.Link {
+	return predicate.Link(sql.FieldNEQ(FieldUpdateReason, v))
+}
+
+// UpdateReasonIn applies the In predicate on the "update_reason" field.
+func UpdateReasonIn(vs ...string) predicate.Link {
+	return predicate.Link(sql.FieldIn(FieldUpdateReason, vs...))
+}
+
+// UpdateReasonNotIn applies the NotIn predicate on the "update_reason" field.
+func UpdateReasonNotIn(vs ...string) predicate.Link {
+	return predicate.Link(sql.FieldNotIn(FieldUpdateReason, vs...))
+}
+
+// UpdateReasonGT applies the GT predicate on the "update_reason" field.
+func UpdateReasonGT(v string) predicate.Link {
+	return predicate.Link(sql.FieldGT(FieldUpdateReason, v))
+}
+
+// UpdateReasonGTE applies the GTE predicate on the "update_reason" field.
+func UpdateReasonGTE(v string) predicate.Link {
+	return predicate.Link(sql.FieldGTE(FieldUpdateReason, v))
+}
+
+// UpdateReasonLT applies the LT predicate on the "update_reason" field.
+func UpdateReasonLT(v string) predicate.Link {
+	return predicate.Link(sql.FieldLT(FieldUpdateReason, v))
+}
+
+// UpdateReasonLTE applies the LTE predicate on the "update_reason" field.
+func UpdateReasonLTE(v string) predicate.Link {
+	return predicate.Link(sql.FieldLTE(FieldUpdateReason, v))
+}
+
+// UpdateReasonContains applies the Contains predicate on the "update_reason" field.
+func UpdateReasonContains(v string) predicate.Link {
+	return predicate.Link(sql.FieldContains(FieldUpdateReason, v))
+}
+
+// UpdateReasonHasPrefix applies the HasPrefix predicate on the "update_reason" field.
+func UpdateReasonHasPrefix(v string) predicate.Link {
+	return predicate.Link(sql.FieldHasPrefix(FieldUpdateReason, v))
+}
+
+// UpdateReasonHasSuffix applies the HasSuffix predicate on the "update_reason" field.
+func UpdateReasonHasSuffix(v string) predicate.Link {
+	return predicate.Link(sql.FieldHasSuffix(FieldUpdateReason, v))
+}
+
+// UpdateReasonIsNil applies the IsNil predicate on the "update_reason" field.
+func UpdateReasonIsNil() predicate.Link {
+	return predicate.Link(sql.FieldIsNull(FieldUpdateReason))
+}
+
+// UpdateReasonNotNil applies the NotNil predicate on the "update_reason" field.
+func UpdateReasonNotNil() predicate.Link {
+	return predicate.Link(sql.FieldNotNull(FieldUpdateReason))
+}
+
+// UpdateReasonEqualFold applies the EqualFold predicate on the "update_reason" field.
+func UpdateReasonEqualFold(v string) predicate.Link {
+	return predicate.Link(sql.FieldEqualFold(FieldUpdateReason, v))
+}
+
+// UpdateReasonContainsFold applies the ContainsFold predicate on the "update_reason" field.
+func UpdateReasonContainsFold(v string) predicate.Link {
+	return predicate.Link(sql.FieldContainsFold(FieldUpdateReason, v))
 }
 
 // SortOrderEQ applies the EQ predicate on the "sort_order" field.

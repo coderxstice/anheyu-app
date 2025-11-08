@@ -26,6 +26,14 @@ const (
 	FieldStatus = "status"
 	// FieldSiteshot holds the string denoting the siteshot field in the database.
 	FieldSiteshot = "siteshot"
+	// FieldEmail holds the string denoting the email field in the database.
+	FieldEmail = "email"
+	// FieldType holds the string denoting the type field in the database.
+	FieldType = "type"
+	// FieldOriginalURL holds the string denoting the original_url field in the database.
+	FieldOriginalURL = "original_url"
+	// FieldUpdateReason holds the string denoting the update_reason field in the database.
+	FieldUpdateReason = "update_reason"
 	// FieldSortOrder holds the string denoting the sort_order field in the database.
 	FieldSortOrder = "sort_order"
 	// FieldSkipHealthCheck holds the string denoting the skip_health_check field in the database.
@@ -59,6 +67,10 @@ var Columns = []string{
 	FieldDescription,
 	FieldStatus,
 	FieldSiteshot,
+	FieldEmail,
+	FieldType,
+	FieldOriginalURL,
+	FieldUpdateReason,
 	FieldSortOrder,
 	FieldSkipHealthCheck,
 }
@@ -129,6 +141,29 @@ func StatusValidator(s Status) error {
 	}
 }
 
+// Type defines the type for the "type" enum field.
+type Type string
+
+// Type values.
+const (
+	TypeNEW    Type = "NEW"
+	TypeUPDATE Type = "UPDATE"
+)
+
+func (_type Type) String() string {
+	return string(_type)
+}
+
+// TypeValidator is a validator for the "type" field enum values. It is called by the builders before save.
+func TypeValidator(_type Type) error {
+	switch _type {
+	case TypeNEW, TypeUPDATE:
+		return nil
+	default:
+		return fmt.Errorf("link: invalid enum value for type field: %q", _type)
+	}
+}
+
 // OrderOption defines the ordering options for the Link queries.
 type OrderOption func(*sql.Selector)
 
@@ -165,6 +200,26 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 // BySiteshot orders the results by the siteshot field.
 func BySiteshot(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSiteshot, opts...).ToFunc()
+}
+
+// ByEmail orders the results by the email field.
+func ByEmail(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEmail, opts...).ToFunc()
+}
+
+// ByType orders the results by the type field.
+func ByType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldType, opts...).ToFunc()
+}
+
+// ByOriginalURL orders the results by the original_url field.
+func ByOriginalURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOriginalURL, opts...).ToFunc()
+}
+
+// ByUpdateReason orders the results by the update_reason field.
+func ByUpdateReason(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdateReason, opts...).ToFunc()
 }
 
 // BySortOrder orders the results by the sort_order field.

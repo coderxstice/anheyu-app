@@ -27,6 +27,7 @@ type Service interface {
 	// --- 前台接口 ---
 	ApplyLink(ctx context.Context, req *model.ApplyLinkRequest) (*model.LinkDTO, error)
 	ListPublicLinks(ctx context.Context, req *model.ListPublicLinksRequest) (*model.LinkListResponse, error)
+	ListAllApplications(ctx context.Context, req *model.ListPublicLinksRequest) (*model.LinkListResponse, error) // 获取所有友链申请列表（公开）
 	ListCategories(ctx context.Context) ([]*model.LinkCategoryDTO, error)
 	ListPublicCategories(ctx context.Context) ([]*model.LinkCategoryDTO, error) // 只返回有已审核通过友链的分类
 	GetRandomLinks(ctx context.Context, num int) ([]*model.LinkDTO, error)
@@ -63,6 +64,8 @@ type service struct {
 	settingSvc setting.SettingService
 	// 用于发送即时通知
 	pushooSvc utility.PushooService
+	// 用于发送邮件通知
+	emailSvc utility.EmailService
 }
 
 // NewService 是 service 的构造函数，注入所有依赖。
@@ -74,6 +77,7 @@ func NewService(
 	broker TaskBroker,
 	settingSvc setting.SettingService,
 	pushooSvc utility.PushooService,
+	emailSvc utility.EmailService,
 ) Service {
 	return &service{
 		linkRepo:         linkRepo,
@@ -83,6 +87,7 @@ func NewService(
 		broker:           broker,
 		settingSvc:       settingSvc,
 		pushooSvc:        pushooSvc,
+		emailSvc:         emailSvc,
 	}
 }
 
@@ -190,6 +195,21 @@ func (s *service) ListPublicLinks(ctx context.Context, req *model.ListPublicLink
 	}, nil
 }
 
+// ListAllApplications 获取所有友链申请列表（公开接口，显示所有状态）
+func (s *service) ListAllApplications(ctx context.Context, req *model.ListPublicLinksRequest) (*model.LinkListResponse, error) {
+	links, total, err := s.linkRepo.ListAllApplications(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.LinkListResponse{
+		List:     links,
+		Total:    int64(total),
+		Page:     req.GetPage(),
+		PageSize: req.GetPageSize(),
+	}, nil
+}
+
 // ListCategories 获取所有友链分类。
 func (s *service) ListCategories(ctx context.Context) ([]*model.LinkCategoryDTO, error) {
 	return s.linkCategoryRepo.FindAll(ctx)
@@ -235,28 +255,53 @@ func (s *service) AdminDeleteLink(ctx context.Context, id int) error {
 
 // ReviewLink 处理友链审核，这是一个简单操作，无需清理。
 func (s *service) ReviewLink(ctx context.Context, id int, req *model.ReviewLinkRequest) error {
-	// 只有在审核通过时才需要进行特殊校验
+	// 1. 获取友链信息（用于后续发送邮件通知）
+	linkToReview, err := s.linkRepo.GetByID(ctx, id)
+	if err != nil {
+		return fmt.Errorf("获取友链信息失败: %w", err)
+	}
+
+	// 2. 只有在审核通过时才需要进行特殊校验
 	if req.Status == "APPROVED" {
-		// 1. 获取友链及其分类信息
-		linkToReview, err := s.linkRepo.GetByID(ctx, id)
-		if err != nil {
-			return fmt.Errorf("获取友链信息失败: %w", err)
-		}
 		if linkToReview.Category == nil {
 			return errors.New("无法审核：该友链未关联任何分类")
 		}
 
-		// 2. 检查分类样式是否为 'card'
+		// 检查分类样式是否为 'card'
 		if linkToReview.Category.Style == "card" {
-			// 3. 如果是 card 样式，则 siteshot 必须存在且不为空
+			// 如果是 card 样式，则 siteshot 必须存在且不为空
 			if req.Siteshot == nil || *req.Siteshot == "" {
 				return errors.New("卡片样式的友链在审核通过时必须提供网站快照(siteshot)")
 			}
 		}
 	}
 
-	// 4. 执行更新状态操作
-	return s.linkRepo.UpdateStatus(ctx, id, req.Status, req.Siteshot)
+	// 3. 执行更新状态操作
+	if err := s.linkRepo.UpdateStatus(ctx, id, req.Status, req.Siteshot); err != nil {
+		return err
+	}
+
+	// 4. 发送邮件通知（异步，不影响主流程）
+	// 只在审核通过或拒绝时发送通知
+	if req.Status == "APPROVED" || req.Status == "REJECTED" {
+		// 重新获取更新后的友链信息（包含最新的 siteshot）
+		updatedLink, err := s.linkRepo.GetByID(ctx, id)
+		if err != nil {
+			log.Printf("[WARNING] 获取更新后的友链信息失败，无法发送邮件通知: %v", err)
+		} else if s.emailSvc != nil {
+			// 异步发送邮件通知
+			go func() {
+				isApproved := req.Status == "APPROVED"
+				if err := s.emailSvc.SendLinkReviewNotification(context.Background(), updatedLink, isApproved); err != nil {
+					log.Printf("[ERROR] 发送友链审核邮件通知失败: %v", err)
+				}
+			}()
+		} else {
+			log.Printf("[DEBUG] 邮件服务未初始化，跳过友链审核邮件通知")
+		}
+	}
+
+	return nil
 }
 
 // CreateCategory 处理创建分类。
@@ -458,6 +503,7 @@ func (s *service) ImportLinks(ctx context.Context, req *model.ImportLinksRequest
 			TagID:       tagID,
 			Status:      status,
 			Siteshot:    linkItem.Siteshot,
+			Email:       linkItem.Email,
 		}
 
 		createdLink, err := s.linkRepo.AdminCreate(ctx, adminCreateReq)
@@ -514,6 +560,7 @@ func (s *service) ExportLinks(ctx context.Context, req *model.ExportLinksRequest
 			Logo:        link.Logo,
 			Description: link.Description,
 			Siteshot:    link.Siteshot,
+			Email:       link.Email,
 			Status:      link.Status,
 		}
 

@@ -309,6 +309,12 @@ var AllSettings = []Definition{
 	{Key: constant.KeyFriendLinkWebhookHeaders, Value: "", Comment: "友链申请Webhook自定义请求头，每行一个，格式：Header-Name: Header-Value", IsPublic: false},
 	{Key: constant.KeyFriendLinkMailSubjectAdmin, Value: "{{.SITE_NAME}} 收到了来自 {{.LINK_NAME}} 的友链申请", Comment: "站长收到新友链申请的邮件主题模板", IsPublic: false},
 	{Key: constant.KeyFriendLinkMailTemplateAdmin, Value: `<p>您好！</p><p>您的网站 <strong>{{.SITE_NAME}}</strong> 收到了一个新的友链申请：</p><ul><li>网站名称：{{.LINK_NAME}}</li><li>网站地址：{{.LINK_URL}}</li><li>网站描述：{{.LINK_DESC}}</li><li>申请时间：{{.TIME}}</li></ul><p><a href="{{.ADMIN_URL}}">点击前往管理</a></p>`, Comment: "站长收到新友链申请的邮件HTML模板", IsPublic: false},
+	// 友链审核邮件通知配置
+	{Key: constant.KeyFriendLinkReviewMailEnable, Value: "false", Comment: "是否开启友链审核邮件通知功能 (true/false)", IsPublic: false},
+	{Key: constant.KeyFriendLinkReviewMailSubjectApproved, Value: "【{{.SITE_NAME}}】友链申请已通过", Comment: "友链审核通过邮件主题模板", IsPublic: false},
+	{Key: constant.KeyFriendLinkReviewMailTemplateApproved, Value: "", Comment: "友链审核通过邮件HTML模板（留空使用默认模板）", IsPublic: false},
+	{Key: constant.KeyFriendLinkReviewMailSubjectRejected, Value: "【{{.SITE_NAME}}】友链申请未通过", Comment: "友链审核拒绝邮件主题模板", IsPublic: false},
+	{Key: constant.KeyFriendLinkReviewMailTemplateRejected, Value: "", Comment: "友链审核拒绝邮件HTML模板（留空使用默认模板）", IsPublic: false},
 
 	// --- 内部或敏感配置 ---
 	{Key: constant.KeyJWTSecret, Value: "", Comment: "JWT密钥", IsPublic: false},

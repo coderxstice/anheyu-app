@@ -114,6 +114,32 @@ func (h *Handler) ListPublicLinks(c *gin.Context) {
 	response.Success(c, result, "获取成功")
 }
 
+// ListAllApplications 处理前台获取所有友链申请列表的请求（公开接口）
+// @Summary      获取所有友链申请列表
+// @Description  获取所有友链申请，包括待审核、已通过、已拒绝等状态，按申请时间倒序
+// @Tags         友情链接
+// @Produce      json
+// @Param        page      query  int  false  "页码"  default(1)
+// @Param        pageSize  query  int  false  "每页数量"  default(20)
+// @Success      200  {object}  response.Response{data=model.LinkListResponse}  "获取成功"
+// @Failure      400  {object}  response.Response  "参数无效"
+// @Failure      500  {object}  response.Response  "获取失败"
+// @Router       /public/links/applications [get]
+func (h *Handler) ListAllApplications(c *gin.Context) {
+	var req model.ListPublicLinksRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		response.Fail(c, http.StatusBadRequest, "参数无效: "+err.Error())
+		return
+	}
+
+	result, err := h.linkSvc.ListAllApplications(c.Request.Context(), &req)
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, "获取申请列表失败: "+err.Error())
+		return
+	}
+	response.Success(c, result, "获取成功")
+}
+
 // ListCategories 获取友链分类列表。
 // @Summary      获取分类列表（管理员）
 // @Description  获取所有友链分类列表，包括统计信息

@@ -3,7 +3,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-21 17:18:09
- * @LastEditTime: 2025-11-05 16:29:05
+ * @LastEditTime: 2025-11-08 15:33:19
  * @LastEditors: 安知鱼
  */
 package constant
@@ -108,6 +108,13 @@ const (
 	KeyFriendLinkMailSubjectAdmin       SettingKey = "FRIEND_LINK_MAIL_SUBJECT_ADMIN"
 	KeyFriendLinkMailTemplateAdmin      SettingKey = "FRIEND_LINK_MAIL_TEMPLATE_ADMIN"
 	KeyFriendLinkScMailNotify           SettingKey = "FRIEND_LINK_SC_MAIL_NOTIFY"
+
+	// 友链审核邮件通知配置
+	KeyFriendLinkReviewMailEnable           SettingKey = "FRIEND_LINK_REVIEW_MAIL_ENABLE"
+	KeyFriendLinkReviewMailSubjectApproved  SettingKey = "FRIEND_LINK_REVIEW_MAIL_SUBJECT_APPROVED"
+	KeyFriendLinkReviewMailTemplateApproved SettingKey = "FRIEND_LINK_REVIEW_MAIL_TEMPLATE_APPROVED"
+	KeyFriendLinkReviewMailSubjectRejected  SettingKey = "FRIEND_LINK_REVIEW_MAIL_SUBJECT_REJECTED"
+	KeyFriendLinkReviewMailTemplateRejected SettingKey = "FRIEND_LINK_REVIEW_MAIL_TEMPLATE_REJECTED"
 
 	// --- 缩略图生成队列配置 ---
 	KeyQueueThumbConcurrency   SettingKey = "QUEUE_THUMB_CONCURRENCY"

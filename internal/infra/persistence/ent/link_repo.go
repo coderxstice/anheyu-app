@@ -41,6 +41,18 @@ func (r *linkRepo) Create(ctx context.Context, req *model.ApplyLinkRequest, cate
 	if req.Siteshot != "" {
 		create.SetSiteshot(req.Siteshot)
 	}
+	if req.Email != "" {
+		create.SetEmail(req.Email)
+	}
+	if req.Type != "" {
+		create.SetType(link.Type(req.Type))
+	}
+	if req.OriginalURL != "" {
+		create.SetOriginalURL(req.OriginalURL)
+	}
+	if req.UpdateReason != "" {
+		create.SetUpdateReason(req.UpdateReason)
+	}
 
 	savedLink, err := create.Save(ctx)
 	if err != nil {
@@ -129,6 +141,22 @@ func (r *linkRepo) AdminCreate(ctx context.Context, req *model.AdminCreateLinkRe
 		create.SetDescription(req.Description)
 	}
 
+	if req.Email != "" {
+		create.SetEmail(req.Email)
+	}
+
+	if req.Type != "" {
+		create.SetType(link.Type(req.Type))
+	}
+
+	if req.OriginalURL != "" {
+		create.SetOriginalURL(req.OriginalURL)
+	}
+
+	if req.UpdateReason != "" {
+		create.SetUpdateReason(req.UpdateReason)
+	}
+
 	savedLink, err := create.Save(ctx)
 	if err != nil {
 		return nil, err
@@ -155,11 +183,23 @@ func (r *linkRepo) Update(ctx context.Context, id int, req *model.AdminUpdateLin
 		SetLogo(req.Logo).
 		SetSiteshot(req.Siteshot).
 		SetDescription(req.Description).
+		SetEmail(req.Email).
 		SetStatus(link.Status(req.Status)).
 		SetCategoryID(req.CategoryID).
 		SetSortOrder(req.SortOrder).
 		SetSkipHealthCheck(req.SkipHealthCheck).
 		ClearTags()
+
+	// 设置申请类型相关字段
+	if req.Type != "" {
+		updater.SetType(link.Type(req.Type))
+	}
+	if req.OriginalURL != "" {
+		updater.SetOriginalURL(req.OriginalURL)
+	}
+	if req.UpdateReason != "" {
+		updater.SetUpdateReason(req.UpdateReason)
+	}
 
 	// 处理单个标签，验证标签是否存在
 	if req.TagID != nil {
@@ -236,6 +276,34 @@ func (r *linkRepo) UpdateStatus(ctx context.Context, id int, status string, site
 	return err
 }
 
+// ListAllApplications 获取所有友链申请（公开接口，按创建时间倒序，显示所有状态）
+func (r *linkRepo) ListAllApplications(ctx context.Context, req *model.ListPublicLinksRequest) ([]*model.LinkDTO, int, error) {
+	query := r.client.Link.Query().
+		WithCategory().
+		WithTags()
+
+	if req.CategoryID != nil {
+		query = query.Where(link.HasCategoryWith(linkcategory.ID(*req.CategoryID)))
+	}
+
+	total, err := query.Count(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// 按ID倒序排列，显示最新的申请（ID越大，创建时间越晚）
+	results, err := query.
+		Offset((req.GetPage() - 1) * req.GetPageSize()).
+		Limit(req.GetPageSize()).
+		Order(ent.Desc(link.FieldID)).
+		All(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return mapEntLinksToDTOs(results), total, nil
+}
+
 // --- 辅助函数 ---
 
 func mapEntLinkToDTO(entLink *ent.Link) *model.LinkDTO {
@@ -250,6 +318,10 @@ func mapEntLinkToDTO(entLink *ent.Link) *model.LinkDTO {
 		Description:     entLink.Description,
 		Status:          string(entLink.Status),
 		Siteshot:        entLink.Siteshot,
+		Email:           entLink.Email,
+		Type:            string(entLink.Type),
+		OriginalURL:     entLink.OriginalURL,
+		UpdateReason:    entLink.UpdateReason,
 		SortOrder:       entLink.SortOrder,
 		SkipHealthCheck: entLink.SkipHealthCheck,
 	}

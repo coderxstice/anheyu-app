@@ -132,6 +132,86 @@ func (_u *LinkUpdate) ClearSiteshot() *LinkUpdate {
 	return _u
 }
 
+// SetEmail sets the "email" field.
+func (_u *LinkUpdate) SetEmail(v string) *LinkUpdate {
+	_u.mutation.SetEmail(v)
+	return _u
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (_u *LinkUpdate) SetNillableEmail(v *string) *LinkUpdate {
+	if v != nil {
+		_u.SetEmail(*v)
+	}
+	return _u
+}
+
+// ClearEmail clears the value of the "email" field.
+func (_u *LinkUpdate) ClearEmail() *LinkUpdate {
+	_u.mutation.ClearEmail()
+	return _u
+}
+
+// SetType sets the "type" field.
+func (_u *LinkUpdate) SetType(v link.Type) *LinkUpdate {
+	_u.mutation.SetType(v)
+	return _u
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (_u *LinkUpdate) SetNillableType(v *link.Type) *LinkUpdate {
+	if v != nil {
+		_u.SetType(*v)
+	}
+	return _u
+}
+
+// ClearType clears the value of the "type" field.
+func (_u *LinkUpdate) ClearType() *LinkUpdate {
+	_u.mutation.ClearType()
+	return _u
+}
+
+// SetOriginalURL sets the "original_url" field.
+func (_u *LinkUpdate) SetOriginalURL(v string) *LinkUpdate {
+	_u.mutation.SetOriginalURL(v)
+	return _u
+}
+
+// SetNillableOriginalURL sets the "original_url" field if the given value is not nil.
+func (_u *LinkUpdate) SetNillableOriginalURL(v *string) *LinkUpdate {
+	if v != nil {
+		_u.SetOriginalURL(*v)
+	}
+	return _u
+}
+
+// ClearOriginalURL clears the value of the "original_url" field.
+func (_u *LinkUpdate) ClearOriginalURL() *LinkUpdate {
+	_u.mutation.ClearOriginalURL()
+	return _u
+}
+
+// SetUpdateReason sets the "update_reason" field.
+func (_u *LinkUpdate) SetUpdateReason(v string) *LinkUpdate {
+	_u.mutation.SetUpdateReason(v)
+	return _u
+}
+
+// SetNillableUpdateReason sets the "update_reason" field if the given value is not nil.
+func (_u *LinkUpdate) SetNillableUpdateReason(v *string) *LinkUpdate {
+	if v != nil {
+		_u.SetUpdateReason(*v)
+	}
+	return _u
+}
+
+// ClearUpdateReason clears the value of the "update_reason" field.
+func (_u *LinkUpdate) ClearUpdateReason() *LinkUpdate {
+	_u.mutation.ClearUpdateReason()
+	return _u
+}
+
 // SetSortOrder sets the "sort_order" field.
 func (_u *LinkUpdate) SetSortOrder(v int) *LinkUpdate {
 	_u.mutation.ResetSortOrder()
@@ -269,6 +349,11 @@ func (_u *LinkUpdate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Link.status": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.GetType(); ok {
+		if err := link.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Link.type": %w`, err)}
+		}
+	}
 	if _u.mutation.CategoryCleared() && len(_u.mutation.CategoryIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Link.category"`)
 	}
@@ -319,6 +404,30 @@ func (_u *LinkUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.SiteshotCleared() {
 		_spec.ClearField(link.FieldSiteshot, field.TypeString)
+	}
+	if value, ok := _u.mutation.Email(); ok {
+		_spec.SetField(link.FieldEmail, field.TypeString, value)
+	}
+	if _u.mutation.EmailCleared() {
+		_spec.ClearField(link.FieldEmail, field.TypeString)
+	}
+	if value, ok := _u.mutation.GetType(); ok {
+		_spec.SetField(link.FieldType, field.TypeEnum, value)
+	}
+	if _u.mutation.TypeCleared() {
+		_spec.ClearField(link.FieldType, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.OriginalURL(); ok {
+		_spec.SetField(link.FieldOriginalURL, field.TypeString, value)
+	}
+	if _u.mutation.OriginalURLCleared() {
+		_spec.ClearField(link.FieldOriginalURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.UpdateReason(); ok {
+		_spec.SetField(link.FieldUpdateReason, field.TypeString, value)
+	}
+	if _u.mutation.UpdateReasonCleared() {
+		_spec.ClearField(link.FieldUpdateReason, field.TypeString)
 	}
 	if value, ok := _u.mutation.SortOrder(); ok {
 		_spec.SetField(link.FieldSortOrder, field.TypeInt, value)
@@ -527,6 +636,86 @@ func (_u *LinkUpdateOne) ClearSiteshot() *LinkUpdateOne {
 	return _u
 }
 
+// SetEmail sets the "email" field.
+func (_u *LinkUpdateOne) SetEmail(v string) *LinkUpdateOne {
+	_u.mutation.SetEmail(v)
+	return _u
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (_u *LinkUpdateOne) SetNillableEmail(v *string) *LinkUpdateOne {
+	if v != nil {
+		_u.SetEmail(*v)
+	}
+	return _u
+}
+
+// ClearEmail clears the value of the "email" field.
+func (_u *LinkUpdateOne) ClearEmail() *LinkUpdateOne {
+	_u.mutation.ClearEmail()
+	return _u
+}
+
+// SetType sets the "type" field.
+func (_u *LinkUpdateOne) SetType(v link.Type) *LinkUpdateOne {
+	_u.mutation.SetType(v)
+	return _u
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (_u *LinkUpdateOne) SetNillableType(v *link.Type) *LinkUpdateOne {
+	if v != nil {
+		_u.SetType(*v)
+	}
+	return _u
+}
+
+// ClearType clears the value of the "type" field.
+func (_u *LinkUpdateOne) ClearType() *LinkUpdateOne {
+	_u.mutation.ClearType()
+	return _u
+}
+
+// SetOriginalURL sets the "original_url" field.
+func (_u *LinkUpdateOne) SetOriginalURL(v string) *LinkUpdateOne {
+	_u.mutation.SetOriginalURL(v)
+	return _u
+}
+
+// SetNillableOriginalURL sets the "original_url" field if the given value is not nil.
+func (_u *LinkUpdateOne) SetNillableOriginalURL(v *string) *LinkUpdateOne {
+	if v != nil {
+		_u.SetOriginalURL(*v)
+	}
+	return _u
+}
+
+// ClearOriginalURL clears the value of the "original_url" field.
+func (_u *LinkUpdateOne) ClearOriginalURL() *LinkUpdateOne {
+	_u.mutation.ClearOriginalURL()
+	return _u
+}
+
+// SetUpdateReason sets the "update_reason" field.
+func (_u *LinkUpdateOne) SetUpdateReason(v string) *LinkUpdateOne {
+	_u.mutation.SetUpdateReason(v)
+	return _u
+}
+
+// SetNillableUpdateReason sets the "update_reason" field if the given value is not nil.
+func (_u *LinkUpdateOne) SetNillableUpdateReason(v *string) *LinkUpdateOne {
+	if v != nil {
+		_u.SetUpdateReason(*v)
+	}
+	return _u
+}
+
+// ClearUpdateReason clears the value of the "update_reason" field.
+func (_u *LinkUpdateOne) ClearUpdateReason() *LinkUpdateOne {
+	_u.mutation.ClearUpdateReason()
+	return _u
+}
+
 // SetSortOrder sets the "sort_order" field.
 func (_u *LinkUpdateOne) SetSortOrder(v int) *LinkUpdateOne {
 	_u.mutation.ResetSortOrder()
@@ -677,6 +866,11 @@ func (_u *LinkUpdateOne) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Link.status": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.GetType(); ok {
+		if err := link.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Link.type": %w`, err)}
+		}
+	}
 	if _u.mutation.CategoryCleared() && len(_u.mutation.CategoryIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Link.category"`)
 	}
@@ -744,6 +938,30 @@ func (_u *LinkUpdateOne) sqlSave(ctx context.Context) (_node *Link, err error) {
 	}
 	if _u.mutation.SiteshotCleared() {
 		_spec.ClearField(link.FieldSiteshot, field.TypeString)
+	}
+	if value, ok := _u.mutation.Email(); ok {
+		_spec.SetField(link.FieldEmail, field.TypeString, value)
+	}
+	if _u.mutation.EmailCleared() {
+		_spec.ClearField(link.FieldEmail, field.TypeString)
+	}
+	if value, ok := _u.mutation.GetType(); ok {
+		_spec.SetField(link.FieldType, field.TypeEnum, value)
+	}
+	if _u.mutation.TypeCleared() {
+		_spec.ClearField(link.FieldType, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.OriginalURL(); ok {
+		_spec.SetField(link.FieldOriginalURL, field.TypeString, value)
+	}
+	if _u.mutation.OriginalURLCleared() {
+		_spec.ClearField(link.FieldOriginalURL, field.TypeString)
+	}
+	if value, ok := _u.mutation.UpdateReason(); ok {
+		_spec.SetField(link.FieldUpdateReason, field.TypeString, value)
+	}
+	if _u.mutation.UpdateReasonCleared() {
+		_spec.ClearField(link.FieldUpdateReason, field.TypeString)
 	}
 	if value, ok := _u.mutation.SortOrder(); ok {
 		_spec.SetField(link.FieldSortOrder, field.TypeInt, value)

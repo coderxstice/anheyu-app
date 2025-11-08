@@ -33,6 +33,19 @@ func (Link) Fields() []ent.Field {
 		field.String("siteshot").
 			Comment("网站快照的 URL").
 			Optional(),
+		field.String("email").
+			Comment("联系邮箱").
+			Optional(),
+		field.Enum("type").
+			Comment("申请类型").
+			Values("NEW", "UPDATE").
+			Optional(),
+		field.String("original_url").
+			Comment("修改类型时的原友链URL").
+			Optional(),
+		field.Text("update_reason").
+			Comment("修改类型时的修改原因").
+			Optional(),
 		field.Int("sort_order").
 			Comment("排序权重，数字越小越靠前").
 			Default(0),

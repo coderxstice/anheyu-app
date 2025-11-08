@@ -91,6 +91,62 @@ func (_c *LinkCreate) SetNillableSiteshot(v *string) *LinkCreate {
 	return _c
 }
 
+// SetEmail sets the "email" field.
+func (_c *LinkCreate) SetEmail(v string) *LinkCreate {
+	_c.mutation.SetEmail(v)
+	return _c
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (_c *LinkCreate) SetNillableEmail(v *string) *LinkCreate {
+	if v != nil {
+		_c.SetEmail(*v)
+	}
+	return _c
+}
+
+// SetType sets the "type" field.
+func (_c *LinkCreate) SetType(v link.Type) *LinkCreate {
+	_c.mutation.SetType(v)
+	return _c
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (_c *LinkCreate) SetNillableType(v *link.Type) *LinkCreate {
+	if v != nil {
+		_c.SetType(*v)
+	}
+	return _c
+}
+
+// SetOriginalURL sets the "original_url" field.
+func (_c *LinkCreate) SetOriginalURL(v string) *LinkCreate {
+	_c.mutation.SetOriginalURL(v)
+	return _c
+}
+
+// SetNillableOriginalURL sets the "original_url" field if the given value is not nil.
+func (_c *LinkCreate) SetNillableOriginalURL(v *string) *LinkCreate {
+	if v != nil {
+		_c.SetOriginalURL(*v)
+	}
+	return _c
+}
+
+// SetUpdateReason sets the "update_reason" field.
+func (_c *LinkCreate) SetUpdateReason(v string) *LinkCreate {
+	_c.mutation.SetUpdateReason(v)
+	return _c
+}
+
+// SetNillableUpdateReason sets the "update_reason" field if the given value is not nil.
+func (_c *LinkCreate) SetNillableUpdateReason(v *string) *LinkCreate {
+	if v != nil {
+		_c.SetUpdateReason(*v)
+	}
+	return _c
+}
+
 // SetSortOrder sets the "sort_order" field.
 func (_c *LinkCreate) SetSortOrder(v int) *LinkCreate {
 	_c.mutation.SetSortOrder(v)
@@ -220,6 +276,11 @@ func (_c *LinkCreate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Link.status": %w`, err)}
 		}
 	}
+	if v, ok := _c.mutation.GetType(); ok {
+		if err := link.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Link.type": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.SortOrder(); !ok {
 		return &ValidationError{Name: "sort_order", err: errors.New(`ent: missing required field "Link.sort_order"`)}
 	}
@@ -279,6 +340,22 @@ func (_c *LinkCreate) createSpec() (*Link, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Siteshot(); ok {
 		_spec.SetField(link.FieldSiteshot, field.TypeString, value)
 		_node.Siteshot = value
+	}
+	if value, ok := _c.mutation.Email(); ok {
+		_spec.SetField(link.FieldEmail, field.TypeString, value)
+		_node.Email = value
+	}
+	if value, ok := _c.mutation.GetType(); ok {
+		_spec.SetField(link.FieldType, field.TypeEnum, value)
+		_node.Type = value
+	}
+	if value, ok := _c.mutation.OriginalURL(); ok {
+		_spec.SetField(link.FieldOriginalURL, field.TypeString, value)
+		_node.OriginalURL = value
+	}
+	if value, ok := _c.mutation.UpdateReason(); ok {
+		_spec.SetField(link.FieldUpdateReason, field.TypeString, value)
+		_node.UpdateReason = value
 	}
 	if value, ok := _c.mutation.SortOrder(); ok {
 		_spec.SetField(link.FieldSortOrder, field.TypeInt, value)
@@ -463,6 +540,78 @@ func (u *LinkUpsert) ClearSiteshot() *LinkUpsert {
 	return u
 }
 
+// SetEmail sets the "email" field.
+func (u *LinkUpsert) SetEmail(v string) *LinkUpsert {
+	u.Set(link.FieldEmail, v)
+	return u
+}
+
+// UpdateEmail sets the "email" field to the value that was provided on create.
+func (u *LinkUpsert) UpdateEmail() *LinkUpsert {
+	u.SetExcluded(link.FieldEmail)
+	return u
+}
+
+// ClearEmail clears the value of the "email" field.
+func (u *LinkUpsert) ClearEmail() *LinkUpsert {
+	u.SetNull(link.FieldEmail)
+	return u
+}
+
+// SetType sets the "type" field.
+func (u *LinkUpsert) SetType(v link.Type) *LinkUpsert {
+	u.Set(link.FieldType, v)
+	return u
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *LinkUpsert) UpdateType() *LinkUpsert {
+	u.SetExcluded(link.FieldType)
+	return u
+}
+
+// ClearType clears the value of the "type" field.
+func (u *LinkUpsert) ClearType() *LinkUpsert {
+	u.SetNull(link.FieldType)
+	return u
+}
+
+// SetOriginalURL sets the "original_url" field.
+func (u *LinkUpsert) SetOriginalURL(v string) *LinkUpsert {
+	u.Set(link.FieldOriginalURL, v)
+	return u
+}
+
+// UpdateOriginalURL sets the "original_url" field to the value that was provided on create.
+func (u *LinkUpsert) UpdateOriginalURL() *LinkUpsert {
+	u.SetExcluded(link.FieldOriginalURL)
+	return u
+}
+
+// ClearOriginalURL clears the value of the "original_url" field.
+func (u *LinkUpsert) ClearOriginalURL() *LinkUpsert {
+	u.SetNull(link.FieldOriginalURL)
+	return u
+}
+
+// SetUpdateReason sets the "update_reason" field.
+func (u *LinkUpsert) SetUpdateReason(v string) *LinkUpsert {
+	u.Set(link.FieldUpdateReason, v)
+	return u
+}
+
+// UpdateUpdateReason sets the "update_reason" field to the value that was provided on create.
+func (u *LinkUpsert) UpdateUpdateReason() *LinkUpsert {
+	u.SetExcluded(link.FieldUpdateReason)
+	return u
+}
+
+// ClearUpdateReason clears the value of the "update_reason" field.
+func (u *LinkUpsert) ClearUpdateReason() *LinkUpsert {
+	u.SetNull(link.FieldUpdateReason)
+	return u
+}
+
 // SetSortOrder sets the "sort_order" field.
 func (u *LinkUpsert) SetSortOrder(v int) *LinkUpsert {
 	u.Set(link.FieldSortOrder, v)
@@ -635,6 +784,90 @@ func (u *LinkUpsertOne) UpdateSiteshot() *LinkUpsertOne {
 func (u *LinkUpsertOne) ClearSiteshot() *LinkUpsertOne {
 	return u.Update(func(s *LinkUpsert) {
 		s.ClearSiteshot()
+	})
+}
+
+// SetEmail sets the "email" field.
+func (u *LinkUpsertOne) SetEmail(v string) *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.SetEmail(v)
+	})
+}
+
+// UpdateEmail sets the "email" field to the value that was provided on create.
+func (u *LinkUpsertOne) UpdateEmail() *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.UpdateEmail()
+	})
+}
+
+// ClearEmail clears the value of the "email" field.
+func (u *LinkUpsertOne) ClearEmail() *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.ClearEmail()
+	})
+}
+
+// SetType sets the "type" field.
+func (u *LinkUpsertOne) SetType(v link.Type) *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.SetType(v)
+	})
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *LinkUpsertOne) UpdateType() *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.UpdateType()
+	})
+}
+
+// ClearType clears the value of the "type" field.
+func (u *LinkUpsertOne) ClearType() *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.ClearType()
+	})
+}
+
+// SetOriginalURL sets the "original_url" field.
+func (u *LinkUpsertOne) SetOriginalURL(v string) *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.SetOriginalURL(v)
+	})
+}
+
+// UpdateOriginalURL sets the "original_url" field to the value that was provided on create.
+func (u *LinkUpsertOne) UpdateOriginalURL() *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.UpdateOriginalURL()
+	})
+}
+
+// ClearOriginalURL clears the value of the "original_url" field.
+func (u *LinkUpsertOne) ClearOriginalURL() *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.ClearOriginalURL()
+	})
+}
+
+// SetUpdateReason sets the "update_reason" field.
+func (u *LinkUpsertOne) SetUpdateReason(v string) *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.SetUpdateReason(v)
+	})
+}
+
+// UpdateUpdateReason sets the "update_reason" field to the value that was provided on create.
+func (u *LinkUpsertOne) UpdateUpdateReason() *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.UpdateUpdateReason()
+	})
+}
+
+// ClearUpdateReason clears the value of the "update_reason" field.
+func (u *LinkUpsertOne) ClearUpdateReason() *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.ClearUpdateReason()
 	})
 }
 
@@ -979,6 +1212,90 @@ func (u *LinkUpsertBulk) UpdateSiteshot() *LinkUpsertBulk {
 func (u *LinkUpsertBulk) ClearSiteshot() *LinkUpsertBulk {
 	return u.Update(func(s *LinkUpsert) {
 		s.ClearSiteshot()
+	})
+}
+
+// SetEmail sets the "email" field.
+func (u *LinkUpsertBulk) SetEmail(v string) *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.SetEmail(v)
+	})
+}
+
+// UpdateEmail sets the "email" field to the value that was provided on create.
+func (u *LinkUpsertBulk) UpdateEmail() *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.UpdateEmail()
+	})
+}
+
+// ClearEmail clears the value of the "email" field.
+func (u *LinkUpsertBulk) ClearEmail() *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.ClearEmail()
+	})
+}
+
+// SetType sets the "type" field.
+func (u *LinkUpsertBulk) SetType(v link.Type) *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.SetType(v)
+	})
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *LinkUpsertBulk) UpdateType() *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.UpdateType()
+	})
+}
+
+// ClearType clears the value of the "type" field.
+func (u *LinkUpsertBulk) ClearType() *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.ClearType()
+	})
+}
+
+// SetOriginalURL sets the "original_url" field.
+func (u *LinkUpsertBulk) SetOriginalURL(v string) *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.SetOriginalURL(v)
+	})
+}
+
+// UpdateOriginalURL sets the "original_url" field to the value that was provided on create.
+func (u *LinkUpsertBulk) UpdateOriginalURL() *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.UpdateOriginalURL()
+	})
+}
+
+// ClearOriginalURL clears the value of the "original_url" field.
+func (u *LinkUpsertBulk) ClearOriginalURL() *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.ClearOriginalURL()
+	})
+}
+
+// SetUpdateReason sets the "update_reason" field.
+func (u *LinkUpsertBulk) SetUpdateReason(v string) *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.SetUpdateReason(v)
+	})
+}
+
+// UpdateUpdateReason sets the "update_reason" field to the value that was provided on create.
+func (u *LinkUpsertBulk) UpdateUpdateReason() *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.UpdateUpdateReason()
+	})
+}
+
+// ClearUpdateReason clears the value of the "update_reason" field.
+func (u *LinkUpsertBulk) ClearUpdateReason() *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.ClearUpdateReason()
 	})
 }
 

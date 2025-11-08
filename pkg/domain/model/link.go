@@ -43,6 +43,10 @@ type LinkDTO struct {
 	Description     string           `json:"description"`
 	Status          string           `json:"status"`
 	Siteshot        string           `json:"siteshot,omitempty"`
+	Email           string           `json:"email,omitempty"`
+	Type            string           `json:"type,omitempty"`          // 申请类型：NEW-新增, UPDATE-修改
+	OriginalURL     string           `json:"original_url,omitempty"`  // 修改类型时的原URL
+	UpdateReason    string           `json:"update_reason,omitempty"` // 修改类型时的修改原因
 	SortOrder       int              `json:"sort_order"`
 	SkipHealthCheck bool             `json:"skip_health_check"`
 	Category        *LinkCategoryDTO `json:"category"`
@@ -53,11 +57,15 @@ type LinkDTO struct {
 
 // ApplyLinkRequest 是前台用户申请友链的请求结构。
 type ApplyLinkRequest struct {
-	Name        string `json:"name" binding:"required"`
-	URL         string `json:"url" binding:"required,url"`
-	Logo        string `json:"logo"`
-	Description string `json:"description"`
-	Siteshot    string `json:"siteshot"` // 网站快照URL，可选字段
+	Type         string `json:"type" binding:"required,oneof=NEW UPDATE"` // 申请类型：NEW-新增友链, UPDATE-修改友链
+	Name         string `json:"name" binding:"required"`
+	URL          string `json:"url" binding:"required,url"`
+	Logo         string `json:"logo"`
+	Description  string `json:"description"`
+	Siteshot     string `json:"siteshot"` // 网站快照URL，可选字段
+	Email        string `json:"email" binding:"required,email"`
+	OriginalURL  string `json:"original_url" binding:"omitempty,url"` // 修改类型时，原友链的URL
+	UpdateReason string `json:"update_reason"`                        // 修改类型时，修改原因说明
 }
 
 // CreateLinkCategoryRequest 是后台管理员创建友链分类的请求结构。
@@ -83,6 +91,10 @@ type AdminCreateLinkRequest struct {
 	TagID           *int   `json:"tag_id"` // 改为单个标签，可选
 	Status          string `json:"status" binding:"required,oneof=PENDING APPROVED REJECTED INVALID"`
 	Siteshot        string `json:"siteshot"`
+	Email           string `json:"email" binding:"omitempty,email"`
+	Type            string `json:"type" binding:"omitempty,oneof=NEW UPDATE"` // 申请类型，可选
+	OriginalURL     string `json:"original_url" binding:"omitempty,url"`      // 原友链URL，可选
+	UpdateReason    string `json:"update_reason"`                             // 修改原因，可选
 	SortOrder       int    `json:"sort_order"`
 	SkipHealthCheck bool   `json:"skip_health_check"`
 }
@@ -128,6 +140,10 @@ type AdminUpdateLinkRequest struct {
 	TagID           *int   `json:"tag_id"` // 改为单个标签，可选
 	Status          string `json:"status" binding:"required,oneof=PENDING APPROVED REJECTED INVALID"`
 	Siteshot        string `json:"siteshot"`
+	Email           string `json:"email" binding:"omitempty,email"`
+	Type            string `json:"type" binding:"omitempty,oneof=NEW UPDATE"` // 申请类型，可选
+	OriginalURL     string `json:"original_url" binding:"omitempty,url"`      // 原友链URL，可选
+	UpdateReason    string `json:"update_reason"`                             // 修改原因，可选
 	SortOrder       int    `json:"sort_order"`
 	SkipHealthCheck bool   `json:"skip_health_check"`
 }
@@ -152,6 +168,7 @@ type ImportLinkItem struct {
 	Logo         string `json:"logo"`
 	Description  string `json:"description"`
 	Siteshot     string `json:"siteshot"`
+	Email        string `json:"email" binding:"omitempty,email"`
 	CategoryName string `json:"category_name"`                                                      // 分类名称，如果不存在会自动创建
 	TagName      string `json:"tag_name"`                                                           // 标签名称，可选，如果不存在会自动创建
 	Status       string `json:"status" binding:"omitempty,oneof=PENDING APPROVED REJECTED INVALID"` // 默认为 PENDING
