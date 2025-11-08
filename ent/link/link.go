@@ -26,6 +26,8 @@ const (
 	FieldStatus = "status"
 	// FieldSiteshot holds the string denoting the siteshot field in the database.
 	FieldSiteshot = "siteshot"
+	// FieldEmail holds the string denoting the email field in the database.
+	FieldEmail = "email"
 	// FieldSortOrder holds the string denoting the sort_order field in the database.
 	FieldSortOrder = "sort_order"
 	// FieldSkipHealthCheck holds the string denoting the skip_health_check field in the database.
@@ -59,6 +61,7 @@ var Columns = []string{
 	FieldDescription,
 	FieldStatus,
 	FieldSiteshot,
+	FieldEmail,
 	FieldSortOrder,
 	FieldSkipHealthCheck,
 }
@@ -165,6 +168,11 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 // BySiteshot orders the results by the siteshot field.
 func BySiteshot(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSiteshot, opts...).ToFunc()
+}
+
+// ByEmail orders the results by the email field.
+func ByEmail(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEmail, opts...).ToFunc()
 }
 
 // BySortOrder orders the results by the sort_order field.

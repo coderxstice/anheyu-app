@@ -491,8 +491,8 @@ func (r *Router) registerLinkRoutes(api *gin.RouterGroup) {
 	// --- 前台公开接口 ---
 	linksPublic := api.Group("/public/links")
 	{
-		// 申请友链: POST /api/public/links
-		linksPublic.POST("", r.linkHandler.ApplyLink)
+		// 申请友链: POST /api/public/links (带频率限制)
+		linksPublic.POST("", middleware.LinkApplyRateLimit(), r.linkHandler.ApplyLink)
 
 		// 获取公开友链列表: GET /api/public/links
 		linksPublic.GET("", r.linkHandler.ListPublicLinks)

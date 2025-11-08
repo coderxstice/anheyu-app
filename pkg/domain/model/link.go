@@ -43,6 +43,7 @@ type LinkDTO struct {
 	Description     string           `json:"description"`
 	Status          string           `json:"status"`
 	Siteshot        string           `json:"siteshot,omitempty"`
+	Email           string           `json:"email,omitempty"`
 	SortOrder       int              `json:"sort_order"`
 	SkipHealthCheck bool             `json:"skip_health_check"`
 	Category        *LinkCategoryDTO `json:"category"`
@@ -58,6 +59,7 @@ type ApplyLinkRequest struct {
 	Logo        string `json:"logo"`
 	Description string `json:"description"`
 	Siteshot    string `json:"siteshot"` // 网站快照URL，可选字段
+	Email       string `json:"email" binding:"omitempty,email"`
 }
 
 // CreateLinkCategoryRequest 是后台管理员创建友链分类的请求结构。
@@ -83,6 +85,7 @@ type AdminCreateLinkRequest struct {
 	TagID           *int   `json:"tag_id"` // 改为单个标签，可选
 	Status          string `json:"status" binding:"required,oneof=PENDING APPROVED REJECTED INVALID"`
 	Siteshot        string `json:"siteshot"`
+	Email           string `json:"email" binding:"omitempty,email"`
 	SortOrder       int    `json:"sort_order"`
 	SkipHealthCheck bool   `json:"skip_health_check"`
 }
@@ -128,6 +131,7 @@ type AdminUpdateLinkRequest struct {
 	TagID           *int   `json:"tag_id"` // 改为单个标签，可选
 	Status          string `json:"status" binding:"required,oneof=PENDING APPROVED REJECTED INVALID"`
 	Siteshot        string `json:"siteshot"`
+	Email           string `json:"email" binding:"omitempty,email"`
 	SortOrder       int    `json:"sort_order"`
 	SkipHealthCheck bool   `json:"skip_health_check"`
 }
@@ -152,6 +156,7 @@ type ImportLinkItem struct {
 	Logo         string `json:"logo"`
 	Description  string `json:"description"`
 	Siteshot     string `json:"siteshot"`
+	Email        string `json:"email" binding:"omitempty,email"`
 	CategoryName string `json:"category_name"`                                                      // 分类名称，如果不存在会自动创建
 	TagName      string `json:"tag_name"`                                                           // 标签名称，可选，如果不存在会自动创建
 	Status       string `json:"status" binding:"omitempty,oneof=PENDING APPROVED REJECTED INVALID"` // 默认为 PENDING

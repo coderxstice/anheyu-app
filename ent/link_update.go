@@ -132,6 +132,26 @@ func (_u *LinkUpdate) ClearSiteshot() *LinkUpdate {
 	return _u
 }
 
+// SetEmail sets the "email" field.
+func (_u *LinkUpdate) SetEmail(v string) *LinkUpdate {
+	_u.mutation.SetEmail(v)
+	return _u
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (_u *LinkUpdate) SetNillableEmail(v *string) *LinkUpdate {
+	if v != nil {
+		_u.SetEmail(*v)
+	}
+	return _u
+}
+
+// ClearEmail clears the value of the "email" field.
+func (_u *LinkUpdate) ClearEmail() *LinkUpdate {
+	_u.mutation.ClearEmail()
+	return _u
+}
+
 // SetSortOrder sets the "sort_order" field.
 func (_u *LinkUpdate) SetSortOrder(v int) *LinkUpdate {
 	_u.mutation.ResetSortOrder()
@@ -319,6 +339,12 @@ func (_u *LinkUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.SiteshotCleared() {
 		_spec.ClearField(link.FieldSiteshot, field.TypeString)
+	}
+	if value, ok := _u.mutation.Email(); ok {
+		_spec.SetField(link.FieldEmail, field.TypeString, value)
+	}
+	if _u.mutation.EmailCleared() {
+		_spec.ClearField(link.FieldEmail, field.TypeString)
 	}
 	if value, ok := _u.mutation.SortOrder(); ok {
 		_spec.SetField(link.FieldSortOrder, field.TypeInt, value)
@@ -524,6 +550,26 @@ func (_u *LinkUpdateOne) SetNillableSiteshot(v *string) *LinkUpdateOne {
 // ClearSiteshot clears the value of the "siteshot" field.
 func (_u *LinkUpdateOne) ClearSiteshot() *LinkUpdateOne {
 	_u.mutation.ClearSiteshot()
+	return _u
+}
+
+// SetEmail sets the "email" field.
+func (_u *LinkUpdateOne) SetEmail(v string) *LinkUpdateOne {
+	_u.mutation.SetEmail(v)
+	return _u
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (_u *LinkUpdateOne) SetNillableEmail(v *string) *LinkUpdateOne {
+	if v != nil {
+		_u.SetEmail(*v)
+	}
+	return _u
+}
+
+// ClearEmail clears the value of the "email" field.
+func (_u *LinkUpdateOne) ClearEmail() *LinkUpdateOne {
+	_u.mutation.ClearEmail()
 	return _u
 }
 
@@ -744,6 +790,12 @@ func (_u *LinkUpdateOne) sqlSave(ctx context.Context) (_node *Link, err error) {
 	}
 	if _u.mutation.SiteshotCleared() {
 		_spec.ClearField(link.FieldSiteshot, field.TypeString)
+	}
+	if value, ok := _u.mutation.Email(); ok {
+		_spec.SetField(link.FieldEmail, field.TypeString, value)
+	}
+	if _u.mutation.EmailCleared() {
+		_spec.ClearField(link.FieldEmail, field.TypeString)
 	}
 	if value, ok := _u.mutation.SortOrder(); ok {
 		_spec.SetField(link.FieldSortOrder, field.TypeInt, value)

@@ -29,6 +29,8 @@ type EmailService interface {
 	// --- 修改点 1: 移除接口签名中的 targetMeta 参数 ---
 	SendCommentNotification(newComment *model.Comment, parentComment *model.Comment)
 	SendTestEmail(ctx context.Context, toEmail string) error
+	// SendLinkReviewNotification 发送友链审核通知
+	SendLinkReviewNotification(ctx context.Context, link *model.LinkDTO, isApproved bool) error
 }
 
 // emailService 是 EmailService 接口的实现
@@ -286,6 +288,130 @@ func (s *emailService) SendForgotPasswordEmail(ctx context.Context, toEmail, nic
 	}
 
 	go func() { _ = s.send(toEmail, subject, body) }()
+	return nil
+}
+
+// SendLinkReviewNotification 负责发送友链审核通知邮件
+func (s *emailService) SendLinkReviewNotification(ctx context.Context, link *model.LinkDTO, isApproved bool) error {
+	// 检查是否开启友链审核邮件通知
+	mailEnabled := s.settingSvc.GetBool(constant.KeyFriendLinkReviewMailEnable.String())
+	if !mailEnabled {
+		log.Printf("[DEBUG] 友链审核邮件通知已关闭，跳过发送")
+		return nil
+	}
+
+	// 检查友链是否有邮箱
+	if link.Email == "" {
+		log.Printf("[DEBUG] 友链 %s 没有填写邮箱，跳过邮件通知", link.Name)
+		return nil
+	}
+
+	appName := s.settingSvc.Get(constant.KeyAppName.String())
+	siteURL := s.settingSvc.Get(constant.KeySiteURL.String())
+
+	// 🔧 处理 siteURL，确保有效
+	if siteURL == "" || siteURL == "https://" || siteURL == "http://" {
+		log.Printf("[WARNING] 站点URL未正确配置（当前值: %s），使用默认值 https://anheyu.com", siteURL)
+		siteURL = "https://anheyu.com"
+	}
+	siteURL = strings.TrimRight(siteURL, "/")
+
+	// 根据审核状态选择不同的模板
+	var subjectTplStr, bodyTplStr string
+	if isApproved {
+		subjectTplStr = s.settingSvc.Get(constant.KeyFriendLinkReviewMailSubjectApproved.String())
+		bodyTplStr = s.settingSvc.Get(constant.KeyFriendLinkReviewMailTemplateApproved.String())
+		// 如果没有配置模板，使用默认模板
+		if subjectTplStr == "" {
+			subjectTplStr = "【{{.SITE_NAME}}】友链申请已通过"
+		}
+		if bodyTplStr == "" {
+			bodyTplStr = `<div style="background-color:#f4f5f7;padding:30px 0;">
+	<div style="max-width:600px;margin:0 auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+		<div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:30px;text-align:center;">
+			<h1 style="color:#fff;margin:0;font-size:24px;">友链申请通过通知</h1>
+		</div>
+		<div style="padding:30px;">
+			<p style="font-size:16px;line-height:1.8;color:#333;">亲爱的 <strong>{{.LINK_NAME}}</strong> 站长，您好！</p>
+			<p style="font-size:14px;line-height:1.8;color:#666;">恭喜您！您在 <a href="{{.SITE_URL}}" style="color:#667eea;text-decoration:none;">{{.SITE_NAME}}</a> 提交的友链申请已通过审核。</p>
+			<div style="background:#f8f9fa;padding:20px;border-radius:6px;margin:20px 0;">
+				<h3 style="margin:0 0 15px 0;color:#333;font-size:16px;">友链信息</h3>
+				<p style="margin:8px 0;color:#666;"><strong>网站名称：</strong>{{.LINK_NAME}}</p>
+				<p style="margin:8px 0;color:#666;"><strong>网站地址：</strong><a href="{{.LINK_URL}}" style="color:#667eea;">{{.LINK_URL}}</a></p>
+				<p style="margin:8px 0;color:#666;"><strong>网站描述：</strong>{{.LINK_DESCRIPTION}}</p>
+			</div>
+			<p style="font-size:14px;line-height:1.8;color:#666;">您的网站现已显示在我们的友链页面中，感谢您的支持与分享！</p>
+			<p style="font-size:14px;line-height:1.8;color:#666;">期待与您建立长期的友好关系。</p>
+		</div>
+		<div style="background:#f8f9fa;padding:20px;text-align:center;color:#999;font-size:12px;">
+			<p style="margin:5px 0;">本邮件由系统自动发送，请勿直接回复</p>
+			<p style="margin:5px 0;">© {{.SITE_NAME}}</p>
+		</div>
+	</div>
+</div>`
+		}
+	} else {
+		subjectTplStr = s.settingSvc.Get(constant.KeyFriendLinkReviewMailSubjectRejected.String())
+		bodyTplStr = s.settingSvc.Get(constant.KeyFriendLinkReviewMailTemplateRejected.String())
+		// 如果没有配置模板，使用默认模板
+		if subjectTplStr == "" {
+			subjectTplStr = "【{{.SITE_NAME}}】友链申请未通过"
+		}
+		if bodyTplStr == "" {
+			bodyTplStr = `<div style="background-color:#f4f5f7;padding:30px 0;">
+	<div style="max-width:600px;margin:0 auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+		<div style="background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);padding:30px;text-align:center;">
+			<h1 style="color:#fff;margin:0;font-size:24px;">友链申请未通过通知</h1>
+		</div>
+		<div style="padding:30px;">
+			<p style="font-size:16px;line-height:1.8;color:#333;">亲爱的 <strong>{{.LINK_NAME}}</strong> 站长，您好！</p>
+			<p style="font-size:14px;line-height:1.8;color:#666;">很遗憾地通知您，您在 <a href="{{.SITE_URL}}" style="color:#f5576c;text-decoration:none;">{{.SITE_NAME}}</a> 提交的友链申请未能通过审核。</p>
+			<div style="background:#fff3f3;padding:20px;border-radius:6px;margin:20px 0;border-left:4px solid #f5576c;">
+				<h3 style="margin:0 0 15px 0;color:#333;font-size:16px;">申请信息</h3>
+				<p style="margin:8px 0;color:#666;"><strong>网站名称：</strong>{{.LINK_NAME}}</p>
+				<p style="margin:8px 0;color:#666;"><strong>网站地址：</strong><a href="{{.LINK_URL}}" style="color:#f5576c;">{{.LINK_URL}}</a></p>
+				<p style="margin:8px 0;color:#666;"><strong>网站描述：</strong>{{.LINK_DESCRIPTION}}</p>
+			</div>
+			<p style="font-size:14px;line-height:1.8;color:#666;">可能的原因包括：网站内容不符合要求、网站无法正常访问、未添加本站友链等。</p>
+			<p style="font-size:14px;line-height:1.8;color:#666;">如有疑问，欢迎与我们联系。</p>
+		</div>
+		<div style="background:#f8f9fa;padding:20px;text-align:center;color:#999;font-size:12px;">
+			<p style="margin:5px 0;">本邮件由系统自动发送，请勿直接回复</p>
+			<p style="margin:5px 0;">© {{.SITE_NAME}}</p>
+		</div>
+	</div>
+</div>`
+		}
+	}
+
+	// 构建模板数据
+	data := map[string]interface{}{
+		"SITE_NAME":        appName,
+		"SITE_URL":         siteURL,
+		"LINK_NAME":        link.Name,
+		"LINK_URL":         link.URL,
+		"LINK_DESCRIPTION": link.Description,
+		"LINK_LOGO":        link.Logo,
+	}
+
+	subject, err := renderTemplate(subjectTplStr, data)
+	if err != nil {
+		return fmt.Errorf("渲染友链审核邮件主题失败: %w", err)
+	}
+	body, err := renderTemplate(bodyTplStr, data)
+	if err != nil {
+		return fmt.Errorf("渲染友链审核邮件正文失败: %w", err)
+	}
+
+	// 异步发送邮件
+	go func() {
+		if err := s.send(link.Email, subject, body); err != nil {
+			log.Printf("[ERROR] 发送友链审核邮件失败: %v", err)
+		} else {
+			log.Printf("[INFO] 友链审核邮件已发送到: %s", link.Email)
+		}
+	}()
+
 	return nil
 }
 

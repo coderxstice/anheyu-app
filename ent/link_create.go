@@ -91,6 +91,20 @@ func (_c *LinkCreate) SetNillableSiteshot(v *string) *LinkCreate {
 	return _c
 }
 
+// SetEmail sets the "email" field.
+func (_c *LinkCreate) SetEmail(v string) *LinkCreate {
+	_c.mutation.SetEmail(v)
+	return _c
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (_c *LinkCreate) SetNillableEmail(v *string) *LinkCreate {
+	if v != nil {
+		_c.SetEmail(*v)
+	}
+	return _c
+}
+
 // SetSortOrder sets the "sort_order" field.
 func (_c *LinkCreate) SetSortOrder(v int) *LinkCreate {
 	_c.mutation.SetSortOrder(v)
@@ -280,6 +294,10 @@ func (_c *LinkCreate) createSpec() (*Link, *sqlgraph.CreateSpec) {
 		_spec.SetField(link.FieldSiteshot, field.TypeString, value)
 		_node.Siteshot = value
 	}
+	if value, ok := _c.mutation.Email(); ok {
+		_spec.SetField(link.FieldEmail, field.TypeString, value)
+		_node.Email = value
+	}
 	if value, ok := _c.mutation.SortOrder(); ok {
 		_spec.SetField(link.FieldSortOrder, field.TypeInt, value)
 		_node.SortOrder = value
@@ -463,6 +481,24 @@ func (u *LinkUpsert) ClearSiteshot() *LinkUpsert {
 	return u
 }
 
+// SetEmail sets the "email" field.
+func (u *LinkUpsert) SetEmail(v string) *LinkUpsert {
+	u.Set(link.FieldEmail, v)
+	return u
+}
+
+// UpdateEmail sets the "email" field to the value that was provided on create.
+func (u *LinkUpsert) UpdateEmail() *LinkUpsert {
+	u.SetExcluded(link.FieldEmail)
+	return u
+}
+
+// ClearEmail clears the value of the "email" field.
+func (u *LinkUpsert) ClearEmail() *LinkUpsert {
+	u.SetNull(link.FieldEmail)
+	return u
+}
+
 // SetSortOrder sets the "sort_order" field.
 func (u *LinkUpsert) SetSortOrder(v int) *LinkUpsert {
 	u.Set(link.FieldSortOrder, v)
@@ -635,6 +671,27 @@ func (u *LinkUpsertOne) UpdateSiteshot() *LinkUpsertOne {
 func (u *LinkUpsertOne) ClearSiteshot() *LinkUpsertOne {
 	return u.Update(func(s *LinkUpsert) {
 		s.ClearSiteshot()
+	})
+}
+
+// SetEmail sets the "email" field.
+func (u *LinkUpsertOne) SetEmail(v string) *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.SetEmail(v)
+	})
+}
+
+// UpdateEmail sets the "email" field to the value that was provided on create.
+func (u *LinkUpsertOne) UpdateEmail() *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.UpdateEmail()
+	})
+}
+
+// ClearEmail clears the value of the "email" field.
+func (u *LinkUpsertOne) ClearEmail() *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.ClearEmail()
 	})
 }
 
@@ -979,6 +1036,27 @@ func (u *LinkUpsertBulk) UpdateSiteshot() *LinkUpsertBulk {
 func (u *LinkUpsertBulk) ClearSiteshot() *LinkUpsertBulk {
 	return u.Update(func(s *LinkUpsert) {
 		s.ClearSiteshot()
+	})
+}
+
+// SetEmail sets the "email" field.
+func (u *LinkUpsertBulk) SetEmail(v string) *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.SetEmail(v)
+	})
+}
+
+// UpdateEmail sets the "email" field to the value that was provided on create.
+func (u *LinkUpsertBulk) UpdateEmail() *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.UpdateEmail()
+	})
+}
+
+// ClearEmail clears the value of the "email" field.
+func (u *LinkUpsertBulk) ClearEmail() *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.ClearEmail()
 	})
 }
 

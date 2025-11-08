@@ -41,6 +41,9 @@ func (r *linkRepo) Create(ctx context.Context, req *model.ApplyLinkRequest, cate
 	if req.Siteshot != "" {
 		create.SetSiteshot(req.Siteshot)
 	}
+	if req.Email != "" {
+		create.SetEmail(req.Email)
+	}
 
 	savedLink, err := create.Save(ctx)
 	if err != nil {
@@ -129,6 +132,10 @@ func (r *linkRepo) AdminCreate(ctx context.Context, req *model.AdminCreateLinkRe
 		create.SetDescription(req.Description)
 	}
 
+	if req.Email != "" {
+		create.SetEmail(req.Email)
+	}
+
 	savedLink, err := create.Save(ctx)
 	if err != nil {
 		return nil, err
@@ -155,6 +162,7 @@ func (r *linkRepo) Update(ctx context.Context, id int, req *model.AdminUpdateLin
 		SetLogo(req.Logo).
 		SetSiteshot(req.Siteshot).
 		SetDescription(req.Description).
+		SetEmail(req.Email).
 		SetStatus(link.Status(req.Status)).
 		SetCategoryID(req.CategoryID).
 		SetSortOrder(req.SortOrder).
@@ -250,6 +258,7 @@ func mapEntLinkToDTO(entLink *ent.Link) *model.LinkDTO {
 		Description:     entLink.Description,
 		Status:          string(entLink.Status),
 		Siteshot:        entLink.Siteshot,
+		Email:           entLink.Email,
 		SortOrder:       entLink.SortOrder,
 		SkipHealthCheck: entLink.SkipHealthCheck,
 	}
