@@ -130,6 +130,9 @@ func NewService(settingSvc setting.SettingService, bus *event.EventBus) *Service
 	// 视频画廊相关属性
 	policy.AllowAttrs("src", "poster", "controls", "preload", "playsinline", "type").OnElements("video")
 
+	// 图片画廊相关属性
+	policy.AllowAttrs("data-ratio").OnElements("div")
+
 	// 音乐播放器相关属性
 	policy.AllowAttrs("data-music-id", "data-music-data", "data-music-name", "data-music-artist", "data-music-pic", "data-music-url", "data-initialized", "data-audio-loaded", "data-events-attached").OnElements("div", "audio")
 	policy.AllowAttrs("preload").OnElements("audio")
