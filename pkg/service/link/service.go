@@ -147,21 +147,19 @@ func (s *service) ApplyLink(ctx context.Context, req *model.ApplyLinkRequest) (*
 	// 发送友链申请通知
 	log.Printf("[DEBUG] 友链申请成功，开始处理通知逻辑，友链名称: %s", newLink.Name)
 
+	pushChannel := s.settingSvc.Get(constant.KeyFriendLinkPushooChannel.String())
+	notifyAdmin := s.settingSvc.GetBool(constant.KeyFriendLinkNotifyAdmin.String())
+	scMailNotify := s.settingSvc.GetBool(constant.KeyFriendLinkScMailNotify.String())
+
+	log.Printf("[DEBUG] 友链通知配置检查:")
+	log.Printf("[DEBUG]   - pushChannel: '%s'", pushChannel)
+	log.Printf("[DEBUG]   - notifyAdmin: %t", notifyAdmin)
+	log.Printf("[DEBUG]   - scMailNotify: %t", scMailNotify)
+
 	// 发送即时通知
 	if s.pushooSvc != nil {
 		go func() {
 			log.Printf("[DEBUG] 开始处理友链申请即时通知逻辑")
-
-			pushChannelKey := constant.KeyFriendLinkPushooChannel.String()
-			notifyAdminKey := constant.KeyFriendLinkNotifyAdmin.String()
-
-			pushChannel := s.settingSvc.Get(pushChannelKey)
-			notifyAdmin := s.settingSvc.GetBool(notifyAdminKey)
-
-			log.Printf("[DEBUG] 友链通知配置检查:")
-			log.Printf("[DEBUG]   - pushChannel: '%s'", pushChannel)
-			log.Printf("[DEBUG]   - notifyAdmin: %t", notifyAdmin)
-
 			if pushChannel != "" && notifyAdmin {
 				log.Printf("[DEBUG] 满足通知条件，开始发送友链申请即时通知")
 				if err := s.pushooSvc.SendLinkApplicationNotification(ctx, newLink); err != nil {
@@ -175,6 +173,20 @@ func (s *service) ApplyLink(ctx context.Context, req *model.ApplyLinkRequest) (*
 		}()
 	} else {
 		log.Printf("[DEBUG] pushooSvc 为 nil，跳过友链申请即时通知")
+	}
+
+	// 发送邮件通知
+	if s.emailSvc != nil {
+		shouldSendEmail := notifyAdmin && (pushChannel == "" || scMailNotify)
+		if shouldSendEmail {
+			if err := s.emailSvc.SendLinkApplicationNotification(ctx, newLink); err != nil {
+				log.Printf("[ERROR] 发送友链申请通知邮件失败: %v", err)
+			}
+		} else {
+			log.Printf("[DEBUG] 跳过友链申请邮件通知：notifyAdmin=%t, pushChannel='%s', scMailNotify=%t", notifyAdmin, pushChannel, scMailNotify)
+		}
+	} else {
+		log.Printf("[DEBUG] emailSvc 为 nil，跳过友链申请邮件通知")
 	}
 
 	return newLink, nil
