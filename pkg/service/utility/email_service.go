@@ -29,6 +29,8 @@ type EmailService interface {
 	// --- 修改点 1: 移除接口签名中的 targetMeta 参数 ---
 	SendCommentNotification(newComment *model.Comment, parentComment *model.Comment)
 	SendTestEmail(ctx context.Context, toEmail string) error
+	// SendLinkApplicationNotification 发送友链申请通知邮件给站长
+	SendLinkApplicationNotification(ctx context.Context, link *model.LinkDTO) error
 	// SendLinkReviewNotification 发送友链审核通知
 	SendLinkReviewNotification(ctx context.Context, link *model.LinkDTO, isApproved bool) error
 }
@@ -65,6 +67,100 @@ func (s *emailService) SendTestEmail(ctx context.Context, toEmail string) error 
 	<p>如果您收到了这封邮件，那么证明您的网站邮件服务配置正确。</p>`, siteURL, appName)
 
 	return s.send(toEmail, subject, body)
+}
+
+// SendLinkApplicationNotification 发送友链申请邮件通知给站长
+func (s *emailService) SendLinkApplicationNotification(ctx context.Context, link *model.LinkDTO) error {
+	if link == nil {
+		return fmt.Errorf("无法发送友链申请邮件通知：link 为 nil")
+	}
+
+	notifyAdmin := s.settingSvc.GetBool(constant.KeyFriendLinkNotifyAdmin.String())
+	if !notifyAdmin {
+		log.Printf("[DEBUG] 友链申请邮件通知未开启（notifyAdmin=false），跳过发送")
+		return nil
+	}
+
+	adminEmail := strings.TrimSpace(s.settingSvc.Get(constant.KeyFrontDeskSiteOwnerEmail.String()))
+	if adminEmail == "" {
+		log.Printf("[WARNING] 站长邮箱未配置（frontDesk.siteOwner.email 为空），无法发送友链申请通知邮件")
+		return nil
+	}
+
+	pushChannel := strings.TrimSpace(s.settingSvc.Get(constant.KeyFriendLinkPushooChannel.String()))
+	scMailNotify := s.settingSvc.GetBool(constant.KeyFriendLinkScMailNotify.String())
+
+	// 如果配置了即时通知且未开启双重通知，则跳过邮件发送
+	if pushChannel != "" && !scMailNotify {
+		log.Printf("[DEBUG] 已配置友链即时通知且未开启双重通知（scMailNotify=false），跳过邮件通知")
+		return nil
+	}
+
+	appName := s.settingSvc.Get(constant.KeyAppName.String())
+	siteURL := s.settingSvc.Get(constant.KeySiteURL.String())
+
+	// 🔧 处理 siteURL，确保有效
+	if siteURL == "" || siteURL == "https://" || siteURL == "http://" {
+		log.Printf("[WARNING] 站点URL未正确配置（当前值: %s），使用默认值 https://anheyu.com", siteURL)
+		siteURL = "https://anheyu.com"
+	}
+	siteURL = strings.TrimRight(siteURL, "/")
+
+	adminURL := fmt.Sprintf("%s/admin/link", siteURL)
+
+	subjectTpl := s.settingSvc.Get(constant.KeyFriendLinkMailSubjectAdmin.String())
+	if subjectTpl == "" {
+		subjectTpl = "{{.SITE_NAME}} 收到了来自 {{.LINK_NAME}} 的友链申请"
+	}
+
+	bodyTpl := s.settingSvc.Get(constant.KeyFriendLinkMailTemplateAdmin.String())
+	if bodyTpl == "" {
+		bodyTpl = `<p>您好！</p>
+<p>您的网站 <strong>{{.SITE_NAME}}</strong> 收到了一个新的友链申请：</p>
+<ul>
+	<li>网站名称：{{.LINK_NAME}}</li>
+	<li>网站地址：<a href="{{.LINK_URL}}">{{.LINK_URL}}</a></li>
+	<li>网站描述：{{.LINK_DESC}}</li>
+</ul>
+<p>申请时间：{{.TIME}}</p>
+<p><a href="{{.ADMIN_URL}}">点击前往友链管理后台查看详情</a></p>`
+	}
+
+	data := map[string]interface{}{
+		"SITE_NAME":     appName,
+		"SITE_URL":      siteURL,
+		"ADMIN_URL":     adminURL,
+		"LINK_NAME":     link.Name,
+		"LINK_URL":      link.URL,
+		"LINK_LOGO":     link.Logo,
+		"LINK_DESC":     link.Description,
+		"LINK_EMAIL":    link.Email,
+		"LINK_SITESHOT": link.Siteshot,
+		"APPLY_TYPE":    link.Type,
+		"ORIGINAL_URL":  link.OriginalURL,
+		"UPDATE_REASON": link.UpdateReason,
+		"TIME":          time.Now().Format("2006-01-02 15:04:05"),
+	}
+
+	subject, err := renderTemplate(subjectTpl, data)
+	if err != nil {
+		return fmt.Errorf("渲染友链申请邮件主题失败: %w", err)
+	}
+
+	body, err := renderTemplate(bodyTpl, data)
+	if err != nil {
+		return fmt.Errorf("渲染友链申请邮件正文失败: %w", err)
+	}
+
+	go func() {
+		if err := s.send(adminEmail, subject, body); err != nil {
+			log.Printf("[ERROR] 发送友链申请通知邮件失败: %v", err)
+		} else {
+			log.Printf("[INFO] 友链申请通知邮件已发送到: %s", adminEmail)
+		}
+	}()
+
+	return nil
 }
 
 // SendCommentNotification 实现了发送评论通知的逻辑
@@ -107,26 +203,46 @@ func (s *emailService) SendCommentNotification(newComment *model.Comment, parent
 
 	// --- 场景一：通知博主有新评论 ---
 	adminEmail := s.settingSvc.Get(constant.KeyFrontDeskSiteOwnerEmail.String())
+	bloggerEmail := s.settingSvc.Get(constant.KeyCommentBloggerEmail.String())
+	primaryAdminEmail := bloggerEmail
+	if primaryAdminEmail == "" {
+		primaryAdminEmail = adminEmail
+	}
 	notifyAdmin := s.settingSvc.GetBool(constant.KeyCommentNotifyAdmin.String())
 	pushChannel := s.settingSvc.Get(constant.KeyPushooChannel.String())
 	scMailNotify := s.settingSvc.GetBool(constant.KeyScMailNotify.String())
 
-	log.Printf("[DEBUG] 邮件通知配置: adminEmail=%s, notifyAdmin=%t, pushChannel=%s, scMailNotify=%t",
-		adminEmail, notifyAdmin, pushChannel, scMailNotify)
+	log.Printf("[DEBUG] 邮件通知配置: adminEmail=%s, bloggerEmail=%s, primaryAdminEmail=%s, notifyAdmin=%t, pushChannel=%s, scMailNotify=%t",
+		adminEmail, bloggerEmail, primaryAdminEmail, notifyAdmin, pushChannel, scMailNotify)
 
 	// 邮件通知逻辑：
 	// 1. 如果没有配置即时通知，按原来的逻辑发送邮件
 	// 2. 如果配置了即时通知但开启了双重通知，也发送邮件
 	// 3. 如果配置了即时通知但没有开启双重通知，则不发送邮件
 	shouldSendEmail := notifyAdmin && (pushChannel == "" || scMailNotify)
+	isAdminEmail := func(email string) bool {
+		if email == "" {
+			return false
+		}
+		if bloggerEmail != "" && strings.EqualFold(email, bloggerEmail) {
+			return true
+		}
+		if adminEmail != "" && strings.EqualFold(email, adminEmail) {
+			return true
+		}
+		return false
+	}
 
-	// 检查新评论者是否是管理员本人，如果是则不需要通知管理员
-	isAdminComment := newCommenterEmail != "" && newCommenterEmail == adminEmail
+	// 检查新评论是否来自管理员本人
+	isAdminComment := newComment.IsAdminAuthor
+	if !isAdminComment && newCommenterEmail != "" {
+		isAdminComment = isAdminEmail(newCommenterEmail)
+	}
 
 	log.Printf("[DEBUG] 场景一检查: shouldSendEmail=%t, isAdminComment=%t", shouldSendEmail, isAdminComment)
 
-	if adminEmail != "" && shouldSendEmail && !isAdminComment {
-		log.Printf("[DEBUG] 准备发送博主通知邮件到: %s", adminEmail)
+	if primaryAdminEmail != "" && shouldSendEmail && !isAdminComment {
+		log.Printf("[DEBUG] 准备发送博主通知邮件到: %s", primaryAdminEmail)
 		adminSubjectTpl := s.settingSvc.Get(constant.KeyCommentMailSubjectAdmin.String())
 		adminBodyTpl := s.settingSvc.Get(constant.KeyCommentMailTemplateAdmin.String())
 
@@ -144,11 +260,11 @@ func (s *emailService) SendCommentNotification(newComment *model.Comment, parent
 
 		subject, _ := renderTemplate(adminSubjectTpl, data)
 		body, _ := renderTemplate(adminBodyTpl, data)
-		go func() { _ = s.send(adminEmail, subject, body) }()
+		go func() { _ = s.send(primaryAdminEmail, subject, body) }()
 		log.Printf("[DEBUG] 博主通知邮件已分发")
 	} else {
-		log.Printf("[DEBUG] 跳过博主通知: adminEmail=%s, shouldSendEmail=%t, isAdminComment=%t",
-			adminEmail, shouldSendEmail, isAdminComment)
+		log.Printf("[DEBUG] 跳过博主通知: primaryAdminEmail=%s, shouldSendEmail=%t, isAdminComment=%t",
+			primaryAdminEmail, shouldSendEmail, isAdminComment)
 	}
 
 	// --- 场景二：通知被回复者 ---
@@ -191,7 +307,7 @@ func (s *emailService) SendCommentNotification(newComment *model.Comment, parent
 			return
 		}
 		// 如果被回复者是管理员，且管理员已经收到博主通知，避免重复
-		if parentEmail == adminEmail && shouldSendEmail && !isAdminComment {
+		if isAdminEmail(parentEmail) && shouldSendEmail && !isAdminComment {
 			log.Printf("[DEBUG] 被回复者是管理员且已收到博主通知，跳过回复通知")
 			return
 		}
