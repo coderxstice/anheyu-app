@@ -142,8 +142,12 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	gravatarBaseURL := h.settingSvc.Get(constant.KeyGravatarURL.String())
-	avatar := gravatarBaseURL + user.Avatar
+	// 处理头像URL：如果是完整URL则直接使用，否则拼接gravatar URL
+	avatar := user.Avatar
+	if avatar != "" && !strings.HasPrefix(avatar, "http://") && !strings.HasPrefix(avatar, "https://") {
+		gravatarBaseURL := h.settingSvc.Get(constant.KeyGravatarURL.String())
+		avatar = gravatarBaseURL + avatar
+	}
 
 	// 6. 构建 LoginUserInfoResponse DTO，只包含需要暴露给客户端的字段
 	userInfoResp := LoginUserInfoResponse{

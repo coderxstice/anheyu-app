@@ -37,14 +37,17 @@ const (
 const (
 	PolicyFlagArticleImage = "article_image" // PolicyFlagArticleImage 标志着用于文章图片的策略 & 默认的VFS目录
 	PolicyFlagCommentImage = "comment_image" // PolicyFlagCommentImage 标志着用于评论图片的策略 & 默认的VFS目录
+	PolicyFlagUserAvatar   = "user_avatar"   // PolicyFlagUserAvatar 标志着用于用户头像的策略 & 默认的VFS目录
 )
 
 // Default Storage Policy configurations
 const (
 	DefaultArticlePolicyName = "内置-文章图片"
 	DefaultCommentPolicyName = "内置-评论图片"
+	DefaultAvatarPolicyName  = "内置-用户头像"
 	DefaultArticlePolicyPath = "data/storage/article_image" // 相对于应用根目录
 	DefaultCommentPolicyPath = "data/storage/comment_image" // 相对于应用根目录
+	DefaultAvatarPolicyPath  = "data/storage/user_avatar"   // 相对于应用根目录
 )
 
 // IsValid 检查给定的类型是否是受支持的存储策略类型

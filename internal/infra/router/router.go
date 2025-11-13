@@ -358,6 +358,7 @@ func (r *Router) registerUserRoutes(api *gin.RouterGroup) {
 		user.GET("/info", r.userHandler.GetUserInfo)
 		user.POST("/update-password", r.userHandler.UpdateUserPassword)
 		user.PUT("/profile", r.userHandler.UpdateUserProfile)
+		user.POST("/avatar", r.userHandler.UploadAvatar)
 	}
 
 	// 管理员用户管理路由（需要登录且为管理员）
