@@ -825,12 +825,19 @@ func (s *Service) toResponseDTO(ctx context.Context, c *model.Comment, parent *m
 	showUA := s.settingSvc.GetBool(constant.KeyCommentShowUA.String())
 	showRegion := s.settingSvc.GetBool(constant.KeyCommentShowRegion.String())
 
+	// 获取用户自定义头像URL（如果有关联用户且用户上传了头像）
+	var avatarURL *string
+	if c.User != nil && c.User.Avatar != "" {
+		avatarURL = &c.User.Avatar
+	}
+
 	resp := &dto.Response{
 		ID:             publicID,
 		CreatedAt:      c.CreatedAt,
 		PinnedAt:       c.PinnedAt,
 		Nickname:       c.Author.Nickname,
 		EmailMD5:       emailMD5,
+		AvatarURL:      avatarURL, // 添加用户自定义头像URL
 		Website:        c.Author.Website,
 		ContentHTML:    renderedContentHTML,
 		IsAdminComment: c.IsAdminAuthor,

@@ -38,6 +38,13 @@ func toDomain(c *ent.Comment) *model.Comment {
 	if c.IPLocation != nil {
 		loc = *c.IPLocation
 	}
+
+	// 转换关联的用户信息
+	var user *model.User
+	if c.Edges.User != nil {
+		user = toDomainUser(c.Edges.User)
+	}
+
 	domainComment := &model.Comment{
 		ID:            c.ID,
 		TargetPath:    c.TargetPath,
@@ -45,6 +52,7 @@ func toDomain(c *ent.Comment) *model.Comment {
 		ParentID:      c.ParentID,
 		ReplyToID:     c.ReplyToID, // 添加 reply_to_id 映射
 		UserID:        c.UserID,
+		User:          user, // 添加关联的用户信息
 		Author:        model.Author{Nickname: c.Nickname, Email: c.Email, Website: c.Website, IP: c.IPAddress, UserAgent: ua, Location: loc},
 		Content:       c.Content,
 		ContentHTML:   c.ContentHTML,
@@ -109,7 +117,8 @@ func (r *commentRepo) FindAllPublishedByPath(ctx context.Context, path string) (
 			entcomment.TargetPath(path),
 			entcomment.StatusEQ(int(model.StatusPublished)),
 			entcomment.DeletedAtIsNil(),
-		)
+		).
+		WithUser() // 预加载关联的用户信息
 
 	// 按置顶状态和创建时间排序：置顶的在前，然后按创建时间降序
 	entComments, err := query.Modify(func(s *sql.Selector) {
@@ -147,6 +156,7 @@ func (r *commentRepo) FindAllPublishedByPath(ctx context.Context, path string) (
 func (r *commentRepo) FindByID(ctx context.Context, id uint) (*model.Comment, error) {
 	entComment, err := r.db.Comment.Query().
 		Where(entcomment.ID(id)).
+		WithUser(). // 预加载关联的用户信息
 		Only(ctx)
 	if err != nil {
 		return nil, err
@@ -163,6 +173,7 @@ func (r *commentRepo) FindManyByIDs(ctx context.Context, ids []uint) ([]*model.C
 
 	entComments, err := r.db.Comment.Query().
 		Where(entcomment.IDIn(ids...)).
+		WithUser(). // 预加载关联的用户信息
 		All(ctx)
 	if err != nil {
 		return nil, err
@@ -192,6 +203,7 @@ func (r *commentRepo) FindAllPublishedPaginated(ctx context.Context, page, pageS
 
 	// 在原查询上应用排序和分页
 	entComments, err := query.
+		WithUser().                                 // 预加载关联的用户信息
 		Order(ent.Desc(entcomment.FieldCreatedAt)). // 按创建时间降序排序
 		Limit(pageSize).
 		Offset((page - 1) * pageSize).
@@ -254,24 +266,26 @@ func (r *commentRepo) FindWithConditions(ctx context.Context, params repository.
 		return nil, 0, err
 	}
 
-	query = query.Modify(func(s *sql.Selector) {
-		var pinnedOrder string
-		if r.dbType == "mysql" {
-			pinnedOrder = fmt.Sprintf("`%s` IS NULL ASC, `%s` DESC", entcomment.FieldPinnedAt, entcomment.FieldPinnedAt)
-		} else {
-			pinnedOrder = fmt.Sprintf(`"%s" DESC NULLS LAST`, entcomment.FieldPinnedAt)
-		}
+	query = query.
+		WithUser(). // 预加载关联的用户信息
+		Modify(func(s *sql.Selector) {
+			var pinnedOrder string
+			if r.dbType == "mysql" {
+				pinnedOrder = fmt.Sprintf("`%s` IS NULL ASC, `%s` DESC", entcomment.FieldPinnedAt, entcomment.FieldPinnedAt)
+			} else {
+				pinnedOrder = fmt.Sprintf(`"%s" DESC NULLS LAST`, entcomment.FieldPinnedAt)
+			}
 
-		// 根据数据库类型使用不同的列名引用方式
-		var createdAtOrder string
-		if r.dbType == "mysql" {
-			createdAtOrder = fmt.Sprintf("`%s` DESC", entcomment.FieldCreatedAt)
-		} else {
-			createdAtOrder = fmt.Sprintf(`"%s" DESC`, entcomment.FieldCreatedAt)
-		}
+			// 根据数据库类型使用不同的列名引用方式
+			var createdAtOrder string
+			if r.dbType == "mysql" {
+				createdAtOrder = fmt.Sprintf("`%s` DESC", entcomment.FieldCreatedAt)
+			} else {
+				createdAtOrder = fmt.Sprintf(`"%s" DESC`, entcomment.FieldCreatedAt)
+			}
 
-		s.OrderBy(pinnedOrder, createdAtOrder)
-	}).
+			s.OrderBy(pinnedOrder, createdAtOrder)
+		}).
 		Limit(params.PageSize).
 		Offset((params.Page - 1) * params.PageSize)
 

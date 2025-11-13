@@ -31,6 +31,7 @@ type Comment struct {
 	ParentID  *uint
 	ReplyToID *uint // 回复目标评论ID，用于构建对话链
 	UserID    *uint
+	User      *User // 关联的用户信息（如果有）
 
 	// --- 评论者信息 ---
 	Author Author
