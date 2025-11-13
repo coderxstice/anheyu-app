@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-10-17 10:35:28
- * @LastEditTime: 2025-10-30 13:58:24
+ * @LastEditTime: 2025-11-13 13:36:28
  * @LastEditors: 安知鱼
  */
 // anheyu-app/cmd/server/app.go
@@ -389,7 +389,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	authHandler := auth_handler.NewAuthHandler(authSvc, tokenSvc, settingSvc)
 	albumHandler := album_handler.NewAlbumHandler(albumSvc)
 	albumCategoryHandler := album_category_handler.NewHandler(albumCategorySvc)
-	userHandler := user_handler.NewUserHandler(userSvc, settingSvc)
+	userHandler := user_handler.NewUserHandler(userSvc, settingSvc, fileSvc, directLinkSvc)
 	publicHandler := public_handler.NewPublicHandler(albumSvc, albumCategorySvc)
 	settingHandler := setting_handler.NewSettingHandler(settingSvc, emailSvc, cdnSvc, configBackupSvc)
 	storagePolicyHandler := storage_policy_handler.NewStoragePolicyHandler(storagePolicySvc)

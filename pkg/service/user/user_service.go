@@ -27,6 +27,7 @@ type UserService interface {
 	UpdateUserPasswordByID(ctx context.Context, userID uint, oldPassword, newPassword string) error
 	UpdateUserProfile(ctx context.Context, username string, nickname, website *string) error
 	UpdateUserProfileByID(ctx context.Context, userID uint, nickname, website *string) error
+	UpdateUserAvatar(ctx context.Context, userID uint, avatarURL string) error
 
 	// 管理员用户管理方法
 	AdminListUsers(ctx context.Context, page, pageSize int, keyword string, groupID *uint, status *int) ([]*model.User, int64, error)
@@ -189,6 +190,28 @@ func (s *userService) UpdateUserProfileByID(ctx context.Context, userID uint, ni
 	// 3. 保存更新
 	if err := s.userRepo.Update(ctx, user); err != nil {
 		return fmt.Errorf("更新用户信息失败: %w", err)
+	}
+
+	return nil
+}
+
+// UpdateUserAvatar 更新用户头像
+func (s *userService) UpdateUserAvatar(ctx context.Context, userID uint, avatarURL string) error {
+	// 1. 获取用户信息
+	user, err := s.userRepo.FindByID(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("获取用户信息失败: %w", err)
+	}
+	if user == nil {
+		return fmt.Errorf("用户不存在")
+	}
+
+	// 2. 更新头像字段
+	user.Avatar = avatarURL
+
+	// 3. 保存更新
+	if err := s.userRepo.Update(ctx, user); err != nil {
+		return fmt.Errorf("更新用户头像失败: %w", err)
 	}
 
 	return nil

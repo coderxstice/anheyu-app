@@ -9,7 +9,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/anzhiyu-c/anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/ent/file"
 	"github.com/anzhiyu-c/anheyu-app/ent/link"
 	"github.com/anzhiyu-c/anheyu-app/ent/linkcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/setting"
@@ -167,7 +169,133 @@ func (b *Bootstrapper) initStoragePolicies() {
 			log.Printf("✅ 成功: 默认存储策略 '本机存储' 已创建。路径规则: %s", dirNameRule)
 		}
 	}
+
+	// 确保用户头像存储策略存在（适配系统升级的情况）
+	b.ensureAvatarStoragePolicy()
+
 	log.Println("--- 默认存储策略 (StoragePolicy 表) 初始化完成。---")
+}
+
+// ensureAvatarStoragePolicy 确保用户头像存储策略存在
+// 在系统启动时检查，如果不存在则创建（适配系统升级的情况）
+func (b *Bootstrapper) ensureAvatarStoragePolicy() {
+	ctx := context.Background()
+
+	// 检查是否已存在用户头像存储策略
+	count, err := b.entClient.StoragePolicy.Query().
+		Where(func(s *sql.Selector) {
+			s.Where(sql.EQ("flag", constant.PolicyFlagUserAvatar))
+		}).
+		Count(ctx)
+
+	if err != nil {
+		log.Printf("⚠️ 警告: 检查用户头像存储策略失败: %v", err)
+		return
+	}
+
+	if count > 0 {
+		log.Println("✅ 用户头像存储策略已存在，跳过创建")
+		return
+	}
+
+	// 获取第一个用户（管理员）作为系统目录的所有者
+	firstUser, err := b.entClient.User.Query().Order(ent.Asc("id")).First(ctx)
+	if err != nil {
+		log.Printf("⚠️ 警告: 无法获取第一个用户，跳过创建用户头像存储策略: %v", err)
+		return
+	}
+
+	// 获取或创建用户的根目录
+	userRootDir, err := b.entClient.File.Query().
+		Where(
+			file.OwnerID(firstUser.ID),
+			file.ParentIDIsNil(),
+		).
+		Only(ctx)
+
+	if err != nil {
+		if ent.IsNotFound(err) {
+			// 创建根目录
+			userRootDir, err = b.entClient.File.Create().
+				SetOwnerID(firstUser.ID).
+				SetName("").
+				SetType(int(model.FileTypeDir)).
+				Save(ctx)
+			if err != nil {
+				log.Printf("⚠️ 警告: 创建用户根目录失败: %v", err)
+				return
+			}
+		} else {
+			log.Printf("⚠️ 警告: 查询用户根目录失败: %v", err)
+			return
+		}
+	}
+
+	// 创建用户头像存储策略
+	wd, err := os.Getwd()
+	if err != nil {
+		log.Printf("⚠️ 警告: 无法获取当前工作目录: %v", err)
+		return
+	}
+
+	avatarPath := filepath.Join(wd, constant.DefaultAvatarPolicyPath)
+
+	// 1. 查找或创建 VFS 目录
+	avatarDir, err := b.entClient.File.Query().
+		Where(
+			file.OwnerID(firstUser.ID),
+			file.ParentID(userRootDir.ID),
+			file.Name(constant.PolicyFlagUserAvatar),
+		).
+		Only(ctx)
+
+	if err != nil {
+		if ent.IsNotFound(err) {
+			// VFS 目录不存在，创建它
+			avatarDir, err = b.entClient.File.Create().
+				SetOwnerID(firstUser.ID).
+				SetParentID(userRootDir.ID).
+				SetName(constant.PolicyFlagUserAvatar).
+				SetType(int(model.FileTypeDir)).
+				Save(ctx)
+
+			if err != nil {
+				log.Printf("⚠️ 警告: 创建用户头像 VFS 目录失败: %v", err)
+				return
+			}
+			log.Printf("✅ VFS 目录 '/user_avatar' 创建成功。")
+		} else {
+			log.Printf("⚠️ 警告: 查询用户头像 VFS 目录失败: %v", err)
+			return
+		}
+	} else {
+		log.Printf("✅ VFS 目录 '/user_avatar' 已存在。")
+	}
+
+	// 2. 再创建策略，并关联 NodeID
+	settings := model.StoragePolicySettings{
+		"chunk_size":         5242880, // 5MB，头像文件通常较小
+		"pre_allocate":       true,
+		"upload_method":      constant.UploadMethodServer, // 头像使用服务端上传
+		"allowed_extensions": []string{".jpg", ".jpeg", ".png", ".gif", ".webp"},
+	}
+
+	_, err = b.entClient.StoragePolicy.Create().
+		SetName(constant.DefaultAvatarPolicyName).
+		SetType(string(constant.PolicyTypeLocal)).
+		SetFlag(constant.PolicyFlagUserAvatar).
+		SetBasePath(avatarPath).
+		SetVirtualPath("/user_avatar").
+		SetMaxSize(5242880).     // 5MB 最大文件大小
+		SetNodeID(avatarDir.ID). // 关联 VFS 目录节点
+		SetSettings(settings).
+		Save(ctx)
+
+	if err != nil {
+		log.Printf("⚠️ 警告: 创建用户头像存储策略失败: %v", err)
+	} else {
+		log.Printf("✅ 成功: 用户头像存储策略已创建。路径: %s", avatarPath)
+	}
 }
 
 // initLinks 初始化友链、分类和标签表。

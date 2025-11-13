@@ -2,18 +2,26 @@
  * @Description: 已登录用户账户相关控制器
  * @Author: 安知鱼
  * @Date: 2025-06-15 13:03:21
- * @LastEditTime: 2025-07-16 10:58:24
+ * @LastEditTime: 2025-11-13 13:49:32
  * @LastEditors: 安知鱼
  */
 package user_handler
 
 import (
+	"errors"
+	"log"
 	"net/http"
+	"path"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/auth"
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
 	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/direct_link"
+	file_service "github.com/anzhiyu-c/anheyu-app/pkg/service/file"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/user"
 
@@ -22,15 +30,19 @@ import (
 
 // UserHandler 封装已登录用户账户相关的控制器方法
 type UserHandler struct {
-	userSvc    user.UserService
-	settingSvc setting.SettingService
+	userSvc       user.UserService
+	settingSvc    setting.SettingService
+	fileSvc       file_service.FileService
+	directLinkSvc direct_link.Service
 }
 
 // NewUserHandler 是 UserHandler 的构造函数
-func NewUserHandler(userSvc user.UserService, settingSvc setting.SettingService) *UserHandler {
+func NewUserHandler(userSvc user.UserService, settingSvc setting.SettingService, fileSvc file_service.FileService, directLinkSvc direct_link.Service) *UserHandler {
 	return &UserHandler{
-		userSvc:    userSvc,
-		settingSvc: settingSvc,
+		userSvc:       userSvc,
+		settingSvc:    settingSvc,
+		fileSvc:       fileSvc,
+		directLinkSvc: directLinkSvc,
 	}
 }
 
@@ -117,8 +129,15 @@ func (h *UserHandler) GetUserInfo(c *gin.Context) {
 		lastLoginAtStr = &t
 	}
 
-	gravatarBaseURL := h.settingSvc.Get(constant.KeyGravatarURL.String())
-	avatar := gravatarBaseURL + user.Avatar
+	// 处理头像URL：如果是完整URL则直接使用，否则拼接gravatar URL
+	avatar := user.Avatar
+	if avatar != "" && !strings.HasPrefix(avatar, "http://") && !strings.HasPrefix(avatar, "https://") {
+		gravatarBaseURL := h.settingSvc.Get(constant.KeyGravatarURL.String())
+		// 确保拼接时不会出现双斜杠
+		gravatarBaseURL = strings.TrimSuffix(gravatarBaseURL, "/")
+		avatar = strings.TrimPrefix(avatar, "/")
+		avatar = gravatarBaseURL + "/" + avatar
+	}
 
 	resp := GetUserInfoResponse{
 		ID:          publicUserID,
@@ -349,13 +368,19 @@ func (h *UserHandler) AdminListUsers(c *gin.Context) {
 			lastLoginAtStr = &t
 		}
 
+		// 处理头像URL：如果是完整URL则直接使用，否则拼接gravatar URL
+		avatar := user.Avatar
+		if avatar != "" && !strings.HasPrefix(avatar, "http://") && !strings.HasPrefix(avatar, "https://") {
+			avatar = gravatarBaseURL + avatar
+		}
+
 		userDTOs[i] = AdminUserDTO{
 			ID:          publicUserID,
 			CreatedAt:   user.CreatedAt.Format("2006-01-02 15:04:05"),
 			UpdatedAt:   user.UpdatedAt.Format("2006-01-02 15:04:05"),
 			Username:    user.Username,
 			Nickname:    user.Nickname,
-			Avatar:      gravatarBaseURL + user.Avatar,
+			Avatar:      avatar,
 			Email:       user.Email,
 			Website:     user.Website,
 			LastLoginAt: lastLoginAtStr,
@@ -431,12 +456,18 @@ func (h *UserHandler) AdminCreateUser(c *gin.Context) {
 	// 4. 转换为 DTO
 	publicUserID, _ := idgen.GeneratePublicID(user.ID, idgen.EntityTypeUser)
 	publicGroupID, _ := idgen.GeneratePublicID(user.UserGroup.ID, idgen.EntityTypeUserGroup)
-	gravatarBaseURL := h.settingSvc.Get(constant.KeyGravatarURL.String())
 
 	var lastLoginAtStr *string
 	if user.LastLoginAt != nil {
 		t := user.LastLoginAt.Format("2006-01-02 15:04:05")
 		lastLoginAtStr = &t
+	}
+
+	// 处理头像URL：如果是完整URL则直接使用，否则拼接gravatar URL
+	avatar := user.Avatar
+	if avatar != "" && !strings.HasPrefix(avatar, "http://") && !strings.HasPrefix(avatar, "https://") {
+		gravatarBaseURL := h.settingSvc.Get(constant.KeyGravatarURL.String())
+		avatar = gravatarBaseURL + avatar
 	}
 
 	userDTO := AdminUserDTO{
@@ -445,7 +476,7 @@ func (h *UserHandler) AdminCreateUser(c *gin.Context) {
 		UpdatedAt:   user.UpdatedAt.Format("2006-01-02 15:04:05"),
 		Username:    user.Username,
 		Nickname:    user.Nickname,
-		Avatar:      gravatarBaseURL + user.Avatar,
+		Avatar:      avatar,
 		Email:       user.Email,
 		Website:     user.Website,
 		LastLoginAt: lastLoginAtStr,
@@ -688,4 +719,125 @@ func (h *UserHandler) GetUserGroups(c *gin.Context) {
 
 	// 3. 返回响应
 	response.Success(c, groupDTOs, "获取用户组列表成功")
+}
+
+// UploadAvatar 处理用户头像上传请求
+// @Summary      上传用户头像
+// @Description  上传并设置用户自定义头像
+// @Tags         用户管理
+// @Security     BearerAuth
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        file  formData  file  true  "头像图片文件"
+// @Success      200   {object}  response.Response{data=object{url=string}}  "上传成功"
+// @Failure      400   {object}  response.Response  "无效的文件上传请求"
+// @Failure      401   {object}  response.Response  "未授权"
+// @Failure      500   {object}  response.Response  "头像上传失败"
+// @Router       /user/avatar [post]
+func (h *UserHandler) UploadAvatar(c *gin.Context) {
+	log.Printf("[Handler.UploadAvatar] 开始处理头像上传请求")
+
+	// 1. 从请求中获取文件
+	fileHeader, err := c.FormFile("file")
+	if err != nil {
+		log.Printf("[Handler.UploadAvatar] 获取上传文件失败: %v", err)
+		response.Fail(c, http.StatusBadRequest, "无效的文件上传请求")
+		return
+	}
+	log.Printf("[Handler.UploadAvatar] 接收到文件: %s, 大小: %d bytes", fileHeader.Filename, fileHeader.Size)
+
+	// 2. 打开文件流
+	fileReader, err := fileHeader.Open()
+	if err != nil {
+		log.Printf("[Handler.UploadAvatar] 打开文件流失败: %v", err)
+		response.Fail(c, http.StatusInternalServerError, "无法处理上传的文件")
+		return
+	}
+	defer fileReader.Close()
+
+	// 3. 获取用户认证信息
+	log.Printf("[Handler.UploadAvatar] 开始获取用户认证信息")
+	claims, err := getClaims(c)
+	if err != nil {
+		log.Printf("[Handler.UploadAvatar] 认证失败: %v", err)
+		response.Fail(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+	log.Printf("[Handler.UploadAvatar] 用户认证成功, UserID: %s", claims.UserID)
+
+	ownerID, _, err := idgen.DecodePublicID(claims.UserID)
+	if err != nil {
+		log.Printf("[Handler.UploadAvatar] 解析用户ID失败: %v", err)
+		response.Fail(c, http.StatusUnauthorized, "无效的用户凭证")
+		return
+	}
+	log.Printf("[Handler.UploadAvatar] 解析用户ID成功, ownerID: %d", ownerID)
+
+	// 4. 生成唯一文件名
+	ext := path.Ext(fileHeader.Filename)
+	uniqueFilename := strconv.FormatInt(time.Now().UnixNano(), 10) + ext
+
+	// 5. 调用文件服务上传到用户头像存储策略
+	log.Printf("[Handler.UploadAvatar] 开始上传头像文件")
+	fileItem, err := h.fileSvc.UploadFileByPolicyFlag(c.Request.Context(), ownerID, fileReader, constant.PolicyFlagUserAvatar, uniqueFilename)
+	if err != nil {
+		log.Printf("[Handler.UploadAvatar] 文件上传失败: %v", err)
+		response.Fail(c, http.StatusInternalServerError, "头像上传失败: "+err.Error())
+		return
+	}
+	log.Printf("[Handler.UploadAvatar] 头像文件上传成功, FileItem ID: %s", fileItem.ID)
+
+	// 6. 将文件的公共ID解码为数据库ID
+	dbFileID, _, err := idgen.DecodePublicID(fileItem.ID)
+	if err != nil {
+		log.Printf("[Handler.UploadAvatar] 解码文件公共ID '%s' 失败: %v", fileItem.ID, err)
+		response.Fail(c, http.StatusInternalServerError, "无效的文件ID")
+		return
+	}
+
+	// 7. 为上传成功的头像创建永久直链
+	linksMap, err := h.directLinkSvc.GetOrCreateDirectLinks(c.Request.Context(), ownerID, []uint{dbFileID})
+	if err != nil {
+		log.Printf("[Handler.UploadAvatar] 为文件 %d 创建直链时发生错误: %v", dbFileID, err)
+		response.Fail(c, http.StatusInternalServerError, "创建头像直链失败: "+err.Error())
+		return
+	}
+
+	// 8. 从 map 中获取直链结果
+	linkResult, ok := linksMap[dbFileID]
+	if !ok || linkResult.URL == "" {
+		log.Printf("[Handler.UploadAvatar] directLinkSvc 未能返回文件 %d 的直链结果", dbFileID)
+		response.Fail(c, http.StatusInternalServerError, "获取头像直链URL失败")
+		return
+	}
+
+	avatarURL := linkResult.URL
+	log.Printf("[Handler.UploadAvatar] 成功获取头像直链URL: %s", avatarURL)
+
+	// 9. 更新用户头像字段
+	err = h.userSvc.UpdateUserAvatar(c.Request.Context(), ownerID, avatarURL)
+	if err != nil {
+		log.Printf("[Handler.UploadAvatar] 更新用户头像字段失败: %v", err)
+		response.Fail(c, http.StatusInternalServerError, "更新用户头像失败: "+err.Error())
+		return
+	}
+	log.Printf("[Handler.UploadAvatar] 用户头像更新成功, URL: %s", avatarURL)
+
+	// 10. 成功响应，返回头像URL
+	response.Success(c, gin.H{
+		"url": avatarURL,
+	}, "头像上传成功")
+}
+
+// getClaims 从 gin.Context 中安全地提取 JWT Claims
+func getClaims(c *gin.Context) (*auth.CustomClaims, error) {
+	claimsValue, exists := c.Get(auth.ClaimsKey)
+	if !exists {
+		return nil, errors.New("无法获取用户信息，请确认是否已登录")
+	}
+	claims, ok := claimsValue.(*auth.CustomClaims)
+	if !ok {
+		return nil, errors.New("用户信息格式不正确")
+	}
+	return claims, nil
 }
