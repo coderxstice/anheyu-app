@@ -32,7 +32,7 @@ type EmailService interface {
 	// SendLinkApplicationNotification 发送友链申请通知邮件给站长
 	SendLinkApplicationNotification(ctx context.Context, link *model.LinkDTO) error
 	// SendLinkReviewNotification 发送友链审核通知
-	SendLinkReviewNotification(ctx context.Context, link *model.LinkDTO, isApproved bool) error
+	SendLinkReviewNotification(ctx context.Context, link *model.LinkDTO, isApproved bool, rejectReason string) error
 }
 
 // emailService 是 EmailService 接口的实现
@@ -408,7 +408,7 @@ func (s *emailService) SendForgotPasswordEmail(ctx context.Context, toEmail, nic
 }
 
 // SendLinkReviewNotification 负责发送友链审核通知邮件
-func (s *emailService) SendLinkReviewNotification(ctx context.Context, link *model.LinkDTO, isApproved bool) error {
+func (s *emailService) SendLinkReviewNotification(ctx context.Context, link *model.LinkDTO, isApproved bool, rejectReason string) error {
 	// 检查是否开启友链审核邮件通知
 	mailEnabled := s.settingSvc.GetBool(constant.KeyFriendLinkReviewMailEnable.String())
 	if !mailEnabled {
@@ -488,7 +488,14 @@ func (s *emailService) SendLinkReviewNotification(ctx context.Context, link *mod
 				<p style="margin:8px 0;color:#666;"><strong>网站地址：</strong><a href="{{.LINK_URL}}" style="color:#f5576c;">{{.LINK_URL}}</a></p>
 				<p style="margin:8px 0;color:#666;"><strong>网站描述：</strong>{{.LINK_DESCRIPTION}}</p>
 			</div>
+			{{if .REJECT_REASON}}
+			<div style="background:#fff3f3;padding:20px;border-radius:6px;margin:20px 0;border-left:4px solid #f5576c;">
+				<h3 style="margin:0 0 15px 0;color:#333;font-size:16px;">拒绝原因</h3>
+				<p style="margin:8px 0;color:#666;line-height:1.6;">{{.REJECT_REASON}}</p>
+			</div>
+			{{else}}
 			<p style="font-size:14px;line-height:1.8;color:#666;">可能的原因包括：网站内容不符合要求、网站无法正常访问、未添加本站友链等。</p>
+			{{end}}
 			<p style="font-size:14px;line-height:1.8;color:#666;">如有疑问，欢迎与我们联系。</p>
 		</div>
 		<div style="background:#f8f9fa;padding:20px;text-align:center;color:#999;font-size:12px;">
@@ -508,6 +515,7 @@ func (s *emailService) SendLinkReviewNotification(ctx context.Context, link *mod
 		"LINK_URL":         link.URL,
 		"LINK_DESCRIPTION": link.Description,
 		"LINK_LOGO":        link.Logo,
+		"REJECT_REASON":    rejectReason,
 	}
 
 	subject, err := renderTemplate(subjectTplStr, data)

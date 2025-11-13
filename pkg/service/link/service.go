@@ -273,7 +273,7 @@ func (s *service) ReviewLink(ctx context.Context, id int, req *model.ReviewLinkR
 		return fmt.Errorf("获取友链信息失败: %w", err)
 	}
 
-	// 2. 只有在审核通过时才需要进行特殊校验
+	// 2. 根据审核状态进行相应的校验
 	if req.Status == "APPROVED" {
 		if linkToReview.Category == nil {
 			return errors.New("无法审核：该友链未关联任何分类")
@@ -286,6 +286,8 @@ func (s *service) ReviewLink(ctx context.Context, id int, req *model.ReviewLinkR
 				return errors.New("卡片样式的友链在审核通过时必须提供网站快照(siteshot)")
 			}
 		}
+	} else if req.Status == "REJECTED" {
+		// 拒绝原因是可选的，无字符长度限制
 	}
 
 	// 3. 执行更新状态操作
@@ -304,7 +306,11 @@ func (s *service) ReviewLink(ctx context.Context, id int, req *model.ReviewLinkR
 			// 异步发送邮件通知
 			go func() {
 				isApproved := req.Status == "APPROVED"
-				if err := s.emailSvc.SendLinkReviewNotification(context.Background(), updatedLink, isApproved); err != nil {
+				rejectReason := ""
+				if req.RejectReason != nil {
+					rejectReason = *req.RejectReason
+				}
+				if err := s.emailSvc.SendLinkReviewNotification(context.Background(), updatedLink, isApproved, rejectReason); err != nil {
 					log.Printf("[ERROR] 发送友链审核邮件通知失败: %v", err)
 				}
 			}()

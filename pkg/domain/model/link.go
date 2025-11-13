@@ -101,8 +101,9 @@ type AdminCreateLinkRequest struct {
 
 // ReviewLinkRequest 是后台管理员审核友链的请求结构。
 type ReviewLinkRequest struct {
-	Status   string  `json:"status" binding:"required,oneof=APPROVED REJECTED"`
-	Siteshot *string `json:"siteshot"`
+	Status       string  `json:"status" binding:"required,oneof=APPROVED REJECTED"`
+	Siteshot     *string `json:"siteshot"`
+	RejectReason *string `json:"reject_reason"` // 拒绝原因（可选）
 }
 
 // ListLinksRequest 是后台查询友链列表的请求结构，支持筛选和分页。
