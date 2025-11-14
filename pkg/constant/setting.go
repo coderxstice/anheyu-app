@@ -145,6 +145,9 @@ const (
 	KeyHeaderNavClock  SettingKey = "header.nav.clock"
 	KeyHeaderNavMenu   SettingKey = "header.nav.menu"
 
+	// --- 页面一图流配置 ---
+	KeyPageOneImageConfig SettingKey = "page.one_image.config"
+
 	// 文章相关配置
 	KeyPostDefaultCover          SettingKey = "post.default.cover"
 	KeyPostDefaultDoubleColumn   SettingKey = "post.default.double_column"
