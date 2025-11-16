@@ -39,6 +39,8 @@ type AuthService interface {
 	// PerformPasswordReset 现在接收内部数据库 ID (uint)
 	PerformPasswordReset(ctx context.Context, userID uint, sign, newPassword string) error
 	CheckEmailExists(ctx context.Context, email string) (bool, error)
+	// GetUserByID 通过用户ID获取用户信息
+	GetUserByID(ctx context.Context, userID uint) (*model.User, error)
 }
 
 // authService 是 AuthService 接口的实现
@@ -417,4 +419,16 @@ func (s *authService) CheckEmailExists(ctx context.Context, email string) (bool,
 		return false, fmt.Errorf("查询邮箱时数据库出错: %w", err)
 	}
 	return user != nil, nil
+}
+
+// GetUserByID 通过用户ID获取用户信息
+func (s *authService) GetUserByID(ctx context.Context, userID uint) (*model.User, error) {
+	user, err := s.userRepo.FindByID(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("查询用户信息失败: %w", err)
+	}
+	if user == nil {
+		return nil, fmt.Errorf("用户不存在")
+	}
+	return user, nil
 }
