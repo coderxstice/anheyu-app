@@ -40,6 +40,7 @@ type LoginRequest struct {
 // RegisterRequest 定义了注册请求的结构
 type RegisterRequest struct {
 	Email          string `json:"email" binding:"required,email"`
+	Nickname       string `json:"nickname" binding:"required"`
 	Password       string `json:"password" binding:"required,min=6"`
 	RepeatPassword string `json:"repeat_password" binding:"required"`
 }
@@ -200,7 +201,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	activationRequired, err := h.authSvc.Register(c.Request.Context(), req.Email, req.Password)
+	activationRequired, err := h.authSvc.Register(c.Request.Context(), req.Email, req.Nickname, req.Password)
 	if err != nil {
 		response.Fail(c, http.StatusConflict, err.Error())
 		return
