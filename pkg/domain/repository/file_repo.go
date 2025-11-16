@@ -115,4 +115,7 @@ type FileRepository interface {
 	// @return []*model.File - 找到的文件领域模型对象列表。返回列表的顺序不保证与输入ID的顺序一致。
 	// @return error - 如果查询过程中发生错误。
 	FindBatchByIDs(ctx context.Context, ids []uint) ([]*model.File, error)
+
+	// SoftDeleteByOwnerID 软删除指定用户的所有文件
+	SoftDeleteByOwnerID(ctx context.Context, ownerID uint) error
 }

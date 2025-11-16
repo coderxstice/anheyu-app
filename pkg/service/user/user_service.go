@@ -375,10 +375,12 @@ func (s *userService) AdminDeleteUser(ctx context.Context, userID uint) error {
 		return fmt.Errorf("用户不存在")
 	}
 
-	// 2. 删除用户（软删除）
+	// 2. 删除用户（软删除），相关的文件依赖处理已封装在 Delete 方法中
 	if err := s.userRepo.Delete(ctx, userID); err != nil {
 		return fmt.Errorf("删除用户失败: %w", err)
 	}
+
+	return nil
 
 	return nil
 }

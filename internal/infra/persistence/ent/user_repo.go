@@ -9,8 +9,12 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
 
 	"github.com/anzhiyu-c/anheyu-app/ent"
+	"github.com/anzhiyu-c/anheyu-app/ent/comment"
+	"github.com/anzhiyu-c/anheyu-app/ent/file"
 	"github.com/anzhiyu-c/anheyu-app/ent/user"
 	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
+	"github.com/anzhiyu-c/anheyu-app/ent/userinstalledtheme"
+	"github.com/anzhiyu-c/anheyu-app/ent/usernotificationconfig"
 )
 
 // entUserRepository 是 UserRepository 的 Ent 实现
@@ -223,8 +227,63 @@ func (r *entUserRepository) Save(ctx context.Context, user *model.User) error {
 
 // Delete 软删除用户
 func (r *entUserRepository) Delete(ctx context.Context, id uint) error {
-	_, err := r.client.User.Delete().Where(user.ID(id)).Exec(ctx)
-	return err
+	// 开启事务
+	tx, err := r.client.Tx(ctx)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if v := recover(); v != nil {
+			tx.Rollback()
+			panic(v)
+		}
+	}()
+
+	// 1. 物理删除该用户的所有文件（包括已软删除的）
+	_, err = tx.File.Delete().
+		Where(file.OwnerID(id)).
+		Exec(ctx)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("物理删除用户文件失败: %w", err)
+	}
+
+	// 2. 物理删除该用户的所有评论
+	_, err = tx.Comment.Delete().
+		Where(comment.UserID(id)).
+		Exec(ctx)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("物理删除用户评论失败: %w", err)
+	}
+
+	// 3. 物理删除该用户的所有安装主题记录
+	_, err = tx.UserInstalledTheme.Delete().
+		Where(userinstalledtheme.UserID(id)).
+		Exec(ctx)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("物理删除用户安装主题失败: %w", err)
+	}
+
+	// 4. 物理删除该用户的所有通知配置
+	_, err = tx.UserNotificationConfig.Delete().
+		Where(usernotificationconfig.UserID(id)).
+		Exec(ctx)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("物理删除用户通知配置失败: %w", err)
+	}
+
+	// 5. 最后软删除用户
+	_, err = tx.User.Delete().Where(user.ID(id)).Exec(ctx)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("软删除用户失败: %w", err)
+	}
+
+	// 提交事务
+	return tx.Commit()
 }
 
 // List 分页查询用户列表，支持搜索关键词、用户组筛选和状态筛选
