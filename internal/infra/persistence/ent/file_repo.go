@@ -626,3 +626,12 @@ func (r *entFileRepository) Transaction(ctx context.Context, fn func(repo reposi
 	}
 	return tx.Commit()
 }
+
+func (r *entFileRepository) SoftDeleteByOwnerID(ctx context.Context, ownerID uint) error {
+	now := time.Now()
+	_, err := r.client.File.Update().
+		Where(file.OwnerID(ownerID), file.DeletedAtIsNil()).
+		SetDeletedAt(now).
+		Save(ctx)
+	return err
+}

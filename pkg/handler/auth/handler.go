@@ -40,6 +40,7 @@ type LoginRequest struct {
 // RegisterRequest 定义了注册请求的结构
 type RegisterRequest struct {
 	Email          string `json:"email" binding:"required,email"`
+	Nickname       string `json:"nickname" binding:"required"`
 	Password       string `json:"password" binding:"required,min=6"`
 	RepeatPassword string `json:"repeat_password" binding:"required"`
 }
@@ -200,7 +201,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	activationRequired, err := h.authSvc.Register(c.Request.Context(), req.Email, req.Password)
+	activationRequired, err := h.authSvc.Register(c.Request.Context(), req.Email, req.Nickname, req.Password)
 	if err != nil {
 		response.Fail(c, http.StatusConflict, err.Error())
 		return
@@ -256,12 +257,12 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 
 // ActivateUser 处理用户激活请求
 // @Summary      激活用户账号
-// @Description  通过激活链接激活用户账号
+// @Description  通过激活链接激活用户账号，并自动登录
 // @Tags         用户认证
 // @Accept       json
 // @Produce      json
 // @Param        body  body  object{publicUserId=string,sign=string}  true  "激活信息"
-// @Success      200  {object}  response.Response  "账户已成功激活"
+// @Success      200  {object}  response.Response{data=object{userInfo=LoginUserInfoResponse,roles=[]string,accessToken=string,refreshToken=string,expires=string}}  "账户已成功激活并登录"
 // @Failure      400  {object}  response.Response  "参数错误或激活链接无效"
 // @Failure      401  {object}  response.Response  "激活失败"
 // @Router       /auth/activate [post]
@@ -288,7 +289,71 @@ func (h *AuthHandler) ActivateUser(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, nil, "您的账户已成功激活！")
+	// 激活成功后，获取用户信息并生成登录令牌
+	user, err := h.authSvc.GetUserByID(c.Request.Context(), userID)
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, "激活成功，但获取用户信息失败")
+		return
+	}
+
+	// 生成会话令牌
+	accessToken, refreshToken, expires, err := h.tokenSvc.GenerateSessionTokens(c.Request.Context(), user)
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, "激活成功，但生成登录令牌失败")
+		return
+	}
+
+	// 构建 roles 数组
+	roles := []string{fmt.Sprintf("%d", user.UserGroupID)}
+
+	// 生成用户的公共 ID
+	publicUserID, err := idgen.GeneratePublicID(user.ID, idgen.EntityTypeUser)
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, "生成用户公共ID失败")
+		return
+	}
+
+	// 生成用户组的公共 ID
+	publicUserGroupID, err := idgen.GeneratePublicID(user.UserGroup.ID, idgen.EntityTypeUserGroup)
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, "生成用户组公共ID失败")
+		return
+	}
+
+	// 处理头像URL
+	avatar := user.Avatar
+	if avatar != "" && !strings.HasPrefix(avatar, "http://") && !strings.HasPrefix(avatar, "https://") {
+		gravatarBaseURL := h.settingSvc.Get(constant.KeyGravatarURL.String())
+		avatar = gravatarBaseURL + avatar
+	}
+
+	// 构建用户信息响应
+	userInfoResp := LoginUserInfoResponse{
+		ID:          publicUserID,
+		CreatedAt:   user.CreatedAt,
+		UpdatedAt:   user.UpdatedAt,
+		Username:    user.Username,
+		Nickname:    user.Nickname,
+		Avatar:      avatar,
+		Email:       user.Email,
+		LastLoginAt: user.LastLoginAt,
+		UserGroupID: user.UserGroupID,
+		UserGroup: UserGroupResponse{
+			ID:          publicUserGroupID,
+			Name:        user.UserGroup.Name,
+			Description: user.UserGroup.Description,
+		},
+		Status: user.Status,
+	}
+
+	// 返回成功响应，包含登录信息
+	response.Success(c, gin.H{
+		"userInfo":     userInfoResp,
+		"roles":        roles,
+		"accessToken":  accessToken,
+		"refreshToken": refreshToken,
+		"expires":      expires,
+	}, "您的账户已成功激活并自动登录！")
 }
 
 // ForgotPasswordRequest 处理发送密码重置邮件的请求
