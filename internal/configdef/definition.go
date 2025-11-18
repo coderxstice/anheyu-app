@@ -59,6 +59,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyDefaultGravatarType, Value: "mp", Comment: "Gravatar默认头像类型", IsPublic: true},
 	{Key: constant.KeyUploadAllowedExtensions, Value: "", Comment: "允许上传的文件后缀名白名单，逗号分隔", IsPublic: true},
 	{Key: constant.KeyUploadDeniedExtensions, Value: "", Comment: "禁止上传的文件后缀名黑名单，在白名单未启用时生效", IsPublic: true},
+	{Key: constant.KeyEnableExternalLinkWarning, Value: "false", Comment: "是否开启外链跳转提示 (true/false)，开启后跳转外链会显示中间提示页面", IsPublic: true},
 	// --- 缩略图生成器配置 ---
 	{Key: constant.KeyEnableVipsGenerator, Value: "false", Comment: "是否启用 VIPS 缩略图生成器 (true/false)", IsPublic: true},
 	{Key: constant.KeyVipsPath, Value: "vips", Comment: "VIPS 命令的路径或名称 (默认 'vips'，让系统自动搜索)", IsPublic: false},

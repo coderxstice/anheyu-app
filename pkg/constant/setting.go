@@ -52,6 +52,7 @@ const (
 	KeyCreativity                SettingKey = "CREATIVITY"
 	KeyUploadAllowedExtensions   SettingKey = "UPLOAD_ALLOWED_EXTENSIONS"
 	KeyUploadDeniedExtensions    SettingKey = "UPLOAD_DENIED_EXTENSIONS"
+	KeyEnableExternalLinkWarning SettingKey = "ENABLE_EXTERNAL_LINK_WARNING"
 	KeyEnableVipsGenerator       SettingKey = "ENABLE_VIPS_GENERATOR"
 	KeyVipsPath                  SettingKey = "VIPS_PATH"
 	KeyVipsSupportedExts         SettingKey = "VIPS_SUPPORTED_EXTS"
