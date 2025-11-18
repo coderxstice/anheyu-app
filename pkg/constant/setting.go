@@ -229,6 +229,7 @@ const (
 	KeyActivateAccountSubject  SettingKey = "DEFAULT_ACTIVATE_ACCOUNT_SUBJECT"
 	KeyActivateAccountTemplate SettingKey = "DEFAULT_ACTIVATE_ACCOUNT_TEMPLATE"
 	KeyEnableUserActivation    SettingKey = "ENABLE_USER_ACTIVATION"
+	KeyEnableRegistration      SettingKey = "ENABLE_REGISTRATION"
 	KeySmtpHost                SettingKey = "SMTP_HOST"
 	KeySmtpPort                SettingKey = "SMTP_PORT"
 	KeySmtpUsername            SettingKey = "SMTP_USERNAME"
