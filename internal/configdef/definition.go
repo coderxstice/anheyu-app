@@ -359,6 +359,23 @@ var AllSettings = []Definition{
 	{Key: constant.KeyAboutPageCustomCode, Value: ``, Comment: "关于页自定义 Markdown 内容（用于后台编辑）", IsPublic: true},
 	{Key: constant.KeyAboutPageCustomCodeHtml, Value: ``, Comment: "关于页自定义 HTML 内容（用于前台展示）", IsPublic: true},
 
+	// --- 关于页面板块开关配置 ---
+	{Key: constant.KeyAboutPageEnableAuthorBox, Value: "true", Comment: "是否启用作者头像框板块 (true/false)", IsPublic: true},
+	{Key: constant.KeyAboutPageEnablePageContent, Value: "true", Comment: "是否启用基础介绍内容板块 (true/false)", IsPublic: true},
+	{Key: constant.KeyAboutPageEnableSkills, Value: "true", Comment: "是否启用技能卡片板块 (true/false)", IsPublic: true},
+	{Key: constant.KeyAboutPageEnableCareers, Value: "true", Comment: "是否启用职业经历卡片板块 (true/false)", IsPublic: true},
+	{Key: constant.KeyAboutPageEnableStatistic, Value: "true", Comment: "是否启用访问统计卡片板块 (true/false)", IsPublic: true},
+	{Key: constant.KeyAboutPageEnableMapAndInfo, Value: "true", Comment: "是否启用地图和个人信息卡片板块 (true/false)", IsPublic: true},
+	{Key: constant.KeyAboutPageEnablePersonality, Value: "true", Comment: "是否启用性格卡片板块 (true/false)", IsPublic: true},
+	{Key: constant.KeyAboutPageEnablePhoto, Value: "true", Comment: "是否启用照片卡片板块 (true/false)", IsPublic: true},
+	{Key: constant.KeyAboutPageEnableMaxim, Value: "true", Comment: "是否启用格言卡片板块 (true/false)", IsPublic: true},
+	{Key: constant.KeyAboutPageEnableBuff, Value: "true", Comment: "是否启用特长卡片板块 (true/false)", IsPublic: true},
+	{Key: constant.KeyAboutPageEnableGame, Value: "true", Comment: "是否启用游戏卡片板块 (true/false)", IsPublic: true},
+	{Key: constant.KeyAboutPageEnableComic, Value: "true", Comment: "是否启用漫画/番剧卡片板块 (true/false)", IsPublic: true},
+	{Key: constant.KeyAboutPageEnableLikeTech, Value: "true", Comment: "是否启用技术偏好卡片板块 (true/false)", IsPublic: true},
+	{Key: constant.KeyAboutPageEnableMusic, Value: "true", Comment: "是否启用音乐卡片板块 (true/false)", IsPublic: true},
+	{Key: constant.KeyAboutPageEnableCustomCode, Value: "true", Comment: "是否启用自定义内容块 (true/false)", IsPublic: true},
+
 	// --- 音乐播放器配置 ---
 	{Key: constant.KeyMusicPlayerEnable, Value: "false", Comment: "是否启用音乐播放器功能 (true/false)", IsPublic: true},
 	{Key: constant.KeyMusicPlayerPlaylistID, Value: "8152976493", Comment: "音乐播放器播放列表ID (网易云歌单ID)", IsPublic: true},

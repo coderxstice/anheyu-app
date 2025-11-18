@@ -264,6 +264,23 @@ const (
 	KeyAboutPageCustomCode           SettingKey = "about.page.custom_code"
 	KeyAboutPageCustomCodeHtml       SettingKey = "about.page.custom_code_html"
 
+	// --- 关于页面板块开关配置 ---
+	KeyAboutPageEnableAuthorBox   SettingKey = "about.page.enable.author_box"
+	KeyAboutPageEnablePageContent SettingKey = "about.page.enable.page_content"
+	KeyAboutPageEnableSkills      SettingKey = "about.page.enable.skills"
+	KeyAboutPageEnableCareers     SettingKey = "about.page.enable.careers"
+	KeyAboutPageEnableStatistic   SettingKey = "about.page.enable.statistic"
+	KeyAboutPageEnableMapAndInfo  SettingKey = "about.page.enable.map_and_info"
+	KeyAboutPageEnablePersonality SettingKey = "about.page.enable.personality"
+	KeyAboutPageEnablePhoto       SettingKey = "about.page.enable.photo"
+	KeyAboutPageEnableMaxim       SettingKey = "about.page.enable.maxim"
+	KeyAboutPageEnableBuff        SettingKey = "about.page.enable.buff"
+	KeyAboutPageEnableGame        SettingKey = "about.page.enable.game"
+	KeyAboutPageEnableComic       SettingKey = "about.page.enable.comic"
+	KeyAboutPageEnableLikeTech    SettingKey = "about.page.enable.like_tech"
+	KeyAboutPageEnableMusic       SettingKey = "about.page.enable.music"
+	KeyAboutPageEnableCustomCode  SettingKey = "about.page.enable.custom_code"
+
 	KeyMusicPlayerEnable         SettingKey = "music.player.enable"
 	KeyMusicPlayerPlaylistID     SettingKey = "music.player.playlist_id"
 	KeyMusicPlayerCustomPlaylist SettingKey = "music.player.custom_playlist"
