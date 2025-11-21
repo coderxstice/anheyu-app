@@ -59,6 +59,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyDefaultGravatarType, Value: "mp", Comment: "Gravatar默认头像类型", IsPublic: true},
 	{Key: constant.KeyUploadAllowedExtensions, Value: "", Comment: "允许上传的文件后缀名白名单，逗号分隔", IsPublic: true},
 	{Key: constant.KeyUploadDeniedExtensions, Value: "", Comment: "禁止上传的文件后缀名黑名单，在白名单未启用时生效", IsPublic: true},
+	{Key: constant.KeyEnableExternalLinkWarning, Value: "false", Comment: "是否开启外链跳转提示 (true/false)，开启后跳转外链会显示中间提示页面", IsPublic: true},
 	// --- 缩略图生成器配置 ---
 	{Key: constant.KeyEnableVipsGenerator, Value: "false", Comment: "是否启用 VIPS 缩略图生成器 (true/false)", IsPublic: true},
 	{Key: constant.KeyVipsPath, Value: "vips", Comment: "VIPS 命令的路径或名称 (默认 'vips'，让系统自动搜索)", IsPublic: false},
@@ -327,6 +328,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyActivateAccountSubject, Value: "【{{.AppName}}】激活您的账户", Comment: "用户激活邮件主题模板", IsPublic: false},
 	{Key: constant.KeyActivateAccountTemplate, Value: `<!DOCTYPE html><html><head><title>激活您的账户</title></head><body><p>您好, {{.Nickname}}！</p><p>欢迎注册 <strong>{{.AppName}}</strong>！</p><p>请点击以下链接以激活您的账户（此链接24小时内有效）：</p><p><a href="{{.ActivateLink}}">激活我的账户</a></p><p>如果链接无法点击，请将其复制到浏览器地址栏中打开。</p><p>如果您并未注册，请忽略此邮件。</p><br/><p>感谢, <br/>{{.AppName}} 团队</p></body></html>`, Comment: "用户激活邮件HTML模板", IsPublic: false},
 	{Key: constant.KeyEnableUserActivation, Value: "false", Comment: "是否开启新用户邮箱激活功能 (true/false)", IsPublic: false},
+	{Key: constant.KeyEnableRegistration, Value: "true", Comment: "是否开启用户注册功能 (true/false)", IsPublic: true},
 	{Key: constant.KeySmtpHost, Value: "smtp.qq.com", Comment: "SMTP 服务器地址", IsPublic: false},
 	{Key: constant.KeySmtpPort, Value: "587", Comment: "SMTP 服务器端口 (587 for STARTTLS, 465 for SSL)", IsPublic: false},
 	{Key: constant.KeySmtpUsername, Value: "user@example.com", Comment: "SMTP 登录用户名", IsPublic: false},
