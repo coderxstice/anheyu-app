@@ -381,7 +381,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 
 	// 初始化配置导入导出服务
 	log.Printf("[DEBUG] 正在初始化 ConfigImportExportService...")
-	configImportExportSvc := config_service.NewImportExportService(settingRepo)
+	configImportExportSvc := config_service.NewImportExportService(settingRepo, settingSvc)
 	log.Printf("[DEBUG] ConfigImportExportService 初始化完成")
 
 	// --- Phase 6: 初始化表现层 (Handlers) ---

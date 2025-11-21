@@ -13,6 +13,7 @@ import (
 	"log"
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 )
 
 // ImportExportService 定义了配置导入导出服务的接口
@@ -25,13 +26,15 @@ type ImportExportService interface {
 
 // importExportService 是 ImportExportService 接口的实现
 type importExportService struct {
-	settingRepo repository.SettingRepository // 配置仓库
+	settingRepo    repository.SettingRepository // 配置仓库
+	settingService setting.SettingService       // 配置服务，用于刷新缓存
 }
 
 // NewImportExportService 创建一个新的配置导入导出服务实例
-func NewImportExportService(settingRepo repository.SettingRepository) ImportExportService {
+func NewImportExportService(settingRepo repository.SettingRepository, settingService setting.SettingService) ImportExportService {
 	return &importExportService{
-		settingRepo: settingRepo,
+		settingRepo:    settingRepo,
+		settingService: settingService,
 	}
 }
 
@@ -85,6 +88,15 @@ func (s *importExportService) ImportConfig(ctx context.Context, content io.Reade
 	// 批量更新到数据库
 	if err := s.settingRepo.Update(ctx, configMap); err != nil {
 		return fmt.Errorf("更新配置到数据库失败: %w", err)
+	}
+
+	// 刷新内存缓存，使配置立即生效
+	if err := s.settingService.LoadAllSettings(ctx); err != nil {
+		log.Printf("⚠️ 警告: 刷新配置缓存失败: %v", err)
+		// 这里不返回错误，因为数据库已经更新成功了
+		// 只是缓存刷新失败，用户可以通过重启应用来加载新配置
+	} else {
+		log.Printf("✅ 配置缓存已刷新，新配置已立即生效")
 	}
 
 	log.Printf("✅ 配置数据导入成功，共导入 %d 项配置", len(configMap))
