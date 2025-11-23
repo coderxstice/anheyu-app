@@ -48,6 +48,7 @@ const (
 	KeyCustomSidebar             SettingKey = "CUSTOM_SIDEBAR"
 	KeyCustomPostTopHTML         SettingKey = "CUSTOM_POST_TOP_HTML"
 	KeyCustomPostBottomHTML      SettingKey = "CUSTOM_POST_BOTTOM_HTML"
+	KeyDefaultThemeMode          SettingKey = "DEFAULT_THEME_MODE"
 	KeyHomeTop                   SettingKey = "HOME_TOP"
 	KeyCreativity                SettingKey = "CREATIVITY"
 	KeyUploadAllowedExtensions   SettingKey = "UPLOAD_ALLOWED_EXTENSIONS"

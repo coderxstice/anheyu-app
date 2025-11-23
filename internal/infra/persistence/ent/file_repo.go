@@ -165,6 +165,7 @@ func (r *entFileRepository) FindByPath(ctx context.Context, ownerID uint, path s
 		Where(
 			file.OwnerID(ownerID),
 			file.ParentIDIsNil(),
+			file.Name(""),         // 根目录的名称必须为空字符串
 			file.DeletedAtIsNil(), // 过滤掉已软删除的文件
 		).
 		Only(ctx)
@@ -346,30 +347,43 @@ func (r *entFileRepository) ListByParentIDWithCursor(
 
 // FindOrCreateDirectory 尝试查找一个目录，如果不存在则创建它。
 func (r *entFileRepository) FindOrCreateDirectory(ctx context.Context, parentID uint, name string, ownerID uint) (*model.File, error) {
-	query := r.client.File.Query().
+	// 1. 构建基础查询条件
+	baseQuery := r.client.File.Query().
 		Where(
 			file.OwnerID(ownerID),
 			file.Name(name),
 		)
 	if parentID == 0 {
-		query.Where(file.ParentIDIsNil())
+		baseQuery.Where(file.ParentIDIsNil())
 	} else {
-		query.Where(file.ParentID(parentID))
+		baseQuery.Where(file.ParentID(parentID))
 	}
 
-	// 2. 尝试查找已存在的目录（包括被软删除的）
-	// 使用 Allow 隐私策略来查询，以便找到被软删除的项
+	// 2. 优先查找未软删除的目录
+	existing, err := baseQuery.Where(file.DeletedAtIsNil()).Only(ctx)
+
+	// 如果找到了未软删除的目录，直接返回
+	if err == nil {
+		return toDomainFile(existing), nil
+	}
+
+	// 如果不是 "Not Found" 错误，说明有多个未软删除的记录（数据异常）
+	if !ent.IsNotFound(err) {
+		return nil, fmt.Errorf("查找目录时出错（可能存在重复记录）: %w", err)
+	}
+
+	// 3. 未找到未软删除的记录，尝试查找软删除的记录
 	allowCtx := privacy.DecisionContext(ctx, privacy.Allow)
-	existing, err := query.Only(allowCtx)
+	existing, err = baseQuery.Only(allowCtx)
 
 	// 如果发生未知错误（不是 "Not Found"），则直接返回错误
 	if err != nil && !ent.IsNotFound(err) {
 		return nil, fmt.Errorf("查找目录时出错: %w", err)
 	}
 
-	// 3. 根据查找结果进行处理
+	// 4. 根据查找结果进行处理
 	if existing != nil {
-		// a. 如果目录存在但被软删除了，则恢复它
+		// 如果找到的是软删除的目录，则恢复它
 		if existing.DeletedAt != nil {
 			log.Printf("[Repo] INFO: 目录 '%s' (ID: %d) 被软删除，正在恢复...", name, existing.ID)
 			updated, err := r.client.File.UpdateOne(existing).ClearDeletedAt().Save(ctx)
@@ -378,11 +392,11 @@ func (r *entFileRepository) FindOrCreateDirectory(ctx context.Context, parentID 
 			}
 			return toDomainFile(updated), nil
 		}
-		// b. 如果目录正常存在，则直接返回
+		// 正常情况下不应该走到这里（因为前面已经查找过未软删除的记录）
 		return toDomainFile(existing), nil
 	}
 
-	// 4. 如果目录完全不存在，则创建新的
+	// 5. 如果目录完全不存在，则创建新的
 	createBuilder := r.client.File.Create().
 		SetOwnerID(ownerID).
 		SetName(name).

@@ -53,6 +53,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyCustomSidebar, Value: "", Comment: "自定义侧边栏HTML代码", IsPublic: true},
 	{Key: constant.KeyCustomPostTopHTML, Value: "", Comment: "自定义文章顶部HTML代码，将插入到文章内容区域顶部", IsPublic: true},
 	{Key: constant.KeyCustomPostBottomHTML, Value: "", Comment: "自定义文章底部HTML代码，将插入到文章内容区域底部", IsPublic: true},
+	{Key: constant.KeyDefaultThemeMode, Value: "light", Comment: "默认主题模式 (light/dark)，决定新访问者进入时使用亮色模式还是暗色模式", IsPublic: true},
 	{Key: constant.KeyDefaultThumbParam, Value: "", Comment: "默认缩略图处理参数", IsPublic: true},
 	{Key: constant.KeyDefaultBigParam, Value: "", Comment: "默认大图处理参数", IsPublic: true},
 	{Key: constant.KeyGravatarURL, Value: "https://cdn.sep.cc/", Comment: "Gravatar 服务器地址", IsPublic: true},

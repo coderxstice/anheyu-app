@@ -2,7 +2,7 @@
  * @Description: 存储策略核心服务，集成策略模式与CacheService
  * @Author: 安知鱼
  * @Date: 2025-06-23 15:23:24
- * @LastEditTime: 2025-09-29 11:44:17
+ * @LastEditTime: 2025-11-23 17:29:59
  * @LastEditors: 安知鱼
  */
 package volume
@@ -133,6 +133,13 @@ func (s *storagePolicyService) CreatePolicy(ctx context.Context, ownerID uint, p
 		// 禁止创建挂载到根目录的策略，每个策略必须有独立的挂载点
 		// 例如：/local, /onedrive, /cos 等
 		return errors.New("不能将存储策略挂载到根目录 '/'，请使用子目录路径（如 /local、/cos、/onedrive 等）")
+	}
+
+	// 1d-1. 限制只能创建一级路径（防止路径过深）
+	// 移除开头的 "/" 后，检查是否包含其他 "/"
+	pathWithoutLeadingSlash := strings.TrimPrefix(policy.VirtualPath, "/")
+	if strings.Contains(pathWithoutLeadingSlash, "/") {
+		return errors.New("应用内挂载路径只能是一级目录（如 /cos、/local），不允许多级路径（如 /data/cos/tencent）")
 	}
 
 	// 1d-extra. 本地存储路径规范化：强制所有本地存储路径在 data/storage 目录下
