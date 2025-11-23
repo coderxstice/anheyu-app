@@ -123,12 +123,16 @@ func (s *storagePolicyService) CreatePolicy(ctx context.Context, ownerID uint, p
 
 	// 1d. 虚拟路径规则验证
 	policy.VirtualPath = strings.TrimSpace(policy.VirtualPath)
+	if policy.VirtualPath == "" {
+		return errors.New("策略的虚拟路径 (VirtualPath) 不能为空")
+	}
 	if !strings.HasPrefix(policy.VirtualPath, "/") {
 		return errors.New("策略的虚拟路径 (VirtualPath) 必须以'/'开头")
 	}
 	if policy.VirtualPath == "/" {
-		// 此函数用于创建新的子目录策略，根策略应由系统初始化保证
-		return errors.New("不能通过此方法创建根'/'策略")
+		// 禁止创建挂载到根目录的策略，每个策略必须有独立的挂载点
+		// 例如：/local, /onedrive, /cos 等
+		return errors.New("不能将存储策略挂载到根目录 '/'，请使用子目录路径（如 /local、/cos、/onedrive 等）")
 	}
 
 	// 1d-extra. 本地存储路径规范化：强制所有本地存储路径在 data/storage 目录下
@@ -372,12 +376,22 @@ func (s *storagePolicyService) UpdatePolicy(ctx context.Context, policy *model.S
 		return constant.ErrPolicyNotFound
 	}
 
-	// --- 2. 【保护逻辑】禁止更新默认的根存储策略的路径 ---
+	// --- 2. 【保护逻辑】禁止将策略挂载到根目录 ---
+	// 规范化虚拟路径
+	policy.VirtualPath = strings.TrimSpace(policy.VirtualPath)
+	if policy.VirtualPath == "" {
+		return errors.New("策略的虚拟路径 (VirtualPath) 不能为空")
+	}
+	if !strings.HasPrefix(policy.VirtualPath, "/") {
+		return errors.New("策略的虚拟路径 (VirtualPath) 必须以'/'开头")
+	}
+	// 禁止任何策略挂载到根目录
+	if policy.VirtualPath == "/" {
+		return errors.New("不能将存储策略挂载到根目录 '/'，请使用子目录路径（如 /local、/cos、/onedrive 等）")
+	}
+	// 如果原策略是根路径（历史数据），也不允许保持为根路径
 	if target.VirtualPath == "/" {
-		// 允许更新根策略的除VirtualPath之外的其他字段，但禁止修改其路径
-		if policy.VirtualPath != "/" {
-			return errors.New("无法修改默认根存储策略的挂载路径'/'")
-		}
+		return errors.New("不能将存储策略挂载到根目录 '/'，请修改为子目录路径（如 /local、/cos、/onedrive 等）")
 	}
 
 	// --- 3. 启动事务来执行所有验证和更新 ---
