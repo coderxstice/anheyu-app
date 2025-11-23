@@ -18,6 +18,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 )
 
@@ -101,11 +102,17 @@ type musicService struct {
 
 // NewMusicService 创建新的音乐服务
 func NewMusicService(settingSvc setting.SettingService) MusicService {
+	// 从配置获取音乐API基础地址
+	apiBaseURL := settingSvc.Get(constant.KeyMusicAPIBaseURL.String())
+	if apiBaseURL == "" {
+		apiBaseURL = "https://metings.qjqq.cn"
+	}
+
 	return &musicService{
 		settingSvc:       settingSvc,
 		httpClient:       &http.Client{Timeout: 15 * time.Second},
-		playlistAPI:      "https://metings.qjqq.cn/Playlist",
-		songAPI:          "https://metings.qjqq.cn/Song_V1",
+		playlistAPI:      apiBaseURL + "/Playlist",
+		songAPI:          apiBaseURL + "/Song_V1",
 		picUrlCache:      sync.Map{},
 		concurrencyLimit: 20, // 限制并发数量为20
 	}

@@ -288,6 +288,7 @@ const (
 	KeyMusicPlayerEnable         SettingKey = "music.player.enable"
 	KeyMusicPlayerPlaylistID     SettingKey = "music.player.playlist_id"
 	KeyMusicPlayerCustomPlaylist SettingKey = "music.player.custom_playlist"
+	KeyMusicAPIBaseURL           SettingKey = "music.api.base_url"
 	KeyMusicVinylBackground      SettingKey = "music.vinyl.background"
 	KeyMusicVinylOuter           SettingKey = "music.vinyl.outer"
 	KeyMusicVinylInner           SettingKey = "music.vinyl.inner"

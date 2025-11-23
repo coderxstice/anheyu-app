@@ -384,6 +384,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyMusicPlayerEnable, Value: "false", Comment: "是否启用音乐播放器功能 (true/false)", IsPublic: true},
 	{Key: constant.KeyMusicPlayerPlaylistID, Value: "8152976493", Comment: "音乐播放器播放列表ID (网易云歌单ID)", IsPublic: true},
 	{Key: constant.KeyMusicPlayerCustomPlaylist, Value: "", Comment: "自定义音乐歌单JSON文件链接", IsPublic: true},
+	{Key: constant.KeyMusicAPIBaseURL, Value: "https://metings.qjqq.cn", Comment: "音乐API基础地址（不带末尾斜杠）", IsPublic: true},
 	{Key: constant.KeyMusicVinylBackground, Value: "/static/img/music-vinyl-background.png", Comment: "音乐播放器唱片背景图", IsPublic: true},
 	{Key: constant.KeyMusicVinylOuter, Value: "/static/img/music-vinyl-outer.png", Comment: "音乐播放器唱片外圈图", IsPublic: true},
 	{Key: constant.KeyMusicVinylInner, Value: "/static/img/music-vinyl-inner.png", Comment: "音乐播放器唱片内圈图", IsPublic: true},
