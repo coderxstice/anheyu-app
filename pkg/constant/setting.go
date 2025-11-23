@@ -3,7 +3,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-21 17:18:09
- * @LastEditTime: 2025-11-08 15:33:19
+ * @LastEditTime: 2025-11-23 12:50:55
  * @LastEditors: 安知鱼
  */
 package constant
@@ -148,6 +148,8 @@ const (
 
 	// --- 页面一图流配置 ---
 	KeyPageOneImageConfig SettingKey = "page.one_image.config"
+	KeyHitokotoAPI        SettingKey = "page.one_image.hitokoto_api"
+	KeyTypingSpeed        SettingKey = "page.one_image.typing_speed"
 
 	// 文章相关配置
 	KeyPostDefaultCover          SettingKey = "post.default.cover"
@@ -286,6 +288,7 @@ const (
 	KeyMusicPlayerEnable         SettingKey = "music.player.enable"
 	KeyMusicPlayerPlaylistID     SettingKey = "music.player.playlist_id"
 	KeyMusicPlayerCustomPlaylist SettingKey = "music.player.custom_playlist"
+	KeyMusicAPIBaseURL           SettingKey = "music.api.base_url"
 	KeyMusicVinylBackground      SettingKey = "music.vinyl.background"
 	KeyMusicVinylOuter           SettingKey = "music.vinyl.outer"
 	KeyMusicVinylInner           SettingKey = "music.vinyl.inner"
