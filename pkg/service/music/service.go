@@ -7,6 +7,7 @@ package music
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -108,9 +109,18 @@ func NewMusicService(settingSvc setting.SettingService) MusicService {
 		apiBaseURL = "https://metings.qjqq.cn"
 	}
 
+	// 创建自定义 Transport，跳过 SSL 证书验证
+	// 注意：这是为了兼容外部 API（metings.qjqq.cn）的临时解决方案
+	// 该 API 的证书由未知的证书颁发机构签名，导致验证失败
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true, // 跳过证书验证
+		},
+	}
+
 	return &musicService{
 		settingSvc:       settingSvc,
-		httpClient:       &http.Client{Timeout: 15 * time.Second},
+		httpClient:       &http.Client{Timeout: 15 * time.Second, Transport: transport},
 		playlistAPI:      apiBaseURL + "/Playlist",
 		songAPI:          apiBaseURL + "/Song_V1",
 		picUrlCache:      sync.Map{},
@@ -784,8 +794,14 @@ func (s *musicService) optimizePicUrl(ctx context.Context, originalPicUrl string
 	}
 
 	// 创建不跟随重定向的HTTP客户端
+	// 配置跳过 SSL 证书验证以兼容外部 API
 	client := &http.Client{
 		Timeout: 3 * time.Second, // 快速超时
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true, // 跳过证书验证
+			},
+		},
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			// 不跟随重定向，我们手动处理
 			return http.ErrUseLastResponse
