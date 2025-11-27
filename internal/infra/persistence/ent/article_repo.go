@@ -21,12 +21,13 @@ import (
 )
 
 type articleRepo struct {
-	db *ent.Client
+	db     *ent.Client
+	dbType string
 }
 
 // NewArticleRepo 是 articleRepo 的构造函数。
-func NewArticleRepo(db *ent.Client) repository.ArticleRepository {
-	return &articleRepo{db: db}
+func NewArticleRepo(db *ent.Client, dbType string) repository.ArticleRepository {
+	return &articleRepo{db: db, dbType: dbType}
 }
 
 // === 私有辅助函数 (Private Helpers) ===
@@ -206,8 +207,23 @@ func (r *articleRepo) GetArchiveSummary(ctx context.Context) ([]*model.ArchiveIt
 			article.DeletedAtIsNil(),
 		).
 		Modify(func(s *sql.Selector) {
-			yearExprStr := fmt.Sprintf("EXTRACT(YEAR FROM %s)", s.C(article.FieldCreatedAt))
-			monthExprStr := fmt.Sprintf("EXTRACT(MONTH FROM %s)", s.C(article.FieldCreatedAt))
+			var yearExprStr, monthExprStr string
+
+			switch r.dbType {
+			case "sqlite", "sqlite3":
+				// SQLite 使用 strftime 函数
+				yearExprStr = fmt.Sprintf("CAST(strftime('%%Y', %s) AS INTEGER)", s.C(article.FieldCreatedAt))
+				monthExprStr = fmt.Sprintf("CAST(strftime('%%m', %s) AS INTEGER)", s.C(article.FieldCreatedAt))
+			case "mysql":
+				// MySQL 使用 YEAR 和 MONTH 函数
+				yearExprStr = fmt.Sprintf("YEAR(%s)", s.C(article.FieldCreatedAt))
+				monthExprStr = fmt.Sprintf("MONTH(%s)", s.C(article.FieldCreatedAt))
+			default:
+				// PostgreSQL 使用 EXTRACT 函数
+				yearExprStr = fmt.Sprintf("EXTRACT(YEAR FROM %s)", s.C(article.FieldCreatedAt))
+				monthExprStr = fmt.Sprintf("EXTRACT(MONTH FROM %s)", s.C(article.FieldCreatedAt))
+			}
+
 			s.Select(
 				sql.As(yearExprStr, "year"),
 				sql.As(monthExprStr, "month"),

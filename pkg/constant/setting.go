@@ -163,6 +163,12 @@ const (
 	KeyPostRewardAlipayQR        SettingKey = "post.reward.alipay_qr"
 	KeyPostCodeBlockCodeMaxLines SettingKey = "post.code_block.code_max_lines"
 
+	// 文章复制版权配置
+	KeyPostCopyEnable            SettingKey = "post.copy.enable"             // 是否允许复制文章内容
+	KeyPostCopyCopyrightEnable   SettingKey = "post.copy.copyright_enable"   // 复制时是否携带版权信息
+	KeyPostCopyCopyrightOriginal SettingKey = "post.copy.copyright_original" // 原创文章版权信息模板
+	KeyPostCopyCopyrightReprint  SettingKey = "post.copy.copyright_reprint"  // 转载文章版权信息模板
+
 	KeyPostEquipmentBannerBackground  SettingKey = "equipment.banner.background"
 	KeyPostEquipmentBannerTitle       SettingKey = "equipment.banner.title"
 	KeyPostEquipmentBannerDescription SettingKey = "equipment.banner.description"

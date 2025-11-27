@@ -203,7 +203,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	albumCategoryRepo := ent_impl.NewAlbumCategoryRepo(entClient)
 	storagePolicyRepo := ent_impl.NewEntStoragePolicyRepository(entClient)
 	metadataRepo := ent_impl.NewEntMetadataRepository(entClient)
-	articleRepo := ent_impl.NewArticleRepo(entClient)
+	articleRepo := ent_impl.NewArticleRepo(entClient, dbType)
 	postTagRepo := ent_impl.NewPostTagRepo(entClient, dbType)
 	postCategoryRepo := ent_impl.NewPostCategoryRepo(entClient)
 	cleanupRepo := ent_impl.NewCleanupRepo(entClient)
