@@ -123,17 +123,19 @@ func (r *commentRepo) FindAllPublishedByPath(ctx context.Context, path string) (
 	// 按置顶状态和创建时间排序：置顶的在前，然后按创建时间降序
 	entComments, err := query.Modify(func(s *sql.Selector) {
 		var pinnedOrder string
-		if r.dbType == "mysql" {
-			pinnedOrder = fmt.Sprintf("`%s` IS NULL ASC, `%s` DESC", entcomment.FieldPinnedAt, entcomment.FieldPinnedAt)
-		} else {
-			pinnedOrder = fmt.Sprintf(`"%s" DESC NULLS LAST`, entcomment.FieldPinnedAt)
-		}
-
-		// 根据数据库类型使用不同的列名引用方式
 		var createdAtOrder string
-		if r.dbType == "mysql" {
+
+		switch r.dbType {
+		case "mysql":
+			pinnedOrder = fmt.Sprintf("`%s` IS NULL ASC, `%s` DESC", entcomment.FieldPinnedAt, entcomment.FieldPinnedAt)
 			createdAtOrder = fmt.Sprintf("`%s` DESC", entcomment.FieldCreatedAt)
-		} else {
+		case "sqlite", "sqlite3":
+			// SQLite 不支持 NULLS LAST，使用 CASE WHEN 实现相同效果
+			pinnedOrder = fmt.Sprintf(`CASE WHEN "%s" IS NULL THEN 1 ELSE 0 END, "%s" DESC`, entcomment.FieldPinnedAt, entcomment.FieldPinnedAt)
+			createdAtOrder = fmt.Sprintf(`"%s" DESC`, entcomment.FieldCreatedAt)
+		default:
+			// PostgreSQL 等支持 NULLS LAST 的数据库
+			pinnedOrder = fmt.Sprintf(`"%s" DESC NULLS LAST`, entcomment.FieldPinnedAt)
 			createdAtOrder = fmt.Sprintf(`"%s" DESC`, entcomment.FieldCreatedAt)
 		}
 
@@ -270,17 +272,19 @@ func (r *commentRepo) FindWithConditions(ctx context.Context, params repository.
 		WithUser(). // 预加载关联的用户信息
 		Modify(func(s *sql.Selector) {
 			var pinnedOrder string
-			if r.dbType == "mysql" {
-				pinnedOrder = fmt.Sprintf("`%s` IS NULL ASC, `%s` DESC", entcomment.FieldPinnedAt, entcomment.FieldPinnedAt)
-			} else {
-				pinnedOrder = fmt.Sprintf(`"%s" DESC NULLS LAST`, entcomment.FieldPinnedAt)
-			}
-
-			// 根据数据库类型使用不同的列名引用方式
 			var createdAtOrder string
-			if r.dbType == "mysql" {
+
+			switch r.dbType {
+			case "mysql":
+				pinnedOrder = fmt.Sprintf("`%s` IS NULL ASC, `%s` DESC", entcomment.FieldPinnedAt, entcomment.FieldPinnedAt)
 				createdAtOrder = fmt.Sprintf("`%s` DESC", entcomment.FieldCreatedAt)
-			} else {
+			case "sqlite", "sqlite3":
+				// SQLite 不支持 NULLS LAST，使用 CASE WHEN 实现相同效果
+				pinnedOrder = fmt.Sprintf(`CASE WHEN "%s" IS NULL THEN 1 ELSE 0 END, "%s" DESC`, entcomment.FieldPinnedAt, entcomment.FieldPinnedAt)
+				createdAtOrder = fmt.Sprintf(`"%s" DESC`, entcomment.FieldCreatedAt)
+			default:
+				// PostgreSQL 等支持 NULLS LAST 的数据库
+				pinnedOrder = fmt.Sprintf(`"%s" DESC NULLS LAST`, entcomment.FieldPinnedAt)
 				createdAtOrder = fmt.Sprintf(`"%s" DESC`, entcomment.FieldCreatedAt)
 			}
 

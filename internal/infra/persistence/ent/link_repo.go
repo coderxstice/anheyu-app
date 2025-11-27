@@ -348,7 +348,8 @@ func mapEntLinkToDTO(entLink *ent.Link) *model.LinkDTO {
 
 func (r *linkRepo) GetRandomPublic(ctx context.Context, num int) ([]*model.LinkDTO, error) {
 	randomFunc := "RAND()"
-	if r.dbType == "postgres" || r.dbType == "sqlite3" {
+	// PostgreSQL 和 SQLite 使用 RANDOM() 函数
+	if r.dbType == "postgres" || r.dbType == "sqlite" || r.dbType == "sqlite3" {
 		randomFunc = "RANDOM()"
 	}
 
