@@ -228,6 +228,39 @@ func (h *AlbumHandler) DeleteAlbum(c *gin.Context) {
 	response.Success(c, nil, "删除成功")
 }
 
+// BatchDeleteAlbums 处理批量删除图片的请求
+// @Summary      批量删除相册图片
+// @Description  根据ID列表批量删除相册中的图片
+// @Tags         相册管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        body  body  object{ids=[]int}  true  "图片ID列表"
+// @Success      200  {object}  response.Response  "删除成功"
+// @Failure      400  {object}  response.Response  "参数错误"
+// @Failure      500  {object}  response.Response  "删除失败"
+// @Router       /albums/batch-delete [delete]
+func (h *AlbumHandler) BatchDeleteAlbums(c *gin.Context) {
+	var req struct {
+		IDs []uint `json:"ids" binding:"required,min=1"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Fail(c, http.StatusBadRequest, "参数错误: "+err.Error())
+		return
+	}
+
+	deleted, err := h.albumSvc.BatchDeleteAlbums(c.Request.Context(), req.IDs)
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, "批量删除失败: "+err.Error())
+		return
+	}
+
+	response.Success(c, gin.H{
+		"deleted": deleted,
+	}, fmt.Sprintf("成功删除 %d 张图片", deleted))
+}
+
 // UpdateAlbum 处理更新图片的请求
 // @Summary      更新相册图片
 // @Description  更新相册中图片的信息
