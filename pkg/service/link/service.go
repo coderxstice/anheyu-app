@@ -31,6 +31,7 @@ type Service interface {
 	ListCategories(ctx context.Context) ([]*model.LinkCategoryDTO, error)
 	ListPublicCategories(ctx context.Context) ([]*model.LinkCategoryDTO, error) // 只返回有已审核通过友链的分类
 	GetRandomLinks(ctx context.Context, num int) ([]*model.LinkDTO, error)
+	CheckLinkExistsByURL(ctx context.Context, url string) (*model.CheckLinkExistsResponse, error) // 检查友链URL是否已存在
 
 	// --- 后台接口 ---
 	AdminCreateLink(ctx context.Context, req *model.AdminCreateLinkRequest) (*model.LinkDTO, error)
@@ -119,6 +120,17 @@ func (s *service) GetRandomLinks(ctx context.Context, num int) ([]*model.LinkDTO
 
 // ApplyLink 处理前台友链申请。
 func (s *service) ApplyLink(ctx context.Context, req *model.ApplyLinkRequest) (*model.LinkDTO, error) {
+	// 检查URL是否已存在
+	exists, err := s.linkRepo.ExistsByURL(ctx, req.URL)
+	if err != nil {
+		return nil, fmt.Errorf("检查友链URL失败: %w", err)
+	}
+
+	// 如果URL已存在且申请类型是"新增"，则返回错误
+	if exists && req.Type == "NEW" {
+		return nil, errors.New("该网站已申请过友链，请选择「修改友链」类型进行申请")
+	}
+
 	// 从配置中获取默认分类ID
 	defaultCategoryIDStr := s.settingSvc.Get(constant.KeyFriendLinkDefaultCategory.String())
 	defaultCategoryID := 2 // 默认值，如果配置获取失败
@@ -711,6 +723,18 @@ func (s *service) CheckLinksHealth(ctx context.Context) (*model.LinkHealthCheckR
 // BatchUpdateLinkSort 批量更新友链排序
 func (s *service) BatchUpdateLinkSort(ctx context.Context, req *model.BatchUpdateLinkSortRequest) error {
 	return s.linkRepo.BatchUpdateSortOrder(ctx, req.Items)
+}
+
+// CheckLinkExistsByURL 检查指定URL的友链是否已存在
+func (s *service) CheckLinkExistsByURL(ctx context.Context, url string) (*model.CheckLinkExistsResponse, error) {
+	exists, err := s.linkRepo.ExistsByURL(ctx, url)
+	if err != nil {
+		return nil, fmt.Errorf("检查友链URL失败: %w", err)
+	}
+	return &model.CheckLinkExistsResponse{
+		Exists: exists,
+		URL:    url,
+	}, nil
 }
 
 // checkLinkHealth 检查单个友链的健康状态。

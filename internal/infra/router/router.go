@@ -504,6 +504,9 @@ func (r *Router) registerLinkRoutes(api *gin.RouterGroup) {
 
 		// 获取所有友链申请列表: GET /api/public/links/applications
 		linksPublic.GET("/applications", r.linkHandler.ListAllApplications)
+
+		// 检查友链URL是否存在: GET /api/public/links/check-exists
+		linksPublic.GET("/check-exists", r.linkHandler.CheckLinkExists)
 	}
 
 	linkCategoriesPublic := api.Group("/public/link-categories")

@@ -88,6 +88,31 @@ func (h *Handler) ApplyLink(c *gin.Context) {
 	response.Success(c, nil, "申请已提交，等待审核")
 }
 
+// CheckLinkExists 处理检查友链URL是否已存在的请求。
+// @Summary      检查友链URL是否存在
+// @Description  检查指定的网站URL是否已经申请过友链
+// @Tags         友情链接
+// @Produce      json
+// @Param        url  query  string  true  "网站URL"
+// @Success      200  {object}  response.Response{data=model.CheckLinkExistsResponse}  "检查成功"
+// @Failure      400  {object}  response.Response  "参数无效"
+// @Failure      500  {object}  response.Response  "检查失败"
+// @Router       /public/links/check-exists [get]
+func (h *Handler) CheckLinkExists(c *gin.Context) {
+	url := c.Query("url")
+	if url == "" {
+		response.Fail(c, http.StatusBadRequest, "URL参数不能为空")
+		return
+	}
+
+	result, err := h.linkSvc.CheckLinkExistsByURL(c.Request.Context(), url)
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, "检查失败: "+err.Error())
+		return
+	}
+	response.Success(c, result, "检查成功")
+}
+
 // ListPublicLinks 处理前台获取已批准友链列表的请求。
 // @Summary      获取公开友链列表
 // @Description  获取所有已批准的友链列表，支持按分类和标签筛选
