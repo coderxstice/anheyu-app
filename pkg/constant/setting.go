@@ -231,6 +231,7 @@ const (
 	KeySidebarSiteInfoTotalWordCount SettingKey = "sidebar.siteinfo.totalWordCount"
 	KeySidebarArchiveCount           SettingKey = "sidebar.archive.displayMonths"
 	KeySidebarCustomShowInPost       SettingKey = "sidebar.custom.showInPost"
+	KeySidebarTocCollapseMode        SettingKey = "sidebar.toc.collapseMode"
 
 	// --- 站点敏感或内部配置 (不暴露给前端) ---
 	KeyJWTSecret               SettingKey = "JWT_SECRET"
