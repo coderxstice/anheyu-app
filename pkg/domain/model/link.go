@@ -241,3 +241,9 @@ type ExportLinksResponse struct {
 	Links []ImportLinkItem `json:"links"` // 使用与导入相同的数据格式
 	Total int              `json:"total"` // 导出的友链总数
 }
+
+// CheckLinkExistsResponse 是检查友链URL是否存在的响应结构。
+type CheckLinkExistsResponse struct {
+	Exists bool   `json:"exists"` // 是否存在
+	URL    string `json:"url"`    // 查询的URL
+}
