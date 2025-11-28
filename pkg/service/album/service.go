@@ -142,6 +142,7 @@ type AlbumService interface {
 	CreateAlbum(ctx context.Context, params CreateAlbumParams) (*model.Album, error)
 	BatchImportAlbums(ctx context.Context, params BatchImportParams) (*BatchImportResult, error)
 	DeleteAlbum(ctx context.Context, id uint) error
+	BatchDeleteAlbums(ctx context.Context, ids []uint) (int, error)
 	UpdateAlbum(ctx context.Context, id uint, params UpdateAlbumParams) (*model.Album, error)
 	FindAlbums(ctx context.Context, params FindAlbumsParams) (*repository.PageResult[model.Album], error)
 	IncrementAlbumStat(ctx context.Context, id uint, statType string) error
@@ -225,6 +226,14 @@ func (s *albumService) CreateAlbum(ctx context.Context, params CreateAlbumParams
 // DeleteAlbum 实现了删除相册的业务逻辑
 func (s *albumService) DeleteAlbum(ctx context.Context, id uint) error {
 	return s.albumRepo.Delete(ctx, id)
+}
+
+// BatchDeleteAlbums 实现了批量删除相册的业务逻辑
+func (s *albumService) BatchDeleteAlbums(ctx context.Context, ids []uint) (int, error) {
+	if len(ids) == 0 {
+		return 0, fmt.Errorf("没有指定要删除的相册ID")
+	}
+	return s.albumRepo.BatchDelete(ctx, ids)
 }
 
 // UpdateAlbum 实现了更新相册的业务逻辑

@@ -51,4 +51,7 @@ type AlbumRepository interface {
 
 	// IncrementDownloadCount 增加指定ID相册的下载次数
 	IncrementDownloadCount(ctx context.Context, id uint) error
+
+	// BatchDelete 批量删除相册
+	BatchDelete(ctx context.Context, ids []uint) (int, error)
 }

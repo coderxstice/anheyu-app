@@ -255,6 +255,11 @@ func (r *entAlbumRepository) IncrementDownloadCount(ctx context.Context, id uint
 	return err
 }
 
+func (r *entAlbumRepository) BatchDelete(ctx context.Context, ids []uint) (int, error) {
+	deleted, err := r.client.Album.Delete().Where(album.IDIn(ids...)).Exec(ctx)
+	return deleted, err
+}
+
 // toDomainAlbum 将 *ent.Album 转换为 *model.Album.
 func toDomainAlbum(po *ent.Album) *model.Album {
 	if po == nil {
