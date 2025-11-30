@@ -106,7 +106,7 @@ func (s *emailService) SendLinkApplicationNotification(ctx context.Context, link
 	}
 	siteURL = strings.TrimRight(siteURL, "/")
 
-	adminURL := fmt.Sprintf("%s/admin/link", siteURL)
+	adminURL := fmt.Sprintf("%s/admin/flink-management", siteURL)
 
 	subjectTpl := s.settingSvc.Get(constant.KeyFriendLinkMailSubjectAdmin.String())
 	if subjectTpl == "" {

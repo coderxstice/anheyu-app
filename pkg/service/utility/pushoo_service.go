@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-09-04 10:46:35
- * @LastEditTime: 2025-10-12 03:54:56
+ * @LastEditTime: 2025-11-30 12:19:09
  * @LastEditors: 安知鱼
  */
 // pkg/service/utility/pushoo_service.go
@@ -457,7 +457,7 @@ func (s *pushooService) prepareLinkTemplateData(link *model.LinkDTO) (map[string
 	body := fmt.Sprintf("%s 申请了友链", link.Name)
 
 	// 构建友链管理页面URL
-	adminURL := fmt.Sprintf("%s/admin/link", siteURL)
+	adminURL := fmt.Sprintf("%s/admin/flink-management", siteURL)
 
 	data := map[string]interface{}{
 		"SITE_NAME": siteName,
