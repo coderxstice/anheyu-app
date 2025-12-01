@@ -519,6 +519,19 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 	// 从配置中读取 Debug 模式
 	isDebugMode = cfg.GetBool(config.KeyServerDebug)
 
+	// 启动时打印主题模式信息
+	if isStaticModeActive() {
+		log.Println("========================================")
+		log.Println("🎨 前端主题模式: 外部主题模式 (static 目录)")
+		log.Println("   说明: 检测到 static/index.html，将从 static 目录加载前端资源")
+		log.Println("========================================")
+	} else {
+		log.Println("========================================")
+		log.Println("🎨 前端主题模式: 内嵌主题模式 (embed)")
+		log.Println("   说明: 未检测到 static/index.html，将使用内嵌的前端资源")
+		log.Println("========================================")
+	}
+
 	debugLog("正在配置动态前端路由系统...")
 
 	// 配置 RSS feed

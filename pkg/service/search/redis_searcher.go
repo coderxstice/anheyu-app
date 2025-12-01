@@ -2,7 +2,7 @@
  * @Description: Redis 搜索器实现，包含基于权重的相关度排序和优化的分词逻辑
  * @Author: 安知鱼
  * @Date: 2025-08-30 14:01:22
- * @LastEditTime: 2025-08-30 18:00:49
+ * @LastEditTime: 2025-12-01 16:14:25
  * @LastEditors: 安知鱼
  */
 
@@ -386,7 +386,7 @@ func (rs *RedisSearcher) IndexArticle(ctx context.Context, article *model.Articl
 		}
 	}
 
-	log.Printf("索引文章 %s: 标题='%s', 总词条数: %d", article.ID, article.Title, len(tokensWithWeights))
+	// log.Printf("索引文章 %s: 标题='%s', 总词条数: %d", article.ID, article.Title, len(tokensWithWeights))
 
 	// 将新的词条信息写入 pipeline
 	newWords := make([]interface{}, 0, len(tokensWithWeights))
