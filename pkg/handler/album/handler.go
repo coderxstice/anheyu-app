@@ -108,6 +108,8 @@ func (h *AlbumHandler) GetAlbums(c *gin.Context) {
 		Height         int       `json:"height"`
 		WidthAndHeight string    `json:"widthAndHeight"`
 		DisplayOrder   int       `json:"displayOrder"`
+		Title          string    `json:"title"`
+		Description    string    `json:"description"`
 	}
 
 	// 从 PageResult 中获取 Items
@@ -133,6 +135,8 @@ func (h *AlbumHandler) GetAlbums(c *gin.Context) {
 			Height:         album.Height,
 			WidthAndHeight: fmt.Sprintf("%dx%d", album.Width, album.Height),
 			DisplayOrder:   album.DisplayOrder,
+			Title:          album.Title,
+			Description:    album.Description,
 		})
 	}
 
@@ -171,6 +175,8 @@ func (h *AlbumHandler) AddAlbum(c *gin.Context) {
 		Format       string   `json:"format"`
 		FileHash     string   `json:"fileHash" binding:"required"`
 		DisplayOrder int      `json:"displayOrder"`
+		Title        string   `json:"title"`
+		Description  string   `json:"description"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -192,6 +198,8 @@ func (h *AlbumHandler) AddAlbum(c *gin.Context) {
 		Format:       req.Format,
 		FileHash:     req.FileHash,
 		DisplayOrder: req.DisplayOrder,
+		Title:        req.Title,
+		Description:  req.Description,
 	})
 
 	if err != nil {
@@ -290,6 +298,8 @@ func (h *AlbumHandler) UpdateAlbum(c *gin.Context) {
 		BigParam     string   `json:"bigParam"`
 		Tags         []string `json:"tags"`
 		DisplayOrder *int     `json:"displayOrder"`
+		Title        string   `json:"title"`
+		Description  string   `json:"description"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.Fail(c, http.StatusBadRequest, "参数错误: "+err.Error())
@@ -305,6 +315,8 @@ func (h *AlbumHandler) UpdateAlbum(c *gin.Context) {
 		BigParam:     req.BigParam,
 		Tags:         req.Tags,
 		DisplayOrder: req.DisplayOrder,
+		Title:        req.Title,
+		Description:  req.Description,
 	})
 
 	if err != nil {

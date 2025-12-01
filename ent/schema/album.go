@@ -96,6 +96,14 @@ func (Album) Fields() []ent.Field {
 		field.Uint("category_id").
 			Optional().
 			Comment("分类ID"),
+		field.String("title").
+			MaxLen(255).
+			Optional().
+			Comment("图片标题"),
+		field.String("description").
+			MaxLen(1000).
+			Optional().
+			Comment("图片描述"),
 	}
 }
 

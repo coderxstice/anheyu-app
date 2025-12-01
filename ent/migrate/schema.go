@@ -29,6 +29,8 @@ var (
 		{Name: "aspect_ratio", Type: field.TypeString, Nullable: true, Size: 50},
 		{Name: "file_hash", Type: field.TypeString, Unique: true, Size: 64},
 		{Name: "display_order", Type: field.TypeInt, Default: 0},
+		{Name: "title", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 1000},
 		{Name: "category_id", Type: field.TypeUint, Nullable: true},
 	}
 	// AlbumsTable holds the schema information for the "albums" table.
@@ -39,7 +41,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "albums_album_categories_albums",
-				Columns:    []*schema.Column{AlbumsColumns[19]},
+				Columns:    []*schema.Column{AlbumsColumns[21]},
 				RefColumns: []*schema.Column{AlbumCategoriesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

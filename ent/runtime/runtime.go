@@ -116,6 +116,14 @@ func init() {
 	albumDescDisplayOrder := albumFields[17].Descriptor()
 	// album.DefaultDisplayOrder holds the default value on creation for the display_order field.
 	album.DefaultDisplayOrder = albumDescDisplayOrder.Default.(int)
+	// albumDescTitle is the schema descriptor for title field.
+	albumDescTitle := albumFields[19].Descriptor()
+	// album.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	album.TitleValidator = albumDescTitle.Validators[0].(func(string) error)
+	// albumDescDescription is the schema descriptor for description field.
+	albumDescDescription := albumFields[20].Descriptor()
+	// album.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	album.DescriptionValidator = albumDescDescription.Validators[0].(func(string) error)
 	albumcategoryFields := schema.AlbumCategory{}.Fields()
 	_ = albumcategoryFields
 	// albumcategoryDescName is the schema descriptor for name field.

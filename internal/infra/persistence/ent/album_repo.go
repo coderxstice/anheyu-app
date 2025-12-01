@@ -41,6 +41,8 @@ func (r *entAlbumRepository) Create(ctx context.Context, domainAlbum *model.Albu
 		SetAspectRatio(domainAlbum.AspectRatio).
 		SetFileHash(domainAlbum.FileHash).
 		SetDisplayOrder(domainAlbum.DisplayOrder).
+		SetTitle(domainAlbum.Title).
+		SetDescription(domainAlbum.Description).
 		Save(ctx)
 	if err != nil {
 		return err
@@ -100,7 +102,9 @@ func (r *entAlbumRepository) CreateOrRestore(ctx context.Context, domainAlbum *m
 			SetFormat(domainAlbum.Format).
 			SetAspectRatio(domainAlbum.AspectRatio).
 			SetFileHash(domainAlbum.FileHash).
-			SetDisplayOrder(domainAlbum.DisplayOrder)
+			SetDisplayOrder(domainAlbum.DisplayOrder).
+			SetTitle(domainAlbum.Title).
+			SetDescription(domainAlbum.Description)
 
 		// 处理可选的 CategoryID
 		if domainAlbum.CategoryID != nil {
@@ -156,7 +160,9 @@ func (r *entAlbumRepository) Update(ctx context.Context, domainAlbum *model.Albu
 		SetFormat(domainAlbum.Format).
 		SetAspectRatio(domainAlbum.AspectRatio).
 		SetFileHash(domainAlbum.FileHash).
-		SetDisplayOrder(domainAlbum.DisplayOrder)
+		SetDisplayOrder(domainAlbum.DisplayOrder).
+		SetTitle(domainAlbum.Title).
+		SetDescription(domainAlbum.Description)
 
 	// 处理可选的 CategoryID
 	if domainAlbum.CategoryID != nil {
@@ -301,5 +307,7 @@ func toDomainAlbum(po *ent.Album) *model.Album {
 		AspectRatio:   po.AspectRatio,
 		FileHash:      po.FileHash,
 		DisplayOrder:  po.DisplayOrder,
+		Title:         po.Title,
+		Description:   po.Description,
 	}
 }
