@@ -47,7 +47,7 @@ func (r *articleRepo) toModel(a *ent.Article) *model.Article {
 		log.Printf("[严重错误] 生成的文章公共ID为空: dbID=%d", a.ID)
 		panic(fmt.Sprintf("生成的文章公共ID为空: dbID=%d", a.ID))
 	}
-	log.Printf("[toModel] 成功生成公共ID: dbID=%d -> publicID=%s", a.ID, publicID)
+	// log.Printf("[toModel] 成功生成公共ID: dbID=%d -> publicID=%s", a.ID, publicID)
 	var tags []*model.PostTag
 	if a.Edges.PostTags != nil {
 		tags = make([]*model.PostTag, len(a.Edges.PostTags))
