@@ -56,6 +56,10 @@ type Album struct {
 	DisplayOrder int `json:"display_order,omitempty"`
 	// 分类ID
 	CategoryID uint `json:"category_id,omitempty"`
+	// 图片标题
+	Title string `json:"title,omitempty"`
+	// 图片描述
+	Description string `json:"description,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AlbumQuery when eager-loading is set.
 	Edges        AlbumEdges `json:"edges"`
@@ -89,7 +93,7 @@ func (*Album) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case album.FieldID, album.FieldViewCount, album.FieldDownloadCount, album.FieldWidth, album.FieldHeight, album.FieldFileSize, album.FieldDisplayOrder, album.FieldCategoryID:
 			values[i] = new(sql.NullInt64)
-		case album.FieldImageURL, album.FieldBigImageURL, album.FieldDownloadURL, album.FieldThumbParam, album.FieldBigParam, album.FieldTags, album.FieldFormat, album.FieldAspectRatio, album.FieldFileHash:
+		case album.FieldImageURL, album.FieldBigImageURL, album.FieldDownloadURL, album.FieldThumbParam, album.FieldBigParam, album.FieldTags, album.FieldFormat, album.FieldAspectRatio, album.FieldFileHash, album.FieldTitle, album.FieldDescription:
 			values[i] = new(sql.NullString)
 		case album.FieldDeletedAt, album.FieldCreatedAt, album.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -229,6 +233,18 @@ func (_m *Album) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.CategoryID = uint(value.Int64)
 			}
+		case album.FieldTitle:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field title", values[i])
+			} else if value.Valid {
+				_m.Title = value.String
+			}
+		case album.FieldDescription:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field description", values[i])
+			} else if value.Valid {
+				_m.Description = value.String
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -328,6 +344,12 @@ func (_m *Album) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("category_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.CategoryID))
+	builder.WriteString(", ")
+	builder.WriteString("title=")
+	builder.WriteString(_m.Title)
+	builder.WriteString(", ")
+	builder.WriteString("description=")
+	builder.WriteString(_m.Description)
 	builder.WriteByte(')')
 	return builder.String()
 }

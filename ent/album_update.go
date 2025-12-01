@@ -388,6 +388,46 @@ func (_u *AlbumUpdate) ClearCategoryID() *AlbumUpdate {
 	return _u
 }
 
+// SetTitle sets the "title" field.
+func (_u *AlbumUpdate) SetTitle(v string) *AlbumUpdate {
+	_u.mutation.SetTitle(v)
+	return _u
+}
+
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (_u *AlbumUpdate) SetNillableTitle(v *string) *AlbumUpdate {
+	if v != nil {
+		_u.SetTitle(*v)
+	}
+	return _u
+}
+
+// ClearTitle clears the value of the "title" field.
+func (_u *AlbumUpdate) ClearTitle() *AlbumUpdate {
+	_u.mutation.ClearTitle()
+	return _u
+}
+
+// SetDescription sets the "description" field.
+func (_u *AlbumUpdate) SetDescription(v string) *AlbumUpdate {
+	_u.mutation.SetDescription(v)
+	return _u
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (_u *AlbumUpdate) SetNillableDescription(v *string) *AlbumUpdate {
+	if v != nil {
+		_u.SetDescription(*v)
+	}
+	return _u
+}
+
+// ClearDescription clears the value of the "description" field.
+func (_u *AlbumUpdate) ClearDescription() *AlbumUpdate {
+	_u.mutation.ClearDescription()
+	return _u
+}
+
 // SetCategory sets the "category" edge to the AlbumCategory entity.
 func (_u *AlbumUpdate) SetCategory(v *AlbumCategory) *AlbumUpdate {
 	return _u.SetCategoryID(v.ID)
@@ -491,6 +531,16 @@ func (_u *AlbumUpdate) check() error {
 	if v, ok := _u.mutation.FileHash(); ok {
 		if err := album.FileHashValidator(v); err != nil {
 			return &ValidationError{Name: "file_hash", err: fmt.Errorf(`ent: validator failed for field "Album.file_hash": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Title(); ok {
+		if err := album.TitleValidator(v); err != nil {
+			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Album.title": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Description(); ok {
+		if err := album.DescriptionValidator(v); err != nil {
+			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "Album.description": %w`, err)}
 		}
 	}
 	return nil
@@ -615,6 +665,18 @@ func (_u *AlbumUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.AddedDisplayOrder(); ok {
 		_spec.AddField(album.FieldDisplayOrder, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Title(); ok {
+		_spec.SetField(album.FieldTitle, field.TypeString, value)
+	}
+	if _u.mutation.TitleCleared() {
+		_spec.ClearField(album.FieldTitle, field.TypeString)
+	}
+	if value, ok := _u.mutation.Description(); ok {
+		_spec.SetField(album.FieldDescription, field.TypeString, value)
+	}
+	if _u.mutation.DescriptionCleared() {
+		_spec.ClearField(album.FieldDescription, field.TypeString)
 	}
 	if _u.mutation.CategoryCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1025,6 +1087,46 @@ func (_u *AlbumUpdateOne) ClearCategoryID() *AlbumUpdateOne {
 	return _u
 }
 
+// SetTitle sets the "title" field.
+func (_u *AlbumUpdateOne) SetTitle(v string) *AlbumUpdateOne {
+	_u.mutation.SetTitle(v)
+	return _u
+}
+
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (_u *AlbumUpdateOne) SetNillableTitle(v *string) *AlbumUpdateOne {
+	if v != nil {
+		_u.SetTitle(*v)
+	}
+	return _u
+}
+
+// ClearTitle clears the value of the "title" field.
+func (_u *AlbumUpdateOne) ClearTitle() *AlbumUpdateOne {
+	_u.mutation.ClearTitle()
+	return _u
+}
+
+// SetDescription sets the "description" field.
+func (_u *AlbumUpdateOne) SetDescription(v string) *AlbumUpdateOne {
+	_u.mutation.SetDescription(v)
+	return _u
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (_u *AlbumUpdateOne) SetNillableDescription(v *string) *AlbumUpdateOne {
+	if v != nil {
+		_u.SetDescription(*v)
+	}
+	return _u
+}
+
+// ClearDescription clears the value of the "description" field.
+func (_u *AlbumUpdateOne) ClearDescription() *AlbumUpdateOne {
+	_u.mutation.ClearDescription()
+	return _u
+}
+
 // SetCategory sets the "category" edge to the AlbumCategory entity.
 func (_u *AlbumUpdateOne) SetCategory(v *AlbumCategory) *AlbumUpdateOne {
 	return _u.SetCategoryID(v.ID)
@@ -1141,6 +1243,16 @@ func (_u *AlbumUpdateOne) check() error {
 	if v, ok := _u.mutation.FileHash(); ok {
 		if err := album.FileHashValidator(v); err != nil {
 			return &ValidationError{Name: "file_hash", err: fmt.Errorf(`ent: validator failed for field "Album.file_hash": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Title(); ok {
+		if err := album.TitleValidator(v); err != nil {
+			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Album.title": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Description(); ok {
+		if err := album.DescriptionValidator(v); err != nil {
+			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "Album.description": %w`, err)}
 		}
 	}
 	return nil
@@ -1282,6 +1394,18 @@ func (_u *AlbumUpdateOne) sqlSave(ctx context.Context) (_node *Album, err error)
 	}
 	if value, ok := _u.mutation.AddedDisplayOrder(); ok {
 		_spec.AddField(album.FieldDisplayOrder, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Title(); ok {
+		_spec.SetField(album.FieldTitle, field.TypeString, value)
+	}
+	if _u.mutation.TitleCleared() {
+		_spec.ClearField(album.FieldTitle, field.TypeString)
+	}
+	if value, ok := _u.mutation.Description(); ok {
+		_spec.SetField(album.FieldDescription, field.TypeString, value)
+	}
+	if _u.mutation.DescriptionCleared() {
+		_spec.ClearField(album.FieldDescription, field.TypeString)
 	}
 	if _u.mutation.CategoryCleared() {
 		edge := &sqlgraph.EdgeSpec{

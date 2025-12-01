@@ -273,6 +273,34 @@ func (_c *AlbumCreate) SetNillableCategoryID(v *uint) *AlbumCreate {
 	return _c
 }
 
+// SetTitle sets the "title" field.
+func (_c *AlbumCreate) SetTitle(v string) *AlbumCreate {
+	_c.mutation.SetTitle(v)
+	return _c
+}
+
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (_c *AlbumCreate) SetNillableTitle(v *string) *AlbumCreate {
+	if v != nil {
+		_c.SetTitle(*v)
+	}
+	return _c
+}
+
+// SetDescription sets the "description" field.
+func (_c *AlbumCreate) SetDescription(v string) *AlbumCreate {
+	_c.mutation.SetDescription(v)
+	return _c
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (_c *AlbumCreate) SetNillableDescription(v *string) *AlbumCreate {
+	if v != nil {
+		_c.SetDescription(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *AlbumCreate) SetID(v uint) *AlbumCreate {
 	_c.mutation.SetID(v)
@@ -418,6 +446,16 @@ func (_c *AlbumCreate) check() error {
 	if _, ok := _c.mutation.DisplayOrder(); !ok {
 		return &ValidationError{Name: "display_order", err: errors.New(`ent: missing required field "Album.display_order"`)}
 	}
+	if v, ok := _c.mutation.Title(); ok {
+		if err := album.TitleValidator(v); err != nil {
+			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Album.title": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.Description(); ok {
+		if err := album.DescriptionValidator(v); err != nil {
+			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "Album.description": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -522,6 +560,14 @@ func (_c *AlbumCreate) createSpec() (*Album, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DisplayOrder(); ok {
 		_spec.SetField(album.FieldDisplayOrder, field.TypeInt, value)
 		_node.DisplayOrder = value
+	}
+	if value, ok := _c.mutation.Title(); ok {
+		_spec.SetField(album.FieldTitle, field.TypeString, value)
+		_node.Title = value
+	}
+	if value, ok := _c.mutation.Description(); ok {
+		_spec.SetField(album.FieldDescription, field.TypeString, value)
+		_node.Description = value
 	}
 	if nodes := _c.mutation.CategoryIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -913,6 +959,42 @@ func (u *AlbumUpsert) UpdateCategoryID() *AlbumUpsert {
 // ClearCategoryID clears the value of the "category_id" field.
 func (u *AlbumUpsert) ClearCategoryID() *AlbumUpsert {
 	u.SetNull(album.FieldCategoryID)
+	return u
+}
+
+// SetTitle sets the "title" field.
+func (u *AlbumUpsert) SetTitle(v string) *AlbumUpsert {
+	u.Set(album.FieldTitle, v)
+	return u
+}
+
+// UpdateTitle sets the "title" field to the value that was provided on create.
+func (u *AlbumUpsert) UpdateTitle() *AlbumUpsert {
+	u.SetExcluded(album.FieldTitle)
+	return u
+}
+
+// ClearTitle clears the value of the "title" field.
+func (u *AlbumUpsert) ClearTitle() *AlbumUpsert {
+	u.SetNull(album.FieldTitle)
+	return u
+}
+
+// SetDescription sets the "description" field.
+func (u *AlbumUpsert) SetDescription(v string) *AlbumUpsert {
+	u.Set(album.FieldDescription, v)
+	return u
+}
+
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *AlbumUpsert) UpdateDescription() *AlbumUpsert {
+	u.SetExcluded(album.FieldDescription)
+	return u
+}
+
+// ClearDescription clears the value of the "description" field.
+func (u *AlbumUpsert) ClearDescription() *AlbumUpsert {
+	u.SetNull(album.FieldDescription)
 	return u
 }
 
@@ -1342,6 +1424,48 @@ func (u *AlbumUpsertOne) UpdateCategoryID() *AlbumUpsertOne {
 func (u *AlbumUpsertOne) ClearCategoryID() *AlbumUpsertOne {
 	return u.Update(func(s *AlbumUpsert) {
 		s.ClearCategoryID()
+	})
+}
+
+// SetTitle sets the "title" field.
+func (u *AlbumUpsertOne) SetTitle(v string) *AlbumUpsertOne {
+	return u.Update(func(s *AlbumUpsert) {
+		s.SetTitle(v)
+	})
+}
+
+// UpdateTitle sets the "title" field to the value that was provided on create.
+func (u *AlbumUpsertOne) UpdateTitle() *AlbumUpsertOne {
+	return u.Update(func(s *AlbumUpsert) {
+		s.UpdateTitle()
+	})
+}
+
+// ClearTitle clears the value of the "title" field.
+func (u *AlbumUpsertOne) ClearTitle() *AlbumUpsertOne {
+	return u.Update(func(s *AlbumUpsert) {
+		s.ClearTitle()
+	})
+}
+
+// SetDescription sets the "description" field.
+func (u *AlbumUpsertOne) SetDescription(v string) *AlbumUpsertOne {
+	return u.Update(func(s *AlbumUpsert) {
+		s.SetDescription(v)
+	})
+}
+
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *AlbumUpsertOne) UpdateDescription() *AlbumUpsertOne {
+	return u.Update(func(s *AlbumUpsert) {
+		s.UpdateDescription()
+	})
+}
+
+// ClearDescription clears the value of the "description" field.
+func (u *AlbumUpsertOne) ClearDescription() *AlbumUpsertOne {
+	return u.Update(func(s *AlbumUpsert) {
+		s.ClearDescription()
 	})
 }
 
@@ -1937,6 +2061,48 @@ func (u *AlbumUpsertBulk) UpdateCategoryID() *AlbumUpsertBulk {
 func (u *AlbumUpsertBulk) ClearCategoryID() *AlbumUpsertBulk {
 	return u.Update(func(s *AlbumUpsert) {
 		s.ClearCategoryID()
+	})
+}
+
+// SetTitle sets the "title" field.
+func (u *AlbumUpsertBulk) SetTitle(v string) *AlbumUpsertBulk {
+	return u.Update(func(s *AlbumUpsert) {
+		s.SetTitle(v)
+	})
+}
+
+// UpdateTitle sets the "title" field to the value that was provided on create.
+func (u *AlbumUpsertBulk) UpdateTitle() *AlbumUpsertBulk {
+	return u.Update(func(s *AlbumUpsert) {
+		s.UpdateTitle()
+	})
+}
+
+// ClearTitle clears the value of the "title" field.
+func (u *AlbumUpsertBulk) ClearTitle() *AlbumUpsertBulk {
+	return u.Update(func(s *AlbumUpsert) {
+		s.ClearTitle()
+	})
+}
+
+// SetDescription sets the "description" field.
+func (u *AlbumUpsertBulk) SetDescription(v string) *AlbumUpsertBulk {
+	return u.Update(func(s *AlbumUpsert) {
+		s.SetDescription(v)
+	})
+}
+
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *AlbumUpsertBulk) UpdateDescription() *AlbumUpsertBulk {
+	return u.Update(func(s *AlbumUpsert) {
+		s.UpdateDescription()
+	})
+}
+
+// ClearDescription clears the value of the "description" field.
+func (u *AlbumUpsertBulk) ClearDescription() *AlbumUpsertBulk {
+	return u.Update(func(s *AlbumUpsert) {
+		s.ClearDescription()
 	})
 }
 

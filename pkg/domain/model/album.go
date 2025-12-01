@@ -30,6 +30,8 @@ type Album struct {
 	FileHash      string    `json:"fileHash"`
 	DisplayOrder  int       `json:"displayOrder"`
 	CategoryID    *uint     `json:"categoryId"`
+	Title         string    `json:"title"`
+	Description   string    `json:"description"`
 }
 
 // AlbumCategoryDTO 是相册分类的数据传输对象

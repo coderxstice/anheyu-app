@@ -41,6 +41,8 @@ type CreateAlbumParams struct {
 	Format       string
 	FileHash     string
 	DisplayOrder int
+	Title        string
+	Description  string
 }
 
 // UpdateAlbumParams 定义了更新相册时需要的参数
@@ -53,6 +55,8 @@ type UpdateAlbumParams struct {
 	BigParam     string
 	Tags         []string
 	DisplayOrder *int
+	Title        string
+	Description  string
 }
 
 // FindAlbumsParams 定义了查询相册时需要的参数
@@ -115,6 +119,8 @@ type ExportAlbumItem struct {
 	AspectRatio  string    `json:"aspect_ratio"`
 	FileHash     string    `json:"file_hash"`
 	DisplayOrder int       `json:"display_order"`
+	Title        string    `json:"title"`
+	Description  string    `json:"description"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }
@@ -186,6 +192,8 @@ func (s *albumService) CreateAlbum(ctx context.Context, params CreateAlbumParams
 		FileHash:     params.FileHash,
 		AspectRatio:  getSimplifiedAspectRatioString(params.Width, params.Height),
 		DisplayOrder: params.DisplayOrder,
+		Title:        params.Title,
+		Description:  params.Description,
 	}
 
 	// 在存入数据库前，应用默认值
@@ -254,6 +262,8 @@ func (s *albumService) UpdateAlbum(ctx context.Context, id uint, params UpdateAl
 	album.ThumbParam = params.ThumbParam
 	album.BigParam = params.BigParam
 	album.Tags = strings.Join(params.Tags, ",")
+	album.Title = params.Title
+	album.Description = params.Description
 
 	if params.DisplayOrder != nil {
 		album.DisplayOrder = *params.DisplayOrder
@@ -554,6 +564,8 @@ func (s *albumService) ExportAlbums(ctx context.Context, albumIDs []uint) (*Expo
 			AspectRatio:  album.AspectRatio,
 			FileHash:     album.FileHash,
 			DisplayOrder: album.DisplayOrder,
+			Title:        album.Title,
+			Description:  album.Description,
 			CreatedAt:    album.CreatedAt,
 			UpdatedAt:    album.UpdatedAt,
 		}
@@ -692,6 +704,8 @@ func (s *albumService) ImportAlbums(ctx context.Context, req *ImportAlbumRequest
 			Format:       albumData.Format,
 			FileHash:     albumData.FileHash,
 			DisplayOrder: albumData.DisplayOrder,
+			Title:        albumData.Title,
+			Description:  albumData.Description,
 		})
 
 		if err != nil {
