@@ -49,6 +49,8 @@ type IUploadService interface {
 	GetUploadSessionStatus(ctx context.Context, ownerID uint, sessionID string) (*model.UploadSessionStatusResponse, error)
 	// CleanupAbandonedUploads 清理所有被遗弃的、超时的上传任务。
 	CleanupAbandonedUploads(ctx context.Context) (int, error)
+	// FinalizeClientUpload 处理客户端直传完成后的回调，在数据库中创建文件记录。
+	FinalizeClientUpload(ctx context.Context, ownerID uint, req *model.FinalizeUploadRequest) (*model.File, error)
 }
 
 // uploadService 是 IUploadService 接口的实现。
@@ -181,8 +183,16 @@ func (s *uploadService) CreateUploadSession(ctx context.Context, ownerID uint, r
 	// 步骤 5: 根据策略决定上传方式并执行相应逻辑
 	uploadMethod := policy.Settings.GetString(constant.UploadMethodSettingKey, constant.UploadMethodServer)
 
-	// --- 客户端直传逻辑 (如 OneDrive) ---
-	if uploadMethod == constant.UploadMethodClient && policy.Type == constant.PolicyTypeOneDrive {
+	// 支持客户端直传的存储类型列表
+	clientUploadSupportedTypes := map[constant.StoragePolicyType]bool{
+		constant.PolicyTypeOneDrive:   true,
+		constant.PolicyTypeTencentCOS: true,
+		constant.PolicyTypeAliOSS:     true,
+		constant.PolicyTypeS3:         true,
+	}
+
+	// --- 客户端直传逻辑 (OneDrive, 腾讯云COS, 阿里云OSS, AWS S3) ---
+	if uploadMethod == constant.UploadMethodClient && clientUploadSupportedTypes[policy.Type] {
 		// 在获取直传链接前，同样需要检查路径和冲突，确保这是一个合法的上传位置
 		err = s.txManager.Do(ctx, func(repos repository.Repositories) error {
 			parentPath := filepath.Dir(parsedURI.Path)
@@ -210,14 +220,14 @@ func (s *uploadService) CreateUploadSession(ctx context.Context, ownerID uint, r
 		if err != nil {
 			return nil, err
 		}
-		oneDriveProvider, ok := provider.(interface {
+		presignedProvider, ok := provider.(interface {
 			CreatePresignedUploadURL(context.Context, *model.StoragePolicy, string) (*storage.PresignedUploadResult, error)
 		})
 		if !ok {
 			return nil, fmt.Errorf("存储驱动 '%s' 不支持客户端直传", policy.Type)
 		}
 
-		presignedResult, err := oneDriveProvider.CreatePresignedUploadURL(ctx, policy, parsedURI.Path)
+		presignedResult, err := presignedProvider.CreatePresignedUploadURL(ctx, policy, parsedURI.Path)
 		if err != nil {
 			return nil, fmt.Errorf("创建客户端直传链接失败: %w", err)
 		}
@@ -653,4 +663,135 @@ func (s *uploadService) GetUploadSessionStatus(ctx context.Context, ownerID uint
 		UploadedChunks: uploadedChunksSlice,
 		ExpiresAt:      session.ExpireAt,
 	}, nil
+}
+
+// FinalizeClientUpload 处理客户端直传完成后的回调。
+// 在云端文件已上传成功后，此方法负责在数据库中创建对应的文件记录。
+func (s *uploadService) FinalizeClientUpload(ctx context.Context, ownerID uint, req *model.FinalizeUploadRequest) (*model.File, error) {
+	log.Printf("[FinalizeClientUpload] 开始处理 - URI: %s, PolicyID: %s, Size: %d", req.URI, req.PolicyID, req.Size)
+
+	// 步骤 1: 解析路径
+	parsedURI, err := uri.Parse(req.URI)
+	if err != nil {
+		return nil, fmt.Errorf("解析目标URI失败: %w", err)
+	}
+	fileName := filepath.Base(parsedURI.Path)
+
+	// 步骤 2: 获取存储策略
+	policy, err := s.policySvc.GetPolicyByID(ctx, req.PolicyID)
+	if err != nil {
+		if errors.Is(err, constant.ErrNotFound) {
+			return nil, errors.New("指定的存储策略不存在")
+		}
+		return nil, fmt.Errorf("获取存储策略失败: %w", err)
+	}
+
+	// 步骤 3: 获取存储驱动并验证文件是否存在
+	provider, err := s.getProviderForPolicy(policy)
+	if err != nil {
+		return nil, err
+	}
+
+	// 构建云端对象键
+	objectKey := buildObjectKey(policy, parsedURI.Path)
+
+	// 检查文件是否存在于云存储中
+	exists, err := provider.IsExist(ctx, policy, objectKey)
+	if err != nil {
+		log.Printf("[FinalizeClientUpload] 检查文件是否存在失败: %v", err)
+		return nil, fmt.Errorf("验证云端文件失败: %w", err)
+	}
+	if !exists {
+		return nil, errors.New("云端文件不存在，请确保文件已成功上传")
+	}
+
+	// 步骤 4: 在数据库事务中创建记录
+	var createdFile *model.File
+	err = s.txManager.Do(ctx, func(repos repository.Repositories) error {
+		// 确保父目录存在
+		parentPath := filepath.Dir(parsedURI.Path)
+		parentFolder, err := s.findOrCreatePath(ctx, ownerID, parentPath, repos.File)
+		if err != nil {
+			return fmt.Errorf("创建或查找父目录'%s'失败: %w", parentPath, err)
+		}
+
+		// 创建物理实体记录
+		newEntity := &model.FileStorageEntity{
+			Source:   sql.NullString{String: objectKey, Valid: true},
+			Size:     req.Size,
+			PolicyID: policy.ID,
+			CreatedBy: types.NullUint64{
+				Uint64: uint64(ownerID),
+				Valid:  true,
+			},
+			Type: model.EntityTypeFileContentModel,
+		}
+		if err := repos.Entity.Create(ctx, newEntity); err != nil {
+			return fmt.Errorf("创建物理实体记录失败: %w", err)
+		}
+
+		// 创建逻辑文件记录
+		fileToCreate := &model.File{
+			OwnerID:  ownerID,
+			ParentID: sql.NullInt64{Int64: int64(parentFolder.ID), Valid: true},
+			Name:     fileName,
+			Size:     req.Size,
+			Type:     model.FileTypeFile,
+			PrimaryEntityID: types.NullUint64{
+				Uint64: uint64(newEntity.ID),
+				Valid:  true,
+			},
+		}
+		targetFile, _, err := repos.File.CreateOrUpdate(ctx, fileToCreate)
+		if err != nil {
+			return fmt.Errorf("创建逻辑文件记录失败: %w", err)
+		}
+
+		// 创建文件版本关联
+		newVersion := &model.FileStorageVersion{
+			FileID:    targetFile.ID,
+			EntityID:  newEntity.ID,
+			IsCurrent: true,
+			UploadedByUserID: types.NullUint64{
+				Uint64: uint64(ownerID),
+				Valid:  true,
+			},
+		}
+		if err := repos.FileEntity.Create(ctx, newVersion); err != nil {
+			return fmt.Errorf("创建文件版本关联记录失败: %w", err)
+		}
+
+		// 保存物理文件名元数据
+		go s.metadataSvc.Set(context.Background(), targetFile.ID, model.MetaKeyPhysicalName, filepath.Base(objectKey))
+
+		createdFile = targetFile
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	// 步骤 5: 发布文件创建事件（用于缩略图生成等）
+	if createdFile != nil && s.isThumbnailable(createdFile) {
+		log.Printf("[FinalizeClientUpload] 发布 FileCreated 事件，FileID: %d", createdFile.ID)
+		s.eventBus.Publish(event.FileCreated, createdFile.ID)
+	}
+
+	log.Printf("[FinalizeClientUpload] 处理完成 - FileID: %d, FileName: %s", createdFile.ID, createdFile.Name)
+	return createdFile, nil
+}
+
+// buildObjectKey 是一个辅助函数，用于构建云存储对象键
+func buildObjectKey(policy *model.StoragePolicy, virtualPath string) string {
+	basePath := strings.TrimPrefix(strings.TrimSuffix(policy.BasePath, "/"), "/")
+	filename := filepath.Base(virtualPath)
+
+	var objectKey string
+	if basePath == "" {
+		objectKey = filename
+	} else {
+		objectKey = basePath + "/" + filename
+	}
+	return objectKey
 }

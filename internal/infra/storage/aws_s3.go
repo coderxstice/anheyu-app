@@ -318,6 +318,8 @@ func (p *AWSS3Provider) List(ctx context.Context, policy *model.StoragePolicy, v
 }
 
 // Delete 从AWS S3删除多个文件
+// Delete 从AWS S3删除多个文件
+// sources 是完整的对象键列表（如 "article_image_cos/logo.png"），已包含 basePath，无需再拼接
 func (p *AWSS3Provider) Delete(ctx context.Context, policy *model.StoragePolicy, sources []string) error {
 	if len(sources) == 0 {
 		return nil
@@ -331,11 +333,8 @@ func (p *AWSS3Provider) Delete(ctx context.Context, policy *model.StoragePolicy,
 	log.Printf("[AWS S3] Delete方法调用 - 策略: %s, 删除文件数量: %d", policy.Name, len(sources))
 
 	for _, source := range sources {
-		objectKey := p.buildObjectKey(policy, source)
-		if objectKey == "" {
-			objectKey = filepath.Base(source)
-		}
-
+		// source 已经是完整的对象键，直接使用
+		objectKey := source
 		log.Printf("[AWS S3] 删除对象: %s", objectKey)
 		_, err := client.DeleteObject(ctx, &s3.DeleteObjectInput{
 			Bucket: aws.String(policy.BucketName),
@@ -394,6 +393,7 @@ func (p *AWSS3Provider) Stream(ctx context.Context, policy *model.StoragePolicy,
 }
 
 // GetDownloadURL 根据存储策略权限设置生成AWS S3下载URL
+// source 是完整的对象键（如 "article_image_cos/logo.png"），已包含 basePath，无需再拼接
 func (p *AWSS3Provider) GetDownloadURL(ctx context.Context, policy *model.StoragePolicy, source string, options DownloadURLOptions) (string, error) {
 	log.Printf("[AWS S3] GetDownloadURL调用 - source: %s, policy.Server: %s, policy.IsPrivate: %v", source, policy.Server, policy.IsPrivate)
 
@@ -403,13 +403,9 @@ func (p *AWSS3Provider) GetDownloadURL(ctx context.Context, policy *model.Storag
 		return "", err
 	}
 
-	// 将虚拟路径转换为对象存储路径
-	objectKey := p.buildObjectKey(policy, source)
-	if objectKey == "" {
-		objectKey = filepath.Base(source)
-		log.Printf("[AWS S3] objectKey为空，使用文件名: %s", objectKey)
-	}
-	log.Printf("[AWS S3] 转换路径 - source: %s -> objectKey: %s", source, objectKey)
+	// source 已经是完整的对象键，直接使用
+	objectKey := source
+	log.Printf("[AWS S3] 使用对象键: %s", objectKey)
 
 	// 检查是否配置了CDN域名
 	cdnDomain := ""
@@ -534,14 +530,19 @@ func (p *AWSS3Provider) DeleteDirectory(ctx context.Context, policy *model.Stora
 }
 
 // Rename 重命名或移动AWS S3中的文件或目录
+// Rename 重命名或移动AWS S3中的文件或目录
+// oldVirtualPath 和 newVirtualPath 是相对于 policy.VirtualPath 的路径，需要通过 buildObjectKey 转换为完整对象键
 func (p *AWSS3Provider) Rename(ctx context.Context, policy *model.StoragePolicy, oldVirtualPath, newVirtualPath string) error {
 	client, err := p.getS3Client(ctx, policy)
 	if err != nil {
 		return err
 	}
 
+	// 使用 buildObjectKey 将相对路径转换为完整对象键
 	oldObjectKey := p.buildObjectKey(policy, oldVirtualPath)
 	newObjectKey := p.buildObjectKey(policy, newVirtualPath)
+
+	log.Printf("[AWS S3] Rename: %s -> %s", oldObjectKey, newObjectKey)
 
 	// 复制对象到新位置
 	_, err = client.CopyObject(ctx, &s3.CopyObjectInput{
@@ -566,20 +567,18 @@ func (p *AWSS3Provider) Rename(ctx context.Context, policy *model.StoragePolicy,
 }
 
 // IsExist 检查文件是否存在于AWS S3中
+// IsExist 检查文件是否存在于AWS S3中
+// source 是完整的对象键（如 "article_image_cos/logo.png"），已包含 basePath，无需再拼接
 func (p *AWSS3Provider) IsExist(ctx context.Context, policy *model.StoragePolicy, source string) (bool, error) {
 	client, err := p.getS3Client(ctx, policy)
 	if err != nil {
 		return false, err
 	}
 
-	objectKey := p.buildObjectKey(policy, source)
-	if objectKey == "" {
-		objectKey = filepath.Base(source)
-	}
-
+	// source 已经是完整的对象键，直接使用
 	_, err = client.HeadObject(ctx, &s3.HeadObjectInput{
 		Bucket: aws.String(policy.BucketName),
-		Key:    aws.String(objectKey),
+		Key:    aws.String(source),
 	})
 	if err != nil {
 		var noSuchKey *types.NoSuchKey
@@ -620,4 +619,55 @@ func (p *AWSS3Provider) Exists(ctx context.Context, policy *model.StoragePolicy,
 	}
 
 	return true, nil
+}
+
+// CreatePresignedUploadURL 为客户端直传创建一个预签名的上传URL
+// 客户端可以使用此URL直接PUT文件到AWS S3，无需经过服务器中转
+func (p *AWSS3Provider) CreatePresignedUploadURL(ctx context.Context, policy *model.StoragePolicy, virtualPath string) (*PresignedUploadResult, error) {
+	log.Printf("[AWS S3] 创建预签名上传URL - virtualPath: %s", virtualPath)
+
+	client, err := p.getS3Client(ctx, policy)
+	if err != nil {
+		log.Printf("[AWS S3] 创建客户端失败: %v", err)
+		return nil, err
+	}
+
+	// 构建对象键 - 使用与 Upload 方法相同的逻辑
+	// virtualPath 是完整的虚拟路径（如 "/article_image_cos/logo.png"），需要提取文件名后与 basePath 拼接
+	basePath := strings.TrimPrefix(strings.TrimSuffix(policy.BasePath, "/"), "/")
+	filename := filepath.Base(virtualPath)
+
+	var objectKey string
+	if basePath == "" {
+		objectKey = filename
+	} else {
+		objectKey = basePath + "/" + filename
+	}
+
+	log.Printf("[AWS S3] 生成预签名URL - objectKey: %s (basePath: %s, filename: %s)", objectKey, basePath, filename)
+
+	// 设置预签名URL的过期时间为1小时
+	expireTime := time.Hour
+	expirationDateTime := time.Now().Add(expireTime)
+
+	// 使用aws-sdk-go-v2的预签名客户端
+	presignClient := s3.NewPresignClient(client)
+
+	presignResult, err := presignClient.PresignPutObject(ctx, &s3.PutObjectInput{
+		Bucket: aws.String(policy.BucketName),
+		Key:    aws.String(objectKey),
+	}, func(opts *s3.PresignOptions) {
+		opts.Expires = expireTime
+	})
+	if err != nil {
+		log.Printf("[AWS S3] 生成预签名上传URL失败: %v", err)
+		return nil, fmt.Errorf("生成AWS S3预签名上传URL失败: %w", err)
+	}
+
+	log.Printf("[AWS S3] 预签名上传URL生成成功，过期时间: %s", expirationDateTime.Format(time.RFC3339))
+
+	return &PresignedUploadResult{
+		UploadURL:          presignResult.URL,
+		ExpirationDateTime: expirationDateTime,
+	}, nil
 }

@@ -274,6 +274,7 @@ func (p *TencentCOSProvider) List(ctx context.Context, policy *model.StoragePoli
 }
 
 // Delete 删除腾讯云COS中的文件
+// sources 是完整的对象键列表（如 "article_image_cos/logo.png"），已包含 basePath，无需再拼接
 func (p *TencentCOSProvider) Delete(ctx context.Context, policy *model.StoragePolicy, sources []string) error {
 	if len(sources) == 0 {
 		return nil
@@ -287,11 +288,8 @@ func (p *TencentCOSProvider) Delete(ctx context.Context, policy *model.StoragePo
 	log.Printf("[腾讯云COS] Delete方法调用 - 策略: %s, 删除文件数量: %d", policy.Name, len(sources))
 
 	for _, source := range sources {
-		objectKey := p.buildObjectKey(policy, source)
-		if objectKey == "" {
-			objectKey = filepath.Base(source)
-		}
-
+		// source 已经是完整的对象键，直接使用
+		objectKey := source
 		log.Printf("[腾讯云COS] 删除对象: %s", objectKey)
 		_, err := client.Object.Delete(ctx, objectKey)
 		if err != nil {
@@ -476,15 +474,19 @@ func (p *TencentCOSProvider) GetDownloadURL(ctx context.Context, policy *model.S
 }
 
 // Rename 重命名或移动腾讯云COS中的对象
+// Rename 重命名或移动腾讯云COS中的文件或目录
+// oldVirtualPath 和 newVirtualPath 是相对于 policy.VirtualPath 的路径，需要通过 buildObjectKey 转换为完整对象键
 func (p *TencentCOSProvider) Rename(ctx context.Context, policy *model.StoragePolicy, oldVirtualPath, newVirtualPath string) error {
 	client, err := p.getCOSClient(policy)
 	if err != nil {
 		return err
 	}
 
-	// oldVirtualPath 和 newVirtualPath 已经是完整的对象键
-	oldObjectKey := oldVirtualPath
-	newObjectKey := newVirtualPath
+	// 使用 buildObjectKey 将相对路径转换为完整对象键
+	oldObjectKey := p.buildObjectKey(policy, oldVirtualPath)
+	newObjectKey := p.buildObjectKey(policy, newVirtualPath)
+
+	log.Printf("[腾讯云COS] Rename: %s -> %s", oldObjectKey, newObjectKey)
 
 	// 腾讯云COS不支持直接重命名，需要先复制后删除
 	// 从Server URL提取域名部分构建源URL
@@ -701,4 +703,53 @@ func appendImageParams(baseURL, params, separator string) string {
 		return baseURL + "&" + params
 	}
 	return baseURL + separator + params
+}
+
+// CreatePresignedUploadURL 为客户端直传创建一个预签名的上传URL
+// 客户端可以使用此URL直接PUT文件到腾讯云COS，无需经过服务器中转
+func (p *TencentCOSProvider) CreatePresignedUploadURL(ctx context.Context, policy *model.StoragePolicy, virtualPath string) (*PresignedUploadResult, error) {
+	log.Printf("[腾讯云COS] 创建预签名上传URL - virtualPath: %s", virtualPath)
+
+	client, err := p.getCOSClient(policy)
+	if err != nil {
+		log.Printf("[腾讯云COS] 创建客户端失败: %v", err)
+		return nil, err
+	}
+
+	// 构建对象键 - 使用与 Upload 方法相同的逻辑
+	// virtualPath 是完整的虚拟路径（如 "/article_image_cos/logo.png"），需要提取文件名后与 basePath 拼接
+	basePath := strings.TrimPrefix(strings.TrimSuffix(policy.BasePath, "/"), "/")
+	filename := filepath.Base(virtualPath)
+
+	var objectKey string
+	if basePath == "" {
+		objectKey = filename
+	} else {
+		objectKey = basePath + "/" + filename
+	}
+
+	log.Printf("[腾讯云COS] 生成预签名URL - objectKey: %s (basePath: %s, filename: %s)", objectKey, basePath, filename)
+
+	// 从策略中获取密钥信息用于签名
+	secretID := policy.AccessKey
+	secretKey := policy.SecretKey
+
+	// 设置预签名URL的过期时间为1小时
+	expireTime := time.Hour
+	expirationDateTime := time.Now().Add(expireTime)
+
+	// 生成预签名PUT URL
+	presignedURL, err := client.Object.GetPresignedURL(ctx, http.MethodPut, objectKey,
+		secretID, secretKey, expireTime, nil)
+	if err != nil {
+		log.Printf("[腾讯云COS] 生成预签名上传URL失败: %v", err)
+		return nil, fmt.Errorf("生成腾讯云COS预签名上传URL失败: %w", err)
+	}
+
+	log.Printf("[腾讯云COS] 预签名上传URL生成成功，过期时间: %s", expirationDateTime.Format(time.RFC3339))
+
+	return &PresignedUploadResult{
+		UploadURL:          presignedURL.String(),
+		ExpirationDateTime: expirationDateTime,
+	}, nil
 }

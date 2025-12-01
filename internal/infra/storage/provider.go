@@ -49,6 +49,12 @@ type ThumbnailResult struct {
 	Data        []byte
 }
 
+// PresignedUploadResult 封装了客户端直传所需的预签名信息
+type PresignedUploadResult struct {
+	UploadURL          string    `json:"uploadUrl"`          // 预签名上传URL
+	ExpirationDateTime time.Time `json:"expirationDateTime"` // URL过期时间
+}
+
 // IStorageProvider 定义了所有存储提供者必须实现的接口。
 type IStorageProvider interface {
 	// Upload 将文件流上传到指定的存储策略。

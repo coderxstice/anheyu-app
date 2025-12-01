@@ -251,6 +251,8 @@ func (p *AliOSSProvider) List(ctx context.Context, policy *model.StoragePolicy, 
 }
 
 // Delete 从阿里云OSS删除多个文件
+// Delete 从阿里云OSS删除多个文件
+// sources 是完整的对象键列表（如 "article_image_cos/logo.png"），已包含 basePath，无需再拼接
 func (p *AliOSSProvider) Delete(ctx context.Context, policy *model.StoragePolicy, sources []string) error {
 	if len(sources) == 0 {
 		return nil
@@ -264,11 +266,8 @@ func (p *AliOSSProvider) Delete(ctx context.Context, policy *model.StoragePolicy
 	log.Printf("[阿里云OSS] Delete方法调用 - 策略: %s, 删除文件数量: %d", policy.Name, len(sources))
 
 	for _, source := range sources {
-		objectKey := p.buildObjectKey(policy, source)
-		if objectKey == "" {
-			objectKey = filepath.Base(source)
-		}
-
+		// source 已经是完整的对象键，直接使用
+		objectKey := source
 		log.Printf("[阿里云OSS] 删除对象: %s", objectKey)
 		err := bucket.DeleteObject(objectKey)
 		if err != nil {
@@ -318,6 +317,7 @@ func (p *AliOSSProvider) Stream(ctx context.Context, policy *model.StoragePolicy
 }
 
 // GetDownloadURL 根据存储策略权限设置生成阿里云OSS下载URL
+// source 是完整的对象键（如 "article_image_cos/logo.png"），已包含 basePath，无需再拼接
 func (p *AliOSSProvider) GetDownloadURL(ctx context.Context, policy *model.StoragePolicy, source string, options DownloadURLOptions) (string, error) {
 	log.Printf("[阿里云OSS] GetDownloadURL调用 - source: %s, policy.Server: %s, policy.IsPrivate: %v", source, policy.Server, policy.IsPrivate)
 
@@ -327,13 +327,9 @@ func (p *AliOSSProvider) GetDownloadURL(ctx context.Context, policy *model.Stora
 		return "", fmt.Errorf("阿里云OSS策略缺少访问域名配置")
 	}
 
-	// 将虚拟路径转换为对象存储路径
-	objectKey := p.buildObjectKey(policy, source)
-	if objectKey == "" {
-		objectKey = filepath.Base(source)
-		log.Printf("[阿里云OSS] objectKey为空，使用文件名: %s", objectKey)
-	}
-	log.Printf("[阿里云OSS] 转换路径 - source: %s -> objectKey: %s", source, objectKey)
+	// source 已经是完整的对象键，直接使用
+	objectKey := source
+	log.Printf("[阿里云OSS] 使用对象键: %s", objectKey)
 
 	// 检查是否配置了CDN域名
 	cdnDomain := ""
@@ -480,14 +476,19 @@ func (p *AliOSSProvider) DeleteDirectory(ctx context.Context, policy *model.Stor
 }
 
 // Rename 重命名或移动阿里云OSS中的文件或目录
+// Rename 重命名或移动阿里云OSS中的文件或目录
+// oldVirtualPath 和 newVirtualPath 是相对于 policy.VirtualPath 的路径，需要通过 buildObjectKey 转换为完整对象键
 func (p *AliOSSProvider) Rename(ctx context.Context, policy *model.StoragePolicy, oldVirtualPath, newVirtualPath string) error {
 	_, bucket, err := p.getOSSClient(policy)
 	if err != nil {
 		return err
 	}
 
+	// 使用 buildObjectKey 将相对路径转换为完整对象键
 	oldObjectKey := p.buildObjectKey(policy, oldVirtualPath)
 	newObjectKey := p.buildObjectKey(policy, newVirtualPath)
+
+	log.Printf("[阿里云OSS] Rename: %s -> %s", oldObjectKey, newObjectKey)
 
 	// 复制对象到新位置
 	_, err = bucket.CopyObject(oldObjectKey, newObjectKey)
@@ -505,18 +506,16 @@ func (p *AliOSSProvider) Rename(ctx context.Context, policy *model.StoragePolicy
 }
 
 // IsExist 检查文件是否存在于阿里云OSS中
+// IsExist 检查文件是否存在于阿里云OSS中
+// source 是完整的对象键（如 "article_image_cos/logo.png"），已包含 basePath，无需再拼接
 func (p *AliOSSProvider) IsExist(ctx context.Context, policy *model.StoragePolicy, source string) (bool, error) {
 	_, bucket, err := p.getOSSClient(policy)
 	if err != nil {
 		return false, err
 	}
 
-	objectKey := p.buildObjectKey(policy, source)
-	if objectKey == "" {
-		objectKey = filepath.Base(source)
-	}
-
-	exist, err := bucket.IsObjectExist(objectKey)
+	// source 已经是完整的对象键，直接使用
+	exist, err := bucket.IsObjectExist(source)
 	if err != nil {
 		return false, err
 	}
@@ -613,4 +612,48 @@ func appendOSSImageParams(baseURL, params, separator string) string {
 	}
 
 	return parsedURL.String()
+}
+
+// CreatePresignedUploadURL 为客户端直传创建一个预签名的上传URL
+// 客户端可以使用此URL直接PUT文件到阿里云OSS，无需经过服务器中转
+func (p *AliOSSProvider) CreatePresignedUploadURL(ctx context.Context, policy *model.StoragePolicy, virtualPath string) (*PresignedUploadResult, error) {
+	log.Printf("[阿里云OSS] 创建预签名上传URL - virtualPath: %s", virtualPath)
+
+	_, bucket, err := p.getOSSClient(policy)
+	if err != nil {
+		log.Printf("[阿里云OSS] 创建客户端失败: %v", err)
+		return nil, err
+	}
+
+	// 构建对象键 - 使用与 Upload 方法相同的逻辑
+	// virtualPath 是完整的虚拟路径（如 "/article_image_cos/logo.png"），需要提取文件名后与 basePath 拼接
+	basePath := strings.TrimPrefix(strings.TrimSuffix(policy.BasePath, "/"), "/")
+	filename := filepath.Base(virtualPath)
+
+	var objectKey string
+	if basePath == "" {
+		objectKey = filename
+	} else {
+		objectKey = basePath + "/" + filename
+	}
+
+	log.Printf("[阿里云OSS] 生成预签名URL - objectKey: %s (basePath: %s, filename: %s)", objectKey, basePath, filename)
+
+	// 设置预签名URL的过期时间为1小时（3600秒）
+	expiresIn := int64(3600)
+	expirationDateTime := time.Now().Add(time.Duration(expiresIn) * time.Second)
+
+	// 生成预签名PUT URL
+	signedURL, err := bucket.SignURL(objectKey, oss.HTTPPut, expiresIn)
+	if err != nil {
+		log.Printf("[阿里云OSS] 生成预签名上传URL失败: %v", err)
+		return nil, fmt.Errorf("生成阿里云OSS预签名上传URL失败: %w", err)
+	}
+
+	log.Printf("[阿里云OSS] 预签名上传URL生成成功，过期时间: %s", expirationDateTime.Format(time.RFC3339))
+
+	return &PresignedUploadResult{
+		UploadURL:          signedURL,
+		ExpirationDateTime: expirationDateTime,
+	}, nil
 }

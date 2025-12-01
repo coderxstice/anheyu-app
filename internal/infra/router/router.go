@@ -460,6 +460,10 @@ func (r *Router) registerFileRoutes(api *gin.RouterGroup) {
 		// POST /api/file/upload/some-uuid-string/0
 		uploadGroup.POST("/:sessionId/:index", r.fileHandler.UploadChunk)
 
+		// 客户端直传完成回调
+		// POST /api/file/upload/finalize
+		uploadGroup.POST("/finalize", r.fileHandler.FinalizeClientUpload)
+
 		// 删除上传会话
 		// DELETE /api/file/upload
 		uploadGroup.DELETE("", r.fileHandler.DeleteUploadSession)
