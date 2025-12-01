@@ -218,12 +218,21 @@ func (s *Service) Create(ctx context.Context, req *dto.CreateRequest, ip, ua str
 		if replyToComment.TargetPath != req.TargetPath {
 			return nil, errors.New("回复目标评论与当前页面不匹配")
 		}
+		// 匿名评论不允许被回复
+		if replyToComment.IsAnonymous {
+			return nil, errors.New("匿名评论不允许被回复")
+		}
+	}
+
+	// 检查父评论是否为匿名评论（用于直接回复顶级评论的场景）
+	if parentComment != nil && parentComment.IsAnonymous {
+		return nil, errors.New("匿名评论不允许被回复")
 	}
 
 	// 从 Markdown 内容生成 HTML
 	safeHTML, err := s.parserSvc.ToHTML(ctx, req.Content)
 	if err != nil {
-		return nil, fmt.Errorf("Markdown内容解析失败: %w", err)
+		return nil, fmt.Errorf("markdown内容解析失败: %w", err)
 	}
 	var emailMD5 string
 	if req.Email != nil {
@@ -594,12 +603,12 @@ func (s *Service) ListByPath(ctx context.Context, path string, page, pageSize in
 			var replyTo *model.Comment
 
 			if child.ParentID != nil {
-				parent, _ = commentMap[*child.ParentID]
+				parent = commentMap[*child.ParentID]
 			}
 
 			// 优先使用 reply_to_id，如果没有则向后兼容使用 parent
 			if child.ReplyToID != nil {
-				replyTo, _ = commentMap[*child.ReplyToID]
+				replyTo = commentMap[*child.ReplyToID]
 			} else if parent != nil {
 				replyTo = parent // 向后兼容旧数据
 			}
@@ -754,12 +763,12 @@ func (s *Service) ListChildren(ctx context.Context, parentPublicID string, page,
 		var replyTo *model.Comment
 
 		if child.ParentID != nil {
-			parent, _ = commentMap[*child.ParentID]
+			parent = commentMap[*child.ParentID]
 		}
 
 		// 优先使用 reply_to_id，如果没有则向后兼容使用 parent
 		if child.ReplyToID != nil {
-			replyTo, _ = commentMap[*child.ReplyToID]
+			replyTo = commentMap[*child.ReplyToID]
 		} else if parent != nil {
 			replyTo = parent // 向后兼容旧数据
 		}
