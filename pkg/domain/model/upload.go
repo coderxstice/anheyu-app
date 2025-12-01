@@ -21,8 +21,9 @@ type CreateUploadRequest struct {
 
 // FinalizeUploadRequest 定义了客户端直传完成后，通知服务器时需要携带的数据
 type FinalizeUploadRequest struct {
-	VirtualPath string `json:"virtual_path" binding:"required"`
-	Size        int64  `json:"size" binding:"gte=0"`
+	URI      string `json:"uri" binding:"required"`        // 文件的完整目标URI (与 CreateUploadRequest 相同)
+	PolicyID string `json:"policy_id" binding:"required"` // 存储策略ID
+	Size     int64  `json:"size" binding:"gte=0"`          // 文件大小
 }
 
 type DeleteUploadRequest struct {

@@ -2,7 +2,7 @@
  * @Description: OneDrive 存储驱动的具体实现
  * @Author: 安知鱼
  * @Date: 2025-07-15 17:50:00
- * @LastEditTime: 2025-10-14 13:13:58
+ * @LastEditTime: 2025-12-01 12:57:00
  * @LastEditors: 安知鱼
  */
 package storage
@@ -139,10 +139,6 @@ type parentReference struct {
 type graphUploadSessionResponse struct {
 	UploadURL          string `json:"uploadUrl"`
 	ExpirationDateTime string `json:"expirationDateTime"`
-}
-type PresignedUploadResult struct {
-	UploadURL          string    `json:"uploadUrl"`
-	ExpirationDateTime time.Time `json:"expirationDateTime"`
 }
 
 // --- 认证端点定义 ---

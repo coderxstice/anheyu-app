@@ -188,3 +188,58 @@ func (h *FileHandler) DeleteUploadSession(c *gin.Context) {
 	}
 	response.Success(c, nil, "上传会话已删除")
 }
+
+// FinalizeClientUpload 处理客户端直传完成后的回调请求 (POST /api/file/upload/finalize)
+// @Summary      客户端直传完成回调
+// @Description  客户端直传完成后调用此接口，通知服务器创建文件记录
+// @Tags         文件管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.FinalizeUploadRequest  true  "完成上传请求"
+// @Success      200  {object}  response.Response  "文件记录创建成功"
+// @Failure      400  {object}  response.Response  "请求参数无效"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      404  {object}  response.Response  "存储策略不存在"
+// @Failure      500  {object}  response.Response  "创建文件记录失败"
+// @Router       /file/upload/finalize [post]
+func (h *FileHandler) FinalizeClientUpload(c *gin.Context) {
+	var req model.FinalizeUploadRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Fail(c, http.StatusBadRequest, "请求参数无效: "+err.Error())
+		return
+	}
+
+	claims, err := getClaims(c)
+	if err != nil {
+		response.Fail(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+	ownerID, _, err := idgen.DecodePublicID(claims.UserID)
+	if err != nil {
+		response.Fail(c, http.StatusUnauthorized, "无效的用户凭证")
+		return
+	}
+
+	file, err := h.uploadSvc.FinalizeClientUpload(c.Request.Context(), ownerID, &req)
+	if err != nil {
+		if errors.Is(err, constant.ErrNotFound) {
+			response.Fail(c, http.StatusNotFound, "创建失败: "+err.Error())
+		} else {
+			response.Fail(c, http.StatusInternalServerError, "创建文件记录失败: "+err.Error())
+		}
+		return
+	}
+
+	// 生成公共ID用于返回
+	publicFileID, err := idgen.GeneratePublicID(file.ID, idgen.EntityTypeFile)
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, "生成文件ID失败: "+err.Error())
+		return
+	}
+	response.Success(c, gin.H{
+		"file_id": publicFileID,
+		"name":    file.Name,
+		"size":    file.Size,
+	}, "文件记录创建成功")
+}
