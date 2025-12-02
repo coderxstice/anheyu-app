@@ -274,6 +274,40 @@ func (s *authService) Register(ctx context.Context, email, nickname, password st
 				return fmt.Errorf("创建评论图片存储策略失败: %w", err)
 			}
 			log.Printf("内置存储策略 '%s' 创建成功。", commentPolicy.Name)
+
+			// --- 创建用户头像策略和目录 ---
+			avatarAbsPath, err := filepath.Abs(constant.DefaultAvatarPolicyPath)
+			if err != nil {
+				return fmt.Errorf("无法解析头像策略的绝对路径: %w", err)
+			}
+
+			// 1. 先创建 VFS 目录
+			avatarDir := &model.File{
+				OwnerID:  newUser.ID,
+				ParentID: sql.NullInt64{Int64: int64(userRootDir.ID), Valid: true},
+				Name:     constant.PolicyFlagUserAvatar,
+				Type:     model.FileTypeDir,
+			}
+			if err := fileRepo.Create(ctx, avatarDir); err != nil {
+				return fmt.Errorf("创建用户头像 VFS 目录失败: %w", err)
+			}
+			log.Printf("VFS 目录 '/user_avatar' 创建成功。")
+
+			// 2. 再创建策略，并关联 NodeID
+			avatarMaxSize := int64(5 * 1024 * 1024) // 5MB 限制
+			avatarPolicy := &model.StoragePolicy{
+				Name:        constant.DefaultAvatarPolicyName,
+				Type:        constant.PolicyTypeLocal,
+				Flag:        constant.PolicyFlagUserAvatar,
+				BasePath:    avatarAbsPath,
+				VirtualPath: "/" + constant.PolicyFlagUserAvatar,
+				NodeID:      &avatarDir.ID,
+				MaxSize:     avatarMaxSize,
+			}
+			if err := policyRepo.Create(ctx, avatarPolicy); err != nil {
+				return fmt.Errorf("创建用户头像存储策略失败: %w", err)
+			}
+			log.Printf("内置存储策略 '%s' 创建成功。", avatarPolicy.Name)
 		}
 
 		// 3d: 获取用户组的配置
