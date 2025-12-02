@@ -13,7 +13,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/article"
 )
 
-// Article is the model entity for the Article schema.
+// 文章表
 type Article struct {
 	config `json:"-"`
 	// ID of the ent.
