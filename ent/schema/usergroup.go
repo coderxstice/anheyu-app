@@ -8,6 +8,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/entsql"
+	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
@@ -15,6 +17,14 @@ import (
 // UserGroup holds the schema definition for the UserGroup entity.
 type UserGroup struct {
 	ent.Schema
+}
+
+// Annotations of the UserGroup.
+func (UserGroup) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.WithComments(true),
+		schema.Comment("用户组表"),
+	}
 }
 
 // Mixin of the UserGroup.

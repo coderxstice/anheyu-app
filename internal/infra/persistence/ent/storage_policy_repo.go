@@ -117,7 +117,12 @@ func (r *entStoragePolicyRepo) Delete(ctx context.Context, id uint) error {
 }
 
 func (r *entStoragePolicyRepo) FindByName(ctx context.Context, name string) (*model.StoragePolicy, error) {
-	po, err := r.client.StoragePolicy.Query().Where(storagepolicy.Name(name)).Only(ctx)
+	po, err := r.client.StoragePolicy.Query().
+		Where(
+			storagepolicy.Name(name),
+			storagepolicy.DeletedAtIsNil(),
+		).
+		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, nil
@@ -125,6 +130,25 @@ func (r *entStoragePolicyRepo) FindByName(ctx context.Context, name string) (*mo
 		return nil, err
 	}
 	return toDomainStoragePolicy(po), nil
+}
+
+// FindByNameUnscoped 查找指定名称的策略，包括已软删除的记录
+func (r *entStoragePolicyRepo) FindByNameUnscoped(ctx context.Context, name string) (*model.StoragePolicy, error) {
+	po, err := r.client.StoragePolicy.Query().
+		Where(storagepolicy.Name(name)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return toDomainStoragePolicy(po), nil
+}
+
+// HardDelete 硬删除策略（永久删除，包括软删除的记录）
+func (r *entStoragePolicyRepo) HardDelete(ctx context.Context, id uint) error {
+	return r.client.StoragePolicy.DeleteOneID(id).Exec(ctx)
 }
 
 func (r *entStoragePolicyRepo) List(ctx context.Context, page, pageSize int) ([]*model.StoragePolicy, int64, error) {

@@ -13,7 +13,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 )
 
-// UserGroup is the model entity for the UserGroup schema.
+// 用户组表
 type UserGroup struct {
 	config `json:"-"`
 	// ID of the ent.
