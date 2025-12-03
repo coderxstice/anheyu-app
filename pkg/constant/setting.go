@@ -161,6 +161,14 @@ const (
 	KeyPostRewardEnable          SettingKey = "post.reward.enable"
 	KeyPostRewardWeChatQR        SettingKey = "post.reward.wechat_qr"
 	KeyPostRewardAlipayQR        SettingKey = "post.reward.alipay_qr"
+	KeyPostRewardWeChatEnable    SettingKey = "post.reward.wechat_enable"
+	KeyPostRewardAlipayEnable    SettingKey = "post.reward.alipay_enable"
+	KeyPostRewardButtonText      SettingKey = "post.reward.button_text"
+	KeyPostRewardTitle           SettingKey = "post.reward.title"
+	KeyPostRewardWeChatLabel     SettingKey = "post.reward.wechat_label"
+	KeyPostRewardAlipayLabel     SettingKey = "post.reward.alipay_label"
+	KeyPostRewardListButtonText  SettingKey = "post.reward.list_button_text"
+	KeyPostRewardListButtonDesc  SettingKey = "post.reward.list_button_desc"
 	KeyPostCodeBlockCodeMaxLines SettingKey = "post.code_block.code_max_lines"
 
 	// 文章复制版权配置
