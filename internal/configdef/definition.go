@@ -144,6 +144,14 @@ var AllSettings = []Definition{
 	{Key: constant.KeyPostRewardEnable, Value: "true", Comment: "文章打赏功能是否启用", IsPublic: true},
 	{Key: constant.KeyPostRewardWeChatQR, Value: "https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png", Comment: "微信打赏二维码图片URL", IsPublic: true},
 	{Key: constant.KeyPostRewardAlipayQR, Value: "https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png", Comment: "支付宝打赏二维码图片URL", IsPublic: true},
+	{Key: constant.KeyPostRewardWeChatEnable, Value: "true", Comment: "微信打赏是否启用", IsPublic: true},
+	{Key: constant.KeyPostRewardAlipayEnable, Value: "true", Comment: "支付宝打赏是否启用", IsPublic: true},
+	{Key: constant.KeyPostRewardButtonText, Value: "打赏作者", Comment: "打赏按钮文案", IsPublic: true},
+	{Key: constant.KeyPostRewardTitle, Value: "感谢你赐予我前进的力量", Comment: "打赏弹窗标题文案", IsPublic: true},
+	{Key: constant.KeyPostRewardWeChatLabel, Value: "微信", Comment: "微信标签文案", IsPublic: true},
+	{Key: constant.KeyPostRewardAlipayLabel, Value: "支付宝", Comment: "支付宝标签文案", IsPublic: true},
+	{Key: constant.KeyPostRewardListButtonText, Value: "打赏者名单", Comment: "打赏者名单按钮文案", IsPublic: true},
+	{Key: constant.KeyPostRewardListButtonDesc, Value: "因为你们的支持让我意识到写文章的价值", Comment: "打赏者名单按钮描述文案", IsPublic: true},
 	{Key: constant.KeyPostCodeBlockCodeMaxLines, Value: "10", Comment: "代码块最大行数（超过会折叠）", IsPublic: true},
 
 	// 文章复制版权配置
