@@ -286,6 +286,16 @@ func (r *linkRepo) ListAllApplications(ctx context.Context, req *model.ListPubli
 		query = query.Where(link.HasCategoryWith(linkcategory.ID(*req.CategoryID)))
 	}
 
+	// 状态筛选
+	if req.Status != nil {
+		query = query.Where(link.StatusEQ(link.Status(*req.Status)))
+	}
+
+	// 名称搜索
+	if req.Name != nil && *req.Name != "" {
+		query = query.Where(link.NameContains(*req.Name))
+	}
+
 	total, err := query.Count(ctx)
 	if err != nil {
 		return nil, 0, err
