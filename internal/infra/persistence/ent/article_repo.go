@@ -326,6 +326,11 @@ func (r *articleRepo) GetBySlugOrID(ctx context.Context, slugOrID string) (*mode
 			wherePredicate,
 			article.DeletedAtIsNil(),
 			article.StatusEQ(article.StatusPUBLISHED),
+			// 只显示审核通过或无需审核的文章
+			article.Or(
+				article.ReviewStatusEQ(article.ReviewStatusAPPROVED),
+				article.ReviewStatusEQ(article.ReviewStatusNONE),
+			),
 		).
 		WithPostTags().
 		WithPostCategories().
@@ -629,6 +634,9 @@ func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.Up
 	if req.Keywords != nil {
 		updater.SetKeywords(*req.Keywords)
 	}
+	if req.ReviewStatus != nil {
+		updater.SetReviewStatus(article.ReviewStatus(*req.ReviewStatus))
+	}
 	if computed != nil {
 		if computed.WordCount > 0 || (req.ContentMd != nil && *req.ContentMd == "") {
 			updater.SetWordCount(computed.WordCount)
@@ -688,10 +696,15 @@ func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.Up
 
 // ListPublic 获取公开的文章列表
 func (r *articleRepo) ListPublic(ctx context.Context, options *model.ListPublicArticlesOptions) ([]*model.Article, int, error) {
-	// 基础查询条件：已发布且未删除
+	// 基础查询条件：已发布、未删除、且审核通过（或无需审核）
 	baseQuery := r.db.Article.Query().Where(
 		article.StatusEQ(article.StatusPUBLISHED),
 		article.DeletedAtIsNil(),
+		// 只显示审核通过或无需审核的文章
+		article.Or(
+			article.ReviewStatusEQ(article.ReviewStatusAPPROVED),
+			article.ReviewStatusEQ(article.ReviewStatusNONE),
+		),
 	)
 
 	// 只在普通列表（没有指定分类、标签、年份、月份）时应用 show_on_home 过滤
@@ -809,6 +822,11 @@ func (r *articleRepo) ListHome(ctx context.Context) ([]*model.Article, error) {
 			article.HomeSortGT(0),
 			article.StatusEQ(article.StatusPUBLISHED),
 			article.DeletedAtIsNil(),
+			// 只显示审核通过或无需审核的文章
+			article.Or(
+				article.ReviewStatusEQ(article.ReviewStatusAPPROVED),
+				article.ReviewStatusEQ(article.ReviewStatusNONE),
+			),
 		).
 		Order(ent.Asc(article.FieldHomeSort)).
 		Limit(6).

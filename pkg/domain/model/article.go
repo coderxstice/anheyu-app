@@ -105,6 +105,7 @@ type UpdateArticleRequest struct {
 	CustomPublishedAt    *string  `json:"custom_published_at,omitempty"`
 	CustomUpdatedAt      *string  `json:"custom_updated_at,omitempty"`
 	Keywords             *string  `json:"keywords"`
+	ReviewStatus         *string  `json:"review_status,omitempty"` // 审核状态（多人共创功能）
 }
 
 // ArticleResponse 定义了文章信息的标准 API 响应结构
