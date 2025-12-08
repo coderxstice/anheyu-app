@@ -20,6 +20,8 @@ type Article struct {
 	ID uint `json:"id,omitempty"`
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	// 文章作者ID，关联到users表
+	OwnerID uint `json:"owner_id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -68,6 +70,14 @@ type Article struct {
 	CopyrightURL string `json:"copyright_url,omitempty"`
 	// 文章关键词，用于SEO优化
 	Keywords string `json:"keywords,omitempty"`
+	// 审核状态：NONE-无需审核, PENDING-待审核, APPROVED-已通过, REJECTED-已拒绝
+	ReviewStatus article.ReviewStatus `json:"review_status,omitempty"`
+	// 审核意见
+	ReviewComment string `json:"review_comment,omitempty"`
+	// 审核时间
+	ReviewedAt *time.Time `json:"reviewed_at,omitempty"`
+	// 审核人ID
+	ReviewedBy *uint `json:"reviewed_by,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ArticleQuery when eager-loading is set.
 	Edges        ArticleEdges `json:"edges"`
@@ -123,11 +133,11 @@ func (*Article) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case article.FieldIsPrimaryColorManual, article.FieldShowOnHome, article.FieldCopyright:
 			values[i] = new(sql.NullBool)
-		case article.FieldID, article.FieldViewCount, article.FieldWordCount, article.FieldReadingTime, article.FieldHomeSort, article.FieldPinSort:
+		case article.FieldID, article.FieldOwnerID, article.FieldViewCount, article.FieldWordCount, article.FieldReadingTime, article.FieldHomeSort, article.FieldPinSort, article.FieldReviewedBy:
 			values[i] = new(sql.NullInt64)
-		case article.FieldTitle, article.FieldContentMd, article.FieldContentHTML, article.FieldCoverURL, article.FieldStatus, article.FieldIPLocation, article.FieldPrimaryColor, article.FieldTopImgURL, article.FieldAbbrlink, article.FieldCopyrightAuthor, article.FieldCopyrightAuthorHref, article.FieldCopyrightURL, article.FieldKeywords:
+		case article.FieldTitle, article.FieldContentMd, article.FieldContentHTML, article.FieldCoverURL, article.FieldStatus, article.FieldIPLocation, article.FieldPrimaryColor, article.FieldTopImgURL, article.FieldAbbrlink, article.FieldCopyrightAuthor, article.FieldCopyrightAuthorHref, article.FieldCopyrightURL, article.FieldKeywords, article.FieldReviewStatus, article.FieldReviewComment:
 			values[i] = new(sql.NullString)
-		case article.FieldDeletedAt, article.FieldCreatedAt, article.FieldUpdatedAt:
+		case article.FieldDeletedAt, article.FieldCreatedAt, article.FieldUpdatedAt, article.FieldReviewedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -156,6 +166,12 @@ func (_m *Article) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DeletedAt = new(time.Time)
 				*_m.DeletedAt = value.Time
+			}
+		case article.FieldOwnerID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field owner_id", values[i])
+			} else if value.Valid {
+				_m.OwnerID = uint(value.Int64)
 			}
 		case article.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -304,6 +320,32 @@ func (_m *Article) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Keywords = value.String
 			}
+		case article.FieldReviewStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field review_status", values[i])
+			} else if value.Valid {
+				_m.ReviewStatus = article.ReviewStatus(value.String)
+			}
+		case article.FieldReviewComment:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field review_comment", values[i])
+			} else if value.Valid {
+				_m.ReviewComment = value.String
+			}
+		case article.FieldReviewedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field reviewed_at", values[i])
+			} else if value.Valid {
+				_m.ReviewedAt = new(time.Time)
+				*_m.ReviewedAt = value.Time
+			}
+		case article.FieldReviewedBy:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field reviewed_by", values[i])
+			} else if value.Valid {
+				_m.ReviewedBy = new(uint)
+				*_m.ReviewedBy = uint(value.Int64)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -359,6 +401,9 @@ func (_m *Article) String() string {
 		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("owner_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.OwnerID))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
@@ -433,6 +478,22 @@ func (_m *Article) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("keywords=")
 	builder.WriteString(_m.Keywords)
+	builder.WriteString(", ")
+	builder.WriteString("review_status=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ReviewStatus))
+	builder.WriteString(", ")
+	builder.WriteString("review_comment=")
+	builder.WriteString(_m.ReviewComment)
+	builder.WriteString(", ")
+	if v := _m.ReviewedAt; v != nil {
+		builder.WriteString("reviewed_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.ReviewedBy; v != nil {
+		builder.WriteString("reviewed_by=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

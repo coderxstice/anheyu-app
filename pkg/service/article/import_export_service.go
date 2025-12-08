@@ -285,6 +285,10 @@ func (s *serviceImpl) ImportArticles(ctx context.Context, req *ImportArticleRequ
 			// 查找或创建分类
 			// 先尝试查找现有分类
 			categories, err := s.postCategoryRepo.List(ctx)
+			if err != nil {
+				log.Printf("[导入文章] 查询分类失败 %s: %v", catName, err)
+				continue
+			}
 			var category *model.PostCategory
 			for _, cat := range categories {
 				if cat.Name == catName {
@@ -332,6 +336,10 @@ func (s *serviceImpl) ImportArticles(ctx context.Context, req *ImportArticleRequ
 			// 查找或创建标签
 			// 先尝试查找现有标签
 			tags, err := s.postTagRepo.List(ctx, &model.ListPostTagsOptions{})
+			if err != nil {
+				log.Printf("[导入文章] 查询标签失败 %s: %v", tagName, err)
+				continue
+			}
 			var tag *model.PostTag
 			for _, t := range tags {
 				if t.Name == tagName {

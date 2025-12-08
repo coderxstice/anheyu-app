@@ -39,6 +39,20 @@ func (_c *ArticleCreate) SetNillableDeletedAt(v *time.Time) *ArticleCreate {
 	return _c
 }
 
+// SetOwnerID sets the "owner_id" field.
+func (_c *ArticleCreate) SetOwnerID(v uint) *ArticleCreate {
+	_c.mutation.SetOwnerID(v)
+	return _c
+}
+
+// SetNillableOwnerID sets the "owner_id" field if the given value is not nil.
+func (_c *ArticleCreate) SetNillableOwnerID(v *uint) *ArticleCreate {
+	if v != nil {
+		_c.SetOwnerID(*v)
+	}
+	return _c
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (_c *ArticleCreate) SetCreatedAt(v time.Time) *ArticleCreate {
 	_c.mutation.SetCreatedAt(v)
@@ -359,6 +373,62 @@ func (_c *ArticleCreate) SetNillableKeywords(v *string) *ArticleCreate {
 	return _c
 }
 
+// SetReviewStatus sets the "review_status" field.
+func (_c *ArticleCreate) SetReviewStatus(v article.ReviewStatus) *ArticleCreate {
+	_c.mutation.SetReviewStatus(v)
+	return _c
+}
+
+// SetNillableReviewStatus sets the "review_status" field if the given value is not nil.
+func (_c *ArticleCreate) SetNillableReviewStatus(v *article.ReviewStatus) *ArticleCreate {
+	if v != nil {
+		_c.SetReviewStatus(*v)
+	}
+	return _c
+}
+
+// SetReviewComment sets the "review_comment" field.
+func (_c *ArticleCreate) SetReviewComment(v string) *ArticleCreate {
+	_c.mutation.SetReviewComment(v)
+	return _c
+}
+
+// SetNillableReviewComment sets the "review_comment" field if the given value is not nil.
+func (_c *ArticleCreate) SetNillableReviewComment(v *string) *ArticleCreate {
+	if v != nil {
+		_c.SetReviewComment(*v)
+	}
+	return _c
+}
+
+// SetReviewedAt sets the "reviewed_at" field.
+func (_c *ArticleCreate) SetReviewedAt(v time.Time) *ArticleCreate {
+	_c.mutation.SetReviewedAt(v)
+	return _c
+}
+
+// SetNillableReviewedAt sets the "reviewed_at" field if the given value is not nil.
+func (_c *ArticleCreate) SetNillableReviewedAt(v *time.Time) *ArticleCreate {
+	if v != nil {
+		_c.SetReviewedAt(*v)
+	}
+	return _c
+}
+
+// SetReviewedBy sets the "reviewed_by" field.
+func (_c *ArticleCreate) SetReviewedBy(v uint) *ArticleCreate {
+	_c.mutation.SetReviewedBy(v)
+	return _c
+}
+
+// SetNillableReviewedBy sets the "reviewed_by" field if the given value is not nil.
+func (_c *ArticleCreate) SetNillableReviewedBy(v *uint) *ArticleCreate {
+	if v != nil {
+		_c.SetReviewedBy(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *ArticleCreate) SetID(v uint) *ArticleCreate {
 	_c.mutation.SetID(v)
@@ -447,6 +517,10 @@ func (_c *ArticleCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *ArticleCreate) defaults() error {
+	if _, ok := _c.mutation.OwnerID(); !ok {
+		v := article.DefaultOwnerID
+		_c.mutation.SetOwnerID(v)
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		if article.DefaultCreatedAt == nil {
 			return fmt.Errorf("ent: uninitialized article.DefaultCreatedAt (forgotten import ent/runtime?)")
@@ -501,11 +575,18 @@ func (_c *ArticleCreate) defaults() error {
 		v := article.DefaultCopyright
 		_c.mutation.SetCopyright(v)
 	}
+	if _, ok := _c.mutation.ReviewStatus(); !ok {
+		v := article.DefaultReviewStatus
+		_c.mutation.SetReviewStatus(v)
+	}
 	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *ArticleCreate) check() error {
+	if _, ok := _c.mutation.OwnerID(); !ok {
+		return &ValidationError{Name: "owner_id", err: errors.New(`ent: missing required field "Article.owner_id"`)}
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Article.created_at"`)}
 	}
@@ -577,6 +658,14 @@ func (_c *ArticleCreate) check() error {
 	if _, ok := _c.mutation.Copyright(); !ok {
 		return &ValidationError{Name: "copyright", err: errors.New(`ent: missing required field "Article.copyright"`)}
 	}
+	if _, ok := _c.mutation.ReviewStatus(); !ok {
+		return &ValidationError{Name: "review_status", err: errors.New(`ent: missing required field "Article.review_status"`)}
+	}
+	if v, ok := _c.mutation.ReviewStatus(); ok {
+		if err := article.ReviewStatusValidator(v); err != nil {
+			return &ValidationError{Name: "review_status", err: fmt.Errorf(`ent: validator failed for field "Article.review_status": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -613,6 +702,10 @@ func (_c *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DeletedAt(); ok {
 		_spec.SetField(article.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
+	}
+	if value, ok := _c.mutation.OwnerID(); ok {
+		_spec.SetField(article.FieldOwnerID, field.TypeUint, value)
+		_node.OwnerID = value
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(article.FieldCreatedAt, field.TypeTime, value)
@@ -709,6 +802,22 @@ func (_c *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Keywords(); ok {
 		_spec.SetField(article.FieldKeywords, field.TypeString, value)
 		_node.Keywords = value
+	}
+	if value, ok := _c.mutation.ReviewStatus(); ok {
+		_spec.SetField(article.FieldReviewStatus, field.TypeEnum, value)
+		_node.ReviewStatus = value
+	}
+	if value, ok := _c.mutation.ReviewComment(); ok {
+		_spec.SetField(article.FieldReviewComment, field.TypeString, value)
+		_node.ReviewComment = value
+	}
+	if value, ok := _c.mutation.ReviewedAt(); ok {
+		_spec.SetField(article.FieldReviewedAt, field.TypeTime, value)
+		_node.ReviewedAt = &value
+	}
+	if value, ok := _c.mutation.ReviewedBy(); ok {
+		_spec.SetField(article.FieldReviewedBy, field.TypeUint, value)
+		_node.ReviewedBy = &value
 	}
 	if nodes := _c.mutation.PostTagsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -825,6 +934,24 @@ func (u *ArticleUpsert) UpdateDeletedAt() *ArticleUpsert {
 // ClearDeletedAt clears the value of the "deleted_at" field.
 func (u *ArticleUpsert) ClearDeletedAt() *ArticleUpsert {
 	u.SetNull(article.FieldDeletedAt)
+	return u
+}
+
+// SetOwnerID sets the "owner_id" field.
+func (u *ArticleUpsert) SetOwnerID(v uint) *ArticleUpsert {
+	u.Set(article.FieldOwnerID, v)
+	return u
+}
+
+// UpdateOwnerID sets the "owner_id" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateOwnerID() *ArticleUpsert {
+	u.SetExcluded(article.FieldOwnerID)
+	return u
+}
+
+// AddOwnerID adds v to the "owner_id" field.
+func (u *ArticleUpsert) AddOwnerID(v uint) *ArticleUpsert {
+	u.Add(article.FieldOwnerID, v)
 	return u
 }
 
@@ -1218,6 +1345,78 @@ func (u *ArticleUpsert) ClearKeywords() *ArticleUpsert {
 	return u
 }
 
+// SetReviewStatus sets the "review_status" field.
+func (u *ArticleUpsert) SetReviewStatus(v article.ReviewStatus) *ArticleUpsert {
+	u.Set(article.FieldReviewStatus, v)
+	return u
+}
+
+// UpdateReviewStatus sets the "review_status" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateReviewStatus() *ArticleUpsert {
+	u.SetExcluded(article.FieldReviewStatus)
+	return u
+}
+
+// SetReviewComment sets the "review_comment" field.
+func (u *ArticleUpsert) SetReviewComment(v string) *ArticleUpsert {
+	u.Set(article.FieldReviewComment, v)
+	return u
+}
+
+// UpdateReviewComment sets the "review_comment" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateReviewComment() *ArticleUpsert {
+	u.SetExcluded(article.FieldReviewComment)
+	return u
+}
+
+// ClearReviewComment clears the value of the "review_comment" field.
+func (u *ArticleUpsert) ClearReviewComment() *ArticleUpsert {
+	u.SetNull(article.FieldReviewComment)
+	return u
+}
+
+// SetReviewedAt sets the "reviewed_at" field.
+func (u *ArticleUpsert) SetReviewedAt(v time.Time) *ArticleUpsert {
+	u.Set(article.FieldReviewedAt, v)
+	return u
+}
+
+// UpdateReviewedAt sets the "reviewed_at" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateReviewedAt() *ArticleUpsert {
+	u.SetExcluded(article.FieldReviewedAt)
+	return u
+}
+
+// ClearReviewedAt clears the value of the "reviewed_at" field.
+func (u *ArticleUpsert) ClearReviewedAt() *ArticleUpsert {
+	u.SetNull(article.FieldReviewedAt)
+	return u
+}
+
+// SetReviewedBy sets the "reviewed_by" field.
+func (u *ArticleUpsert) SetReviewedBy(v uint) *ArticleUpsert {
+	u.Set(article.FieldReviewedBy, v)
+	return u
+}
+
+// UpdateReviewedBy sets the "reviewed_by" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateReviewedBy() *ArticleUpsert {
+	u.SetExcluded(article.FieldReviewedBy)
+	return u
+}
+
+// AddReviewedBy adds v to the "reviewed_by" field.
+func (u *ArticleUpsert) AddReviewedBy(v uint) *ArticleUpsert {
+	u.Add(article.FieldReviewedBy, v)
+	return u
+}
+
+// ClearReviewedBy clears the value of the "reviewed_by" field.
+func (u *ArticleUpsert) ClearReviewedBy() *ArticleUpsert {
+	u.SetNull(article.FieldReviewedBy)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -1284,6 +1483,27 @@ func (u *ArticleUpsertOne) UpdateDeletedAt() *ArticleUpsertOne {
 func (u *ArticleUpsertOne) ClearDeletedAt() *ArticleUpsertOne {
 	return u.Update(func(s *ArticleUpsert) {
 		s.ClearDeletedAt()
+	})
+}
+
+// SetOwnerID sets the "owner_id" field.
+func (u *ArticleUpsertOne) SetOwnerID(v uint) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetOwnerID(v)
+	})
+}
+
+// AddOwnerID adds v to the "owner_id" field.
+func (u *ArticleUpsertOne) AddOwnerID(v uint) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.AddOwnerID(v)
+	})
+}
+
+// UpdateOwnerID sets the "owner_id" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateOwnerID() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateOwnerID()
 	})
 }
 
@@ -1742,6 +1962,90 @@ func (u *ArticleUpsertOne) ClearKeywords() *ArticleUpsertOne {
 	})
 }
 
+// SetReviewStatus sets the "review_status" field.
+func (u *ArticleUpsertOne) SetReviewStatus(v article.ReviewStatus) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetReviewStatus(v)
+	})
+}
+
+// UpdateReviewStatus sets the "review_status" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateReviewStatus() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateReviewStatus()
+	})
+}
+
+// SetReviewComment sets the "review_comment" field.
+func (u *ArticleUpsertOne) SetReviewComment(v string) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetReviewComment(v)
+	})
+}
+
+// UpdateReviewComment sets the "review_comment" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateReviewComment() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateReviewComment()
+	})
+}
+
+// ClearReviewComment clears the value of the "review_comment" field.
+func (u *ArticleUpsertOne) ClearReviewComment() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.ClearReviewComment()
+	})
+}
+
+// SetReviewedAt sets the "reviewed_at" field.
+func (u *ArticleUpsertOne) SetReviewedAt(v time.Time) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetReviewedAt(v)
+	})
+}
+
+// UpdateReviewedAt sets the "reviewed_at" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateReviewedAt() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateReviewedAt()
+	})
+}
+
+// ClearReviewedAt clears the value of the "reviewed_at" field.
+func (u *ArticleUpsertOne) ClearReviewedAt() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.ClearReviewedAt()
+	})
+}
+
+// SetReviewedBy sets the "reviewed_by" field.
+func (u *ArticleUpsertOne) SetReviewedBy(v uint) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetReviewedBy(v)
+	})
+}
+
+// AddReviewedBy adds v to the "reviewed_by" field.
+func (u *ArticleUpsertOne) AddReviewedBy(v uint) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.AddReviewedBy(v)
+	})
+}
+
+// UpdateReviewedBy sets the "reviewed_by" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateReviewedBy() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateReviewedBy()
+	})
+}
+
+// ClearReviewedBy clears the value of the "reviewed_by" field.
+func (u *ArticleUpsertOne) ClearReviewedBy() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.ClearReviewedBy()
+	})
+}
+
 // Exec executes the query.
 func (u *ArticleUpsertOne) Exec(ctx context.Context) error {
 	if len(u.create.conflict) == 0 {
@@ -1974,6 +2278,27 @@ func (u *ArticleUpsertBulk) UpdateDeletedAt() *ArticleUpsertBulk {
 func (u *ArticleUpsertBulk) ClearDeletedAt() *ArticleUpsertBulk {
 	return u.Update(func(s *ArticleUpsert) {
 		s.ClearDeletedAt()
+	})
+}
+
+// SetOwnerID sets the "owner_id" field.
+func (u *ArticleUpsertBulk) SetOwnerID(v uint) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetOwnerID(v)
+	})
+}
+
+// AddOwnerID adds v to the "owner_id" field.
+func (u *ArticleUpsertBulk) AddOwnerID(v uint) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.AddOwnerID(v)
+	})
+}
+
+// UpdateOwnerID sets the "owner_id" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateOwnerID() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateOwnerID()
 	})
 }
 
@@ -2429,6 +2754,90 @@ func (u *ArticleUpsertBulk) UpdateKeywords() *ArticleUpsertBulk {
 func (u *ArticleUpsertBulk) ClearKeywords() *ArticleUpsertBulk {
 	return u.Update(func(s *ArticleUpsert) {
 		s.ClearKeywords()
+	})
+}
+
+// SetReviewStatus sets the "review_status" field.
+func (u *ArticleUpsertBulk) SetReviewStatus(v article.ReviewStatus) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetReviewStatus(v)
+	})
+}
+
+// UpdateReviewStatus sets the "review_status" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateReviewStatus() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateReviewStatus()
+	})
+}
+
+// SetReviewComment sets the "review_comment" field.
+func (u *ArticleUpsertBulk) SetReviewComment(v string) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetReviewComment(v)
+	})
+}
+
+// UpdateReviewComment sets the "review_comment" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateReviewComment() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateReviewComment()
+	})
+}
+
+// ClearReviewComment clears the value of the "review_comment" field.
+func (u *ArticleUpsertBulk) ClearReviewComment() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.ClearReviewComment()
+	})
+}
+
+// SetReviewedAt sets the "reviewed_at" field.
+func (u *ArticleUpsertBulk) SetReviewedAt(v time.Time) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetReviewedAt(v)
+	})
+}
+
+// UpdateReviewedAt sets the "reviewed_at" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateReviewedAt() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateReviewedAt()
+	})
+}
+
+// ClearReviewedAt clears the value of the "reviewed_at" field.
+func (u *ArticleUpsertBulk) ClearReviewedAt() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.ClearReviewedAt()
+	})
+}
+
+// SetReviewedBy sets the "reviewed_by" field.
+func (u *ArticleUpsertBulk) SetReviewedBy(v uint) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetReviewedBy(v)
+	})
+}
+
+// AddReviewedBy adds v to the "reviewed_by" field.
+func (u *ArticleUpsertBulk) AddReviewedBy(v uint) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.AddReviewedBy(v)
+	})
+}
+
+// UpdateReviewedBy sets the "reviewed_by" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateReviewedBy() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateReviewedBy()
+	})
+}
+
+// ClearReviewedBy clears the value of the "reviewed_by" field.
+func (u *ArticleUpsertBulk) ClearReviewedBy() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.ClearReviewedBy()
 	})
 }
 

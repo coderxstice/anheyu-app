@@ -353,7 +353,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	cdnSvc := cdn.NewService(settingSvc)
 	log.Printf("[DEBUG] CDNService 初始化完成")
 
-	articleSvc := article_service.NewService(articleRepo, postTagRepo, postCategoryRepo, commentRepo, txManager, cacheSvc, geoSvc, taskBroker, settingSvc, parserSvc, fileSvc, directLinkSvc, searchSvc, primaryColorSvc, cdnSvc)
+	articleSvc := article_service.NewService(articleRepo, postTagRepo, postCategoryRepo, commentRepo, txManager, cacheSvc, geoSvc, taskBroker, settingSvc, parserSvc, fileSvc, directLinkSvc, searchSvc, primaryColorSvc, cdnSvc, userRepo)
 	log.Printf("[DEBUG] 正在初始化 PushooService...")
 	pushooSvc := utility.NewPushooService(settingSvc)
 	log.Printf("[DEBUG] PushooService 初始化完成")
