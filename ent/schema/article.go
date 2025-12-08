@@ -46,6 +46,9 @@ func (Article) Fields() []ent.Field {
 	return []ent.Field{
 		// --- 基础字段 ---
 		field.Uint("id"),
+		field.Uint("owner_id").
+			Comment("文章作者ID，关联到users表").
+			Default(1), // 默认值为管理员ID(1)
 		field.Time("created_at").Default(time.Now),
 		field.Time("updated_at").Default(time.Now),
 		field.String("title").Comment("文章标题").NotEmpty(),
@@ -101,6 +104,23 @@ func (Article) Fields() []ent.Field {
 		field.String("keywords").
 			Comment("文章关键词，用于SEO优化").
 			Optional(),
+
+		// --- 审核相关字段（多人共创功能） ---
+		field.Enum("review_status").
+			Values("NONE", "PENDING", "APPROVED", "REJECTED").
+			Comment("审核状态：NONE-无需审核, PENDING-待审核, APPROVED-已通过, REJECTED-已拒绝").
+			Default("NONE"),
+		field.String("review_comment").
+			Comment("审核意见").
+			Optional(),
+		field.Time("reviewed_at").
+			Comment("审核时间").
+			Optional().
+			Nillable(),
+		field.Uint("reviewed_by").
+			Comment("审核人ID").
+			Optional().
+			Nillable(),
 	}
 }
 

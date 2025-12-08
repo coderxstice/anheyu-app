@@ -2615,6 +2615,8 @@ type ArticleMutation struct {
 	typ                     string
 	id                      *uint
 	deleted_at              *time.Time
+	owner_id                *uint
+	addowner_id             *int
 	created_at              *time.Time
 	updated_at              *time.Time
 	title                   *string
@@ -2645,6 +2647,11 @@ type ArticleMutation struct {
 	copyright_author_href   *string
 	copyright_url           *string
 	keywords                *string
+	review_status           *article.ReviewStatus
+	review_comment          *string
+	reviewed_at             *time.Time
+	reviewed_by             *uint
+	addreviewed_by          *int
 	clearedFields           map[string]struct{}
 	post_tags               map[uint]struct{}
 	removedpost_tags        map[uint]struct{}
@@ -2811,6 +2818,62 @@ func (m *ArticleMutation) DeletedAtCleared() bool {
 func (m *ArticleMutation) ResetDeletedAt() {
 	m.deleted_at = nil
 	delete(m.clearedFields, article.FieldDeletedAt)
+}
+
+// SetOwnerID sets the "owner_id" field.
+func (m *ArticleMutation) SetOwnerID(u uint) {
+	m.owner_id = &u
+	m.addowner_id = nil
+}
+
+// OwnerID returns the value of the "owner_id" field in the mutation.
+func (m *ArticleMutation) OwnerID() (r uint, exists bool) {
+	v := m.owner_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOwnerID returns the old "owner_id" field's value of the Article entity.
+// If the Article object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ArticleMutation) OldOwnerID(ctx context.Context) (v uint, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOwnerID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOwnerID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOwnerID: %w", err)
+	}
+	return oldValue.OwnerID, nil
+}
+
+// AddOwnerID adds u to the "owner_id" field.
+func (m *ArticleMutation) AddOwnerID(u int) {
+	if m.addowner_id != nil {
+		*m.addowner_id += u
+	} else {
+		m.addowner_id = &u
+	}
+}
+
+// AddedOwnerID returns the value that was added to the "owner_id" field in this mutation.
+func (m *ArticleMutation) AddedOwnerID() (r int, exists bool) {
+	v := m.addowner_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetOwnerID resets all changes to the "owner_id" field.
+func (m *ArticleMutation) ResetOwnerID() {
+	m.owner_id = nil
+	m.addowner_id = nil
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -3949,6 +4012,210 @@ func (m *ArticleMutation) ResetKeywords() {
 	delete(m.clearedFields, article.FieldKeywords)
 }
 
+// SetReviewStatus sets the "review_status" field.
+func (m *ArticleMutation) SetReviewStatus(as article.ReviewStatus) {
+	m.review_status = &as
+}
+
+// ReviewStatus returns the value of the "review_status" field in the mutation.
+func (m *ArticleMutation) ReviewStatus() (r article.ReviewStatus, exists bool) {
+	v := m.review_status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReviewStatus returns the old "review_status" field's value of the Article entity.
+// If the Article object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ArticleMutation) OldReviewStatus(ctx context.Context) (v article.ReviewStatus, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReviewStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReviewStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReviewStatus: %w", err)
+	}
+	return oldValue.ReviewStatus, nil
+}
+
+// ResetReviewStatus resets all changes to the "review_status" field.
+func (m *ArticleMutation) ResetReviewStatus() {
+	m.review_status = nil
+}
+
+// SetReviewComment sets the "review_comment" field.
+func (m *ArticleMutation) SetReviewComment(s string) {
+	m.review_comment = &s
+}
+
+// ReviewComment returns the value of the "review_comment" field in the mutation.
+func (m *ArticleMutation) ReviewComment() (r string, exists bool) {
+	v := m.review_comment
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReviewComment returns the old "review_comment" field's value of the Article entity.
+// If the Article object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ArticleMutation) OldReviewComment(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReviewComment is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReviewComment requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReviewComment: %w", err)
+	}
+	return oldValue.ReviewComment, nil
+}
+
+// ClearReviewComment clears the value of the "review_comment" field.
+func (m *ArticleMutation) ClearReviewComment() {
+	m.review_comment = nil
+	m.clearedFields[article.FieldReviewComment] = struct{}{}
+}
+
+// ReviewCommentCleared returns if the "review_comment" field was cleared in this mutation.
+func (m *ArticleMutation) ReviewCommentCleared() bool {
+	_, ok := m.clearedFields[article.FieldReviewComment]
+	return ok
+}
+
+// ResetReviewComment resets all changes to the "review_comment" field.
+func (m *ArticleMutation) ResetReviewComment() {
+	m.review_comment = nil
+	delete(m.clearedFields, article.FieldReviewComment)
+}
+
+// SetReviewedAt sets the "reviewed_at" field.
+func (m *ArticleMutation) SetReviewedAt(t time.Time) {
+	m.reviewed_at = &t
+}
+
+// ReviewedAt returns the value of the "reviewed_at" field in the mutation.
+func (m *ArticleMutation) ReviewedAt() (r time.Time, exists bool) {
+	v := m.reviewed_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReviewedAt returns the old "reviewed_at" field's value of the Article entity.
+// If the Article object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ArticleMutation) OldReviewedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReviewedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReviewedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReviewedAt: %w", err)
+	}
+	return oldValue.ReviewedAt, nil
+}
+
+// ClearReviewedAt clears the value of the "reviewed_at" field.
+func (m *ArticleMutation) ClearReviewedAt() {
+	m.reviewed_at = nil
+	m.clearedFields[article.FieldReviewedAt] = struct{}{}
+}
+
+// ReviewedAtCleared returns if the "reviewed_at" field was cleared in this mutation.
+func (m *ArticleMutation) ReviewedAtCleared() bool {
+	_, ok := m.clearedFields[article.FieldReviewedAt]
+	return ok
+}
+
+// ResetReviewedAt resets all changes to the "reviewed_at" field.
+func (m *ArticleMutation) ResetReviewedAt() {
+	m.reviewed_at = nil
+	delete(m.clearedFields, article.FieldReviewedAt)
+}
+
+// SetReviewedBy sets the "reviewed_by" field.
+func (m *ArticleMutation) SetReviewedBy(u uint) {
+	m.reviewed_by = &u
+	m.addreviewed_by = nil
+}
+
+// ReviewedBy returns the value of the "reviewed_by" field in the mutation.
+func (m *ArticleMutation) ReviewedBy() (r uint, exists bool) {
+	v := m.reviewed_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReviewedBy returns the old "reviewed_by" field's value of the Article entity.
+// If the Article object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ArticleMutation) OldReviewedBy(ctx context.Context) (v *uint, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReviewedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReviewedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReviewedBy: %w", err)
+	}
+	return oldValue.ReviewedBy, nil
+}
+
+// AddReviewedBy adds u to the "reviewed_by" field.
+func (m *ArticleMutation) AddReviewedBy(u int) {
+	if m.addreviewed_by != nil {
+		*m.addreviewed_by += u
+	} else {
+		m.addreviewed_by = &u
+	}
+}
+
+// AddedReviewedBy returns the value that was added to the "reviewed_by" field in this mutation.
+func (m *ArticleMutation) AddedReviewedBy() (r int, exists bool) {
+	v := m.addreviewed_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearReviewedBy clears the value of the "reviewed_by" field.
+func (m *ArticleMutation) ClearReviewedBy() {
+	m.reviewed_by = nil
+	m.addreviewed_by = nil
+	m.clearedFields[article.FieldReviewedBy] = struct{}{}
+}
+
+// ReviewedByCleared returns if the "reviewed_by" field was cleared in this mutation.
+func (m *ArticleMutation) ReviewedByCleared() bool {
+	_, ok := m.clearedFields[article.FieldReviewedBy]
+	return ok
+}
+
+// ResetReviewedBy resets all changes to the "reviewed_by" field.
+func (m *ArticleMutation) ResetReviewedBy() {
+	m.reviewed_by = nil
+	m.addreviewed_by = nil
+	delete(m.clearedFields, article.FieldReviewedBy)
+}
+
 // AddPostTagIDs adds the "post_tags" edge to the PostTag entity by ids.
 func (m *ArticleMutation) AddPostTagIDs(ids ...uint) {
 	if m.post_tags == nil {
@@ -4145,9 +4412,12 @@ func (m *ArticleMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ArticleMutation) Fields() []string {
-	fields := make([]string, 0, 25)
+	fields := make([]string, 0, 30)
 	if m.deleted_at != nil {
 		fields = append(fields, article.FieldDeletedAt)
+	}
+	if m.owner_id != nil {
+		fields = append(fields, article.FieldOwnerID)
 	}
 	if m.created_at != nil {
 		fields = append(fields, article.FieldCreatedAt)
@@ -4221,6 +4491,18 @@ func (m *ArticleMutation) Fields() []string {
 	if m.keywords != nil {
 		fields = append(fields, article.FieldKeywords)
 	}
+	if m.review_status != nil {
+		fields = append(fields, article.FieldReviewStatus)
+	}
+	if m.review_comment != nil {
+		fields = append(fields, article.FieldReviewComment)
+	}
+	if m.reviewed_at != nil {
+		fields = append(fields, article.FieldReviewedAt)
+	}
+	if m.reviewed_by != nil {
+		fields = append(fields, article.FieldReviewedBy)
+	}
 	return fields
 }
 
@@ -4231,6 +4513,8 @@ func (m *ArticleMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case article.FieldDeletedAt:
 		return m.DeletedAt()
+	case article.FieldOwnerID:
+		return m.OwnerID()
 	case article.FieldCreatedAt:
 		return m.CreatedAt()
 	case article.FieldUpdatedAt:
@@ -4279,6 +4563,14 @@ func (m *ArticleMutation) Field(name string) (ent.Value, bool) {
 		return m.CopyrightURL()
 	case article.FieldKeywords:
 		return m.Keywords()
+	case article.FieldReviewStatus:
+		return m.ReviewStatus()
+	case article.FieldReviewComment:
+		return m.ReviewComment()
+	case article.FieldReviewedAt:
+		return m.ReviewedAt()
+	case article.FieldReviewedBy:
+		return m.ReviewedBy()
 	}
 	return nil, false
 }
@@ -4290,6 +4582,8 @@ func (m *ArticleMutation) OldField(ctx context.Context, name string) (ent.Value,
 	switch name {
 	case article.FieldDeletedAt:
 		return m.OldDeletedAt(ctx)
+	case article.FieldOwnerID:
+		return m.OldOwnerID(ctx)
 	case article.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case article.FieldUpdatedAt:
@@ -4338,6 +4632,14 @@ func (m *ArticleMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldCopyrightURL(ctx)
 	case article.FieldKeywords:
 		return m.OldKeywords(ctx)
+	case article.FieldReviewStatus:
+		return m.OldReviewStatus(ctx)
+	case article.FieldReviewComment:
+		return m.OldReviewComment(ctx)
+	case article.FieldReviewedAt:
+		return m.OldReviewedAt(ctx)
+	case article.FieldReviewedBy:
+		return m.OldReviewedBy(ctx)
 	}
 	return nil, fmt.Errorf("unknown Article field %s", name)
 }
@@ -4353,6 +4655,13 @@ func (m *ArticleMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDeletedAt(v)
+		return nil
+	case article.FieldOwnerID:
+		v, ok := value.(uint)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOwnerID(v)
 		return nil
 	case article.FieldCreatedAt:
 		v, ok := value.(time.Time)
@@ -4522,6 +4831,34 @@ func (m *ArticleMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetKeywords(v)
 		return nil
+	case article.FieldReviewStatus:
+		v, ok := value.(article.ReviewStatus)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReviewStatus(v)
+		return nil
+	case article.FieldReviewComment:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReviewComment(v)
+		return nil
+	case article.FieldReviewedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReviewedAt(v)
+		return nil
+	case article.FieldReviewedBy:
+		v, ok := value.(uint)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReviewedBy(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Article field %s", name)
 }
@@ -4530,6 +4867,9 @@ func (m *ArticleMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *ArticleMutation) AddedFields() []string {
 	var fields []string
+	if m.addowner_id != nil {
+		fields = append(fields, article.FieldOwnerID)
+	}
 	if m.addview_count != nil {
 		fields = append(fields, article.FieldViewCount)
 	}
@@ -4545,6 +4885,9 @@ func (m *ArticleMutation) AddedFields() []string {
 	if m.addpin_sort != nil {
 		fields = append(fields, article.FieldPinSort)
 	}
+	if m.addreviewed_by != nil {
+		fields = append(fields, article.FieldReviewedBy)
+	}
 	return fields
 }
 
@@ -4553,6 +4896,8 @@ func (m *ArticleMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *ArticleMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
+	case article.FieldOwnerID:
+		return m.AddedOwnerID()
 	case article.FieldViewCount:
 		return m.AddedViewCount()
 	case article.FieldWordCount:
@@ -4563,6 +4908,8 @@ func (m *ArticleMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedHomeSort()
 	case article.FieldPinSort:
 		return m.AddedPinSort()
+	case article.FieldReviewedBy:
+		return m.AddedReviewedBy()
 	}
 	return nil, false
 }
@@ -4572,6 +4919,13 @@ func (m *ArticleMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *ArticleMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case article.FieldOwnerID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddOwnerID(v)
+		return nil
 	case article.FieldViewCount:
 		v, ok := value.(int)
 		if !ok {
@@ -4606,6 +4960,13 @@ func (m *ArticleMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddPinSort(v)
+		return nil
+	case article.FieldReviewedBy:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddReviewedBy(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Article numeric field %s", name)
@@ -4653,6 +5014,15 @@ func (m *ArticleMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(article.FieldKeywords) {
 		fields = append(fields, article.FieldKeywords)
+	}
+	if m.FieldCleared(article.FieldReviewComment) {
+		fields = append(fields, article.FieldReviewComment)
+	}
+	if m.FieldCleared(article.FieldReviewedAt) {
+		fields = append(fields, article.FieldReviewedAt)
+	}
+	if m.FieldCleared(article.FieldReviewedBy) {
+		fields = append(fields, article.FieldReviewedBy)
 	}
 	return fields
 }
@@ -4707,6 +5077,15 @@ func (m *ArticleMutation) ClearField(name string) error {
 	case article.FieldKeywords:
 		m.ClearKeywords()
 		return nil
+	case article.FieldReviewComment:
+		m.ClearReviewComment()
+		return nil
+	case article.FieldReviewedAt:
+		m.ClearReviewedAt()
+		return nil
+	case article.FieldReviewedBy:
+		m.ClearReviewedBy()
+		return nil
 	}
 	return fmt.Errorf("unknown Article nullable field %s", name)
 }
@@ -4717,6 +5096,9 @@ func (m *ArticleMutation) ResetField(name string) error {
 	switch name {
 	case article.FieldDeletedAt:
 		m.ResetDeletedAt()
+		return nil
+	case article.FieldOwnerID:
+		m.ResetOwnerID()
 		return nil
 	case article.FieldCreatedAt:
 		m.ResetCreatedAt()
@@ -4789,6 +5171,18 @@ func (m *ArticleMutation) ResetField(name string) error {
 		return nil
 	case article.FieldKeywords:
 		m.ResetKeywords()
+		return nil
+	case article.FieldReviewStatus:
+		m.ResetReviewStatus()
+		return nil
+	case article.FieldReviewComment:
+		m.ResetReviewComment()
+		return nil
+	case article.FieldReviewedAt:
+		m.ResetReviewedAt()
+		return nil
+	case article.FieldReviewedBy:
+		m.ResetReviewedBy()
 		return nil
 	}
 	return fmt.Errorf("unknown Article field %s", name)

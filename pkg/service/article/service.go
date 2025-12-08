@@ -38,12 +38,16 @@ type Service interface {
 	Delete(ctx context.Context, publicID string) error
 	List(ctx context.Context, options *model.ListArticlesOptions) (*model.ArticleListResponse, error)
 	GetPublicBySlugOrID(ctx context.Context, slugOrID string) (*model.ArticleDetailResponse, error)
+	GetBySlugOrIDForPreview(ctx context.Context, slugOrID string) (*model.ArticleDetailResponse, error)
 	ListPublic(ctx context.Context, options *model.ListPublicArticlesOptions) (*model.ArticleListResponse, error)
 	ListHome(ctx context.Context) ([]model.ArticleResponse, error)
 	ListArchives(ctx context.Context) (*model.ArchiveSummaryResponse, error)
 	GetRandom(ctx context.Context) (*model.ArticleResponse, error)
 	ToAPIResponse(a *model.Article, useAbbrlinkAsID bool, includeHTML bool) *model.ArticleResponse
 	GetPrimaryColorFromURL(ctx context.Context, imageURL string) (string, error)
+
+	// 多人共创功能：获取文章作者ID
+	GetArticleOwnerID(ctx context.Context, publicID string) (uint, error)
 
 	// 导入导出功能
 	ExportArticles(ctx context.Context, articleIDs []string) (*ExportArticleData, error)
@@ -299,6 +303,7 @@ func (s *serviceImpl) ToAPIResponse(a *model.Article, useAbbrlinkAsID bool, incl
 		CopyrightAuthorHref:  a.CopyrightAuthorHref,
 		CopyrightURL:         a.CopyrightURL,
 		Keywords:             a.Keywords,
+		ReviewStatus:         a.ReviewStatus, // 审核状态（多人共创功能）
 	}
 
 	if includeHTML {
@@ -483,6 +488,29 @@ func (s *serviceImpl) GetPublicBySlugOrID(ctx context.Context, slugOrID string) 
 	return detailResponse, nil
 }
 
+// GetBySlugOrIDForPreview 为预览模式获取文章，不过滤状态，不增加浏览量。
+func (s *serviceImpl) GetBySlugOrIDForPreview(ctx context.Context, slugOrID string) (*model.ArticleDetailResponse, error) {
+	article, err := s.repo.GetBySlugOrIDForPreview(ctx, slugOrID)
+	if err != nil {
+		return nil, err
+	}
+
+	// 预览模式不增加浏览量
+
+	// 注意：这里 useAbbrlinkAsID 设置为 false，确保返回的 ID 始终是公共ID
+	mainArticleResponse := s.ToAPIResponse(article, false, true)
+
+	detailResponse := &model.ArticleDetailResponse{
+		ArticleResponse: *mainArticleResponse,
+		// 预览模式下不返回上下篇和相关文章
+		PrevArticle:     nil,
+		NextArticle:     nil,
+		RelatedArticles: nil,
+	}
+
+	return detailResponse, nil
+}
+
 // Create 处理创建新文章的完整业务流程。
 func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleRequest, ip string) (*model.ArticleResponse, error) {
 	var newArticle *model.Article
@@ -611,6 +639,7 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 
 		params := &model.CreateArticleParams{
 			Title:                req.Title,
+			OwnerID:              req.OwnerID,   // 文章作者ID（多人共创功能）
 			ContentMd:            req.ContentMd, // 存储Markdown原文
 			ContentHTML:          sanitizedHTML, // 存储安全过滤后的HTML
 			CoverURL:             coverURL,
@@ -635,6 +664,7 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 			CustomPublishedAt:    customPublishedAt,
 			CustomUpdatedAt:      customUpdatedAt,
 			Keywords:             req.Keywords,
+			ReviewStatus:         req.ReviewStatus, // 审核状态（多人共创功能）
 		}
 		createdArticle, err := repos.Article.Create(ctx, params)
 		if err != nil {
@@ -1123,4 +1153,13 @@ func (s *serviceImpl) GetPrimaryColorFromURL(ctx context.Context, imageURL strin
 	}
 
 	return color, nil
+}
+
+// GetArticleOwnerID 获取文章的作者ID（多人共创功能）
+func (s *serviceImpl) GetArticleOwnerID(ctx context.Context, publicID string) (uint, error) {
+	article, err := s.repo.GetByID(ctx, publicID)
+	if err != nil {
+		return 0, err
+	}
+	return article.OwnerID, nil
 }

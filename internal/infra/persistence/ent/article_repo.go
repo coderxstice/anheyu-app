@@ -72,6 +72,7 @@ func (r *articleRepo) toModel(a *ent.Article) *model.Article {
 
 	return &model.Article{
 		ID:                   publicID,
+		OwnerID:              a.OwnerID,
 		CreatedAt:            a.CreatedAt,
 		UpdatedAt:            a.UpdatedAt,
 		Title:                a.Title,
@@ -98,6 +99,11 @@ func (r *articleRepo) toModel(a *ent.Article) *model.Article {
 		CopyrightAuthorHref:  a.CopyrightAuthorHref,
 		CopyrightURL:         a.CopyrightURL,
 		Keywords:             a.Keywords,
+		// 审核相关字段
+		ReviewStatus:  string(a.ReviewStatus),
+		ReviewComment: a.ReviewComment,
+		ReviewedAt:    a.ReviewedAt,
+		ReviewedBy:    a.ReviewedBy,
 	}
 }
 
@@ -336,6 +342,46 @@ func (r *articleRepo) GetBySlugOrID(ctx context.Context, slugOrID string) (*mode
 	return result, nil
 }
 
+// GetBySlugOrIDForPreview 通过 abbrlink 或公共 ID 获取一篇文章，不过滤状态，用于预览功能
+func (r *articleRepo) GetBySlugOrIDForPreview(ctx context.Context, slugOrID string) (*model.Article, error) {
+	log.Printf("[GetBySlugOrIDForPreview] 开始查询文章(预览模式): slugOrID=%s", slugOrID)
+
+	// 尝试将 slugOrID 解码为数据库 ID
+	dbID, _, err := idgen.DecodePublicID(slugOrID)
+
+	var wherePredicate predicate.Article
+	if err == nil {
+		// 如果解码成功，则查询条件为 ID 或 abbrlink 匹配
+		log.Printf("[GetBySlugOrIDForPreview] 解码成功，使用ID或abbrlink查询: dbID=%d", dbID)
+		wherePredicate = article.Or(article.ID(dbID), article.AbbrlinkEQ(slugOrID))
+	} else {
+		// 如果解码失败，则查询条件仅为 abbrlink 匹配
+		log.Printf("[GetBySlugOrIDForPreview] 解码失败，仅使用abbrlink查询: %v", err)
+		wherePredicate = article.AbbrlinkEQ(slugOrID)
+	}
+
+	// 预览模式：不过滤文章状态，只过滤已删除的文章
+	entity, err := r.db.Article.Query().
+		Where(
+			wherePredicate,
+			article.DeletedAtIsNil(),
+		).
+		WithPostTags().
+		WithPostCategories().
+		Only(ctx)
+
+	if err != nil {
+		log.Printf("[GetBySlugOrIDForPreview] 查询失败: %v", err)
+		return nil, err
+	}
+
+	log.Printf("[GetBySlugOrIDForPreview] 查询成功: 数据库ID=%d, Title=%s, Status=%s, ReviewStatus=%s",
+		entity.ID, entity.Title, entity.Status, entity.ReviewStatus)
+	result := r.toModel(entity)
+	log.Printf("[GetBySlugOrIDForPreview] 转换后的公共ID: %s", result.ID)
+	return result, nil
+}
+
 // GetSiteStats 高效地获取站点范围内的统计数据
 func (r *articleRepo) GetSiteStats(ctx context.Context) (*model.SiteStats, error) {
 	publishedAndNotDeleted := []predicate.Article{
@@ -418,8 +464,15 @@ func (r *articleRepo) Create(ctx context.Context, params *model.CreateArticlePar
 		topImgURL = params.CoverURL
 	}
 
+	// 确保 OwnerID 有默认值
+	ownerID := params.OwnerID
+	if ownerID == 0 {
+		ownerID = 1 // 默认为管理员
+	}
+
 	creator := r.db.Article.Create().
 		SetTitle(params.Title).
+		SetOwnerID(ownerID). // 保存文章作者ID
 		SetContentMd(params.ContentMd).
 		SetContentHTML(params.ContentHTML).
 		SetCoverURL(params.CoverURL).
@@ -450,6 +503,12 @@ func (r *articleRepo) Create(ctx context.Context, params *model.CreateArticlePar
 	} else {
 		creator.SetStatus(article.StatusDRAFT)
 	}
+
+	// 设置审核状态（多人共创功能）
+	if params.ReviewStatus != "" {
+		creator.SetReviewStatus(article.ReviewStatus(params.ReviewStatus))
+	}
+	// 如果没有设置 ReviewStatus，默认值为 NONE（由 schema 定义）
 
 	// 支持自定义发布时间
 	if params.CustomPublishedAt != nil {
@@ -703,6 +762,10 @@ func (r *articleRepo) List(ctx context.Context, options *model.ListArticlesOptio
 	if options.Status != "" {
 		query = query.Where(article.StatusEQ(article.Status(options.Status)))
 	}
+	// 按作者ID过滤（多人共创功能：普通用户只能查看自己的文章）
+	if options.AuthorID != nil {
+		query = query.Where(article.OwnerIDEQ(*options.AuthorID))
+	}
 	total, err := query.Clone().Count(ctx)
 	if err != nil {
 		return nil, 0, err
@@ -726,6 +789,7 @@ func (r *articleRepo) List(ctx context.Context, options *model.ListArticlesOptio
 			article.FieldShowOnHome, article.FieldHomeSort, article.FieldPinSort, article.FieldTopImgURL,
 			article.FieldSummaries, article.FieldAbbrlink, article.FieldCopyright,
 			article.FieldCopyrightAuthor, article.FieldCopyrightAuthorHref, article.FieldCopyrightURL,
+			article.FieldReviewStatus, // 审核状态（多人共创功能）
 		).All(ctx)
 	} else {
 		entities, err = q.All(ctx)

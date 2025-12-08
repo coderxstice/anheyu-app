@@ -66,6 +66,7 @@ var (
 	ArticlesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint, Increment: true},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "owner_id", Type: field.TypeUint, Comment: "文章作者ID，关联到users表", Default: 1},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "title", Type: field.TypeString, Comment: "文章标题"},
@@ -90,6 +91,10 @@ var (
 		{Name: "copyright_author_href", Type: field.TypeString, Nullable: true, Comment: "版权作者链接"},
 		{Name: "copyright_url", Type: field.TypeString, Nullable: true, Comment: "版权来源链接"},
 		{Name: "keywords", Type: field.TypeString, Nullable: true, Comment: "文章关键词，用于SEO优化"},
+		{Name: "review_status", Type: field.TypeEnum, Comment: "审核状态：NONE-无需审核, PENDING-待审核, APPROVED-已通过, REJECTED-已拒绝", Enums: []string{"NONE", "PENDING", "APPROVED", "REJECTED"}, Default: "NONE"},
+		{Name: "review_comment", Type: field.TypeString, Nullable: true, Comment: "审核意见"},
+		{Name: "reviewed_at", Type: field.TypeTime, Nullable: true, Comment: "审核时间"},
+		{Name: "reviewed_by", Type: field.TypeUint, Nullable: true, Comment: "审核人ID"},
 	}
 	// ArticlesTable holds the schema information for the "articles" table.
 	ArticlesTable = &schema.Table{

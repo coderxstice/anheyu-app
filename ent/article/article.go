@@ -18,6 +18,8 @@ const (
 	FieldID = "id"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
+	// FieldOwnerID holds the string denoting the owner_id field in the database.
+	FieldOwnerID = "owner_id"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
@@ -66,6 +68,14 @@ const (
 	FieldCopyrightURL = "copyright_url"
 	// FieldKeywords holds the string denoting the keywords field in the database.
 	FieldKeywords = "keywords"
+	// FieldReviewStatus holds the string denoting the review_status field in the database.
+	FieldReviewStatus = "review_status"
+	// FieldReviewComment holds the string denoting the review_comment field in the database.
+	FieldReviewComment = "review_comment"
+	// FieldReviewedAt holds the string denoting the reviewed_at field in the database.
+	FieldReviewedAt = "reviewed_at"
+	// FieldReviewedBy holds the string denoting the reviewed_by field in the database.
+	FieldReviewedBy = "reviewed_by"
 	// EdgePostTags holds the string denoting the post_tags edge name in mutations.
 	EdgePostTags = "post_tags"
 	// EdgePostCategories holds the string denoting the post_categories edge name in mutations.
@@ -97,6 +107,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldDeletedAt,
+	FieldOwnerID,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldTitle,
@@ -121,6 +132,10 @@ var Columns = []string{
 	FieldCopyrightAuthorHref,
 	FieldCopyrightURL,
 	FieldKeywords,
+	FieldReviewStatus,
+	FieldReviewComment,
+	FieldReviewedAt,
+	FieldReviewedBy,
 }
 
 var (
@@ -149,6 +164,8 @@ func ValidColumn(column string) bool {
 //	import _ "github.com/anzhiyu-c/anheyu-app/ent/runtime"
 var (
 	Hooks [1]ent.Hook
+	// DefaultOwnerID holds the default value on creation for the "owner_id" field.
+	DefaultOwnerID uint
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
@@ -212,6 +229,34 @@ func StatusValidator(s Status) error {
 	}
 }
 
+// ReviewStatus defines the type for the "review_status" enum field.
+type ReviewStatus string
+
+// ReviewStatusNONE is the default value of the ReviewStatus enum.
+const DefaultReviewStatus = ReviewStatusNONE
+
+// ReviewStatus values.
+const (
+	ReviewStatusNONE     ReviewStatus = "NONE"
+	ReviewStatusPENDING  ReviewStatus = "PENDING"
+	ReviewStatusAPPROVED ReviewStatus = "APPROVED"
+	ReviewStatusREJECTED ReviewStatus = "REJECTED"
+)
+
+func (rs ReviewStatus) String() string {
+	return string(rs)
+}
+
+// ReviewStatusValidator is a validator for the "review_status" field enum values. It is called by the builders before save.
+func ReviewStatusValidator(rs ReviewStatus) error {
+	switch rs {
+	case ReviewStatusNONE, ReviewStatusPENDING, ReviewStatusAPPROVED, ReviewStatusREJECTED:
+		return nil
+	default:
+		return fmt.Errorf("article: invalid enum value for review_status field: %q", rs)
+	}
+}
+
 // OrderOption defines the ordering options for the Article queries.
 type OrderOption func(*sql.Selector)
 
@@ -223,6 +268,11 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 // ByDeletedAt orders the results by the deleted_at field.
 func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
+// ByOwnerID orders the results by the owner_id field.
+func ByOwnerID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOwnerID, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.
@@ -338,6 +388,26 @@ func ByCopyrightURL(opts ...sql.OrderTermOption) OrderOption {
 // ByKeywords orders the results by the keywords field.
 func ByKeywords(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldKeywords, opts...).ToFunc()
+}
+
+// ByReviewStatus orders the results by the review_status field.
+func ByReviewStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldReviewStatus, opts...).ToFunc()
+}
+
+// ByReviewComment orders the results by the review_comment field.
+func ByReviewComment(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldReviewComment, opts...).ToFunc()
+}
+
+// ByReviewedAt orders the results by the reviewed_at field.
+func ByReviewedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldReviewedAt, opts...).ToFunc()
+}
+
+// ByReviewedBy orders the results by the reviewed_by field.
+func ByReviewedBy(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldReviewedBy, opts...).ToFunc()
 }
 
 // ByPostTagsCount orders the results by post_tags count.

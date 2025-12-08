@@ -14,6 +14,7 @@ import "time"
 // Article 是文章的核心领域模型，业务逻辑（Service层）围绕它进行。
 type Article struct {
 	ID                   string
+	OwnerID              uint // 文章作者ID（多人共创功能）
 	CreatedAt            time.Time
 	UpdatedAt            time.Time
 	Title                string
@@ -40,6 +41,12 @@ type Article struct {
 	CopyrightAuthorHref  string
 	CopyrightURL         string
 	Keywords             string
+
+	// --- 审核相关字段（多人共创功能） ---
+	ReviewStatus  string     // 审核状态：NONE-无需审核, PENDING-待审核, APPROVED-已通过, REJECTED-已拒绝
+	ReviewComment string     // 审核意见
+	ReviewedAt    *time.Time // 审核时间
+	ReviewedBy    *uint      // 审核人ID
 }
 
 // --- API 数据传输对象 (Data Transfer Objects) ---
@@ -69,6 +76,8 @@ type CreateArticleRequest struct {
 	CustomPublishedAt    *string  `json:"custom_published_at,omitempty"`
 	CustomUpdatedAt      *string  `json:"custom_updated_at,omitempty"`
 	Keywords             string   `json:"keywords,omitempty"`
+	OwnerID              uint     `json:"owner_id,omitempty"`      // 文章作者ID（多人共创功能）
+	ReviewStatus         string   `json:"review_status,omitempty"` // 审核状态（多人共创功能）
 }
 
 // UpdateArticleRequest 定义了更新文章的请求体
@@ -128,6 +137,8 @@ type ArticleResponse struct {
 	CopyrightURL         string                  `json:"copyright_url"`
 	Keywords             string                  `json:"keywords"`
 	CommentCount         int                     `json:"comment_count"`
+	// 审核状态（多人共创功能）
+	ReviewStatus string `json:"review_status,omitempty"` // 审核状态：NONE-无需审核, PENDING-待审核, APPROVED-已通过, REJECTED-已拒绝
 }
 
 // 用于上一篇/下一篇/相关文章的简化信息响应
@@ -161,6 +172,7 @@ type ListArticlesOptions struct {
 	Query       string // 用于模糊搜索标题
 	Status      string // 按状态过滤
 	WithContent bool   // 是否在列表中包含 ContentMd
+	AuthorID    *uint  // 按作者ID过滤（多人共创功能：普通用户只能查看自己的文章）
 }
 
 type ListPublicArticlesOptions struct {
@@ -189,6 +201,7 @@ type UpdateArticleComputedParams struct {
 // CreateArticleParams 封装了创建文章时需要持久化的所有数据。
 type CreateArticleParams struct {
 	Title                string
+	OwnerID              uint // 文章作者ID（多人共创功能）
 	ContentMd            string
 	ContentHTML          string
 	CoverURL             string
@@ -213,6 +226,7 @@ type CreateArticleParams struct {
 	CustomPublishedAt    *time.Time
 	CustomUpdatedAt      *time.Time
 	Keywords             string
+	ReviewStatus         string // 审核状态（多人共创功能）：NONE-无需审核, PENDING-待审核
 }
 
 // 用于解析颜色 API 响应的结构体

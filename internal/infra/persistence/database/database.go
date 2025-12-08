@@ -148,6 +148,14 @@ func NewEntClient(db *sql.DB, cfg *config.Config) (*ent.Client, error) {
 	}
 	log.Println("✅ 数据库表结构迁移成功")
 
+	// 执行 SQL 数据迁移（处理现有数据和索引）
+	migrationSvc := NewMigrationService(db, driverName)
+	if err := migrationSvc.RunMigrations(context.Background()); err != nil {
+		log.Printf("⚠️ 警告：SQL 数据迁移失败: %v", err)
+		// 不中断启动流程，但记录错误
+		// 因为 Ent Schema 迁移已经完成，字段可能已经存在
+	}
+
 	log.Println("✅ Ent 客户端初始化成功！")
 	return client, nil
 }

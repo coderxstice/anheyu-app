@@ -257,11 +257,16 @@ func (r *Router) registerPostCategoryRoutes(api *gin.RouterGroup) {
 }
 
 func (r *Router) registerArticleRoutes(api *gin.RouterGroup) {
+	// 文章列表接口：支持多人共创功能，普通用户也可以访问（只能查看自己的文章）
+	articlesList := api.Group("/articles").Use(r.mw.JWTAuth())
+	{
+		articlesList.GET("", r.articleHandler.List)
+	}
+
 	// 后台管理接口，需要认证和管理员权限
 	articlesAdmin := api.Group("/articles").Use(r.mw.JWTAuth(), r.mw.AdminAuth())
 	{
 		articlesAdmin.POST("", r.articleHandler.Create)
-		articlesAdmin.GET("", r.articleHandler.List)
 		articlesAdmin.GET("/:id", r.articleHandler.Get)
 		articlesAdmin.PUT("/:id", r.articleHandler.Update)
 		articlesAdmin.DELETE("/:id", r.articleHandler.Delete)
@@ -343,11 +348,16 @@ func (r *Router) registerAlbumCategoryRoutes(api *gin.RouterGroup) {
 
 // registerSettingRoutes 注册站点配置相关的路由
 func (r *Router) registerSettingRoutes(api *gin.RouterGroup) {
-	settings := api.Group("/settings").Use(r.mw.JWTAuth(), r.mw.AdminAuth())
+	// 获取配置接口允许普通用户访问（但只返回公开配置）
+	settings := api.Group("/settings").Use(r.mw.JWTAuth())
 	{
 		settings.POST("/get-by-keys", r.settingHandler.GetSettingsByKeys)
-		settings.POST("/update", r.settingHandler.UpdateSettings)
-		settings.POST("/test-email", r.settingHandler.TestEmail)
+	}
+	// 更新配置和测试邮件需要管理员权限
+	settingsAdmin := api.Group("/settings").Use(r.mw.JWTAuth(), r.mw.AdminAuth())
+	{
+		settingsAdmin.POST("/update", r.settingHandler.UpdateSettings)
+		settingsAdmin.POST("/test-email", r.settingHandler.TestEmail)
 	}
 }
 

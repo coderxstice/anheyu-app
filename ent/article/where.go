@@ -60,6 +60,11 @@ func DeletedAt(v time.Time) predicate.Article {
 	return predicate.Article(sql.FieldEQ(FieldDeletedAt, v))
 }
 
+// OwnerID applies equality check predicate on the "owner_id" field. It's identical to OwnerIDEQ.
+func OwnerID(v uint) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldOwnerID, v))
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Article {
 	return predicate.Article(sql.FieldEQ(FieldCreatedAt, v))
@@ -170,6 +175,21 @@ func Keywords(v string) predicate.Article {
 	return predicate.Article(sql.FieldEQ(FieldKeywords, v))
 }
 
+// ReviewComment applies equality check predicate on the "review_comment" field. It's identical to ReviewCommentEQ.
+func ReviewComment(v string) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldReviewComment, v))
+}
+
+// ReviewedAt applies equality check predicate on the "reviewed_at" field. It's identical to ReviewedAtEQ.
+func ReviewedAt(v time.Time) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldReviewedAt, v))
+}
+
+// ReviewedBy applies equality check predicate on the "reviewed_by" field. It's identical to ReviewedByEQ.
+func ReviewedBy(v uint) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldReviewedBy, v))
+}
+
 // DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
 func DeletedAtEQ(v time.Time) predicate.Article {
 	return predicate.Article(sql.FieldEQ(FieldDeletedAt, v))
@@ -218,6 +238,46 @@ func DeletedAtIsNil() predicate.Article {
 // DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
 func DeletedAtNotNil() predicate.Article {
 	return predicate.Article(sql.FieldNotNull(FieldDeletedAt))
+}
+
+// OwnerIDEQ applies the EQ predicate on the "owner_id" field.
+func OwnerIDEQ(v uint) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldOwnerID, v))
+}
+
+// OwnerIDNEQ applies the NEQ predicate on the "owner_id" field.
+func OwnerIDNEQ(v uint) predicate.Article {
+	return predicate.Article(sql.FieldNEQ(FieldOwnerID, v))
+}
+
+// OwnerIDIn applies the In predicate on the "owner_id" field.
+func OwnerIDIn(vs ...uint) predicate.Article {
+	return predicate.Article(sql.FieldIn(FieldOwnerID, vs...))
+}
+
+// OwnerIDNotIn applies the NotIn predicate on the "owner_id" field.
+func OwnerIDNotIn(vs ...uint) predicate.Article {
+	return predicate.Article(sql.FieldNotIn(FieldOwnerID, vs...))
+}
+
+// OwnerIDGT applies the GT predicate on the "owner_id" field.
+func OwnerIDGT(v uint) predicate.Article {
+	return predicate.Article(sql.FieldGT(FieldOwnerID, v))
+}
+
+// OwnerIDGTE applies the GTE predicate on the "owner_id" field.
+func OwnerIDGTE(v uint) predicate.Article {
+	return predicate.Article(sql.FieldGTE(FieldOwnerID, v))
+}
+
+// OwnerIDLT applies the LT predicate on the "owner_id" field.
+func OwnerIDLT(v uint) predicate.Article {
+	return predicate.Article(sql.FieldLT(FieldOwnerID, v))
+}
+
+// OwnerIDLTE applies the LTE predicate on the "owner_id" field.
+func OwnerIDLTE(v uint) predicate.Article {
+	return predicate.Article(sql.FieldLTE(FieldOwnerID, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -1448,6 +1508,201 @@ func KeywordsEqualFold(v string) predicate.Article {
 // KeywordsContainsFold applies the ContainsFold predicate on the "keywords" field.
 func KeywordsContainsFold(v string) predicate.Article {
 	return predicate.Article(sql.FieldContainsFold(FieldKeywords, v))
+}
+
+// ReviewStatusEQ applies the EQ predicate on the "review_status" field.
+func ReviewStatusEQ(v ReviewStatus) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldReviewStatus, v))
+}
+
+// ReviewStatusNEQ applies the NEQ predicate on the "review_status" field.
+func ReviewStatusNEQ(v ReviewStatus) predicate.Article {
+	return predicate.Article(sql.FieldNEQ(FieldReviewStatus, v))
+}
+
+// ReviewStatusIn applies the In predicate on the "review_status" field.
+func ReviewStatusIn(vs ...ReviewStatus) predicate.Article {
+	return predicate.Article(sql.FieldIn(FieldReviewStatus, vs...))
+}
+
+// ReviewStatusNotIn applies the NotIn predicate on the "review_status" field.
+func ReviewStatusNotIn(vs ...ReviewStatus) predicate.Article {
+	return predicate.Article(sql.FieldNotIn(FieldReviewStatus, vs...))
+}
+
+// ReviewCommentEQ applies the EQ predicate on the "review_comment" field.
+func ReviewCommentEQ(v string) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldReviewComment, v))
+}
+
+// ReviewCommentNEQ applies the NEQ predicate on the "review_comment" field.
+func ReviewCommentNEQ(v string) predicate.Article {
+	return predicate.Article(sql.FieldNEQ(FieldReviewComment, v))
+}
+
+// ReviewCommentIn applies the In predicate on the "review_comment" field.
+func ReviewCommentIn(vs ...string) predicate.Article {
+	return predicate.Article(sql.FieldIn(FieldReviewComment, vs...))
+}
+
+// ReviewCommentNotIn applies the NotIn predicate on the "review_comment" field.
+func ReviewCommentNotIn(vs ...string) predicate.Article {
+	return predicate.Article(sql.FieldNotIn(FieldReviewComment, vs...))
+}
+
+// ReviewCommentGT applies the GT predicate on the "review_comment" field.
+func ReviewCommentGT(v string) predicate.Article {
+	return predicate.Article(sql.FieldGT(FieldReviewComment, v))
+}
+
+// ReviewCommentGTE applies the GTE predicate on the "review_comment" field.
+func ReviewCommentGTE(v string) predicate.Article {
+	return predicate.Article(sql.FieldGTE(FieldReviewComment, v))
+}
+
+// ReviewCommentLT applies the LT predicate on the "review_comment" field.
+func ReviewCommentLT(v string) predicate.Article {
+	return predicate.Article(sql.FieldLT(FieldReviewComment, v))
+}
+
+// ReviewCommentLTE applies the LTE predicate on the "review_comment" field.
+func ReviewCommentLTE(v string) predicate.Article {
+	return predicate.Article(sql.FieldLTE(FieldReviewComment, v))
+}
+
+// ReviewCommentContains applies the Contains predicate on the "review_comment" field.
+func ReviewCommentContains(v string) predicate.Article {
+	return predicate.Article(sql.FieldContains(FieldReviewComment, v))
+}
+
+// ReviewCommentHasPrefix applies the HasPrefix predicate on the "review_comment" field.
+func ReviewCommentHasPrefix(v string) predicate.Article {
+	return predicate.Article(sql.FieldHasPrefix(FieldReviewComment, v))
+}
+
+// ReviewCommentHasSuffix applies the HasSuffix predicate on the "review_comment" field.
+func ReviewCommentHasSuffix(v string) predicate.Article {
+	return predicate.Article(sql.FieldHasSuffix(FieldReviewComment, v))
+}
+
+// ReviewCommentIsNil applies the IsNil predicate on the "review_comment" field.
+func ReviewCommentIsNil() predicate.Article {
+	return predicate.Article(sql.FieldIsNull(FieldReviewComment))
+}
+
+// ReviewCommentNotNil applies the NotNil predicate on the "review_comment" field.
+func ReviewCommentNotNil() predicate.Article {
+	return predicate.Article(sql.FieldNotNull(FieldReviewComment))
+}
+
+// ReviewCommentEqualFold applies the EqualFold predicate on the "review_comment" field.
+func ReviewCommentEqualFold(v string) predicate.Article {
+	return predicate.Article(sql.FieldEqualFold(FieldReviewComment, v))
+}
+
+// ReviewCommentContainsFold applies the ContainsFold predicate on the "review_comment" field.
+func ReviewCommentContainsFold(v string) predicate.Article {
+	return predicate.Article(sql.FieldContainsFold(FieldReviewComment, v))
+}
+
+// ReviewedAtEQ applies the EQ predicate on the "reviewed_at" field.
+func ReviewedAtEQ(v time.Time) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldReviewedAt, v))
+}
+
+// ReviewedAtNEQ applies the NEQ predicate on the "reviewed_at" field.
+func ReviewedAtNEQ(v time.Time) predicate.Article {
+	return predicate.Article(sql.FieldNEQ(FieldReviewedAt, v))
+}
+
+// ReviewedAtIn applies the In predicate on the "reviewed_at" field.
+func ReviewedAtIn(vs ...time.Time) predicate.Article {
+	return predicate.Article(sql.FieldIn(FieldReviewedAt, vs...))
+}
+
+// ReviewedAtNotIn applies the NotIn predicate on the "reviewed_at" field.
+func ReviewedAtNotIn(vs ...time.Time) predicate.Article {
+	return predicate.Article(sql.FieldNotIn(FieldReviewedAt, vs...))
+}
+
+// ReviewedAtGT applies the GT predicate on the "reviewed_at" field.
+func ReviewedAtGT(v time.Time) predicate.Article {
+	return predicate.Article(sql.FieldGT(FieldReviewedAt, v))
+}
+
+// ReviewedAtGTE applies the GTE predicate on the "reviewed_at" field.
+func ReviewedAtGTE(v time.Time) predicate.Article {
+	return predicate.Article(sql.FieldGTE(FieldReviewedAt, v))
+}
+
+// ReviewedAtLT applies the LT predicate on the "reviewed_at" field.
+func ReviewedAtLT(v time.Time) predicate.Article {
+	return predicate.Article(sql.FieldLT(FieldReviewedAt, v))
+}
+
+// ReviewedAtLTE applies the LTE predicate on the "reviewed_at" field.
+func ReviewedAtLTE(v time.Time) predicate.Article {
+	return predicate.Article(sql.FieldLTE(FieldReviewedAt, v))
+}
+
+// ReviewedAtIsNil applies the IsNil predicate on the "reviewed_at" field.
+func ReviewedAtIsNil() predicate.Article {
+	return predicate.Article(sql.FieldIsNull(FieldReviewedAt))
+}
+
+// ReviewedAtNotNil applies the NotNil predicate on the "reviewed_at" field.
+func ReviewedAtNotNil() predicate.Article {
+	return predicate.Article(sql.FieldNotNull(FieldReviewedAt))
+}
+
+// ReviewedByEQ applies the EQ predicate on the "reviewed_by" field.
+func ReviewedByEQ(v uint) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldReviewedBy, v))
+}
+
+// ReviewedByNEQ applies the NEQ predicate on the "reviewed_by" field.
+func ReviewedByNEQ(v uint) predicate.Article {
+	return predicate.Article(sql.FieldNEQ(FieldReviewedBy, v))
+}
+
+// ReviewedByIn applies the In predicate on the "reviewed_by" field.
+func ReviewedByIn(vs ...uint) predicate.Article {
+	return predicate.Article(sql.FieldIn(FieldReviewedBy, vs...))
+}
+
+// ReviewedByNotIn applies the NotIn predicate on the "reviewed_by" field.
+func ReviewedByNotIn(vs ...uint) predicate.Article {
+	return predicate.Article(sql.FieldNotIn(FieldReviewedBy, vs...))
+}
+
+// ReviewedByGT applies the GT predicate on the "reviewed_by" field.
+func ReviewedByGT(v uint) predicate.Article {
+	return predicate.Article(sql.FieldGT(FieldReviewedBy, v))
+}
+
+// ReviewedByGTE applies the GTE predicate on the "reviewed_by" field.
+func ReviewedByGTE(v uint) predicate.Article {
+	return predicate.Article(sql.FieldGTE(FieldReviewedBy, v))
+}
+
+// ReviewedByLT applies the LT predicate on the "reviewed_by" field.
+func ReviewedByLT(v uint) predicate.Article {
+	return predicate.Article(sql.FieldLT(FieldReviewedBy, v))
+}
+
+// ReviewedByLTE applies the LTE predicate on the "reviewed_by" field.
+func ReviewedByLTE(v uint) predicate.Article {
+	return predicate.Article(sql.FieldLTE(FieldReviewedBy, v))
+}
+
+// ReviewedByIsNil applies the IsNil predicate on the "reviewed_by" field.
+func ReviewedByIsNil() predicate.Article {
+	return predicate.Article(sql.FieldIsNull(FieldReviewedBy))
+}
+
+// ReviewedByNotNil applies the NotNil predicate on the "reviewed_by" field.
+func ReviewedByNotNil() predicate.Article {
+	return predicate.Article(sql.FieldNotNull(FieldReviewedBy))
 }
 
 // HasPostTags applies the HasEdge predicate on the "post_tags" edge.
