@@ -139,6 +139,10 @@ type ArticleResponse struct {
 	CommentCount         int                     `json:"comment_count"`
 	// 审核状态（多人共创功能）
 	ReviewStatus string `json:"review_status,omitempty"` // 审核状态：NONE-无需审核, PENDING-待审核, APPROVED-已通过, REJECTED-已拒绝
+	// 发布者信息（多人共创功能，仅管理员可见）
+	OwnerID       uint   `json:"owner_id,omitempty"`       // 发布者ID
+	OwnerName     string `json:"owner_name,omitempty"`     // 发布者名称（已废弃，使用 owner_nickname）
+	OwnerNickname string `json:"owner_nickname,omitempty"` // 发布者昵称（用户个人中心的 nickname）
 }
 
 // 用于上一篇/下一篇/相关文章的简化信息响应

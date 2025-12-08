@@ -74,6 +74,8 @@ type serviceImpl struct {
 	searchSvc        *search.SearchService
 	primaryColorSvc  *utility.PrimaryColorService
 	cdnSvc           cdn.CDNService
+
+	userRepo repository.UserRepository
 }
 
 func NewService(
@@ -92,6 +94,7 @@ func NewService(
 	searchSvc *search.SearchService,
 	primaryColorSvc *utility.PrimaryColorService,
 	cdnSvc cdn.CDNService,
+	userRepo repository.UserRepository,
 ) Service {
 	return &serviceImpl{
 		repo:             repo,
@@ -110,6 +113,7 @@ func NewService(
 		searchSvc:        searchSvc,
 		primaryColorSvc:  primaryColorSvc,
 		cdnSvc:           cdnSvc,
+		userRepo:         userRepo,
 	}
 }
 
@@ -304,6 +308,7 @@ func (s *serviceImpl) ToAPIResponse(a *model.Article, useAbbrlinkAsID bool, incl
 		CopyrightURL:         a.CopyrightURL,
 		Keywords:             a.Keywords,
 		ReviewStatus:         a.ReviewStatus, // 审核状态（多人共创功能）
+		OwnerID:              a.OwnerID,      // 发布者ID（多人共创功能）
 	}
 
 	if includeHTML {
@@ -327,6 +332,38 @@ func toSimpleAPIResponse(a *model.Article) *model.SimpleArticleResponse {
 // getCacheKey 生成文章渲染结果的 Redis 缓存键。
 func (s *serviceImpl) getCacheKey(publicID string) string {
 	return fmt.Sprintf("article:html:%s", publicID)
+}
+
+// fillOwnerNickname 填充文章发布者的昵称（使用简单缓存避免重复查询）
+func (s *serviceImpl) fillOwnerNickname(ctx context.Context, resp *model.ArticleResponse, cache map[uint]string) {
+	if resp == nil || resp.OwnerID == 0 || s.userRepo == nil {
+		return
+	}
+
+	// 已有昵称则跳过
+	if resp.OwnerNickname != "" {
+		return
+	}
+
+	// 先查缓存
+	if cache != nil {
+		if nickname, ok := cache[resp.OwnerID]; ok {
+			resp.OwnerNickname = nickname
+			return
+		}
+	}
+
+	// 查询用户信息
+	user, err := s.userRepo.FindByID(ctx, resp.OwnerID)
+	if err != nil || user == nil {
+		return
+	}
+	resp.OwnerNickname = user.Nickname
+
+	// 写入缓存
+	if cache != nil {
+		cache[resp.OwnerID] = user.Nickname
+	}
 }
 
 // invalidateRelatedCaches 清除与文章相关的所有缓存
@@ -473,6 +510,7 @@ func (s *serviceImpl) GetPublicBySlugOrID(ctx context.Context, slugOrID string) 
 	// 这样PRO版可以正确解码ID获取数据库ID
 	// abbrlink 信息仍然通过 Abbrlink 字段返回
 	mainArticleResponse := s.ToAPIResponse(article, false, true)
+	s.fillOwnerNickname(ctx, mainArticleResponse, nil)
 	relatedResponses := make([]*model.SimpleArticleResponse, 0, len(relatedArticles))
 	for _, rel := range relatedArticles {
 		relatedResponses = append(relatedResponses, toSimpleAPIResponse(rel))
@@ -499,6 +537,7 @@ func (s *serviceImpl) GetBySlugOrIDForPreview(ctx context.Context, slugOrID stri
 
 	// 注意：这里 useAbbrlinkAsID 设置为 false，确保返回的 ID 始终是公共ID
 	mainArticleResponse := s.ToAPIResponse(article, false, true)
+	s.fillOwnerNickname(ctx, mainArticleResponse, nil)
 
 	detailResponse := &model.ArticleDetailResponse{
 		ArticleResponse: *mainArticleResponse,
@@ -695,7 +734,9 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 		}
 	}()
 
-	return s.ToAPIResponse(newArticle, false, false), nil
+	resp := s.ToAPIResponse(newArticle, false, false)
+	s.fillOwnerNickname(ctx, resp, nil)
+	return resp, nil
 }
 
 // Get 根据公共ID检索单个文章。
@@ -704,7 +745,9 @@ func (s *serviceImpl) Get(ctx context.Context, publicID string) (*model.ArticleR
 	if err != nil {
 		return nil, err
 	}
-	return s.ToAPIResponse(article, false, false), nil
+	resp := s.ToAPIResponse(article, false, false)
+	s.fillOwnerNickname(ctx, resp, nil)
+	return resp, nil
 }
 
 // getArticleViewCacheKey 生成文章浏览量在 Redis 中的缓存键。
@@ -741,7 +784,9 @@ func (s *serviceImpl) GetPublicByID(ctx context.Context, publicID string) (*mode
 
 	article.ViewCount = article.ViewCount + redisIncr
 
-	return s.ToAPIResponse(article, true, true), nil
+	resp := s.ToAPIResponse(article, true, true)
+	s.fillOwnerNickname(ctx, resp, nil)
+	return resp, nil
 }
 
 // Update 处理更新文章的业务逻辑。
@@ -947,7 +992,9 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 		}
 	}()
 
-	return s.ToAPIResponse(updatedArticle, false, false), nil
+	resp := s.ToAPIResponse(updatedArticle, false, false)
+	s.fillOwnerNickname(ctx, resp, nil)
+	return resp, nil
 }
 
 // Delete 处理删除文章的业务逻辑。
@@ -1041,9 +1088,12 @@ func (s *serviceImpl) List(ctx context.Context, options *model.ListArticlesOptio
 		return nil, err
 	}
 	list := make([]model.ArticleResponse, len(articles))
+	ownerCache := make(map[uint]string)
 	for i, a := range articles {
 		a.ContentMd = ""
-		list[i] = *s.ToAPIResponse(a, false, false)
+		resp := s.ToAPIResponse(a, false, false)
+		s.fillOwnerNickname(ctx, resp, ownerCache)
+		list[i] = *resp
 	}
 	return &model.ArticleListResponse{List: list, Total: int64(total), Page: options.Page, PageSize: options.PageSize}, nil
 }
@@ -1054,7 +1104,9 @@ func (s *serviceImpl) GetRandom(ctx context.Context) (*model.ArticleResponse, er
 	if err != nil {
 		return nil, err
 	}
-	return s.ToAPIResponse(article, true, true), nil
+	resp := s.ToAPIResponse(article, true, true)
+	s.fillOwnerNickname(ctx, resp, nil)
+	return resp, nil
 }
 
 // ListHome 获取首页推荐文章列表。
@@ -1064,9 +1116,12 @@ func (s *serviceImpl) ListHome(ctx context.Context) ([]model.ArticleResponse, er
 		return nil, err
 	}
 	list := make([]model.ArticleResponse, len(articles))
+	ownerCache := make(map[uint]string)
 	for i, a := range articles {
 		a.ContentMd = ""
-		list[i] = *s.ToAPIResponse(a, true, false)
+		resp := s.ToAPIResponse(a, true, false)
+		s.fillOwnerNickname(ctx, resp, ownerCache)
+		list[i] = *resp
 	}
 	return list, nil
 }
@@ -1078,9 +1133,12 @@ func (s *serviceImpl) ListPublic(ctx context.Context, options *model.ListPublicA
 		return nil, err
 	}
 	list := make([]model.ArticleResponse, len(articles))
+	ownerCache := make(map[uint]string)
 	for i, a := range articles {
 		a.ContentMd = ""
-		list[i] = *s.ToAPIResponse(a, true, false)
+		resp := s.ToAPIResponse(a, true, false)
+		s.fillOwnerNickname(ctx, resp, ownerCache)
+		list[i] = *resp
 	}
 
 	// 批量查询评论数量
