@@ -203,6 +203,8 @@ const (
 	KeyCommentLimitPerMinute    SettingKey = "comment.limit_per_minute"
 	KeyCommentLimitLength       SettingKey = "comment.limit_length"
 	KeyCommentForbiddenWords    SettingKey = "comment.forbidden_words"
+	KeyCommentQQAPIURL          SettingKey = "comment.qq_api_url"
+	KeyCommentQQAPIKey          SettingKey = "comment.qq_api_key"
 	KeyCommentNotifyAdmin       SettingKey = "comment.notify_admin"
 	KeyCommentNotifyReply       SettingKey = "comment.notify_reply"
 	KeyPushooChannel            SettingKey = "pushoo.channel"

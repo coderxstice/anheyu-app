@@ -60,6 +60,7 @@
 package storage
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -229,11 +230,32 @@ func (p *AWSS3Provider) Upload(ctx context.Context, file io.Reader, policy *mode
 
 	log.Printf("[AWS S3] 上传对象: objectKey=%s", objectKey)
 
-	// 上传文件
+	// 将文件内容读入内存，以便获取准确的 ContentLength
+	// 这对于第三方 S3 兼容服务（如 Ceph RGW、MinIO）尤为重要
+	// 因为它们可能对 Content-SHA256 验证更严格
+	fileContent, err := io.ReadAll(file)
+	if err != nil {
+		log.Printf("[AWS S3] 读取文件内容失败: %v", err)
+		return nil, fmt.Errorf("读取文件内容失败: %w", err)
+	}
+	contentLength := int64(len(fileContent))
+
+	log.Printf("[AWS S3] 文件大小: %d bytes", contentLength)
+
+	// 检测 MIME 类型
+	detectedMimeType := mime.TypeByExtension(filepath.Ext(virtualPath))
+	if detectedMimeType == "" {
+		detectedMimeType = "application/octet-stream"
+	}
+
+	// 上传文件，使用 bytes.NewReader 确保内容可被正确读取和重试
+	// 显式设置 ContentLength 以避免第三方 S3 服务的兼容性问题
 	_, err = client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket: aws.String(policy.BucketName),
-		Key:    aws.String(objectKey),
-		Body:   file,
+		Bucket:        aws.String(policy.BucketName),
+		Key:           aws.String(objectKey),
+		Body:          bytes.NewReader(fileContent),
+		ContentLength: aws.Int64(contentLength),
+		ContentType:   aws.String(detectedMimeType),
 	})
 	if err != nil {
 		log.Printf("[AWS S3] 上传失败: %v", err)
@@ -561,10 +583,12 @@ func (p *AWSS3Provider) CreateDirectory(ctx context.Context, policy *model.Stora
 	}
 
 	// S3通过创建一个以"/"结尾的空对象来模拟目录
+	// 显式设置 ContentLength 为 0，确保第三方 S3 兼容服务的兼容性
 	_, err = client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket: aws.String(policy.BucketName),
-		Key:    aws.String(objectKey),
-		Body:   strings.NewReader(""),
+		Bucket:        aws.String(policy.BucketName),
+		Key:           aws.String(objectKey),
+		Body:          bytes.NewReader([]byte{}),
+		ContentLength: aws.Int64(0),
 	})
 	if err != nil {
 		return fmt.Errorf("在AWS S3中创建目录失败: %w", err)
