@@ -850,6 +850,7 @@ func (s *Service) toResponseDTO(ctx context.Context, c *model.Comment, parent *m
 		Website:        c.Author.Website,
 		ContentHTML:    renderedContentHTML,
 		IsAdminComment: c.IsAdminAuthor,
+		IsAnonymous:    c.IsAnonymous, // 匿名评论标识
 		TargetPath:     c.TargetPath,
 		TargetTitle:    c.TargetTitle,
 		ParentID:       parentPublicID,
