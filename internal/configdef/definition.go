@@ -35,6 +35,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyAboutLink, Value: "https://github.com/anzhiyu-c/anheyu-app", Comment: "关于链接", IsPublic: true},
 	{Key: constant.KeyIcpNumber, Value: "湘ICP备2023015794号-2", Comment: "ICP备案号", IsPublic: true},
 	{Key: constant.KeyPoliceRecordNumber, Value: "", Comment: "公安联网备案号", IsPublic: true},
+	{Key: constant.KeyPoliceRecordIcon, Value: "https://www.beian.gov.cn/img/new/gongan.png", Comment: "公安联网备案号图标URL，显示在备案号前面", IsPublic: true},
 	{Key: constant.KeyUserAvatar, Value: "/static/img/avatar.jpg", Comment: "用户默认头像URL", IsPublic: true},
 	{Key: constant.KeyLogoURL, Value: "/static/img/logo.svg", Comment: "Logo图片URL (通用)", IsPublic: true},
 	{Key: constant.KeyLogoURL192, Value: "/static/img/logo-192x192.png", Comment: "Logo图片URL (192x192)", IsPublic: true},

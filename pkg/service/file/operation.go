@@ -70,14 +70,15 @@ func (s *serviceImpl) UploadFileByPolicyFlag(ctx context.Context, viewerID uint,
 		}
 
 		// 6. 确定存储驱动和上传路径
-		// 注意：这里只传递文件名，basePath会在存储提供者的buildObjectKey中添加
 		provider, err := s.GetProviderForPolicy(policy)
 		if err != nil {
 			return err
 		}
 
-		// 7. 执行物理上传（只传递文件名，不包含虚拟路径前缀）
-		uploadResult, err := provider.Upload(ctx, bytes.NewReader(content), policy, filename)
+		// 7. 构建完整的虚拟路径并执行物理上传
+		// buildObjectKey 需要完整的虚拟路径（如 /s3/article_images/123.jpg）来正确计算对象键
+		fullVirtualPath := filepath.ToSlash(filepath.Join(parentVirtualPath, filename))
+		uploadResult, err := provider.Upload(ctx, bytes.NewReader(content), policy, fullVirtualPath)
 		if err != nil {
 			return fmt.Errorf("存储驱动上传失败: %w", err)
 		}

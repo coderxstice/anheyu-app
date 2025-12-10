@@ -26,6 +26,7 @@ const (
 	KeyAboutLink                 SettingKey = "ABOUT_LINK"
 	KeyIcpNumber                 SettingKey = "ICP_NUMBER"
 	KeyPoliceRecordNumber        SettingKey = "POLICE_RECORD_NUMBER"
+	KeyPoliceRecordIcon          SettingKey = "POLICE_RECORD_ICON"
 	KeySiteKeywords              SettingKey = "SITE_KEYWORDS"
 	KeySiteDescription           SettingKey = "SITE_DESCRIPTION"
 	KeyUserAvatar                SettingKey = "USER_AVATAR"
