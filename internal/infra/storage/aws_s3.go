@@ -62,6 +62,8 @@ package storage
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
@@ -248,14 +250,22 @@ func (p *AWSS3Provider) Upload(ctx context.Context, file io.Reader, policy *mode
 		detectedMimeType = "application/octet-stream"
 	}
 
+	// 计算 SHA256 校验和（对于第三方 S3 兼容服务如 Ceph RGW 尤为重要）
+	// 这可以避免 XAmzContentSHA256Mismatch 错误
+	hash := sha256.Sum256(fileContent)
+	checksumSHA256 := base64.StdEncoding.EncodeToString(hash[:])
+
+	log.Printf("[AWS S3] 计算SHA256校验和: %s", checksumSHA256)
+
 	// 上传文件，使用 bytes.NewReader 确保内容可被正确读取和重试
-	// 显式设置 ContentLength 以避免第三方 S3 服务的兼容性问题
+	// 显式设置 ContentLength 和 ChecksumSHA256 以避免第三方 S3 服务的兼容性问题
 	_, err = client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket:        aws.String(policy.BucketName),
-		Key:           aws.String(objectKey),
-		Body:          bytes.NewReader(fileContent),
-		ContentLength: aws.Int64(contentLength),
-		ContentType:   aws.String(detectedMimeType),
+		Bucket:         aws.String(policy.BucketName),
+		Key:            aws.String(objectKey),
+		Body:           bytes.NewReader(fileContent),
+		ContentLength:  aws.Int64(contentLength),
+		ContentType:    aws.String(detectedMimeType),
+		ChecksumSHA256: aws.String(checksumSHA256),
 	})
 	if err != nil {
 		log.Printf("[AWS S3] 上传失败: %v", err)
