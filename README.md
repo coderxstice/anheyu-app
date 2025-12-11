@@ -164,7 +164,7 @@ Go + Vue3 + Ent
 
 <img src="https://opencollective.com/anheyu-app-frontend/contributors.svg?width=890&button=false" alt="contributors" />
 
-**[安知鱼](https://github.com/anzhiyu-c)** - 项目维护者
+**[陈志伟 Anzhiyu](https://github.com/anzhiyu-c)** - 项目维护者
 
 **[张洪 Heo](https://github.com/zhheo)** - UI/UX
 
