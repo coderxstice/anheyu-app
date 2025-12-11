@@ -85,6 +85,11 @@ GitHub: https://github.com/anzhiyu-c/anheyu-app
 - ✅ 支持快捷键选项
 - ✅ 支持付费文章内容 (PRO)
 - ✅ 支持密码文章内容 (PRO)
+- ✅ 支持登录保护内容 (PRO)
+- ✅ 支持即刻说说 (PRO)
+- ✅ 支持多用户共创 (PRO)
+- ✅ 支持微信、支付宝、易支付、虎皮椒等多种支付方式 (PRO)
+- ✅ 支持QQ,微信，GitHub,自定义OIDC等多种登录方式 (PRO)
 
 ## 部分功能展示
 
