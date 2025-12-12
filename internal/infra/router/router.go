@@ -207,6 +207,8 @@ func (r *Router) registerCommentRoutes(api *gin.RouterGroup) {
 
 		commentsPublic.GET("/:id/children", r.commentHandler.ListChildren)
 
+		commentsPublic.GET("/qq-info", r.commentHandler.GetQQInfo) // 获取QQ昵称和头像
+
 		commentsPublic.POST("", r.mw.JWTAuthOptional(), r.commentHandler.Create)
 		commentsPublic.POST("/upload", r.mw.JWTAuthOptional(), r.commentHandler.UploadCommentImage)
 		commentsPublic.POST("/:id/like", r.commentHandler.LikeComment)
