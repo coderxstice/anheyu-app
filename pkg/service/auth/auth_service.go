@@ -233,6 +233,7 @@ func (s *authService) Register(ctx context.Context, email, nickname, password st
 			log.Printf("VFS 目录 '/article_images' 创建成功。")
 
 			// 2. 再创建策略，并关联 NodeID
+			// 文章图片存储策略：权限通过用户组的 StoragePolicyIDs 控制
 			articlePolicy := &model.StoragePolicy{
 				Name:        constant.DefaultArticlePolicyName,
 				Type:        constant.PolicyTypeLocal,
@@ -261,6 +262,7 @@ func (s *authService) Register(ctx context.Context, email, nickname, password st
 
 			// 2. 再创建策略，并关联 NodeID
 			maxSize := int64(10 * 1024 * 1024) // 10MB 限制
+			// 评论图片存储策略：权限通过用户组的 StoragePolicyIDs 控制
 			commentPolicy := &model.StoragePolicy{
 				Name:        constant.DefaultCommentPolicyName,
 				Type:        constant.PolicyTypeLocal,
@@ -295,6 +297,7 @@ func (s *authService) Register(ctx context.Context, email, nickname, password st
 
 			// 2. 再创建策略，并关联 NodeID
 			avatarMaxSize := int64(5 * 1024 * 1024) // 5MB 限制
+			// 用户头像存储策略：权限通过用户组的 StoragePolicyIDs 控制
 			avatarPolicy := &model.StoragePolicy{
 				Name:        constant.DefaultAvatarPolicyName,
 				Type:        constant.PolicyTypeLocal,

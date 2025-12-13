@@ -411,6 +411,22 @@ func (r *linkRepo) ExistsByURL(ctx context.Context, url string) (bool, error) {
 	return exists, err
 }
 
+// GetByURL 根据 URL 获取友链信息
+func (r *linkRepo) GetByURL(ctx context.Context, url string) (*model.LinkDTO, error) {
+	entLink, err := r.client.Link.Query().
+		WithCategory().
+		WithTags().
+		Where(link.URLEQ(url)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return mapEntLinkToDTO(entLink), nil
+}
+
 // GetAllApprovedLinks 获取所有已审核通过的友链
 func (r *linkRepo) GetAllApprovedLinks(ctx context.Context) ([]*model.LinkDTO, error) {
 	entLinks, err := r.client.Link.Query().

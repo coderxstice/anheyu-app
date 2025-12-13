@@ -95,6 +95,10 @@ var (
 		{Name: "review_comment", Type: field.TypeString, Nullable: true, Comment: "审核意见"},
 		{Name: "reviewed_at", Type: field.TypeTime, Nullable: true, Comment: "审核时间"},
 		{Name: "reviewed_by", Type: field.TypeUint, Nullable: true, Comment: "审核人ID"},
+		{Name: "is_takedown", Type: field.TypeBool, Comment: "是否已下架：下架后前台不显示，后台可见", Default: false},
+		{Name: "takedown_reason", Type: field.TypeString, Nullable: true, Comment: "下架原因"},
+		{Name: "takedown_at", Type: field.TypeTime, Nullable: true, Comment: "下架时间"},
+		{Name: "takedown_by", Type: field.TypeUint, Nullable: true, Comment: "下架操作人ID"},
 	}
 	// ArticlesTable holds the schema information for the "articles" table.
 	ArticlesTable = &schema.Table{
@@ -629,6 +633,7 @@ var (
 		{Name: "max_storage", Type: field.TypeInt64, Comment: "用户组的最大存储容量（字节）, 0为不限制", Default: 0},
 		{Name: "speed_limit", Type: field.TypeInt64, Comment: "用户组的最大上传速度（字节/秒）, 0为不限制", Default: 0},
 		{Name: "settings", Type: field.TypeOther, Comment: "用户组的特定JSON配置", SchemaType: map[string]string{"mysql": "json", "postgres": "jsonb", "sqlite3": "text"}},
+		{Name: "storage_policy_ids", Type: field.TypeJSON, Nullable: true, Comment: "该用户组可使用的存储策略ID列表"},
 	}
 	// UserGroupsTable holds the schema information for the "user_groups" table.
 	UserGroupsTable = &schema.Table{

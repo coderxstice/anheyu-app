@@ -78,6 +78,14 @@ type Article struct {
 	ReviewedAt *time.Time `json:"reviewed_at,omitempty"`
 	// 审核人ID
 	ReviewedBy *uint `json:"reviewed_by,omitempty"`
+	// 是否已下架：下架后前台不显示，后台可见
+	IsTakedown bool `json:"is_takedown,omitempty"`
+	// 下架原因
+	TakedownReason string `json:"takedown_reason,omitempty"`
+	// 下架时间
+	TakedownAt *time.Time `json:"takedown_at,omitempty"`
+	// 下架操作人ID
+	TakedownBy *uint `json:"takedown_by,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ArticleQuery when eager-loading is set.
 	Edges        ArticleEdges `json:"edges"`
@@ -131,13 +139,13 @@ func (*Article) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case article.FieldSummaries:
 			values[i] = new([]byte)
-		case article.FieldIsPrimaryColorManual, article.FieldShowOnHome, article.FieldCopyright:
+		case article.FieldIsPrimaryColorManual, article.FieldShowOnHome, article.FieldCopyright, article.FieldIsTakedown:
 			values[i] = new(sql.NullBool)
-		case article.FieldID, article.FieldOwnerID, article.FieldViewCount, article.FieldWordCount, article.FieldReadingTime, article.FieldHomeSort, article.FieldPinSort, article.FieldReviewedBy:
+		case article.FieldID, article.FieldOwnerID, article.FieldViewCount, article.FieldWordCount, article.FieldReadingTime, article.FieldHomeSort, article.FieldPinSort, article.FieldReviewedBy, article.FieldTakedownBy:
 			values[i] = new(sql.NullInt64)
-		case article.FieldTitle, article.FieldContentMd, article.FieldContentHTML, article.FieldCoverURL, article.FieldStatus, article.FieldIPLocation, article.FieldPrimaryColor, article.FieldTopImgURL, article.FieldAbbrlink, article.FieldCopyrightAuthor, article.FieldCopyrightAuthorHref, article.FieldCopyrightURL, article.FieldKeywords, article.FieldReviewStatus, article.FieldReviewComment:
+		case article.FieldTitle, article.FieldContentMd, article.FieldContentHTML, article.FieldCoverURL, article.FieldStatus, article.FieldIPLocation, article.FieldPrimaryColor, article.FieldTopImgURL, article.FieldAbbrlink, article.FieldCopyrightAuthor, article.FieldCopyrightAuthorHref, article.FieldCopyrightURL, article.FieldKeywords, article.FieldReviewStatus, article.FieldReviewComment, article.FieldTakedownReason:
 			values[i] = new(sql.NullString)
-		case article.FieldDeletedAt, article.FieldCreatedAt, article.FieldUpdatedAt, article.FieldReviewedAt:
+		case article.FieldDeletedAt, article.FieldCreatedAt, article.FieldUpdatedAt, article.FieldReviewedAt, article.FieldTakedownAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -346,6 +354,32 @@ func (_m *Article) assignValues(columns []string, values []any) error {
 				_m.ReviewedBy = new(uint)
 				*_m.ReviewedBy = uint(value.Int64)
 			}
+		case article.FieldIsTakedown:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_takedown", values[i])
+			} else if value.Valid {
+				_m.IsTakedown = value.Bool
+			}
+		case article.FieldTakedownReason:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field takedown_reason", values[i])
+			} else if value.Valid {
+				_m.TakedownReason = value.String
+			}
+		case article.FieldTakedownAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field takedown_at", values[i])
+			} else if value.Valid {
+				_m.TakedownAt = new(time.Time)
+				*_m.TakedownAt = value.Time
+			}
+		case article.FieldTakedownBy:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field takedown_by", values[i])
+			} else if value.Valid {
+				_m.TakedownBy = new(uint)
+				*_m.TakedownBy = uint(value.Int64)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -492,6 +526,22 @@ func (_m *Article) String() string {
 	builder.WriteString(", ")
 	if v := _m.ReviewedBy; v != nil {
 		builder.WriteString("reviewed_by=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("is_takedown=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IsTakedown))
+	builder.WriteString(", ")
+	builder.WriteString("takedown_reason=")
+	builder.WriteString(_m.TakedownReason)
+	builder.WriteString(", ")
+	if v := _m.TakedownAt; v != nil {
+		builder.WriteString("takedown_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.TakedownBy; v != nil {
+		builder.WriteString("takedown_by=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteByte(')')

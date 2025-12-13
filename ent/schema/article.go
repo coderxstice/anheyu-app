@@ -121,6 +121,22 @@ func (Article) Fields() []ent.Field {
 			Comment("审核人ID").
 			Optional().
 			Nillable(),
+
+		// --- 下架相关字段（PRO版管理员功能） ---
+		field.Bool("is_takedown").
+			Comment("是否已下架：下架后前台不显示，后台可见").
+			Default(false),
+		field.String("takedown_reason").
+			Comment("下架原因").
+			Optional(),
+		field.Time("takedown_at").
+			Comment("下架时间").
+			Optional().
+			Nillable(),
+		field.Uint("takedown_by").
+			Comment("下架操作人ID").
+			Optional().
+			Nillable(),
 	}
 }
 

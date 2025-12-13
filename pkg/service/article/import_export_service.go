@@ -105,8 +105,8 @@ func (s *serviceImpl) ExportArticles(ctx context.Context, articleIDs []string) (
 	}
 
 	for _, articleID := range articleIDs {
-		// 获取文章详情
-		article, err := s.repo.GetBySlugOrID(ctx, articleID)
+		// 获取文章详情（使用 ForPreview 方法，不过滤文章状态，以支持导出草稿文章）
+		article, err := s.repo.GetBySlugOrIDForPreview(ctx, articleID)
 		if err != nil {
 			log.Printf("[导出文章] 获取文章 %s 失败: %v", articleID, err)
 			continue

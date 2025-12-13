@@ -259,22 +259,28 @@ func (r *Router) registerPostCategoryRoutes(api *gin.RouterGroup) {
 }
 
 func (r *Router) registerArticleRoutes(api *gin.RouterGroup) {
-	// 文章列表接口：支持多人共创功能，普通用户也可以访问（只能查看自己的文章）
-	articlesList := api.Group("/articles").Use(r.mw.JWTAuth())
+	// 文章列表和创建接口：支持多人共创功能，普通用户也可以访问
+	articlesUser := api.Group("/articles").Use(r.mw.JWTAuth())
 	{
-		articlesList.GET("", r.articleHandler.List)
+		// 文章列表（普通用户只能查看自己的文章）
+		articlesUser.GET("", r.articleHandler.List)
+		// 创建文章（支持普通用户，需要检查多人共创配置，权限在handler层校验）
+		articlesUser.POST("", r.articleHandler.Create)
+		// 上传文章图片（支持普通用户，用于多人共创场景）
+		articlesUser.POST("/upload", r.articleHandler.UploadImage)
+		// 更新文章（普通用户只能更新自己的文章，权限在handler层校验）
+		articlesUser.PUT("/:id", r.articleHandler.Update)
+		// 删除文章（普通用户只能删除自己的文章，权限在handler层校验）
+		articlesUser.DELETE("/:id", r.articleHandler.Delete)
+		// 获取文章（普通用户只能获取自己的文章，权限在handler层校验）
+		articlesUser.GET("/:id", r.articleHandler.Get)
 	}
 
-	// 后台管理接口，需要认证和管理员权限
+	// 后台管理接口，需要认证和管理员权限（保留用于向后兼容）
 	articlesAdmin := api.Group("/articles").Use(r.mw.JWTAuth(), r.mw.AdminAuth())
 	{
-		articlesAdmin.POST("", r.articleHandler.Create)
-		articlesAdmin.GET("/:id", r.articleHandler.Get)
-		articlesAdmin.PUT("/:id", r.articleHandler.Update)
-		articlesAdmin.DELETE("/:id", r.articleHandler.Delete)
-		articlesAdmin.POST("/upload", r.articleHandler.UploadImage)
 		articlesAdmin.POST("/primary-color", r.articleHandler.GetPrimaryColor)
-		// 文章导入导出功能
+		// 文章导入导出功能（仅管理员可用）
 		articlesAdmin.POST("/export", r.articleHandler.ExportArticles)
 		articlesAdmin.POST("/import", r.articleHandler.ImportArticles)
 	}
