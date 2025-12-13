@@ -190,6 +190,26 @@ func ReviewedBy(v uint) predicate.Article {
 	return predicate.Article(sql.FieldEQ(FieldReviewedBy, v))
 }
 
+// IsTakedown applies equality check predicate on the "is_takedown" field. It's identical to IsTakedownEQ.
+func IsTakedown(v bool) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldIsTakedown, v))
+}
+
+// TakedownReason applies equality check predicate on the "takedown_reason" field. It's identical to TakedownReasonEQ.
+func TakedownReason(v string) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldTakedownReason, v))
+}
+
+// TakedownAt applies equality check predicate on the "takedown_at" field. It's identical to TakedownAtEQ.
+func TakedownAt(v time.Time) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldTakedownAt, v))
+}
+
+// TakedownBy applies equality check predicate on the "takedown_by" field. It's identical to TakedownByEQ.
+func TakedownBy(v uint) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldTakedownBy, v))
+}
+
 // DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
 func DeletedAtEQ(v time.Time) predicate.Article {
 	return predicate.Article(sql.FieldEQ(FieldDeletedAt, v))
@@ -1703,6 +1723,191 @@ func ReviewedByIsNil() predicate.Article {
 // ReviewedByNotNil applies the NotNil predicate on the "reviewed_by" field.
 func ReviewedByNotNil() predicate.Article {
 	return predicate.Article(sql.FieldNotNull(FieldReviewedBy))
+}
+
+// IsTakedownEQ applies the EQ predicate on the "is_takedown" field.
+func IsTakedownEQ(v bool) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldIsTakedown, v))
+}
+
+// IsTakedownNEQ applies the NEQ predicate on the "is_takedown" field.
+func IsTakedownNEQ(v bool) predicate.Article {
+	return predicate.Article(sql.FieldNEQ(FieldIsTakedown, v))
+}
+
+// TakedownReasonEQ applies the EQ predicate on the "takedown_reason" field.
+func TakedownReasonEQ(v string) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldTakedownReason, v))
+}
+
+// TakedownReasonNEQ applies the NEQ predicate on the "takedown_reason" field.
+func TakedownReasonNEQ(v string) predicate.Article {
+	return predicate.Article(sql.FieldNEQ(FieldTakedownReason, v))
+}
+
+// TakedownReasonIn applies the In predicate on the "takedown_reason" field.
+func TakedownReasonIn(vs ...string) predicate.Article {
+	return predicate.Article(sql.FieldIn(FieldTakedownReason, vs...))
+}
+
+// TakedownReasonNotIn applies the NotIn predicate on the "takedown_reason" field.
+func TakedownReasonNotIn(vs ...string) predicate.Article {
+	return predicate.Article(sql.FieldNotIn(FieldTakedownReason, vs...))
+}
+
+// TakedownReasonGT applies the GT predicate on the "takedown_reason" field.
+func TakedownReasonGT(v string) predicate.Article {
+	return predicate.Article(sql.FieldGT(FieldTakedownReason, v))
+}
+
+// TakedownReasonGTE applies the GTE predicate on the "takedown_reason" field.
+func TakedownReasonGTE(v string) predicate.Article {
+	return predicate.Article(sql.FieldGTE(FieldTakedownReason, v))
+}
+
+// TakedownReasonLT applies the LT predicate on the "takedown_reason" field.
+func TakedownReasonLT(v string) predicate.Article {
+	return predicate.Article(sql.FieldLT(FieldTakedownReason, v))
+}
+
+// TakedownReasonLTE applies the LTE predicate on the "takedown_reason" field.
+func TakedownReasonLTE(v string) predicate.Article {
+	return predicate.Article(sql.FieldLTE(FieldTakedownReason, v))
+}
+
+// TakedownReasonContains applies the Contains predicate on the "takedown_reason" field.
+func TakedownReasonContains(v string) predicate.Article {
+	return predicate.Article(sql.FieldContains(FieldTakedownReason, v))
+}
+
+// TakedownReasonHasPrefix applies the HasPrefix predicate on the "takedown_reason" field.
+func TakedownReasonHasPrefix(v string) predicate.Article {
+	return predicate.Article(sql.FieldHasPrefix(FieldTakedownReason, v))
+}
+
+// TakedownReasonHasSuffix applies the HasSuffix predicate on the "takedown_reason" field.
+func TakedownReasonHasSuffix(v string) predicate.Article {
+	return predicate.Article(sql.FieldHasSuffix(FieldTakedownReason, v))
+}
+
+// TakedownReasonIsNil applies the IsNil predicate on the "takedown_reason" field.
+func TakedownReasonIsNil() predicate.Article {
+	return predicate.Article(sql.FieldIsNull(FieldTakedownReason))
+}
+
+// TakedownReasonNotNil applies the NotNil predicate on the "takedown_reason" field.
+func TakedownReasonNotNil() predicate.Article {
+	return predicate.Article(sql.FieldNotNull(FieldTakedownReason))
+}
+
+// TakedownReasonEqualFold applies the EqualFold predicate on the "takedown_reason" field.
+func TakedownReasonEqualFold(v string) predicate.Article {
+	return predicate.Article(sql.FieldEqualFold(FieldTakedownReason, v))
+}
+
+// TakedownReasonContainsFold applies the ContainsFold predicate on the "takedown_reason" field.
+func TakedownReasonContainsFold(v string) predicate.Article {
+	return predicate.Article(sql.FieldContainsFold(FieldTakedownReason, v))
+}
+
+// TakedownAtEQ applies the EQ predicate on the "takedown_at" field.
+func TakedownAtEQ(v time.Time) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldTakedownAt, v))
+}
+
+// TakedownAtNEQ applies the NEQ predicate on the "takedown_at" field.
+func TakedownAtNEQ(v time.Time) predicate.Article {
+	return predicate.Article(sql.FieldNEQ(FieldTakedownAt, v))
+}
+
+// TakedownAtIn applies the In predicate on the "takedown_at" field.
+func TakedownAtIn(vs ...time.Time) predicate.Article {
+	return predicate.Article(sql.FieldIn(FieldTakedownAt, vs...))
+}
+
+// TakedownAtNotIn applies the NotIn predicate on the "takedown_at" field.
+func TakedownAtNotIn(vs ...time.Time) predicate.Article {
+	return predicate.Article(sql.FieldNotIn(FieldTakedownAt, vs...))
+}
+
+// TakedownAtGT applies the GT predicate on the "takedown_at" field.
+func TakedownAtGT(v time.Time) predicate.Article {
+	return predicate.Article(sql.FieldGT(FieldTakedownAt, v))
+}
+
+// TakedownAtGTE applies the GTE predicate on the "takedown_at" field.
+func TakedownAtGTE(v time.Time) predicate.Article {
+	return predicate.Article(sql.FieldGTE(FieldTakedownAt, v))
+}
+
+// TakedownAtLT applies the LT predicate on the "takedown_at" field.
+func TakedownAtLT(v time.Time) predicate.Article {
+	return predicate.Article(sql.FieldLT(FieldTakedownAt, v))
+}
+
+// TakedownAtLTE applies the LTE predicate on the "takedown_at" field.
+func TakedownAtLTE(v time.Time) predicate.Article {
+	return predicate.Article(sql.FieldLTE(FieldTakedownAt, v))
+}
+
+// TakedownAtIsNil applies the IsNil predicate on the "takedown_at" field.
+func TakedownAtIsNil() predicate.Article {
+	return predicate.Article(sql.FieldIsNull(FieldTakedownAt))
+}
+
+// TakedownAtNotNil applies the NotNil predicate on the "takedown_at" field.
+func TakedownAtNotNil() predicate.Article {
+	return predicate.Article(sql.FieldNotNull(FieldTakedownAt))
+}
+
+// TakedownByEQ applies the EQ predicate on the "takedown_by" field.
+func TakedownByEQ(v uint) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldTakedownBy, v))
+}
+
+// TakedownByNEQ applies the NEQ predicate on the "takedown_by" field.
+func TakedownByNEQ(v uint) predicate.Article {
+	return predicate.Article(sql.FieldNEQ(FieldTakedownBy, v))
+}
+
+// TakedownByIn applies the In predicate on the "takedown_by" field.
+func TakedownByIn(vs ...uint) predicate.Article {
+	return predicate.Article(sql.FieldIn(FieldTakedownBy, vs...))
+}
+
+// TakedownByNotIn applies the NotIn predicate on the "takedown_by" field.
+func TakedownByNotIn(vs ...uint) predicate.Article {
+	return predicate.Article(sql.FieldNotIn(FieldTakedownBy, vs...))
+}
+
+// TakedownByGT applies the GT predicate on the "takedown_by" field.
+func TakedownByGT(v uint) predicate.Article {
+	return predicate.Article(sql.FieldGT(FieldTakedownBy, v))
+}
+
+// TakedownByGTE applies the GTE predicate on the "takedown_by" field.
+func TakedownByGTE(v uint) predicate.Article {
+	return predicate.Article(sql.FieldGTE(FieldTakedownBy, v))
+}
+
+// TakedownByLT applies the LT predicate on the "takedown_by" field.
+func TakedownByLT(v uint) predicate.Article {
+	return predicate.Article(sql.FieldLT(FieldTakedownBy, v))
+}
+
+// TakedownByLTE applies the LTE predicate on the "takedown_by" field.
+func TakedownByLTE(v uint) predicate.Article {
+	return predicate.Article(sql.FieldLTE(FieldTakedownBy, v))
+}
+
+// TakedownByIsNil applies the IsNil predicate on the "takedown_by" field.
+func TakedownByIsNil() predicate.Article {
+	return predicate.Article(sql.FieldIsNull(FieldTakedownBy))
+}
+
+// TakedownByNotNil applies the NotNil predicate on the "takedown_by" field.
+func TakedownByNotNil() predicate.Article {
+	return predicate.Article(sql.FieldNotNull(FieldTakedownBy))
 }
 
 // HasPostTags applies the HasEdge predicate on the "post_tags" edge.

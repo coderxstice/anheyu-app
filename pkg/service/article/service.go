@@ -32,6 +32,8 @@ import (
 
 type Service interface {
 	UploadArticleImage(ctx context.Context, ownerID uint, fileReader io.Reader, originalFilename string) (fileURL string, publicFileID string, err error)
+	// UploadArticleImageWithGroup 上传文章图片，并检查用户组权限
+	UploadArticleImageWithGroup(ctx context.Context, ownerID, userGroupID uint, fileReader io.Reader, originalFilename string) (fileURL string, publicFileID string, err error)
 	Create(ctx context.Context, req *model.CreateArticleRequest, ip string) (*model.ArticleResponse, error)
 	Get(ctx context.Context, publicID string) (*model.ArticleResponse, error)
 	Update(ctx context.Context, publicID string, req *model.UpdateArticleRequest, ip string) (*model.ArticleResponse, error)
@@ -118,14 +120,20 @@ func NewService(
 }
 
 // UploadArticleImage 处理文章图片的上传，并为其创建直链。
+// 此方法不检查用户组权限，仅供系统内部调用。
 func (s *serviceImpl) UploadArticleImage(ctx context.Context, ownerID uint, fileReader io.Reader, originalFilename string) (string, string, error) {
+	return s.UploadArticleImageWithGroup(ctx, ownerID, 0, fileReader, originalFilename)
+}
+
+// UploadArticleImageWithGroup 处理文章图片的上传，并检查用户组权限。
+func (s *serviceImpl) UploadArticleImageWithGroup(ctx context.Context, ownerID, userGroupID uint, fileReader io.Reader, originalFilename string) (string, string, error) {
 	ext := path.Ext(originalFilename)
 	uniqueFilename := strconv.FormatInt(time.Now().UnixNano(), 10) + ext
 
 	log.Printf("[文章图片上传] 准备将 '%s' 作为 '%s' 上传到文章存储策略", originalFilename, uniqueFilename)
-	fileItem, err := s.fileSvc.UploadFileByPolicyFlag(ctx, ownerID, fileReader, constant.PolicyFlagArticleImage, uniqueFilename)
+	fileItem, err := s.fileSvc.UploadFileByPolicyFlagWithGroup(ctx, ownerID, userGroupID, fileReader, constant.PolicyFlagArticleImage, uniqueFilename)
 	if err != nil {
-		log.Printf("[文章图片上传] 调用 fileSvc.UploadFileByPolicyFlag 失败: %v", err)
+		log.Printf("[文章图片上传] 调用 fileSvc.UploadFileByPolicyFlagWithGroup 失败: %v", err)
 		return "", "", fmt.Errorf("文件上传到系统策略失败: %w", err)
 	}
 	log.Printf("[文章图片上传] 文件上传成功，新文件公共ID: %s", fileItem.ID)
@@ -307,8 +315,12 @@ func (s *serviceImpl) ToAPIResponse(a *model.Article, useAbbrlinkAsID bool, incl
 		CopyrightAuthorHref:  a.CopyrightAuthorHref,
 		CopyrightURL:         a.CopyrightURL,
 		Keywords:             a.Keywords,
-		ReviewStatus:         a.ReviewStatus, // 审核状态（多人共创功能）
-		OwnerID:              a.OwnerID,      // 发布者ID（多人共创功能）
+		ReviewStatus:         a.ReviewStatus,   // 审核状态（多人共创功能）
+		OwnerID:              a.OwnerID,        // 发布者ID（多人共创功能）
+		IsTakedown:           a.IsTakedown,     // 下架状态（PRO版管理员功能）
+		TakedownReason:       a.TakedownReason, // 下架原因
+		TakedownAt:           a.TakedownAt,     // 下架时间
+		TakedownBy:           a.TakedownBy,     // 下架操作人
 	}
 
 	if includeHTML {
@@ -334,21 +346,30 @@ func (s *serviceImpl) getCacheKey(publicID string) string {
 	return fmt.Sprintf("article:html:%s", publicID)
 }
 
-// fillOwnerNickname 填充文章发布者的昵称（使用简单缓存避免重复查询）
-func (s *serviceImpl) fillOwnerNickname(ctx context.Context, resp *model.ArticleResponse, cache map[uint]string) {
+// ownerInfoCache 用于缓存用户信息（昵称、头像和邮箱）
+type ownerInfoCache struct {
+	Nickname string
+	Avatar   string
+	Email    string
+}
+
+// fillOwnerInfo 填充文章发布者信息（昵称、头像和邮箱，使用简单缓存避免重复查询）
+func (s *serviceImpl) fillOwnerInfo(ctx context.Context, resp *model.ArticleResponse, cache map[uint]*ownerInfoCache) {
 	if resp == nil || resp.OwnerID == 0 || s.userRepo == nil {
 		return
 	}
 
-	// 已有昵称则跳过
-	if resp.OwnerNickname != "" {
+	// 已有完整信息则跳过
+	if resp.OwnerNickname != "" && resp.OwnerAvatar != "" && resp.OwnerEmail != "" {
 		return
 	}
 
 	// 先查缓存
 	if cache != nil {
-		if nickname, ok := cache[resp.OwnerID]; ok {
-			resp.OwnerNickname = nickname
+		if info, ok := cache[resp.OwnerID]; ok {
+			resp.OwnerNickname = info.Nickname
+			resp.OwnerAvatar = info.Avatar
+			resp.OwnerEmail = info.Email
 			return
 		}
 	}
@@ -359,6 +380,50 @@ func (s *serviceImpl) fillOwnerNickname(ctx context.Context, resp *model.Article
 		return
 	}
 	resp.OwnerNickname = user.Nickname
+	resp.OwnerAvatar = user.Avatar
+	resp.OwnerEmail = user.Email
+
+	// 写入缓存
+	if cache != nil {
+		cache[resp.OwnerID] = &ownerInfoCache{
+			Nickname: user.Nickname,
+			Avatar:   user.Avatar,
+			Email:    user.Email,
+		}
+	}
+}
+
+// fillOwnerNickname 填充文章发布者的昵称、头像和邮箱（保留用于兼容）
+// Deprecated: 请使用 fillOwnerInfo
+func (s *serviceImpl) fillOwnerNickname(ctx context.Context, resp *model.ArticleResponse, cache map[uint]string) {
+	if resp == nil || resp.OwnerID == 0 || s.userRepo == nil {
+		return
+	}
+
+	// 已有昵称则跳过（但仍需要填充头像和邮箱）
+	needsFill := resp.OwnerNickname == "" || resp.OwnerAvatar == "" || resp.OwnerEmail == ""
+	if !needsFill {
+		return
+	}
+
+	// 先查缓存（仅缓存昵称，头像和邮箱需要从用户信息获取）
+	if cache != nil && resp.OwnerNickname == "" {
+		if nickname, ok := cache[resp.OwnerID]; ok {
+			resp.OwnerNickname = nickname
+			// 缓存命中昵称，但还需要查询用户获取头像和邮箱
+		}
+	}
+
+	// 查询用户信息
+	user, err := s.userRepo.FindByID(ctx, resp.OwnerID)
+	if err != nil || user == nil {
+		return
+	}
+	if resp.OwnerNickname == "" {
+		resp.OwnerNickname = user.Nickname
+	}
+	resp.OwnerAvatar = user.Avatar
+	resp.OwnerEmail = user.Email
 
 	// 写入缓存
 	if cache != nil {
@@ -1088,11 +1153,16 @@ func (s *serviceImpl) List(ctx context.Context, options *model.ListArticlesOptio
 		return nil, err
 	}
 	list := make([]model.ArticleResponse, len(articles))
-	ownerCache := make(map[uint]string)
+	ownerCache := make(map[uint]*ownerInfoCache)
 	for i, a := range articles {
 		a.ContentMd = ""
+		// 调试日志：检查数据库返回的 OwnerID
+		log.Printf("[List] 文章 %s (标题: %s) - 数据库 OwnerID: %d", a.ID, a.Title, a.OwnerID)
 		resp := s.ToAPIResponse(a, false, false)
-		s.fillOwnerNickname(ctx, resp, ownerCache)
+		s.fillOwnerInfo(ctx, resp, ownerCache)
+		// 调试日志：检查填充后的用户信息
+		log.Printf("[List] 文章 %s - 填充后: OwnerID=%d, OwnerNickname=%s, OwnerAvatar=%s, OwnerEmail=%s",
+			resp.ID, resp.OwnerID, resp.OwnerNickname, resp.OwnerAvatar, resp.OwnerEmail)
 		list[i] = *resp
 	}
 	return &model.ArticleListResponse{List: list, Total: int64(total), Page: options.Page, PageSize: options.PageSize}, nil

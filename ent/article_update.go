@@ -596,6 +596,87 @@ func (_u *ArticleUpdate) ClearReviewedBy() *ArticleUpdate {
 	return _u
 }
 
+// SetIsTakedown sets the "is_takedown" field.
+func (_u *ArticleUpdate) SetIsTakedown(v bool) *ArticleUpdate {
+	_u.mutation.SetIsTakedown(v)
+	return _u
+}
+
+// SetNillableIsTakedown sets the "is_takedown" field if the given value is not nil.
+func (_u *ArticleUpdate) SetNillableIsTakedown(v *bool) *ArticleUpdate {
+	if v != nil {
+		_u.SetIsTakedown(*v)
+	}
+	return _u
+}
+
+// SetTakedownReason sets the "takedown_reason" field.
+func (_u *ArticleUpdate) SetTakedownReason(v string) *ArticleUpdate {
+	_u.mutation.SetTakedownReason(v)
+	return _u
+}
+
+// SetNillableTakedownReason sets the "takedown_reason" field if the given value is not nil.
+func (_u *ArticleUpdate) SetNillableTakedownReason(v *string) *ArticleUpdate {
+	if v != nil {
+		_u.SetTakedownReason(*v)
+	}
+	return _u
+}
+
+// ClearTakedownReason clears the value of the "takedown_reason" field.
+func (_u *ArticleUpdate) ClearTakedownReason() *ArticleUpdate {
+	_u.mutation.ClearTakedownReason()
+	return _u
+}
+
+// SetTakedownAt sets the "takedown_at" field.
+func (_u *ArticleUpdate) SetTakedownAt(v time.Time) *ArticleUpdate {
+	_u.mutation.SetTakedownAt(v)
+	return _u
+}
+
+// SetNillableTakedownAt sets the "takedown_at" field if the given value is not nil.
+func (_u *ArticleUpdate) SetNillableTakedownAt(v *time.Time) *ArticleUpdate {
+	if v != nil {
+		_u.SetTakedownAt(*v)
+	}
+	return _u
+}
+
+// ClearTakedownAt clears the value of the "takedown_at" field.
+func (_u *ArticleUpdate) ClearTakedownAt() *ArticleUpdate {
+	_u.mutation.ClearTakedownAt()
+	return _u
+}
+
+// SetTakedownBy sets the "takedown_by" field.
+func (_u *ArticleUpdate) SetTakedownBy(v uint) *ArticleUpdate {
+	_u.mutation.ResetTakedownBy()
+	_u.mutation.SetTakedownBy(v)
+	return _u
+}
+
+// SetNillableTakedownBy sets the "takedown_by" field if the given value is not nil.
+func (_u *ArticleUpdate) SetNillableTakedownBy(v *uint) *ArticleUpdate {
+	if v != nil {
+		_u.SetTakedownBy(*v)
+	}
+	return _u
+}
+
+// AddTakedownBy adds value to the "takedown_by" field.
+func (_u *ArticleUpdate) AddTakedownBy(v int) *ArticleUpdate {
+	_u.mutation.AddTakedownBy(v)
+	return _u
+}
+
+// ClearTakedownBy clears the value of the "takedown_by" field.
+func (_u *ArticleUpdate) ClearTakedownBy() *ArticleUpdate {
+	_u.mutation.ClearTakedownBy()
+	return _u
+}
+
 // AddPostTagIDs adds the "post_tags" edge to the PostTag entity by IDs.
 func (_u *ArticleUpdate) AddPostTagIDs(ids ...uint) *ArticleUpdate {
 	_u.mutation.AddPostTagIDs(ids...)
@@ -962,6 +1043,30 @@ func (_u *ArticleUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.ReviewedByCleared() {
 		_spec.ClearField(article.FieldReviewedBy, field.TypeUint)
+	}
+	if value, ok := _u.mutation.IsTakedown(); ok {
+		_spec.SetField(article.FieldIsTakedown, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.TakedownReason(); ok {
+		_spec.SetField(article.FieldTakedownReason, field.TypeString, value)
+	}
+	if _u.mutation.TakedownReasonCleared() {
+		_spec.ClearField(article.FieldTakedownReason, field.TypeString)
+	}
+	if value, ok := _u.mutation.TakedownAt(); ok {
+		_spec.SetField(article.FieldTakedownAt, field.TypeTime, value)
+	}
+	if _u.mutation.TakedownAtCleared() {
+		_spec.ClearField(article.FieldTakedownAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.TakedownBy(); ok {
+		_spec.SetField(article.FieldTakedownBy, field.TypeUint, value)
+	}
+	if value, ok := _u.mutation.AddedTakedownBy(); ok {
+		_spec.AddField(article.FieldTakedownBy, field.TypeUint, value)
+	}
+	if _u.mutation.TakedownByCleared() {
+		_spec.ClearField(article.FieldTakedownBy, field.TypeUint)
 	}
 	if _u.mutation.PostTagsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1683,6 +1788,87 @@ func (_u *ArticleUpdateOne) ClearReviewedBy() *ArticleUpdateOne {
 	return _u
 }
 
+// SetIsTakedown sets the "is_takedown" field.
+func (_u *ArticleUpdateOne) SetIsTakedown(v bool) *ArticleUpdateOne {
+	_u.mutation.SetIsTakedown(v)
+	return _u
+}
+
+// SetNillableIsTakedown sets the "is_takedown" field if the given value is not nil.
+func (_u *ArticleUpdateOne) SetNillableIsTakedown(v *bool) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetIsTakedown(*v)
+	}
+	return _u
+}
+
+// SetTakedownReason sets the "takedown_reason" field.
+func (_u *ArticleUpdateOne) SetTakedownReason(v string) *ArticleUpdateOne {
+	_u.mutation.SetTakedownReason(v)
+	return _u
+}
+
+// SetNillableTakedownReason sets the "takedown_reason" field if the given value is not nil.
+func (_u *ArticleUpdateOne) SetNillableTakedownReason(v *string) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetTakedownReason(*v)
+	}
+	return _u
+}
+
+// ClearTakedownReason clears the value of the "takedown_reason" field.
+func (_u *ArticleUpdateOne) ClearTakedownReason() *ArticleUpdateOne {
+	_u.mutation.ClearTakedownReason()
+	return _u
+}
+
+// SetTakedownAt sets the "takedown_at" field.
+func (_u *ArticleUpdateOne) SetTakedownAt(v time.Time) *ArticleUpdateOne {
+	_u.mutation.SetTakedownAt(v)
+	return _u
+}
+
+// SetNillableTakedownAt sets the "takedown_at" field if the given value is not nil.
+func (_u *ArticleUpdateOne) SetNillableTakedownAt(v *time.Time) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetTakedownAt(*v)
+	}
+	return _u
+}
+
+// ClearTakedownAt clears the value of the "takedown_at" field.
+func (_u *ArticleUpdateOne) ClearTakedownAt() *ArticleUpdateOne {
+	_u.mutation.ClearTakedownAt()
+	return _u
+}
+
+// SetTakedownBy sets the "takedown_by" field.
+func (_u *ArticleUpdateOne) SetTakedownBy(v uint) *ArticleUpdateOne {
+	_u.mutation.ResetTakedownBy()
+	_u.mutation.SetTakedownBy(v)
+	return _u
+}
+
+// SetNillableTakedownBy sets the "takedown_by" field if the given value is not nil.
+func (_u *ArticleUpdateOne) SetNillableTakedownBy(v *uint) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetTakedownBy(*v)
+	}
+	return _u
+}
+
+// AddTakedownBy adds value to the "takedown_by" field.
+func (_u *ArticleUpdateOne) AddTakedownBy(v int) *ArticleUpdateOne {
+	_u.mutation.AddTakedownBy(v)
+	return _u
+}
+
+// ClearTakedownBy clears the value of the "takedown_by" field.
+func (_u *ArticleUpdateOne) ClearTakedownBy() *ArticleUpdateOne {
+	_u.mutation.ClearTakedownBy()
+	return _u
+}
+
 // AddPostTagIDs adds the "post_tags" edge to the PostTag entity by IDs.
 func (_u *ArticleUpdateOne) AddPostTagIDs(ids ...uint) *ArticleUpdateOne {
 	_u.mutation.AddPostTagIDs(ids...)
@@ -2079,6 +2265,30 @@ func (_u *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err er
 	}
 	if _u.mutation.ReviewedByCleared() {
 		_spec.ClearField(article.FieldReviewedBy, field.TypeUint)
+	}
+	if value, ok := _u.mutation.IsTakedown(); ok {
+		_spec.SetField(article.FieldIsTakedown, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.TakedownReason(); ok {
+		_spec.SetField(article.FieldTakedownReason, field.TypeString, value)
+	}
+	if _u.mutation.TakedownReasonCleared() {
+		_spec.ClearField(article.FieldTakedownReason, field.TypeString)
+	}
+	if value, ok := _u.mutation.TakedownAt(); ok {
+		_spec.SetField(article.FieldTakedownAt, field.TypeTime, value)
+	}
+	if _u.mutation.TakedownAtCleared() {
+		_spec.ClearField(article.FieldTakedownAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.TakedownBy(); ok {
+		_spec.SetField(article.FieldTakedownBy, field.TypeUint, value)
+	}
+	if value, ok := _u.mutation.AddedTakedownBy(); ok {
+		_spec.AddField(article.FieldTakedownBy, field.TypeUint, value)
+	}
+	if _u.mutation.TakedownByCleared() {
+		_spec.ClearField(article.FieldTakedownBy, field.TypeUint)
 	}
 	if _u.mutation.PostTagsCleared() {
 		edge := &sqlgraph.EdgeSpec{

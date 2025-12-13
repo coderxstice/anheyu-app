@@ -429,6 +429,62 @@ func (_c *ArticleCreate) SetNillableReviewedBy(v *uint) *ArticleCreate {
 	return _c
 }
 
+// SetIsTakedown sets the "is_takedown" field.
+func (_c *ArticleCreate) SetIsTakedown(v bool) *ArticleCreate {
+	_c.mutation.SetIsTakedown(v)
+	return _c
+}
+
+// SetNillableIsTakedown sets the "is_takedown" field if the given value is not nil.
+func (_c *ArticleCreate) SetNillableIsTakedown(v *bool) *ArticleCreate {
+	if v != nil {
+		_c.SetIsTakedown(*v)
+	}
+	return _c
+}
+
+// SetTakedownReason sets the "takedown_reason" field.
+func (_c *ArticleCreate) SetTakedownReason(v string) *ArticleCreate {
+	_c.mutation.SetTakedownReason(v)
+	return _c
+}
+
+// SetNillableTakedownReason sets the "takedown_reason" field if the given value is not nil.
+func (_c *ArticleCreate) SetNillableTakedownReason(v *string) *ArticleCreate {
+	if v != nil {
+		_c.SetTakedownReason(*v)
+	}
+	return _c
+}
+
+// SetTakedownAt sets the "takedown_at" field.
+func (_c *ArticleCreate) SetTakedownAt(v time.Time) *ArticleCreate {
+	_c.mutation.SetTakedownAt(v)
+	return _c
+}
+
+// SetNillableTakedownAt sets the "takedown_at" field if the given value is not nil.
+func (_c *ArticleCreate) SetNillableTakedownAt(v *time.Time) *ArticleCreate {
+	if v != nil {
+		_c.SetTakedownAt(*v)
+	}
+	return _c
+}
+
+// SetTakedownBy sets the "takedown_by" field.
+func (_c *ArticleCreate) SetTakedownBy(v uint) *ArticleCreate {
+	_c.mutation.SetTakedownBy(v)
+	return _c
+}
+
+// SetNillableTakedownBy sets the "takedown_by" field if the given value is not nil.
+func (_c *ArticleCreate) SetNillableTakedownBy(v *uint) *ArticleCreate {
+	if v != nil {
+		_c.SetTakedownBy(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *ArticleCreate) SetID(v uint) *ArticleCreate {
 	_c.mutation.SetID(v)
@@ -579,6 +635,10 @@ func (_c *ArticleCreate) defaults() error {
 		v := article.DefaultReviewStatus
 		_c.mutation.SetReviewStatus(v)
 	}
+	if _, ok := _c.mutation.IsTakedown(); !ok {
+		v := article.DefaultIsTakedown
+		_c.mutation.SetIsTakedown(v)
+	}
 	return nil
 }
 
@@ -665,6 +725,9 @@ func (_c *ArticleCreate) check() error {
 		if err := article.ReviewStatusValidator(v); err != nil {
 			return &ValidationError{Name: "review_status", err: fmt.Errorf(`ent: validator failed for field "Article.review_status": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.IsTakedown(); !ok {
+		return &ValidationError{Name: "is_takedown", err: errors.New(`ent: missing required field "Article.is_takedown"`)}
 	}
 	return nil
 }
@@ -818,6 +881,22 @@ func (_c *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.ReviewedBy(); ok {
 		_spec.SetField(article.FieldReviewedBy, field.TypeUint, value)
 		_node.ReviewedBy = &value
+	}
+	if value, ok := _c.mutation.IsTakedown(); ok {
+		_spec.SetField(article.FieldIsTakedown, field.TypeBool, value)
+		_node.IsTakedown = value
+	}
+	if value, ok := _c.mutation.TakedownReason(); ok {
+		_spec.SetField(article.FieldTakedownReason, field.TypeString, value)
+		_node.TakedownReason = value
+	}
+	if value, ok := _c.mutation.TakedownAt(); ok {
+		_spec.SetField(article.FieldTakedownAt, field.TypeTime, value)
+		_node.TakedownAt = &value
+	}
+	if value, ok := _c.mutation.TakedownBy(); ok {
+		_spec.SetField(article.FieldTakedownBy, field.TypeUint, value)
+		_node.TakedownBy = &value
 	}
 	if nodes := _c.mutation.PostTagsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -1414,6 +1493,78 @@ func (u *ArticleUpsert) AddReviewedBy(v uint) *ArticleUpsert {
 // ClearReviewedBy clears the value of the "reviewed_by" field.
 func (u *ArticleUpsert) ClearReviewedBy() *ArticleUpsert {
 	u.SetNull(article.FieldReviewedBy)
+	return u
+}
+
+// SetIsTakedown sets the "is_takedown" field.
+func (u *ArticleUpsert) SetIsTakedown(v bool) *ArticleUpsert {
+	u.Set(article.FieldIsTakedown, v)
+	return u
+}
+
+// UpdateIsTakedown sets the "is_takedown" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateIsTakedown() *ArticleUpsert {
+	u.SetExcluded(article.FieldIsTakedown)
+	return u
+}
+
+// SetTakedownReason sets the "takedown_reason" field.
+func (u *ArticleUpsert) SetTakedownReason(v string) *ArticleUpsert {
+	u.Set(article.FieldTakedownReason, v)
+	return u
+}
+
+// UpdateTakedownReason sets the "takedown_reason" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateTakedownReason() *ArticleUpsert {
+	u.SetExcluded(article.FieldTakedownReason)
+	return u
+}
+
+// ClearTakedownReason clears the value of the "takedown_reason" field.
+func (u *ArticleUpsert) ClearTakedownReason() *ArticleUpsert {
+	u.SetNull(article.FieldTakedownReason)
+	return u
+}
+
+// SetTakedownAt sets the "takedown_at" field.
+func (u *ArticleUpsert) SetTakedownAt(v time.Time) *ArticleUpsert {
+	u.Set(article.FieldTakedownAt, v)
+	return u
+}
+
+// UpdateTakedownAt sets the "takedown_at" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateTakedownAt() *ArticleUpsert {
+	u.SetExcluded(article.FieldTakedownAt)
+	return u
+}
+
+// ClearTakedownAt clears the value of the "takedown_at" field.
+func (u *ArticleUpsert) ClearTakedownAt() *ArticleUpsert {
+	u.SetNull(article.FieldTakedownAt)
+	return u
+}
+
+// SetTakedownBy sets the "takedown_by" field.
+func (u *ArticleUpsert) SetTakedownBy(v uint) *ArticleUpsert {
+	u.Set(article.FieldTakedownBy, v)
+	return u
+}
+
+// UpdateTakedownBy sets the "takedown_by" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateTakedownBy() *ArticleUpsert {
+	u.SetExcluded(article.FieldTakedownBy)
+	return u
+}
+
+// AddTakedownBy adds v to the "takedown_by" field.
+func (u *ArticleUpsert) AddTakedownBy(v uint) *ArticleUpsert {
+	u.Add(article.FieldTakedownBy, v)
+	return u
+}
+
+// ClearTakedownBy clears the value of the "takedown_by" field.
+func (u *ArticleUpsert) ClearTakedownBy() *ArticleUpsert {
+	u.SetNull(article.FieldTakedownBy)
 	return u
 }
 
@@ -2043,6 +2194,90 @@ func (u *ArticleUpsertOne) UpdateReviewedBy() *ArticleUpsertOne {
 func (u *ArticleUpsertOne) ClearReviewedBy() *ArticleUpsertOne {
 	return u.Update(func(s *ArticleUpsert) {
 		s.ClearReviewedBy()
+	})
+}
+
+// SetIsTakedown sets the "is_takedown" field.
+func (u *ArticleUpsertOne) SetIsTakedown(v bool) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetIsTakedown(v)
+	})
+}
+
+// UpdateIsTakedown sets the "is_takedown" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateIsTakedown() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateIsTakedown()
+	})
+}
+
+// SetTakedownReason sets the "takedown_reason" field.
+func (u *ArticleUpsertOne) SetTakedownReason(v string) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetTakedownReason(v)
+	})
+}
+
+// UpdateTakedownReason sets the "takedown_reason" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateTakedownReason() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateTakedownReason()
+	})
+}
+
+// ClearTakedownReason clears the value of the "takedown_reason" field.
+func (u *ArticleUpsertOne) ClearTakedownReason() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.ClearTakedownReason()
+	})
+}
+
+// SetTakedownAt sets the "takedown_at" field.
+func (u *ArticleUpsertOne) SetTakedownAt(v time.Time) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetTakedownAt(v)
+	})
+}
+
+// UpdateTakedownAt sets the "takedown_at" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateTakedownAt() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateTakedownAt()
+	})
+}
+
+// ClearTakedownAt clears the value of the "takedown_at" field.
+func (u *ArticleUpsertOne) ClearTakedownAt() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.ClearTakedownAt()
+	})
+}
+
+// SetTakedownBy sets the "takedown_by" field.
+func (u *ArticleUpsertOne) SetTakedownBy(v uint) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetTakedownBy(v)
+	})
+}
+
+// AddTakedownBy adds v to the "takedown_by" field.
+func (u *ArticleUpsertOne) AddTakedownBy(v uint) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.AddTakedownBy(v)
+	})
+}
+
+// UpdateTakedownBy sets the "takedown_by" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateTakedownBy() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateTakedownBy()
+	})
+}
+
+// ClearTakedownBy clears the value of the "takedown_by" field.
+func (u *ArticleUpsertOne) ClearTakedownBy() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.ClearTakedownBy()
 	})
 }
 
@@ -2838,6 +3073,90 @@ func (u *ArticleUpsertBulk) UpdateReviewedBy() *ArticleUpsertBulk {
 func (u *ArticleUpsertBulk) ClearReviewedBy() *ArticleUpsertBulk {
 	return u.Update(func(s *ArticleUpsert) {
 		s.ClearReviewedBy()
+	})
+}
+
+// SetIsTakedown sets the "is_takedown" field.
+func (u *ArticleUpsertBulk) SetIsTakedown(v bool) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetIsTakedown(v)
+	})
+}
+
+// UpdateIsTakedown sets the "is_takedown" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateIsTakedown() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateIsTakedown()
+	})
+}
+
+// SetTakedownReason sets the "takedown_reason" field.
+func (u *ArticleUpsertBulk) SetTakedownReason(v string) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetTakedownReason(v)
+	})
+}
+
+// UpdateTakedownReason sets the "takedown_reason" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateTakedownReason() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateTakedownReason()
+	})
+}
+
+// ClearTakedownReason clears the value of the "takedown_reason" field.
+func (u *ArticleUpsertBulk) ClearTakedownReason() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.ClearTakedownReason()
+	})
+}
+
+// SetTakedownAt sets the "takedown_at" field.
+func (u *ArticleUpsertBulk) SetTakedownAt(v time.Time) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetTakedownAt(v)
+	})
+}
+
+// UpdateTakedownAt sets the "takedown_at" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateTakedownAt() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateTakedownAt()
+	})
+}
+
+// ClearTakedownAt clears the value of the "takedown_at" field.
+func (u *ArticleUpsertBulk) ClearTakedownAt() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.ClearTakedownAt()
+	})
+}
+
+// SetTakedownBy sets the "takedown_by" field.
+func (u *ArticleUpsertBulk) SetTakedownBy(v uint) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetTakedownBy(v)
+	})
+}
+
+// AddTakedownBy adds v to the "takedown_by" field.
+func (u *ArticleUpsertBulk) AddTakedownBy(v uint) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.AddTakedownBy(v)
+	})
+}
+
+// UpdateTakedownBy sets the "takedown_by" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateTakedownBy() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateTakedownBy()
+	})
+}
+
+// ClearTakedownBy clears the value of the "takedown_by" field.
+func (u *ArticleUpsertBulk) ClearTakedownBy() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.ClearTakedownBy()
 	})
 }
 

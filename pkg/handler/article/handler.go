@@ -85,9 +85,19 @@ func (h *Handler) UploadImage(c *gin.Context) {
 	}
 	log.Printf("[Handler.UploadImage] 解析用户ID成功, ownerID: %d", ownerID)
 
+	// 3.5 解析用户组ID
+	var userGroupID uint
+	if claims.UserGroupID != "" {
+		groupID, _, err := idgen.DecodePublicID(claims.UserGroupID)
+		if err == nil {
+			userGroupID = groupID
+			log.Printf("[Handler.UploadImage] 解析用户组ID成功, userGroupID: %d", userGroupID)
+		}
+	}
+
 	// 4. 调用Service层处理业务逻辑
 	log.Printf("[Handler.UploadImage] 开始调用Service层处理图片上传")
-	directLinkURL, publicFileID, err := h.svc.UploadArticleImage(c.Request.Context(), ownerID, fileReader, fileHeader.Filename)
+	directLinkURL, publicFileID, err := h.svc.UploadArticleImageWithGroup(c.Request.Context(), ownerID, userGroupID, fileReader, fileHeader.Filename)
 	if err != nil {
 		log.Printf("[Handler.UploadImage] Service处理失败: %v", err)
 		response.Fail(c, http.StatusInternalServerError, "图片上传失败")

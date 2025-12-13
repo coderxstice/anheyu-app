@@ -201,6 +201,10 @@ func init() {
 	articleDescCopyright := articleFields[21].Descriptor()
 	// article.DefaultCopyright holds the default value on creation for the copyright field.
 	article.DefaultCopyright = articleDescCopyright.Default.(bool)
+	// articleDescIsTakedown is the schema descriptor for is_takedown field.
+	articleDescIsTakedown := articleFields[30].Descriptor()
+	// article.DefaultIsTakedown holds the default value on creation for the is_takedown field.
+	article.DefaultIsTakedown = articleDescIsTakedown.Default.(bool)
 	commentMixin := schema.Comment{}.Mixin()
 	commentMixinHooks0 := commentMixin[0].Hooks()
 	comment.Hooks[0] = commentMixinHooks0[0]

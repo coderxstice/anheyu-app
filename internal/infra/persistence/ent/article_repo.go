@@ -104,6 +104,11 @@ func (r *articleRepo) toModel(a *ent.Article) *model.Article {
 		ReviewComment: a.ReviewComment,
 		ReviewedAt:    a.ReviewedAt,
 		ReviewedBy:    a.ReviewedBy,
+		// 下架相关字段
+		IsTakedown:     a.IsTakedown,
+		TakedownReason: a.TakedownReason,
+		TakedownAt:     a.TakedownAt,
+		TakedownBy:     a.TakedownBy,
 	}
 }
 
@@ -326,6 +331,7 @@ func (r *articleRepo) GetBySlugOrID(ctx context.Context, slugOrID string) (*mode
 			wherePredicate,
 			article.DeletedAtIsNil(),
 			article.StatusEQ(article.StatusPUBLISHED),
+			article.IsTakedownEQ(false), // 过滤下架文章
 			// 只显示审核通过或无需审核的文章
 			article.Or(
 				article.ReviewStatusEQ(article.ReviewStatusAPPROVED),
@@ -696,10 +702,11 @@ func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.Up
 
 // ListPublic 获取公开的文章列表
 func (r *articleRepo) ListPublic(ctx context.Context, options *model.ListPublicArticlesOptions) ([]*model.Article, int, error) {
-	// 基础查询条件：已发布、未删除、且审核通过（或无需审核）
+	// 基础查询条件：已发布、未删除、未下架、且审核通过（或无需审核）
 	baseQuery := r.db.Article.Query().Where(
 		article.StatusEQ(article.StatusPUBLISHED),
 		article.DeletedAtIsNil(),
+		article.IsTakedownEQ(false), // 过滤下架文章
 		// 只显示审核通过或无需审核的文章
 		article.Or(
 			article.ReviewStatusEQ(article.ReviewStatusAPPROVED),
@@ -802,7 +809,12 @@ func (r *articleRepo) List(ctx context.Context, options *model.ListArticlesOptio
 			article.FieldShowOnHome, article.FieldHomeSort, article.FieldPinSort, article.FieldTopImgURL,
 			article.FieldSummaries, article.FieldAbbrlink, article.FieldCopyright,
 			article.FieldCopyrightAuthor, article.FieldCopyrightAuthorHref, article.FieldCopyrightURL,
-			article.FieldReviewStatus, // 审核状态（多人共创功能）
+			article.FieldReviewStatus,   // 审核状态（多人共创功能）
+			article.FieldOwnerID,        // 发布者ID（多人共创功能）
+			article.FieldIsTakedown,     // 下架状态（PRO版管理员功能）
+			article.FieldTakedownReason, // 下架原因
+			article.FieldTakedownAt,     // 下架时间
+			article.FieldTakedownBy,     // 下架操作人
 		).All(ctx)
 	} else {
 		entities, err = q.All(ctx)
@@ -822,6 +834,7 @@ func (r *articleRepo) ListHome(ctx context.Context) ([]*model.Article, error) {
 			article.HomeSortGT(0),
 			article.StatusEQ(article.StatusPUBLISHED),
 			article.DeletedAtIsNil(),
+			article.IsTakedownEQ(false), // 过滤下架文章
 			// 只显示审核通过或无需审核的文章
 			article.Or(
 				article.ReviewStatusEQ(article.ReviewStatusAPPROVED),
@@ -862,6 +875,7 @@ func (r *articleRepo) GetRandom(ctx context.Context) (*model.Article, error) {
 		Where(
 			article.StatusEQ(article.StatusPUBLISHED),
 			article.DeletedAtIsNil(),
+			article.IsTakedownEQ(false), // 过滤下架文章
 		).
 		IDs(ctx)
 	if err != nil {

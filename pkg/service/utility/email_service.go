@@ -387,7 +387,7 @@ func (s *emailService) SendForgotPasswordEmail(ctx context.Context, toEmail, nic
 	}
 	siteURL = strings.TrimRight(siteURL, "/")
 
-	resetLink := fmt.Sprintf("%s/reset-password?id=%s&sign=%s", siteURL, userID, sign)
+	resetLink := fmt.Sprintf("%s/login/reset?id=%s&sign=%s", siteURL, userID, sign)
 	data := map[string]string{
 		"Nickname":  nickname,
 		"AppName":   appName,

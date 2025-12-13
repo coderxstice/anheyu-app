@@ -76,6 +76,14 @@ const (
 	FieldReviewedAt = "reviewed_at"
 	// FieldReviewedBy holds the string denoting the reviewed_by field in the database.
 	FieldReviewedBy = "reviewed_by"
+	// FieldIsTakedown holds the string denoting the is_takedown field in the database.
+	FieldIsTakedown = "is_takedown"
+	// FieldTakedownReason holds the string denoting the takedown_reason field in the database.
+	FieldTakedownReason = "takedown_reason"
+	// FieldTakedownAt holds the string denoting the takedown_at field in the database.
+	FieldTakedownAt = "takedown_at"
+	// FieldTakedownBy holds the string denoting the takedown_by field in the database.
+	FieldTakedownBy = "takedown_by"
 	// EdgePostTags holds the string denoting the post_tags edge name in mutations.
 	EdgePostTags = "post_tags"
 	// EdgePostCategories holds the string denoting the post_categories edge name in mutations.
@@ -136,6 +144,10 @@ var Columns = []string{
 	FieldReviewComment,
 	FieldReviewedAt,
 	FieldReviewedBy,
+	FieldIsTakedown,
+	FieldTakedownReason,
+	FieldTakedownAt,
+	FieldTakedownBy,
 }
 
 var (
@@ -200,6 +212,8 @@ var (
 	PinSortValidator func(int) error
 	// DefaultCopyright holds the default value on creation for the "copyright" field.
 	DefaultCopyright bool
+	// DefaultIsTakedown holds the default value on creation for the "is_takedown" field.
+	DefaultIsTakedown bool
 )
 
 // Status defines the type for the "status" enum field.
@@ -408,6 +422,26 @@ func ByReviewedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByReviewedBy orders the results by the reviewed_by field.
 func ByReviewedBy(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldReviewedBy, opts...).ToFunc()
+}
+
+// ByIsTakedown orders the results by the is_takedown field.
+func ByIsTakedown(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsTakedown, opts...).ToFunc()
+}
+
+// ByTakedownReason orders the results by the takedown_reason field.
+func ByTakedownReason(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTakedownReason, opts...).ToFunc()
+}
+
+// ByTakedownAt orders the results by the takedown_at field.
+func ByTakedownAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTakedownAt, opts...).ToFunc()
+}
+
+// ByTakedownBy orders the results by the takedown_by field.
+func ByTakedownBy(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTakedownBy, opts...).ToFunc()
 }
 
 // ByPostTagsCount orders the results by post_tags count.

@@ -73,6 +73,9 @@ func (UserGroup) Fields() []ent.Field {
 				dialect.SQLite:   "text",
 			}).
 			Comment("用户组的特定JSON配置"),
+		field.JSON("storage_policy_ids", []uint{}).
+			Optional().
+			Comment("该用户组可使用的存储策略ID列表"),
 	}
 }
 
