@@ -114,6 +114,7 @@ type App struct {
 	cacheSvc             utility.CacheService
 	eventBus             *event.EventBus
 	postCategorySvc      *post_category_service.Service
+	postTagSvc           *post_tag_service.Service
 }
 
 func (a *App) PrintBanner() {
@@ -486,6 +487,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		cacheSvc:             cacheSvc,
 		eventBus:             eventBus,
 		postCategorySvc:      postCategorySvc,
+		postTagSvc:           postTagSvc,
 	}
 
 	// 创建cleanup函数
@@ -581,6 +583,11 @@ func (a *App) Version() string {
 // PostCategoryService 返回文章分类服务（用于 PRO 版多人共创功能）
 func (a *App) PostCategoryService() *post_category_service.Service {
 	return a.postCategorySvc
+}
+
+// PostTagService 返回文章标签服务（用于 PRO 版多人共创功能）
+func (a *App) PostTagService() *post_tag_service.Service {
+	return a.postTagSvc
 }
 
 func (a *App) Run() error {
