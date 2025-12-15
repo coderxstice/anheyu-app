@@ -411,6 +411,16 @@ func (r *linkRepo) ExistsByURL(ctx context.Context, url string) (bool, error) {
 	return exists, err
 }
 
+// ExistsByURLAndCategory 检查指定URL是否已存在于某个分类下（支持多分类导入场景）
+func (r *linkRepo) ExistsByURLAndCategory(ctx context.Context, url string, categoryID int) (bool, error) {
+	return r.client.Link.Query().
+		Where(
+			link.URLEQ(url),
+			link.HasCategoryWith(linkcategory.ID(categoryID)),
+		).
+		Exist(ctx)
+}
+
 // GetByURL 根据 URL 获取友链信息
 func (r *linkRepo) GetByURL(ctx context.Context, url string) (*model.LinkDTO, error) {
 	entLink, err := r.client.Link.Query().
