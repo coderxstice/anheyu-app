@@ -2,7 +2,7 @@
  * @Description: Redis 搜索器实现，包含基于权重的相关度排序和优化的分词逻辑
  * @Author: 安知鱼
  * @Date: 2025-08-30 14:01:22
- * @LastEditTime: 2025-12-01 16:14:25
+ * @LastEditTime: 2025-12-17 16:55:59
  * @LastEditors: 安知鱼
  */
 
@@ -65,7 +65,7 @@ func NewRedisSearcher(settingSvc setting.SettingService) (*RedisSearcher, error)
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     redisAddr,
 		Password: os.Getenv("ANHEYU_REDIS_PASSWORD"),
-		DB:       0, // 默认使用 0 号数据库
+		DB:       10, // 默认使用 10 号数据库
 	})
 
 	ctx, cancel := context.WithTimeout(context.Background(), RedisConnectionTimeout)
