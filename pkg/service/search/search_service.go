@@ -92,8 +92,8 @@ func (s *SearchService) clearAllIndexes(ctx context.Context) error {
 		return nil
 	}
 
-	// 获取所有以 "search:" 开头的键
-	pattern := "search:*"
+	// 获取所有以 "anheyu:search:" 开头的键
+	pattern := KeyNamespace + "search:*"
 	keys, err := redisSearcher.client.Keys(ctx, pattern).Result()
 	if err != nil {
 		return fmt.Errorf("获取搜索索引键失败: %w", err)

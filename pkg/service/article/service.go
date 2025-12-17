@@ -815,9 +815,15 @@ func (s *serviceImpl) Get(ctx context.Context, publicID string) (*model.ArticleR
 	return resp, nil
 }
 
+// Redis Key 前缀常量
+const (
+	ArticleKeyNamespace       = "anheyu:"
+	ArticleViewCountKeyPrefix = ArticleKeyNamespace + "article:view_count:"
+)
+
 // getArticleViewCacheKey 生成文章浏览量在 Redis 中的缓存键。
 func (s *serviceImpl) getArticleViewCacheKey(publicID string) string {
-	return fmt.Sprintf("article:view_count:%s", publicID)
+	return fmt.Sprintf("%s%s", ArticleViewCountKeyPrefix, publicID)
 }
 
 // GetPublicByID (此方法似乎与 GetPublicBySlugOrID 功能重叠，暂时保留)
