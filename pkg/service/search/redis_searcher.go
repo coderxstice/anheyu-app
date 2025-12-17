@@ -14,6 +14,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -26,10 +27,13 @@ import (
 
 // Redis Key 前缀和权重常量
 const (
-	KeyPrefixArticle       = "search:article:"
-	KeyPrefixIndex         = "search:index:"
-	KeyPrefixWords         = "search:words:"
-	KeyPrefixResultCache   = "search:result:"
+	// Redis Key 命名空间前缀
+	KeyNamespace = "anheyu:"
+
+	KeyPrefixArticle       = KeyNamespace + "search:article:"
+	KeyPrefixIndex         = KeyNamespace + "search:index:"
+	KeyPrefixWords         = KeyNamespace + "search:words:"
+	KeyPrefixResultCache   = KeyNamespace + "search:result:"
 	ResultCacheTTL         = 10 * time.Minute
 	DefaultRedisAddr       = "localhost:6379"
 	RedisConnectionTimeout = 5 * time.Second
@@ -62,10 +66,20 @@ func NewRedisSearcher(settingSvc setting.SettingService) (*RedisSearcher, error)
 		return nil, nil
 	}
 
+	// 从环境变量读取 Redis DB，默认使用 10 号数据库
+	redisDB := 10
+	if dbStr := os.Getenv("ANHEYU_REDIS_DB"); dbStr != "" {
+		if db, err := strconv.Atoi(dbStr); err == nil {
+			redisDB = db
+		} else {
+			log.Printf("⚠️  无效的 ANHEYU_REDIS_DB 值 '%s': %v，使用默认值 10", dbStr, err)
+		}
+	}
+
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     redisAddr,
 		Password: os.Getenv("ANHEYU_REDIS_PASSWORD"),
-		DB:       10, // 默认使用 10 号数据库
+		DB:       redisDB,
 	})
 
 	ctx, cancel := context.WithTimeout(context.Background(), RedisConnectionTimeout)
@@ -77,6 +91,7 @@ func NewRedisSearcher(settingSvc setting.SettingService) (*RedisSearcher, error)
 		return nil, nil
 	}
 
+	log.Printf("✅ Redis 搜索器已连接 (%s, DB %d)", redisAddr, redisDB)
 	return &RedisSearcher{
 		client:     rdb,
 		settingSvc: settingSvc,

@@ -190,7 +190,7 @@ func (s *visitorStatService) processVisitTask(task *visitTask) {
 			t1 = time.Now()
 		}
 
-		visitorSetKey := "stats:visitors:set:" + today
+		visitorSetKey := CacheKeyVisitorsSet + today
 		isNew, err := s.cacheService.SAdd(ctx, visitorSetKey, task.visitorID)
 
 		if enablePerfLog {
@@ -210,7 +210,7 @@ func (s *visitorStatService) processVisitTask(task *visitTask) {
 					t3 = time.Now()
 				}
 
-				todayVisitorsKey := "stats:today:visitors:" + today
+				todayVisitorsKey := CacheKeyTodayVisitors + today
 				s.cacheService.Increment(ctx, todayVisitorsKey)
 
 				if enablePerfLog {
@@ -477,7 +477,7 @@ func (s *visitorStatService) GetBasicStatistics(ctx context.Context) (*model.Vis
 			}
 		}
 
-		if todayVisitors, err := s.cacheService.Get(ctx, "stats:today:visitors:"+today); err == nil && todayVisitors != "" {
+		if todayVisitors, err := s.cacheService.Get(ctx, CacheKeyTodayVisitors+today); err == nil && todayVisitors != "" {
 			if visitors, err := strconv.ParseInt(todayVisitors, 10, 64); err == nil {
 				stats.TodayVisitors = visitors
 			}
@@ -606,7 +606,7 @@ func (s *visitorStatService) AggregateDaily(ctx context.Context, date time.Time)
 func (s *visitorStatService) GetRealTimeStats(ctx context.Context) (*model.VisitorStatistics, error) {
 	// 尝试从缓存获取
 	if s.cacheService != nil {
-		cacheKey := "stats:realtime:" + time.Now().Format("2006-01-02")
+		cacheKey := CacheKeyRealTime + time.Now().Format("2006-01-02")
 		cachedData, err := s.cacheService.Get(ctx, cacheKey)
 		if err == nil && cachedData != "" {
 			var stats model.VisitorStatistics
@@ -622,16 +622,25 @@ func (s *visitorStatService) GetRealTimeStats(ctx context.Context) (*model.Visit
 
 // 高并发优化配置
 const (
+	// Redis Key 命名空间前缀
+	StatsKeyNamespace = "anheyu:"
+
 	// 缓存键常量
-	CacheKeyBasicStats = "stats:basic"
-	CacheKeyTopPages   = "stats:top_pages:"
-	CacheKeyAnalytics  = "stats:analytics:"
-	CacheKeyTodayViews = "stats:today:views:"
+	CacheKeyBasicStats = StatsKeyNamespace + "stats:basic"
+	CacheKeyTopPages   = StatsKeyNamespace + "stats:top_pages:"
+	CacheKeyAnalytics  = StatsKeyNamespace + "stats:analytics:"
+	CacheKeyTodayViews = StatsKeyNamespace + "stats:today:views:"
 
 	// 实时计数缓存键
-	CacheKeyRealTimeViews    = "stats:realtime:views:"
-	CacheKeyRealTimeVisitors = "stats:realtime:visitors:"
-	CacheKeyBatchQueue       = "stats:batch:queue:"
+	CacheKeyRealTimeViews    = StatsKeyNamespace + "stats:realtime:views:"
+	CacheKeyRealTimeVisitors = StatsKeyNamespace + "stats:realtime:visitors:"
+	CacheKeyBatchQueue       = StatsKeyNamespace + "stats:batch:queue:"
+
+	// 访客相关缓存键前缀
+	CacheKeyVisitorsSet   = StatsKeyNamespace + "stats:visitors:set:"
+	CacheKeyTodayVisitors = StatsKeyNamespace + "stats:today:visitors:"
+	CacheKeyVisitor       = StatsKeyNamespace + "stats:visitor:"
+	CacheKeyRealTime      = StatsKeyNamespace + "stats:realtime:"
 
 	// 缓存过期时间
 	CacheExpireBasicStats = 5 * time.Minute
@@ -695,7 +704,7 @@ func (s *visitorStatService) updateRealTimeCounts(ctx context.Context, c *gin.Co
 	// 注意：这里需要从gin.Context获取IP和UserAgent，因为req中没有这些字段
 	clientIP := s.getClientIP(c)
 	userAgent := c.GetHeader("User-Agent")
-	visitorKey := fmt.Sprintf("stats:visitor:%s:%s", clientIP, userAgent)
+	visitorKey := fmt.Sprintf("%s%s:%s", CacheKeyVisitor, clientIP, userAgent)
 	if exists, _ := s.cacheService.Get(ctx, visitorKey); exists == "" {
 		// 新访客，增加访客数
 		if _, err := s.cacheService.Increment(ctx, visitorsKey); err != nil {

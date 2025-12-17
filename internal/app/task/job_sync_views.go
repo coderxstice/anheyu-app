@@ -17,6 +17,13 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/utility"
 )
 
+// Redis Key 前缀常量
+const (
+	TaskKeyNamespace           = "anheyu:"
+	ArticleViewCountKeyPattern = TaskKeyNamespace + "article:view_count:*"
+	ArticleViewCountKeyPrefix  = TaskKeyNamespace + "article:view_count:"
+)
+
 // SyncViewCountsJob 负责将 Redis 中的浏览量同步到数据库。
 type SyncViewCountsJob struct {
 	repo     repository.ArticleRepository
@@ -39,10 +46,9 @@ func (j *SyncViewCountsJob) Name() string {
 // Run 是 Job 接口要求实现的方法，包含了核心的同步逻辑。
 func (j *SyncViewCountsJob) Run() {
 	ctx := context.Background()
-	keyPattern := "article:view_count:*"
 
 	// 1. 从 Redis 扫描所有待处理的浏览量键
-	keys, err := j.cacheSvc.Scan(ctx, keyPattern)
+	keys, err := j.cacheSvc.Scan(ctx, ArticleViewCountKeyPattern)
 	if err != nil {
 		log.Printf("错误: 任务 '%s' 扫描 Redis 键失败: %v", j.Name(), err)
 		return
@@ -62,7 +68,7 @@ func (j *SyncViewCountsJob) Run() {
 	// 3. 将数据从 map[string]int 转换为 map[uint]int
 	updates := make(map[uint]int)
 	for key, increment := range viewIncrements {
-		publicID := strings.TrimPrefix(key, "article:view_count:")
+		publicID := strings.TrimPrefix(key, ArticleViewCountKeyPrefix)
 		dbID, _, err := idgen.DecodePublicID(publicID)
 		if err != nil {
 			log.Printf("警告: 任务 '%s' 解码 public ID '%s' 失败: %v", j.Name(), publicID, err)
