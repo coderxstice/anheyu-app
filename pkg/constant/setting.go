@@ -204,6 +204,10 @@ const (
 	KeyCommentLimitPerMinute    SettingKey = "comment.limit_per_minute"
 	KeyCommentLimitLength       SettingKey = "comment.limit_length"
 	KeyCommentForbiddenWords    SettingKey = "comment.forbidden_words"
+	KeyCommentAIDetectEnable    SettingKey = "comment.ai_detect_enable"     // 是否启用AI违禁词检测
+	KeyCommentAIDetectAPIURL    SettingKey = "comment.ai_detect_api_url"    // AI违禁词检测API地址
+	KeyCommentAIDetectAction    SettingKey = "comment.ai_detect_action"     // 检测到违禁词时的处理方式: pending(待审), reject(拒绝)
+	KeyCommentAIDetectRiskLevel SettingKey = "comment.ai_detect_risk_level" // 触发处理的风险等级: high(仅高风险), medium(中高风险), low(所有风险)
 	KeyCommentQQAPIURL          SettingKey = "comment.qq_api_url"
 	KeyCommentQQAPIKey          SettingKey = "comment.qq_api_key"
 	KeyCommentNotifyAdmin       SettingKey = "comment.notify_admin"
