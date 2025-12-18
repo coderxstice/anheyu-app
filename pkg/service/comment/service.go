@@ -258,6 +258,30 @@ func (s *Service) Create(ctx context.Context, req *dto.CreateRequest, ip, ua str
 			}
 		}
 	}
+
+	// AI 违禁词检测
+	if status == model.StatusPublished {
+		aiDetectEnable := s.settingSvc.GetBool(constant.KeyCommentAIDetectEnable.String())
+		if aiDetectEnable {
+			aiDetectAPIURL := s.settingSvc.Get(constant.KeyCommentAIDetectAPIURL.String())
+			aiDetectAction := s.settingSvc.Get(constant.KeyCommentAIDetectAction.String())
+			aiDetectRiskLevel := s.settingSvc.Get(constant.KeyCommentAIDetectRiskLevel.String())
+
+			if aiDetectAPIURL != "" {
+				isViolation, riskLevel, err := s.checkAIForbiddenWords(req.Content, aiDetectAPIURL)
+				if err != nil {
+					log.Printf("AI违禁词检测API调用失败: %v，跳过检测", err)
+				} else if isViolation && shouldTakeAction(riskLevel, aiDetectRiskLevel) {
+					if aiDetectAction == "reject" {
+						return nil, fmt.Errorf("评论内容包含违规内容，请修改后重新提交")
+					}
+					// 默认为 pending
+					status = model.StatusPending
+					log.Printf("AI违禁词检测：评论内容包含违规内容，风险等级: %s，已设置为待审核", riskLevel)
+				}
+			}
+		}
+	}
 	var isAdmin bool
 	var userID *uint
 	if claims != nil {
@@ -1171,4 +1195,88 @@ func httpGetQQInfo(apiURL, apiKey, qqNumber string) (*QQInfoResponse, error) {
 		Nickname: apiResp.Data.Nick,
 		Avatar:   avatarURL,
 	}, nil
+}
+
+// AIDetectResponse AI违禁词检测API的响应结构
+type AIDetectResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+	Data struct {
+		Categories  []string `json:"categories"`   // 违规类型列表
+		Explanation string   `json:"explanation"`  // 检测说明
+		IsViolation bool     `json:"is_violation"` // 是否检测到违规内容
+		Keywords    []string `json:"keywords"`     // 触发检测的敏感词
+		RiskLevel   string   `json:"risk_level"`   // 风险等级（高/中/低）
+	} `json:"data"`
+	RequestID string `json:"request_id"`
+}
+
+// checkAIForbiddenWords 调用AI违禁词检测API检查评论内容
+// 返回: isViolation(是否违规), riskLevel(风险等级), error
+func (s *Service) checkAIForbiddenWords(content string, apiURL string) (bool, string, error) {
+	// 构建请求URL，对内容进行URL编码
+	requestURL := fmt.Sprintf("%s?msg=%s", apiURL, content)
+
+	// 创建HTTP客户端，设置超时时间
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+
+	resp, err := client.Get(requestURL)
+	if err != nil {
+		return false, "", fmt.Errorf("AI违禁词检测API请求失败: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return false, "", fmt.Errorf("AI违禁词检测API返回状态码: %d", resp.StatusCode)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return false, "", fmt.Errorf("读取AI违禁词检测API响应失败: %w", err)
+	}
+
+	var aiResp AIDetectResponse
+	if err := json.Unmarshal(body, &aiResp); err != nil {
+		return false, "", fmt.Errorf("解析AI违禁词检测API响应失败: %w", err)
+	}
+
+	if aiResp.Code != 200 {
+		return false, "", fmt.Errorf("AI违禁词检测API返回错误: %s", aiResp.Msg)
+	}
+
+	// 记录检测日志
+	if aiResp.Data.IsViolation {
+		log.Printf("AI违禁词检测结果: 检测到违规内容, 风险等级=%s, 类型=%v, 关键词=%v, 说明=%s",
+			aiResp.Data.RiskLevel, aiResp.Data.Categories, aiResp.Data.Keywords, aiResp.Data.Explanation)
+	}
+
+	return aiResp.Data.IsViolation, aiResp.Data.RiskLevel, nil
+}
+
+// shouldTakeAction 根据检测到的风险等级和配置的阈值判断是否需要采取行动
+// detectedLevel: 检测到的风险等级 (高/中/低)
+// configuredLevel: 配置的触发阈值 (high/medium/low)
+func shouldTakeAction(detectedLevel string, configuredLevel string) bool {
+	// 风险等级映射：将中文转换为英文
+	levelMap := map[string]int{
+		"高":      3,
+		"high":   3,
+		"中":      2,
+		"medium": 2,
+		"低":      1,
+		"low":    1,
+	}
+
+	detected, ok1 := levelMap[detectedLevel]
+	configured, ok2 := levelMap[configuredLevel]
+
+	if !ok1 || !ok2 {
+		// 如果无法识别等级，默认采取行动（保守策略）
+		return true
+	}
+
+	// 检测到的风险等级 >= 配置的阈值等级时采取行动
+	return detected >= configured
 }
