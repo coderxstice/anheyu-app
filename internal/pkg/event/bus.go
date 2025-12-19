@@ -17,9 +17,10 @@ type Topic string
 
 const (
 	FileCreated Topic = "file:created"
-	// 未来可以扩展，例如:
-	// FileUpdated Topic = "file:updated"
-	// FileDeleted Topic = "file:deleted"
+	// 友链事件
+	LinkCreated Topic = "link:created"
+	LinkUpdated Topic = "link:updated"
+	LinkDeleted Topic = "link:deleted"
 )
 
 // 事件处理器函数类型

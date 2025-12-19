@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/event"
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
@@ -67,6 +68,14 @@ type service struct {
 	pushooSvc utility.PushooService
 	// 用于发送邮件通知
 	emailSvc utility.EmailService
+	// 事件总线，用于发布友链相关事件
+	eventBus *event.EventBus
+}
+
+// LinkEventPayload 友链事件载荷
+type LinkEventPayload struct {
+	LinkID  int    `json:"link_id"`
+	LinkURL string `json:"link_url,omitempty"`
 }
 
 // NewService 是 service 的构造函数，注入所有依赖。
@@ -79,6 +88,7 @@ func NewService(
 	settingSvc setting.SettingService,
 	pushooSvc utility.PushooService,
 	emailSvc utility.EmailService,
+	eventBus *event.EventBus,
 ) Service {
 	return &service{
 		linkRepo:         linkRepo,
@@ -89,6 +99,7 @@ func NewService(
 		settingSvc:       settingSvc,
 		pushooSvc:        pushooSvc,
 		emailSvc:         emailSvc,
+		eventBus:         eventBus,
 	}
 }
 
@@ -252,6 +263,13 @@ func (s *service) AdminCreateLink(ctx context.Context, req *model.AdminCreateLin
 	}
 	// 操作成功后，派发清理任务，API 无需等待
 	s.broker.DispatchLinkCleanup()
+	// 发布友链创建事件
+	if s.eventBus != nil {
+		s.eventBus.Publish(event.LinkCreated, LinkEventPayload{
+			LinkID:  link.ID,
+			LinkURL: link.URL,
+		})
+	}
 	return link, nil
 }
 
@@ -263,6 +281,13 @@ func (s *service) AdminUpdateLink(ctx context.Context, id int, req *model.AdminU
 	}
 	// 操作成功后，派发清理任务
 	s.broker.DispatchLinkCleanup()
+	// 发布友链更新事件
+	if s.eventBus != nil {
+		s.eventBus.Publish(event.LinkUpdated, LinkEventPayload{
+			LinkID:  link.ID,
+			LinkURL: link.URL,
+		})
+	}
 	return link, nil
 }
 
@@ -274,6 +299,12 @@ func (s *service) AdminDeleteLink(ctx context.Context, id int) error {
 	}
 	// 操作成功后，派发清理任务
 	s.broker.DispatchLinkCleanup()
+	// 发布友链删除事件
+	if s.eventBus != nil {
+		s.eventBus.Publish(event.LinkDeleted, LinkEventPayload{
+			LinkID: id,
+		})
+	}
 	return nil
 }
 

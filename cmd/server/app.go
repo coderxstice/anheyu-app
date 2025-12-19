@@ -360,9 +360,9 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	pushooSvc := utility.NewPushooService(settingSvc)
 	log.Printf("[DEBUG] PushooService 初始化完成")
 
-	log.Printf("[DEBUG] 正在初始化 LinkService，将注入 PushooService 和 EmailService...")
-	linkSvc := link_service.NewService(linkRepo, linkCategoryRepo, linkTagRepo, txManager, taskBroker, settingSvc, pushooSvc, emailSvc)
-	log.Printf("[DEBUG] LinkService 初始化完成，PushooService 和 EmailService 已注入")
+	log.Printf("[DEBUG] 正在初始化 LinkService，将注入 PushooService、EmailService 和 EventBus...")
+	linkSvc := link_service.NewService(linkRepo, linkCategoryRepo, linkTagRepo, txManager, taskBroker, settingSvc, pushooSvc, emailSvc, eventBus)
+	log.Printf("[DEBUG] LinkService 初始化完成，PushooService、EmailService 和 EventBus 已注入")
 
 	authSvc := auth.NewAuthService(userRepo, settingSvc, tokenSvc, emailSvc, txManager, articleSvc)
 	log.Printf("[DEBUG] 正在初始化 CommentService，将注入 PushooService 和 NotificationService...")
