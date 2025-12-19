@@ -197,12 +197,38 @@ jobs:
         run: |
           echo "GOVERSION=$(go version)" >> $GITHUB_ENV
 
+      - name: Find previous stable tag for changelog
+        id: prev_tag
+        run: |
+          CURRENT_TAG="${GITHUB_REF#refs/tags/}"
+          echo "Current tag: $CURRENT_TAG"
+
+          # 检查当前版本是否是正式版本（不包含 beta/alpha/rc）
+          if [[ "$CURRENT_TAG" != *"beta"* ]] && [[ "$CURRENT_TAG" != *"alpha"* ]] && [[ "$CURRENT_TAG" != *"rc"* ]]; then
+            echo "This is a stable release, finding previous stable tag..."
+            
+            # 获取所有 tag，按版本排序，排除预发布版本，找到上一个正式版本
+            PREV_STABLE_TAG=$(git tag -l 'v*' | grep -v -E '(alpha|beta|rc)' | sort -V | grep -B1 "^${CURRENT_TAG}$" | head -1)
+            
+            if [ -n "$PREV_STABLE_TAG" ] && [ "$PREV_STABLE_TAG" != "$CURRENT_TAG" ]; then
+              echo "Previous stable tag found: $PREV_STABLE_TAG"
+              echo "previous_tag=$PREV_STABLE_TAG" >> $GITHUB_OUTPUT
+              echo "use_previous_tag=true" >> $GITHUB_OUTPUT
+            else
+              echo "No previous stable tag found, using default behavior"
+              echo "use_previous_tag=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "This is a prerelease, using default changelog behavior"
+            echo "use_previous_tag=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
           version: "~> v2"
-          args: release --clean
+          args: release --clean ${{ steps.prev_tag.outputs.use_previous_tag == 'true' && format('--previous-tag {0}', steps.prev_tag.outputs.previous_tag) || '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCKER_CLI_EXPERIMENTAL: enabled

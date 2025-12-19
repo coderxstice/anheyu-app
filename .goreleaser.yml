@@ -6,6 +6,15 @@ version: 2
 # 项目配置
 project_name: anheyu-app
 
+# Git 配置
+git:
+  # 使用语义化版本排序
+  tag_sort: -version:refname
+  # 指定预发布版本的后缀，帮助 GoReleaser 识别预发布版本
+  # 发布正式版时，使用 --previous-tag 参数指定上一个正式版本
+  # 例如: goreleaser release --previous-tag v1.6.8
+  prerelease_suffix: "-"
+
 # 环境变量
 env:
   - GO111MODULE=on
