@@ -16,4 +16,8 @@ type EventTopic = event.Topic
 const (
 	// EventFileCreated 文件创建事件
 	EventFileCreated EventTopic = event.FileCreated
+	// 友链事件
+	EventLinkCreated EventTopic = event.LinkCreated
+	EventLinkUpdated EventTopic = event.LinkUpdated
+	EventLinkDeleted EventTopic = event.LinkDeleted
 )
