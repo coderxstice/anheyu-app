@@ -11,6 +11,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
@@ -167,7 +168,9 @@ func (s *service) addPages(ctx context.Context, baseURL string, items *[]Sitemap
 	}
 
 	for _, page := range pages {
-		pageURL := fmt.Sprintf("%s/%s", baseURL, page.Path)
+		// 移除page.Path开头的斜杠，避免双斜杠问题
+		pagePath := strings.TrimPrefix(page.Path, "/")
+		pageURL := fmt.Sprintf("%s/%s", baseURL, pagePath)
 
 		*items = append(*items, SitemapItem{
 			URL:          pageURL,
