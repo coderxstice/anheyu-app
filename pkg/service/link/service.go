@@ -480,8 +480,8 @@ func (s *service) ImportLinks(ctx context.Context, req *model.ImportLinksRequest
 		return category.ID, nil
 	}
 
-	// 解析标签，必要时自动创建
-	resolveTagID := func(tagName string) (*int, error) {
+	// 解析标签，必要时自动创建（支持自定义颜色）
+	resolveTagID := func(tagName, tagColor string) (*int, error) {
 		if tagName == "" {
 			return nil, nil
 		}
@@ -492,9 +492,14 @@ func (s *service) ImportLinks(ctx context.Context, req *model.ImportLinksRequest
 		tag, err := s.linkTagRepo.GetByName(ctx, tagName)
 		if err != nil {
 			if req.CreateTags {
+				// 如果提供了标签颜色则使用，否则使用默认颜色
+				color := tagColor
+				if color == "" {
+					color = "#409EFF" // 默认颜色
+				}
 				createReq := &model.CreateLinkTagRequest{
 					Name:  tagName,
-					Color: "#409EFF", // 默认颜色
+					Color: color,
 				}
 				newTag, err := s.linkTagRepo.Create(ctx, createReq)
 				if err != nil {
@@ -560,8 +565,8 @@ func (s *service) ImportLinks(ctx context.Context, req *model.ImportLinksRequest
 			}
 		}
 
-		// 5. 处理标签（可选）
-		tagID, err := resolveTagID(linkItem.TagName)
+		// 5. 处理标签（可选，支持自定义颜色）
+		tagID, err := resolveTagID(linkItem.TagName, linkItem.TagColor)
 		if err != nil {
 			response.Failed++
 			response.FailedList = append(response.FailedList, model.ImportLinkFailure{
@@ -657,9 +662,10 @@ func (s *service) ExportLinks(ctx context.Context, req *model.ExportLinksRequest
 			exportItem.CategoryName = link.Category.Name
 		}
 
-		// 添加标签名称
+		// 添加标签名称和颜色
 		if link.Tag != nil {
 			exportItem.TagName = link.Tag.Name
+			exportItem.TagColor = link.Tag.Color
 		}
 
 		exportLinks = append(exportLinks, exportItem)
