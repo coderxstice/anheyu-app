@@ -178,6 +178,9 @@ const (
 	KeyPostCopyCopyrightOriginal SettingKey = "post.copy.copyright_original" // 原创文章版权信息模板
 	KeyPostCopyCopyrightReprint  SettingKey = "post.copy.copyright_reprint"  // 转载文章版权信息模板
 
+	// 文章目录 Hash 更新配置
+	KeyPostTocHashUpdateMode SettingKey = "post.toc.hash_update_mode" // 目录滚动时URL Hash更新模式: replace(替换不产生历史), none(不更新)
+
 	KeyPostEquipmentBannerBackground  SettingKey = "equipment.banner.background"
 	KeyPostEquipmentBannerTitle       SettingKey = "equipment.banner.title"
 	KeyPostEquipmentBannerDescription SettingKey = "equipment.banner.description"
