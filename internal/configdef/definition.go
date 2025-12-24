@@ -134,7 +134,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyFooterSocialBarLeft, Value: `[{"title":"email","link":"http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=VDU6Ljw9LSF5NxQlJXo3Ozk","icon":"anzhiyu-icon-envelope"},{"title":"微博","link":"https://weibo.com/u/6378063631","icon":"anzhiyu-icon-weibo"},{"title":"facebook","link":"https://www.facebook.com/profile.php?id=100092208016287&sk=about","icon":"anzhiyu-icon-facebook1"},{"title":"RSS","link":"atom.xml","icon":"anzhiyu-icon-rss"}]`, Comment: "社交链接栏左侧列表 (JSON格式)", IsPublic: true},
 	{Key: constant.KeyFooterSocialBarRight, Value: `[{"title":"Github","link":"https://github.com/anzhiyu-c","icon":"anzhiyu-icon-github"},{"title":"Bilibili","link":"https://space.bilibili.com/372204786","icon":"anzhiyu-icon-bilibili"},{"title":"抖音","link":"https://v.douyin.com/DwCpMEy/","icon":"anzhiyu-icon-tiktok"},{"title":"CC","link":"/copyright","icon":"anzhiyu-icon-copyright-line"}]`, Comment: "社交链接栏右侧列表 (JSON格式)", IsPublic: true},
 	{Key: constant.KeyFooterProjectList, Value: `[{"title":"服务","links":[{"title":"站点地图","link":"https://blog.anheyu.com/atom.xml"},{"title":"十年之约","link":"https://foreverblog.cn/go.html"},{"title":"开往","link":"https://www.travellings.cn/go.html"}]},{"title":"框架","links":[{"title":"文档","link":"https://dev.anheyu.com"},{"title":"源码","link":"https://github.com/anzhiyu-c/anheyu-app"},{"title":"更新日志","link":"/update"}]},{"title":"导航","links":[{"title":"小空调","link":"/air-conditioner"},{"title":"相册集","link":"/album"},{"title":"音乐馆","link":"/music"}]},{"title":"协议","links":[{"title":"隐私协议","link":"/privacy"},{"title":"Cookies","link":"/cookies"},{"title":"版权协议","link":"/copyright"}]}]`, Comment: "页脚链接列表 (JSON格式)", IsPublic: true},
-	{Key: constant.KeyFooterBarLinkList, Value: `[{"link":"https://github.com/anzhiyu-c/anheyu-app","text":"框架"},{"link":"https://index.anheyu.com","text":"主页"}]`, Comment: "底部栏链接列表 (JSON格式)", IsPublic: true},
+	{Key: constant.KeyFooterBarLinkList, Value: `[{"link":"/about#post-comment","text":"留言"},{"link":"https://github.com/anzhiyu-c/anheyu-app","text":"框架"},{"link":"https://index.anheyu.com","text":"主页"}]`, Comment: "底部栏链接列表 (JSON格式)", IsPublic: true},
 	{Key: constant.KeyIPAPI, Value: `https://v1.nsuuu.com/api/ipip`, Comment: "获取IP信息 API 地址", IsPublic: false},
 	{Key: constant.KeyIPAPIToKen, Value: ``, Comment: "获取IP信息 API Token", IsPublic: false},
 	{Key: constant.KeyPostDefaultCover, Value: ``, Comment: "文章默认封面", IsPublic: true},
@@ -402,6 +402,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyAboutPageEnableLikeTech, Value: "true", Comment: "是否启用技术偏好卡片板块 (true/false)", IsPublic: true},
 	{Key: constant.KeyAboutPageEnableMusic, Value: "true", Comment: "是否启用音乐卡片板块 (true/false)", IsPublic: true},
 	{Key: constant.KeyAboutPageEnableCustomCode, Value: "true", Comment: "是否启用自定义内容块 (true/false)", IsPublic: true},
+	{Key: constant.KeyAboutPageEnableComment, Value: "true", Comment: "是否启用评论板块 (true/false)", IsPublic: true},
 
 	// --- 音乐播放器配置 ---
 	{Key: constant.KeyMusicPlayerEnable, Value: "false", Comment: "是否启用音乐播放器功能 (true/false)", IsPublic: true},

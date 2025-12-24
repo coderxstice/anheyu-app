@@ -311,6 +311,7 @@ const (
 	KeyAboutPageEnableLikeTech    SettingKey = "about.page.enable.like_tech"
 	KeyAboutPageEnableMusic       SettingKey = "about.page.enable.music"
 	KeyAboutPageEnableCustomCode  SettingKey = "about.page.enable.custom_code"
+	KeyAboutPageEnableComment     SettingKey = "about.page.enable.comment"
 
 	KeyMusicPlayerEnable         SettingKey = "music.player.enable"
 	KeyMusicPlayerPlaylistID     SettingKey = "music.player.playlist_id"
