@@ -138,10 +138,7 @@ var AllSettings = []Definition{
 
 	// --- Uptime Kuma 状态监控配置 ---
 	{Key: constant.KeyFooterUptimeKumaEnable, Value: "false", Comment: "是否启用 Uptime Kuma 状态显示 (true/false)", IsPublic: true},
-	{Key: constant.KeyFooterUptimeKumaApiURL, Value: "", Comment: "Uptime Kuma API 地址（例如：https://status.example.com）", IsPublic: true},
-	{Key: constant.KeyFooterUptimeKumaSlug, Value: "", Comment: "Uptime Kuma 状态页 slug（用于调用 /api/status-page/heartbeat/{slug}）", IsPublic: true},
-	{Key: constant.KeyFooterUptimeKumaPageURL, Value: "", Comment: "Uptime Kuma 状态页跳转链接", IsPublic: true},
-	{Key: constant.KeyFooterUptimeKumaButtonText, Value: "查看我的项目状态", Comment: "状态按钮显示文字", IsPublic: true},
+	{Key: constant.KeyFooterUptimeKumaPageURL, Value: "", Comment: "Uptime Kuma 状态页完整地址（例如：https://status.example.com/status/main）", IsPublic: true},
 
 	{Key: constant.KeyIPAPI, Value: `https://v1.nsuuu.com/api/ipip`, Comment: "获取IP信息 API 地址", IsPublic: false},
 	{Key: constant.KeyIPAPIToKen, Value: ``, Comment: "获取IP信息 API Token", IsPublic: false},
