@@ -94,6 +94,13 @@ const (
 	KeyFooterProjectList        SettingKey = "footer.project.list"
 	KeyFooterBarLinkList        SettingKey = "footer.bar.linkList"
 
+	// --- Uptime Kuma 状态监控配置 ---
+	KeyFooterUptimeKumaEnable     SettingKey = "footer.uptime_kuma.enable"      // 是否启用状态显示
+	KeyFooterUptimeKumaApiURL     SettingKey = "footer.uptime_kuma.api_url"     // Uptime Kuma API 地址
+	KeyFooterUptimeKumaSlug       SettingKey = "footer.uptime_kuma.slug"        // 状态页 slug
+	KeyFooterUptimeKumaPageURL    SettingKey = "footer.uptime_kuma.page_url"    // 状态页跳转链接
+	KeyFooterUptimeKumaButtonText SettingKey = "footer.uptime_kuma.button_text" // 按钮文字
+
 	KeyFriendLinkApplyCondition         SettingKey = "FRIEND_LINK_APPLY_CONDITION"
 	KeyFriendLinkApplyCustomCode        SettingKey = "FRIEND_LINK_APPLY_CUSTOM_CODE"
 	KeyFriendLinkApplyCustomCodeHtml    SettingKey = "FRIEND_LINK_APPLY_CUSTOM_CODE_HTML"

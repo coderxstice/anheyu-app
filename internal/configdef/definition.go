@@ -135,6 +135,14 @@ var AllSettings = []Definition{
 	{Key: constant.KeyFooterSocialBarRight, Value: `[{"title":"Github","link":"https://github.com/anzhiyu-c","icon":"anzhiyu-icon-github"},{"title":"Bilibili","link":"https://space.bilibili.com/372204786","icon":"anzhiyu-icon-bilibili"},{"title":"抖音","link":"https://v.douyin.com/DwCpMEy/","icon":"anzhiyu-icon-tiktok"},{"title":"CC","link":"/copyright","icon":"anzhiyu-icon-copyright-line"}]`, Comment: "社交链接栏右侧列表 (JSON格式)", IsPublic: true},
 	{Key: constant.KeyFooterProjectList, Value: `[{"title":"服务","links":[{"title":"站点地图","link":"https://blog.anheyu.com/atom.xml"},{"title":"十年之约","link":"https://foreverblog.cn/go.html"},{"title":"开往","link":"https://www.travellings.cn/go.html"}]},{"title":"框架","links":[{"title":"文档","link":"https://dev.anheyu.com"},{"title":"源码","link":"https://github.com/anzhiyu-c/anheyu-app"},{"title":"更新日志","link":"/update"}]},{"title":"导航","links":[{"title":"小空调","link":"/air-conditioner"},{"title":"相册集","link":"/album"},{"title":"音乐馆","link":"/music"}]},{"title":"协议","links":[{"title":"隐私协议","link":"/privacy"},{"title":"Cookies","link":"/cookies"},{"title":"版权协议","link":"/copyright"}]}]`, Comment: "页脚链接列表 (JSON格式)", IsPublic: true},
 	{Key: constant.KeyFooterBarLinkList, Value: `[{"link":"/about#post-comment","text":"留言"},{"link":"https://github.com/anzhiyu-c/anheyu-app","text":"框架"},{"link":"https://index.anheyu.com","text":"主页"}]`, Comment: "底部栏链接列表 (JSON格式)", IsPublic: true},
+
+	// --- Uptime Kuma 状态监控配置 ---
+	{Key: constant.KeyFooterUptimeKumaEnable, Value: "false", Comment: "是否启用 Uptime Kuma 状态显示 (true/false)", IsPublic: true},
+	{Key: constant.KeyFooterUptimeKumaApiURL, Value: "", Comment: "Uptime Kuma API 地址（例如：https://status.example.com）", IsPublic: true},
+	{Key: constant.KeyFooterUptimeKumaSlug, Value: "", Comment: "Uptime Kuma 状态页 slug（用于调用 /api/status-page/heartbeat/{slug}）", IsPublic: true},
+	{Key: constant.KeyFooterUptimeKumaPageURL, Value: "", Comment: "Uptime Kuma 状态页跳转链接", IsPublic: true},
+	{Key: constant.KeyFooterUptimeKumaButtonText, Value: "查看我的项目状态", Comment: "状态按钮显示文字", IsPublic: true},
+
 	{Key: constant.KeyIPAPI, Value: `https://v1.nsuuu.com/api/ipip`, Comment: "获取IP信息 API 地址", IsPublic: false},
 	{Key: constant.KeyIPAPIToKen, Value: ``, Comment: "获取IP信息 API Token", IsPublic: false},
 	{Key: constant.KeyPostDefaultCover, Value: ``, Comment: "文章默认封面", IsPublic: true},
