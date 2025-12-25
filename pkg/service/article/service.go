@@ -321,6 +321,7 @@ func (s *serviceImpl) ToAPIResponse(a *model.Article, useAbbrlinkAsID bool, incl
 		TakedownReason:       a.TakedownReason, // 下架原因
 		TakedownAt:           a.TakedownAt,     // 下架时间
 		TakedownBy:           a.TakedownBy,     // 下架操作人
+		ExtraConfig:          a.ExtraConfig,    // 文章扩展配置
 	}
 
 	if includeHTML {
@@ -769,6 +770,7 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 			CustomUpdatedAt:      customUpdatedAt,
 			Keywords:             req.Keywords,
 			ReviewStatus:         req.ReviewStatus, // 审核状态（多人共创功能）
+			ExtraConfig:          req.ExtraConfig,  // 文章扩展配置
 		}
 		createdArticle, err := repos.Article.Create(ctx, params)
 		if err != nil {

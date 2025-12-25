@@ -99,6 +99,7 @@ var (
 		{Name: "takedown_reason", Type: field.TypeString, Nullable: true, Comment: "下架原因"},
 		{Name: "takedown_at", Type: field.TypeTime, Nullable: true, Comment: "下架时间"},
 		{Name: "takedown_by", Type: field.TypeUint, Nullable: true, Comment: "下架操作人ID"},
+		{Name: "extra_config", Type: field.TypeJSON, Nullable: true, Comment: "文章扩展配置（JSON格式，用于存储各种可选功能配置，如 enable_ai_podcast 等）"},
 	}
 	// ArticlesTable holds the schema information for the "articles" table.
 	ArticlesTable = &schema.Table{

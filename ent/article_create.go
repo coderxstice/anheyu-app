@@ -485,6 +485,12 @@ func (_c *ArticleCreate) SetNillableTakedownBy(v *uint) *ArticleCreate {
 	return _c
 }
 
+// SetExtraConfig sets the "extra_config" field.
+func (_c *ArticleCreate) SetExtraConfig(v map[string]interface{}) *ArticleCreate {
+	_c.mutation.SetExtraConfig(v)
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *ArticleCreate) SetID(v uint) *ArticleCreate {
 	_c.mutation.SetID(v)
@@ -897,6 +903,10 @@ func (_c *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.TakedownBy(); ok {
 		_spec.SetField(article.FieldTakedownBy, field.TypeUint, value)
 		_node.TakedownBy = &value
+	}
+	if value, ok := _c.mutation.ExtraConfig(); ok {
+		_spec.SetField(article.FieldExtraConfig, field.TypeJSON, value)
+		_node.ExtraConfig = value
 	}
 	if nodes := _c.mutation.PostTagsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -1565,6 +1575,24 @@ func (u *ArticleUpsert) AddTakedownBy(v uint) *ArticleUpsert {
 // ClearTakedownBy clears the value of the "takedown_by" field.
 func (u *ArticleUpsert) ClearTakedownBy() *ArticleUpsert {
 	u.SetNull(article.FieldTakedownBy)
+	return u
+}
+
+// SetExtraConfig sets the "extra_config" field.
+func (u *ArticleUpsert) SetExtraConfig(v map[string]interface{}) *ArticleUpsert {
+	u.Set(article.FieldExtraConfig, v)
+	return u
+}
+
+// UpdateExtraConfig sets the "extra_config" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateExtraConfig() *ArticleUpsert {
+	u.SetExcluded(article.FieldExtraConfig)
+	return u
+}
+
+// ClearExtraConfig clears the value of the "extra_config" field.
+func (u *ArticleUpsert) ClearExtraConfig() *ArticleUpsert {
+	u.SetNull(article.FieldExtraConfig)
 	return u
 }
 
@@ -2278,6 +2306,27 @@ func (u *ArticleUpsertOne) UpdateTakedownBy() *ArticleUpsertOne {
 func (u *ArticleUpsertOne) ClearTakedownBy() *ArticleUpsertOne {
 	return u.Update(func(s *ArticleUpsert) {
 		s.ClearTakedownBy()
+	})
+}
+
+// SetExtraConfig sets the "extra_config" field.
+func (u *ArticleUpsertOne) SetExtraConfig(v map[string]interface{}) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetExtraConfig(v)
+	})
+}
+
+// UpdateExtraConfig sets the "extra_config" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateExtraConfig() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateExtraConfig()
+	})
+}
+
+// ClearExtraConfig clears the value of the "extra_config" field.
+func (u *ArticleUpsertOne) ClearExtraConfig() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.ClearExtraConfig()
 	})
 }
 
@@ -3157,6 +3206,27 @@ func (u *ArticleUpsertBulk) UpdateTakedownBy() *ArticleUpsertBulk {
 func (u *ArticleUpsertBulk) ClearTakedownBy() *ArticleUpsertBulk {
 	return u.Update(func(s *ArticleUpsert) {
 		s.ClearTakedownBy()
+	})
+}
+
+// SetExtraConfig sets the "extra_config" field.
+func (u *ArticleUpsertBulk) SetExtraConfig(v map[string]interface{}) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetExtraConfig(v)
+	})
+}
+
+// UpdateExtraConfig sets the "extra_config" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateExtraConfig() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateExtraConfig()
+	})
+}
+
+// ClearExtraConfig clears the value of the "extra_config" field.
+func (u *ArticleUpsertBulk) ClearExtraConfig() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.ClearExtraConfig()
 	})
 }
 

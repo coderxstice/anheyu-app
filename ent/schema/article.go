@@ -137,6 +137,11 @@ func (Article) Fields() []ent.Field {
 			Comment("下架操作人ID").
 			Optional().
 			Nillable(),
+
+		// --- 扩展配置字段 ---
+		field.JSON("extra_config", map[string]interface{}{}).
+			Optional().
+			Comment("文章扩展配置（JSON格式，用于存储各种可选功能配置，如 enable_ai_podcast 等）"),
 	}
 }
 
