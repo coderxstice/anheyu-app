@@ -185,6 +185,9 @@ const (
 	// 文章目录 Hash 更新配置
 	KeyPostTocHashUpdateMode SettingKey = "post.toc.hash_update_mode" // 目录滚动时URL Hash更新模式: replace(替换不产生历史), none(不更新)
 
+	// 文章页面波浪区域配置
+	KeyPostWavesEnable SettingKey = "post.waves.enable" // 是否显示文章页面波浪区域
+
 	KeyPostEquipmentBannerBackground  SettingKey = "equipment.banner.background"
 	KeyPostEquipmentBannerTitle       SettingKey = "equipment.banner.title"
 	KeyPostEquipmentBannerDescription SettingKey = "equipment.banner.description"
