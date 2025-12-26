@@ -11,8 +11,8 @@ git:
   # 使用语义化版本排序
   tag_sort: -version:refname
   # 指定预发布版本的后缀，帮助 GoReleaser 识别预发布版本
-  # 发布正式版时，使用 --previous-tag 参数指定上一个正式版本
-  # 例如: goreleaser release --previous-tag v1.6.8
+  # 发布正式版时，使用 GORELEASER_PREVIOUS_TAG 环境变量指定上一个正式版本
+  # 例如: GORELEASER_PREVIOUS_TAG=v1.6.8 goreleaser release --clean
   prerelease_suffix: "-"
 
 # 环境变量
