@@ -228,10 +228,11 @@ jobs:
         with:
           distribution: goreleaser
           version: "~> v2"
-          args: release --clean ${{ steps.prev_tag.outputs.use_previous_tag == 'true' && format('--previous-tag {0}', steps.prev_tag.outputs.previous_tag) || '' }}
+          args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCKER_CLI_EXPERIMENTAL: enabled
+          GORELEASER_PREVIOUS_TAG: ${{ steps.prev_tag.outputs.use_previous_tag == 'true' && steps.prev_tag.outputs.previous_tag || '' }}
 
       - name: Update Docker Hub README
         uses: peter-evans/dockerhub-description@v3
