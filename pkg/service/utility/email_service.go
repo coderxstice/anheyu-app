@@ -189,6 +189,8 @@ func (s *emailService) SendCommentNotification(newComment *model.Comment, parent
 	}
 
 	gravatarURL := s.settingSvc.Get(constant.KeyGravatarURL.String())
+	// 确保 gravatarURL 包含 /avatar 路径
+	gravatarURL = strings.TrimRight(gravatarURL, "/") + "/avatar/"
 	defaultGravatar := s.settingSvc.Get(constant.KeyDefaultGravatarType.String())
 
 	newCommentHTML, _ := parser.MarkdownToHTML(newComment.Content)
