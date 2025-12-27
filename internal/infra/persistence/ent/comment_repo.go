@@ -339,6 +339,38 @@ func (r *commentRepo) UpdateContent(ctx context.Context, id uint, content, conte
 	}
 	return r.FindByID(ctx, id)
 }
+
+// UpdateCommentInfo 更新评论的用户信息和内容（仅限管理员）
+func (r *commentRepo) UpdateCommentInfo(ctx context.Context, id uint, params *repository.UpdateCommentInfoParams) (*model.Comment, error) {
+	updater := r.db.Comment.UpdateOneID(id)
+
+	// 只更新提供的字段
+	if params.Content != nil && params.ContentHTML != nil {
+		updater.SetContent(*params.Content).SetContentHTML(*params.ContentHTML)
+	}
+	if params.Nickname != nil {
+		updater.SetNickname(*params.Nickname)
+	}
+	if params.Email != nil {
+		updater.SetEmail(*params.Email)
+	}
+	if params.EmailMD5 != nil {
+		updater.SetEmailMd5(*params.EmailMD5)
+	}
+	if params.Website != nil {
+		if *params.Website == "" {
+			updater.ClearWebsite()
+		} else {
+			updater.SetWebsite(*params.Website)
+		}
+	}
+
+	_, err := updater.Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return r.FindByID(ctx, id)
+}
 func (r *commentRepo) UpdatePath(ctx context.Context, oldPath, newPath string) (int, error) {
 	info, err := r.db.Comment.Update().
 		Where(entcomment.TargetPath(oldPath)).

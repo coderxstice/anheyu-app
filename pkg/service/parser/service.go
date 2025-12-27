@@ -69,7 +69,7 @@ func NewService(settingSvc setting.SettingService, bus *event.EventBus) *Service
 
 	policy.AllowAttrs("class").Matching(bluemonday.SpaceSeparatedTokens).OnElements("ul", "i", "code", "span", "img", "a", "button", "pre", "div", "table", "thead", "tbody", "tr", "th", "td", "h1", "h2", "h3", "h4", "h5", "h6", "font", "p", "details", "summary", "svg", "path", "circle", "input", "g", "rect", "li", "line", "text", "tspan", "blockquote", "video", "audio", "marker", "ellipse", "polygon", "foreignObject")
 	policy.AllowAttrs("style").OnElements(
-		"div", "span", "p", "font", "th", "td", "rect", "blockquote", "img", "h1", "h2", "h3", "h4", "h5", "h6", "a", "strong", "b", "em", "i", "u", "s", "strike", "del", "pre", "code", "sub", "sup", "mark", "ul", "ol", "li", "table", "thead", "tbody", "tfoot", "tr", "section", "article", "header", "footer", "nav", "aside", "main", "hr", "figure", "figcaption", "svg", "path", "circle", "line", "g", "text", "summary", "details", "button", "video", "iframe", "ellipse", "polygon", "foreignObject", "marker",
+		"div", "span", "p", "font", "th", "td", "rect", "blockquote", "img", "h1", "h2", "h3", "h4", "h5", "h6", "a", "strong", "b", "em", "i", "u", "s", "strike", "del", "pre", "code", "sub", "sup", "mark", "ul", "ol", "li", "table", "thead", "tbody", "tfoot", "tr", "section", "article", "header", "footer", "nav", "aside", "main", "hr", "figure", "figcaption", "svg", "path", "circle", "line", "g", "text", "summary", "details", "button", "video", "iframe", "ellipse", "polygon", "foreignObject", "marker", "i",
 	)
 	// 图片相关属性
 	policy.AllowAttrs("src", "alt", "title", "width", "height").OnElements("img")
@@ -99,8 +99,8 @@ func NewService(settingSvc setting.SettingService, bus *event.EventBus) *Service
 	policy.AllowAttrs("orient", "markerHeight", "markerWidth", "markerUnits", "refY", "refX", "viewBox", "class", "id").OnElements("marker")
 	policy.AllowAttrs("language").OnElements("code")
 	policy.AllowAttrs("open").OnElements("details")
-	policy.AllowAttrs("data-line").OnElements("details", "p", "h2", "h3", "blockquote", "ol", "li", "figure", "table", "div")
-	policy.AllowAttrs("data-mermaid-theme", "data-closed", "data-processed").OnElements("p")
+	policy.AllowAttrs("data-line").OnElements("details", "p", "h1", "h2", "h3", "h4", "h5", "h6", "blockquote", "ol", "ul", "li", "figure", "table", "thead", "tbody", "tr", "th", "td", "div")
+	policy.AllowAttrs("data-mermaid-theme", "data-closed", "data-processed").OnElements("p", "div")
 	policy.AllowAttrs("data-tips").OnElements("span")
 	policy.AllowAttrs("data-href").OnElements("button")
 	policy.AllowAttrs("type").OnElements("button")
@@ -153,7 +153,7 @@ func NewService(settingSvc setting.SettingService, bus *event.EventBus) *Service
 		mdParser:     mdParser,
 		policy:       policy,
 		httpClient:   &http.Client{Timeout: 10 * time.Second},
-		mermaidRegex: regexp.MustCompile(`(?s)<p[^>]*class="md-editor-mermaid"[^>]*>.*?</p>`),
+		mermaidRegex: regexp.MustCompile(`(?s)<(?:p|div)[^>]*class="[^"]*md-editor-mermaid[^"]*"[^>]*>.*?</(?:p|div)>`),
 	}
 
 	bus.Subscribe(event.Topic(setting.TopicSettingUpdated), svc.handleSettingUpdate)
@@ -277,6 +277,12 @@ func (s *Service) ToHTML(ctx context.Context, content string) (string, error) {
 	return finalHTML, nil
 }
 
+// mermaidNodeInfo 保存 mermaid 节点的信息
+type mermaidNodeInfo struct {
+	node    *html.Node
+	tagName string
+}
+
 // extractMermaidBlocks 使用 HTML 解析器提取完整的 Mermaid 块（包括 action div）
 func extractMermaidBlocks(htmlContent string) (map[string]string, string) {
 	placeholders := make(map[string]string)
@@ -286,14 +292,15 @@ func extractMermaidBlocks(htmlContent string) (map[string]string, string) {
 		return placeholders, htmlContent
 	}
 
-	var findMermaidNodes func(*html.Node) []*html.Node
-	findMermaidNodes = func(n *html.Node) []*html.Node {
-		var mermaidNodes []*html.Node
-		if n.Type == html.ElementNode && n.Data == "p" {
+	var findMermaidNodes func(*html.Node) []mermaidNodeInfo
+	findMermaidNodes = func(n *html.Node) []mermaidNodeInfo {
+		var mermaidNodes []mermaidNodeInfo
+		// 支持 p 和 div 元素
+		if n.Type == html.ElementNode && (n.Data == "p" || n.Data == "div") {
 			// 检查是否有 md-editor-mermaid class
 			for _, attr := range n.Attr {
 				if attr.Key == "class" && strings.Contains(attr.Val, "md-editor-mermaid") {
-					mermaidNodes = append(mermaidNodes, n)
+					mermaidNodes = append(mermaidNodes, mermaidNodeInfo{node: n, tagName: n.Data})
 					break
 				}
 			}
@@ -314,9 +321,9 @@ func extractMermaidBlocks(htmlContent string) (map[string]string, string) {
 	// 为每个 Mermaid 节点渲染完整 HTML 并创建占位符
 	result := htmlContent
 	for i := len(mermaidNodes) - 1; i >= 0; i-- {
-		node := mermaidNodes[i]
+		nodeInfo := mermaidNodes[i]
 		var buf bytes.Buffer
-		if err := html.Render(&buf, node); err != nil {
+		if err := html.Render(&buf, nodeInfo.node); err != nil {
 			log.Printf("[extractMermaidBlocks] 渲染节点失败: %v", err)
 			continue
 		}
@@ -325,26 +332,36 @@ func extractMermaidBlocks(htmlContent string) (map[string]string, string) {
 		placeholders[placeholder] = mermaidHTML
 
 		// 在原始 HTML 中查找并替换（从后往前替换，避免位置偏移）
-		// 使用正则表达式找到开始标签
-		startTagPattern := regexp.MustCompile(`<p[^>]*class="[^"]*md-editor-mermaid[^"]*"[^>]*>`)
+		// 使用正则表达式找到开始标签（支持 p 和 div）
+		startTagPattern := regexp.MustCompile(`<(?:p|div)[^>]*class="[^"]*md-editor-mermaid[^"]*"[^>]*>`)
 		matches := startTagPattern.FindAllStringIndex(result, -1)
 		if len(matches) > i {
 			startPos := matches[i][0]
-			// 从开始位置查找匹配的 </p>（计算嵌套深度）
+			tagName := nodeInfo.tagName
+			openTag := "<" + tagName
+			closeTag := "</" + tagName
+			closeTagLen := len(closeTag) + 1 // 包含 >
+
+			// 从开始位置查找匹配的结束标签（计算嵌套深度）
 			depth := 0
 			endPos := -1
 			for j := startPos; j < len(result); j++ {
-				if j+1 < len(result) && result[j:j+2] == "<p" {
+				// 检查开始标签
+				if j+len(openTag) <= len(result) && result[j:j+len(openTag)] == openTag {
 					// 检查是否是开始标签（后面跟着空格或>）
-					if j+2 < len(result) && (result[j+2] == ' ' || result[j+2] == '>') {
+					nextIdx := j + len(openTag)
+					if nextIdx < len(result) && (result[nextIdx] == ' ' || result[nextIdx] == '>') {
 						depth++
 					}
-				} else if j+3 < len(result) && result[j:j+3] == "</p" {
+				}
+				// 检查结束标签
+				if j+len(closeTag) <= len(result) && result[j:j+len(closeTag)] == closeTag {
 					// 检查是否是结束标签（后面跟着>）
-					if j+3 < len(result) && result[j+3] == '>' {
+					nextIdx := j + len(closeTag)
+					if nextIdx < len(result) && result[nextIdx] == '>' {
 						depth--
 						if depth == 0 {
-							endPos = j + 4
+							endPos = j + closeTagLen
 							break
 						}
 					}

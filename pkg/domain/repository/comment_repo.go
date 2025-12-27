@@ -46,6 +46,16 @@ type AdminListParams struct {
 	Status     *int
 }
 
+// UpdateCommentInfoParams 定义了更新评论信息的参数
+type UpdateCommentInfoParams struct {
+	Content     *string // 更新后的 Markdown 内容
+	ContentHTML *string // 更新后的 HTML 内容
+	Nickname    *string // 用户昵称
+	Email       *string // 用户邮箱
+	EmailMD5    *string // 邮箱的 MD5 哈希（用于 Gravatar）
+	Website     *string // 用户网站
+}
+
 // CommentRepository 定义了评论数据的持久化操作接口。
 type CommentRepository interface {
 	// 创建一条新评论
@@ -82,6 +92,9 @@ type CommentRepository interface {
 
 	// 更新评论的内容（仅限管理员）
 	UpdateContent(ctx context.Context, id uint, content, contentHTML string) (*model.Comment, error)
+
+	// 更新评论的用户信息和内容（仅限管理员）
+	UpdateCommentInfo(ctx context.Context, id uint, params *UpdateCommentInfoParams) (*model.Comment, error)
 
 	// 更新评论的路径（用于处理文章或页面slug变更的情况）
 	UpdatePath(ctx context.Context, oldPath, newPath string) (int, error)

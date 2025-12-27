@@ -474,6 +474,48 @@ func (h *Handler) UpdateContent(c *gin.Context) {
 	response.Success(c, updatedComment, "评论更新成功")
 }
 
+// UpdateCommentInfo
+// @Summary      管理员更新评论信息
+// @Description  根据评论ID更新评论的内容、昵称、邮箱和网站等信息
+// @Tags         评论管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        id   path  string  true  "评论公共ID"
+// @Param        update_request body dto.UpdateCommentRequest true "更新请求，可包含 content、nickname、email、website"
+// @Success      200  {object}  response.Response{data=dto.Response}  "更新成功"
+// @Failure      400  {object}  response.Response  "请求参数错误"
+// @Failure      401  {object}  response.Response  "未授权"
+// @Failure      500  {object}  response.Response  "服务器内部错误"
+// @Router       /comments/{id}/info [put]
+func (h *Handler) UpdateCommentInfo(c *gin.Context) {
+	publicID := c.Param("id")
+	if publicID == "" {
+		response.Fail(c, http.StatusBadRequest, "评论ID不能为空")
+		return
+	}
+
+	var req dto.UpdateCommentRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Fail(c, http.StatusBadRequest, "请求参数无效: "+err.Error())
+		return
+	}
+
+	// 验证至少提供了一个字段
+	if req.Content == nil && req.Nickname == nil && req.Email == nil && req.Website == nil {
+		response.Fail(c, http.StatusBadRequest, "请至少提供一个要更新的字段")
+		return
+	}
+
+	updatedComment, err := h.svc.UpdateCommentInfo(c.Request.Context(), publicID, &req)
+	if err != nil {
+		response.Fail(c, http.StatusInternalServerError, "更新评论信息失败: "+err.Error())
+		return
+	}
+
+	response.Success(c, updatedComment, "评论信息更新成功")
+}
+
 // GetQQInfo
 // @Summary      获取QQ信息
 // @Description  根据QQ号获取QQ昵称和头像URL。用于评论表单自动填充功能。

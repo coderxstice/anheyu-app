@@ -16,6 +16,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/volume"
 )
 
@@ -38,6 +39,7 @@ type syncService struct {
 	storagePolicySvc volume.IStoragePolicyService
 	eventBus         *event.EventBus
 	storageProviders map[constant.StoragePolicyType]storage.IStorageProvider
+	settingSvc       setting.SettingService
 }
 
 // NewSyncService 是 syncService 的构造函数。
@@ -49,6 +51,7 @@ func NewSyncService(
 	storagePolicySvc volume.IStoragePolicyService,
 	eventBus *event.EventBus,
 	storageProviders map[constant.StoragePolicyType]storage.IStorageProvider,
+	settingSvc setting.SettingService,
 ) ISyncService {
 	return &syncService{
 		txManager:        txManager,
@@ -58,6 +61,7 @@ func NewSyncService(
 		storagePolicySvc: storagePolicySvc,
 		eventBus:         eventBus,
 		storageProviders: storageProviders,
+		settingSvc:       settingSvc,
 	}
 }
 
@@ -82,6 +86,15 @@ func calculateBatchSize(totalItems int) int {
 func (s *syncService) getProviderForPolicy(policy *model.StoragePolicy) (storage.IStorageProvider, error) {
 	if policy == nil {
 		return nil, errors.New("policy is nil")
+	}
+	// 对于本地存储，动态读取配置以确保使用最新的签名密钥
+	if policy.Type == constant.PolicyTypeLocal {
+		// 动态创建 LocalProvider 以使用最新的签名密钥
+		secret := s.settingSvc.Get(constant.KeyLocalFileSigningSecret.String())
+		if secret == "" {
+			return nil, fmt.Errorf("本地文件签名密钥未配置")
+		}
+		return storage.NewLocalProvider(secret), nil
 	}
 	provider, ok := s.storageProviders[policy.Type]
 	if !ok {
