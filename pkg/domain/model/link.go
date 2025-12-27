@@ -174,6 +174,7 @@ type ImportLinkItem struct {
 	Email        string `json:"email" binding:"omitempty,email"`
 	CategoryName string `json:"category_name"`                                                      // 分类名称，如果不存在会自动创建
 	TagName      string `json:"tag_name"`                                                           // 标签名称，可选，如果不存在会自动创建
+	TagColor     string `json:"tag_color"`                                                          // 标签颜色，可选，创建新标签时使用
 	Status       string `json:"status" binding:"omitempty,oneof=PENDING APPROVED REJECTED INVALID"` // 默认为 PENDING
 }
 

@@ -9,6 +9,15 @@ package model
 
 import "time"
 
+// --- 文章扩展配置 (Extra Config) ---
+
+// ArticleExtraConfig 文章扩展配置结构体
+// 用于存储各种可选功能配置，支持未来扩展
+type ArticleExtraConfig struct {
+	EnableAIPodcast bool `json:"enable_ai_podcast,omitempty"` // AI播客开关，默认 false
+	// 未来可扩展更多配置...
+}
+
 // --- 核心领域对象 (Domain Object) ---
 
 // Article 是文章的核心领域模型，业务逻辑（Service层）围绕它进行。
@@ -53,6 +62,9 @@ type Article struct {
 	TakedownReason string     // 下架原因
 	TakedownAt     *time.Time // 下架时间
 	TakedownBy     *uint      // 下架操作人ID
+
+	// --- 扩展配置 ---
+	ExtraConfig *ArticleExtraConfig // 文章扩展配置
 }
 
 // --- API 数据传输对象 (Data Transfer Objects) ---
@@ -81,9 +93,10 @@ type CreateArticleRequest struct {
 	ContentHTML          string   `json:"content_html"`
 	CustomPublishedAt    *string  `json:"custom_published_at,omitempty"`
 	CustomUpdatedAt      *string  `json:"custom_updated_at,omitempty"`
-	Keywords             string   `json:"keywords,omitempty"`
-	OwnerID              uint     `json:"owner_id,omitempty"`      // 文章作者ID（多人共创功能）
-	ReviewStatus         string   `json:"review_status,omitempty"` // 审核状态（多人共创功能）
+	Keywords             string              `json:"keywords,omitempty"`
+	OwnerID              uint                `json:"owner_id,omitempty"`      // 文章作者ID（多人共创功能）
+	ReviewStatus         string              `json:"review_status,omitempty"` // 审核状态（多人共创功能）
+	ExtraConfig          *ArticleExtraConfig `json:"extra_config,omitempty"`  // 文章扩展配置
 }
 
 // UpdateArticleRequest 定义了更新文章的请求体
@@ -110,8 +123,9 @@ type UpdateArticleRequest struct {
 	ContentHTML          *string  `json:"content_html"`
 	CustomPublishedAt    *string  `json:"custom_published_at,omitempty"`
 	CustomUpdatedAt      *string  `json:"custom_updated_at,omitempty"`
-	Keywords             *string  `json:"keywords"`
-	ReviewStatus         *string  `json:"review_status,omitempty"` // 审核状态（多人共创功能）
+	Keywords             *string             `json:"keywords"`
+	ReviewStatus         *string             `json:"review_status,omitempty"` // 审核状态（多人共创功能）
+	ExtraConfig          *ArticleExtraConfig `json:"extra_config,omitempty"`  // 文章扩展配置
 }
 
 // ArticleResponse 定义了文章信息的标准 API 响应结构
@@ -157,6 +171,8 @@ type ArticleResponse struct {
 	TakedownReason string     `json:"takedown_reason,omitempty"` // 下架原因
 	TakedownAt     *time.Time `json:"takedown_at,omitempty"`     // 下架时间
 	TakedownBy     *uint      `json:"takedown_by,omitempty"`     // 下架操作人ID
+	// 扩展配置
+	ExtraConfig *ArticleExtraConfig `json:"extra_config,omitempty"` // 文章扩展配置
 }
 
 // 用于上一篇/下一篇/相关文章的简化信息响应
@@ -244,7 +260,8 @@ type CreateArticleParams struct {
 	CustomPublishedAt    *time.Time
 	CustomUpdatedAt      *time.Time
 	Keywords             string
-	ReviewStatus         string // 审核状态（多人共创功能）：NONE-无需审核, PENDING-待审核
+	ReviewStatus         string              // 审核状态（多人共创功能）：NONE-无需审核, PENDING-待审核
+	ExtraConfig          *ArticleExtraConfig // 文章扩展配置
 }
 
 // 用于解析颜色 API 响应的结构体

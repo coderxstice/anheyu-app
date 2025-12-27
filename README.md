@@ -89,7 +89,9 @@ GitHub: https://github.com/anzhiyu-c/anheyu-app
 - ✅ 支持即刻说说 (PRO)
 - ✅ 支持多用户共创 (PRO)
 - ✅ 支持微信、支付宝、易支付、虎皮椒等多种支付方式 (PRO)
-- ✅ 支持QQ,微信，GitHub,自定义OIDC等多种登录方式 (PRO)
+- ✅ 支持 QQ,微信，GitHub,自定义 OIDC 等多种登录方式 (PRO)
+- ✅ 支持 AI 播客 (PRO)
+- ✅ 支持 AI 写作 (PRO)
 
 ## 部分功能展示
 
@@ -129,7 +131,7 @@ GitHub: https://github.com/anzhiyu-c/anheyu-app
 
 ![评论弹幕](https://upload-bbs.miyoushe.com/upload/2025/09/14/125766904/9ad29d18db96115f483ddf15b8af9b57_7214154697962036777.png?x-oss-process=image/format,avif)
 
-**自带icon**
+**自带 icon**
 
 可前往[iconfont](https://www.iconfont.cn/collections/detail?cid=44481)查看所有自带图标
 

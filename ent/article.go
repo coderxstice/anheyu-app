@@ -86,6 +86,8 @@ type Article struct {
 	TakedownAt *time.Time `json:"takedown_at,omitempty"`
 	// 下架操作人ID
 	TakedownBy *uint `json:"takedown_by,omitempty"`
+	// 文章扩展配置（JSON格式，用于存储各种可选功能配置，如 enable_ai_podcast 等）
+	ExtraConfig map[string]interface{} `json:"extra_config,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ArticleQuery when eager-loading is set.
 	Edges        ArticleEdges `json:"edges"`
@@ -137,7 +139,7 @@ func (*Article) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case article.FieldSummaries:
+		case article.FieldSummaries, article.FieldExtraConfig:
 			values[i] = new([]byte)
 		case article.FieldIsPrimaryColorManual, article.FieldShowOnHome, article.FieldCopyright, article.FieldIsTakedown:
 			values[i] = new(sql.NullBool)
@@ -380,6 +382,14 @@ func (_m *Article) assignValues(columns []string, values []any) error {
 				_m.TakedownBy = new(uint)
 				*_m.TakedownBy = uint(value.Int64)
 			}
+		case article.FieldExtraConfig:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field extra_config", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.ExtraConfig); err != nil {
+					return fmt.Errorf("unmarshal field extra_config: %w", err)
+				}
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -544,6 +554,9 @@ func (_m *Article) String() string {
 		builder.WriteString("takedown_by=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("extra_config=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ExtraConfig))
 	builder.WriteByte(')')
 	return builder.String()
 }

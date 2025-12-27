@@ -4,8 +4,10 @@ package comment
 import (
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"path/filepath"
 	"strconv"
 
 	"github.com/anzhiyu-c/anheyu-app/ent"
@@ -496,4 +498,139 @@ func (h *Handler) GetQQInfo(c *gin.Context) {
 	}
 
 	response.Success(c, info, "获取成功")
+}
+
+// ExportComments
+// @Summary      管理员导出评论
+// @Description  导出选定的评论或所有评论为 ZIP 文件
+// @Tags         评论管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      application/zip
+// @Param        export_request body dto.ExportRequest true "导出请求，包含ID列表（空则导出所有）"
+// @Success      200 {file} file "ZIP文件下载"
+// @Failure      400 {object} response.Response "请求参数错误"
+// @Failure      401 {object} response.Response "未授权"
+// @Failure      500 {object} response.Response "服务器内部错误"
+// @Router       /comments/export [post]
+func (h *Handler) ExportComments(c *gin.Context) {
+	var req dto.ExportRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		// 如果没有 body 或解析失败，默认导出所有
+		req.IDs = []string{}
+	}
+
+	log.Printf("[Handler.ExportComments] 开始导出评论，共 %d 个ID", len(req.IDs))
+
+	zipData, err := h.svc.ExportCommentsToZip(c.Request.Context(), req.IDs)
+	if err != nil {
+		log.Printf("[Handler.ExportComments] 导出失败: %v", err)
+		response.Fail(c, http.StatusInternalServerError, "导出评论失败: "+err.Error())
+		return
+	}
+
+	// 设置响应头
+	c.Header("Content-Type", "application/zip")
+	c.Header("Content-Disposition", "attachment; filename=comments_export.zip")
+	c.Header("Content-Length", strconv.Itoa(len(zipData)))
+
+	c.Data(http.StatusOK, "application/zip", zipData)
+}
+
+// ImportComments
+// @Summary      管理员导入评论
+// @Description  从 JSON 或 ZIP 文件导入评论
+// @Tags         评论管理
+// @Security     BearerAuth
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        file formData file true "评论数据文件（JSON或ZIP格式）"
+// @Param        skip_existing formData bool false "是否跳过已存在的评论"
+// @Param        default_status formData int false "默认状态（1:已发布, 2:待审核）"
+// @Param        keep_create_time formData bool false "是否保留原创建时间"
+// @Success      200 {object} response.Response{data=dto.ImportResult} "导入成功"
+// @Failure      400 {object} response.Response "参数错误"
+// @Failure      401 {object} response.Response "未授权"
+// @Failure      500 {object} response.Response "导入失败"
+// @Router       /comments/import [post]
+func (h *Handler) ImportComments(c *gin.Context) {
+	log.Printf("[Handler.ImportComments] 开始处理评论导入请求")
+
+	// 获取上传的文件
+	fileHeader, err := c.FormFile("file")
+	if err != nil {
+		log.Printf("[Handler.ImportComments] 获取上传文件失败: %v", err)
+		response.Fail(c, http.StatusBadRequest, "无效的文件上传请求")
+		return
+	}
+
+	log.Printf("[Handler.ImportComments] 接收到文件: %s, 大小: %d bytes", fileHeader.Filename, fileHeader.Size)
+
+	// 读取文件内容
+	file, err := fileHeader.Open()
+	if err != nil {
+		log.Printf("[Handler.ImportComments] 打开文件失败: %v", err)
+		response.Fail(c, http.StatusInternalServerError, "无法处理上传的文件")
+		return
+	}
+	defer file.Close()
+
+	fileData, err := io.ReadAll(file)
+	if err != nil {
+		log.Printf("[Handler.ImportComments] 读取文件失败: %v", err)
+		response.Fail(c, http.StatusInternalServerError, "读取文件失败")
+		return
+	}
+
+	// 解析导入选项
+	skipExisting := c.DefaultPostForm("skip_existing", "true") == "true"
+	keepCreateTime := c.DefaultPostForm("keep_create_time", "true") == "true"
+	defaultStatusStr := c.DefaultPostForm("default_status", "1")
+	defaultStatus, _ := strconv.Atoi(defaultStatusStr)
+	if defaultStatus < 1 || defaultStatus > 2 {
+		defaultStatus = 1
+	}
+
+	importReq := &comment.ImportCommentRequest{
+		SkipExisting:   skipExisting,
+		DefaultStatus:  defaultStatus,
+		KeepCreateTime: keepCreateTime,
+	}
+
+	log.Printf("[Handler.ImportComments] 导入选项 - 跳过已存在: %v, 默认状态: %d, 保留时间: %v",
+		skipExisting, defaultStatus, keepCreateTime)
+
+	// 根据文件类型调用不同的导入方法
+	var result *comment.ImportCommentResult
+	ext := filepath.Ext(fileHeader.Filename)
+
+	ctx := c.Request.Context()
+
+	switch ext {
+	case ".json":
+		result, err = h.svc.ImportCommentsFromJSON(ctx, fileData, importReq)
+	case ".zip":
+		result, err = h.svc.ImportCommentsFromZip(ctx, fileData, importReq)
+	default:
+		response.Fail(c, http.StatusBadRequest, "不支持的文件格式，仅支持 .json 和 .zip 文件")
+		return
+	}
+
+	if err != nil {
+		log.Printf("[Handler.ImportComments] 导入失败: %v", err)
+		response.Fail(c, http.StatusInternalServerError, "导入评论失败: "+err.Error())
+		return
+	}
+
+	// 转换为 DTO
+	importResult := &dto.ImportResult{
+		TotalCount:    result.TotalCount,
+		SuccessCount:  result.SuccessCount,
+		SkippedCount:  result.SkippedCount,
+		FailedCount:   result.FailedCount,
+		ErrorMessages: result.Errors,
+	}
+
+	response.Success(c, importResult, fmt.Sprintf("导入完成：成功 %d，跳过 %d，失败 %d",
+		result.SuccessCount, result.SkippedCount, result.FailedCount))
 }

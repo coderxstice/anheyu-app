@@ -94,6 +94,10 @@ const (
 	KeyFooterProjectList        SettingKey = "footer.project.list"
 	KeyFooterBarLinkList        SettingKey = "footer.bar.linkList"
 
+	// --- Uptime Kuma 状态监控配置 ---
+	KeyFooterUptimeKumaEnable  SettingKey = "footer.uptime_kuma.enable"   // 是否启用状态显示
+	KeyFooterUptimeKumaPageURL SettingKey = "footer.uptime_kuma.page_url" // 状态页完整地址
+
 	KeyFriendLinkApplyCondition         SettingKey = "FRIEND_LINK_APPLY_CONDITION"
 	KeyFriendLinkApplyCustomCode        SettingKey = "FRIEND_LINK_APPLY_CUSTOM_CODE"
 	KeyFriendLinkApplyCustomCodeHtml    SettingKey = "FRIEND_LINK_APPLY_CUSTOM_CODE_HTML"
@@ -178,6 +182,12 @@ const (
 	KeyPostCopyCopyrightOriginal SettingKey = "post.copy.copyright_original" // 原创文章版权信息模板
 	KeyPostCopyCopyrightReprint  SettingKey = "post.copy.copyright_reprint"  // 转载文章版权信息模板
 
+	// 文章目录 Hash 更新配置
+	KeyPostTocHashUpdateMode SettingKey = "post.toc.hash_update_mode" // 目录滚动时URL Hash更新模式: replace(替换不产生历史), none(不更新)
+
+	// 文章页面波浪区域配置
+	KeyPostWavesEnable SettingKey = "post.waves.enable" // 是否显示文章页面波浪区域
+
 	KeyPostEquipmentBannerBackground  SettingKey = "equipment.banner.background"
 	KeyPostEquipmentBannerTitle       SettingKey = "equipment.banner.title"
 	KeyPostEquipmentBannerDescription SettingKey = "equipment.banner.description"
@@ -247,6 +257,7 @@ const (
 	KeySidebarArchiveCount           SettingKey = "sidebar.archive.displayMonths"
 	KeySidebarCustomShowInPost       SettingKey = "sidebar.custom.showInPost"
 	KeySidebarTocCollapseMode        SettingKey = "sidebar.toc.collapseMode"
+	KeySidebarSeriesPostCount        SettingKey = "sidebar.series.postCount"
 
 	// --- 站点敏感或内部配置 (不暴露给前端) ---
 	KeyJWTSecret               SettingKey = "JWT_SECRET"
@@ -307,6 +318,7 @@ const (
 	KeyAboutPageEnableLikeTech    SettingKey = "about.page.enable.like_tech"
 	KeyAboutPageEnableMusic       SettingKey = "about.page.enable.music"
 	KeyAboutPageEnableCustomCode  SettingKey = "about.page.enable.custom_code"
+	KeyAboutPageEnableComment     SettingKey = "about.page.enable.comment"
 
 	KeyMusicPlayerEnable         SettingKey = "music.player.enable"
 	KeyMusicPlayerPlaylistID     SettingKey = "music.player.playlist_id"

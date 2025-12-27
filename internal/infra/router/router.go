@@ -223,6 +223,8 @@ func (r *Router) registerCommentRoutes(api *gin.RouterGroup) {
 		commentsAdmin.PUT("/:id", r.commentHandler.UpdateContent)
 		commentsAdmin.PUT("/:id/status", r.commentHandler.UpdateStatus)
 		commentsAdmin.PUT("/:id/pin", r.commentHandler.SetPin)
+		commentsAdmin.POST("/export", r.commentHandler.ExportComments)
+		commentsAdmin.POST("/import", r.commentHandler.ImportComments)
 	}
 }
 

@@ -84,6 +84,8 @@ const (
 	FieldTakedownAt = "takedown_at"
 	// FieldTakedownBy holds the string denoting the takedown_by field in the database.
 	FieldTakedownBy = "takedown_by"
+	// FieldExtraConfig holds the string denoting the extra_config field in the database.
+	FieldExtraConfig = "extra_config"
 	// EdgePostTags holds the string denoting the post_tags edge name in mutations.
 	EdgePostTags = "post_tags"
 	// EdgePostCategories holds the string denoting the post_categories edge name in mutations.
@@ -148,6 +150,7 @@ var Columns = []string{
 	FieldTakedownReason,
 	FieldTakedownAt,
 	FieldTakedownBy,
+	FieldExtraConfig,
 }
 
 var (

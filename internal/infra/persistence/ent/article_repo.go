@@ -109,7 +109,21 @@ func (r *articleRepo) toModel(a *ent.Article) *model.Article {
 		TakedownReason: a.TakedownReason,
 		TakedownAt:     a.TakedownAt,
 		TakedownBy:     a.TakedownBy,
+		// 扩展配置字段
+		ExtraConfig: convertExtraConfig(a.ExtraConfig),
 	}
+}
+
+// convertExtraConfig 将数据库中的 map[string]interface{} 转换为 ArticleExtraConfig
+func convertExtraConfig(config map[string]interface{}) *model.ArticleExtraConfig {
+	if config == nil || len(config) == 0 {
+		return nil
+	}
+	result := &model.ArticleExtraConfig{}
+	if enableAIPodcast, ok := config["enable_ai_podcast"].(bool); ok {
+		result.EnableAIPodcast = enableAIPodcast
+	}
+	return result
 }
 
 // toModelSlice 将 ent.Article 切片转换为 model.Article 切片，减少代码重复。
@@ -521,6 +535,14 @@ func (r *articleRepo) Create(ctx context.Context, params *model.CreateArticlePar
 	}
 	// 如果没有设置 ReviewStatus，默认值为 NONE（由 schema 定义）
 
+	// 设置扩展配置
+	if params.ExtraConfig != nil {
+		extraConfigMap := map[string]interface{}{
+			"enable_ai_podcast": params.ExtraConfig.EnableAIPodcast,
+		}
+		creator.SetExtraConfig(extraConfigMap)
+	}
+
 	// 支持自定义发布时间
 	if params.CustomPublishedAt != nil {
 		log.Printf("[Repository.Create]设置自定义发布时间: %v", *params.CustomPublishedAt)
@@ -642,6 +664,13 @@ func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.Up
 	}
 	if req.ReviewStatus != nil {
 		updater.SetReviewStatus(article.ReviewStatus(*req.ReviewStatus))
+	}
+	// 更新扩展配置
+	if req.ExtraConfig != nil {
+		extraConfigMap := map[string]interface{}{
+			"enable_ai_podcast": req.ExtraConfig.EnableAIPodcast,
+		}
+		updater.SetExtraConfig(extraConfigMap)
 	}
 	if computed != nil {
 		if computed.WordCount > 0 || (req.ContentMd != nil && *req.ContentMd == "") {

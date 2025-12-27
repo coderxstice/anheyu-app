@@ -1910,6 +1910,16 @@ func TakedownByNotNil() predicate.Article {
 	return predicate.Article(sql.FieldNotNull(FieldTakedownBy))
 }
 
+// ExtraConfigIsNil applies the IsNil predicate on the "extra_config" field.
+func ExtraConfigIsNil() predicate.Article {
+	return predicate.Article(sql.FieldIsNull(FieldExtraConfig))
+}
+
+// ExtraConfigNotNil applies the NotNil predicate on the "extra_config" field.
+func ExtraConfigNotNil() predicate.Article {
+	return predicate.Article(sql.FieldNotNull(FieldExtraConfig))
+}
+
 // HasPostTags applies the HasEdge predicate on the "post_tags" edge.
 func HasPostTags() predicate.Article {
 	return predicate.Article(func(s *sql.Selector) {

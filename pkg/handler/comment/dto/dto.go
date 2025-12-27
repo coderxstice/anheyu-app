@@ -123,3 +123,24 @@ type ListResponse struct {
 type UploadImageResponse struct {
 	ID string `json:"id"`
 }
+
+// ExportRequest 定义了导出评论的API请求体。
+type ExportRequest struct {
+	IDs []string `json:"ids"` // 要导出的评论ID列表，为空则导出所有
+}
+
+// ImportOptionsRequest 定义了导入评论时的选项参数。
+type ImportOptionsRequest struct {
+	SkipExisting   bool `json:"skip_existing"`    // 是否跳过已存在的评论
+	DefaultStatus  int  `json:"default_status"`   // 默认状态 (1: 已发布, 2: 待审核)
+	KeepCreateTime bool `json:"keep_create_time"` // 是否保留原创建时间
+}
+
+// ImportResult 定义了导入评论的结果。
+type ImportResult struct {
+	TotalCount   int      `json:"total_count"`    // 总数
+	SuccessCount int      `json:"success_count"`  // 成功数
+	SkippedCount int      `json:"skipped_count"`  // 跳过数
+	FailedCount  int      `json:"failed_count"`   // 失败数
+	ErrorMessages []string `json:"error_messages"` // 错误信息列表
+}

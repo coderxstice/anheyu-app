@@ -2657,6 +2657,7 @@ type ArticleMutation struct {
 	takedown_at             *time.Time
 	takedown_by             *uint
 	addtakedown_by          *int
+	extra_config            *map[string]interface{}
 	clearedFields           map[string]struct{}
 	post_tags               map[uint]struct{}
 	removedpost_tags        map[uint]struct{}
@@ -4425,6 +4426,55 @@ func (m *ArticleMutation) ResetTakedownBy() {
 	delete(m.clearedFields, article.FieldTakedownBy)
 }
 
+// SetExtraConfig sets the "extra_config" field.
+func (m *ArticleMutation) SetExtraConfig(value map[string]interface{}) {
+	m.extra_config = &value
+}
+
+// ExtraConfig returns the value of the "extra_config" field in the mutation.
+func (m *ArticleMutation) ExtraConfig() (r map[string]interface{}, exists bool) {
+	v := m.extra_config
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExtraConfig returns the old "extra_config" field's value of the Article entity.
+// If the Article object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ArticleMutation) OldExtraConfig(ctx context.Context) (v map[string]interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExtraConfig is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExtraConfig requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExtraConfig: %w", err)
+	}
+	return oldValue.ExtraConfig, nil
+}
+
+// ClearExtraConfig clears the value of the "extra_config" field.
+func (m *ArticleMutation) ClearExtraConfig() {
+	m.extra_config = nil
+	m.clearedFields[article.FieldExtraConfig] = struct{}{}
+}
+
+// ExtraConfigCleared returns if the "extra_config" field was cleared in this mutation.
+func (m *ArticleMutation) ExtraConfigCleared() bool {
+	_, ok := m.clearedFields[article.FieldExtraConfig]
+	return ok
+}
+
+// ResetExtraConfig resets all changes to the "extra_config" field.
+func (m *ArticleMutation) ResetExtraConfig() {
+	m.extra_config = nil
+	delete(m.clearedFields, article.FieldExtraConfig)
+}
+
 // AddPostTagIDs adds the "post_tags" edge to the PostTag entity by ids.
 func (m *ArticleMutation) AddPostTagIDs(ids ...uint) {
 	if m.post_tags == nil {
@@ -4621,7 +4671,7 @@ func (m *ArticleMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ArticleMutation) Fields() []string {
-	fields := make([]string, 0, 34)
+	fields := make([]string, 0, 35)
 	if m.deleted_at != nil {
 		fields = append(fields, article.FieldDeletedAt)
 	}
@@ -4724,6 +4774,9 @@ func (m *ArticleMutation) Fields() []string {
 	if m.takedown_by != nil {
 		fields = append(fields, article.FieldTakedownBy)
 	}
+	if m.extra_config != nil {
+		fields = append(fields, article.FieldExtraConfig)
+	}
 	return fields
 }
 
@@ -4800,6 +4853,8 @@ func (m *ArticleMutation) Field(name string) (ent.Value, bool) {
 		return m.TakedownAt()
 	case article.FieldTakedownBy:
 		return m.TakedownBy()
+	case article.FieldExtraConfig:
+		return m.ExtraConfig()
 	}
 	return nil, false
 }
@@ -4877,6 +4932,8 @@ func (m *ArticleMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldTakedownAt(ctx)
 	case article.FieldTakedownBy:
 		return m.OldTakedownBy(ctx)
+	case article.FieldExtraConfig:
+		return m.OldExtraConfig(ctx)
 	}
 	return nil, fmt.Errorf("unknown Article field %s", name)
 }
@@ -5124,6 +5181,13 @@ func (m *ArticleMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetTakedownBy(v)
 		return nil
+	case article.FieldExtraConfig:
+		v, ok := value.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExtraConfig(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Article field %s", name)
 }
@@ -5310,6 +5374,9 @@ func (m *ArticleMutation) ClearedFields() []string {
 	if m.FieldCleared(article.FieldTakedownBy) {
 		fields = append(fields, article.FieldTakedownBy)
 	}
+	if m.FieldCleared(article.FieldExtraConfig) {
+		fields = append(fields, article.FieldExtraConfig)
+	}
 	return fields
 }
 
@@ -5380,6 +5447,9 @@ func (m *ArticleMutation) ClearField(name string) error {
 		return nil
 	case article.FieldTakedownBy:
 		m.ClearTakedownBy()
+		return nil
+	case article.FieldExtraConfig:
+		m.ClearExtraConfig()
 		return nil
 	}
 	return fmt.Errorf("unknown Article nullable field %s", name)
@@ -5490,6 +5560,9 @@ func (m *ArticleMutation) ResetField(name string) error {
 		return nil
 	case article.FieldTakedownBy:
 		m.ResetTakedownBy()
+		return nil
+	case article.FieldExtraConfig:
+		m.ResetExtraConfig()
 		return nil
 	}
 	return fmt.Errorf("unknown Article field %s", name)

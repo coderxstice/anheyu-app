@@ -677,6 +677,18 @@ func (_u *ArticleUpdate) ClearTakedownBy() *ArticleUpdate {
 	return _u
 }
 
+// SetExtraConfig sets the "extra_config" field.
+func (_u *ArticleUpdate) SetExtraConfig(v map[string]interface{}) *ArticleUpdate {
+	_u.mutation.SetExtraConfig(v)
+	return _u
+}
+
+// ClearExtraConfig clears the value of the "extra_config" field.
+func (_u *ArticleUpdate) ClearExtraConfig() *ArticleUpdate {
+	_u.mutation.ClearExtraConfig()
+	return _u
+}
+
 // AddPostTagIDs adds the "post_tags" edge to the PostTag entity by IDs.
 func (_u *ArticleUpdate) AddPostTagIDs(ids ...uint) *ArticleUpdate {
 	_u.mutation.AddPostTagIDs(ids...)
@@ -1067,6 +1079,12 @@ func (_u *ArticleUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.TakedownByCleared() {
 		_spec.ClearField(article.FieldTakedownBy, field.TypeUint)
+	}
+	if value, ok := _u.mutation.ExtraConfig(); ok {
+		_spec.SetField(article.FieldExtraConfig, field.TypeJSON, value)
+	}
+	if _u.mutation.ExtraConfigCleared() {
+		_spec.ClearField(article.FieldExtraConfig, field.TypeJSON)
 	}
 	if _u.mutation.PostTagsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1869,6 +1887,18 @@ func (_u *ArticleUpdateOne) ClearTakedownBy() *ArticleUpdateOne {
 	return _u
 }
 
+// SetExtraConfig sets the "extra_config" field.
+func (_u *ArticleUpdateOne) SetExtraConfig(v map[string]interface{}) *ArticleUpdateOne {
+	_u.mutation.SetExtraConfig(v)
+	return _u
+}
+
+// ClearExtraConfig clears the value of the "extra_config" field.
+func (_u *ArticleUpdateOne) ClearExtraConfig() *ArticleUpdateOne {
+	_u.mutation.ClearExtraConfig()
+	return _u
+}
+
 // AddPostTagIDs adds the "post_tags" edge to the PostTag entity by IDs.
 func (_u *ArticleUpdateOne) AddPostTagIDs(ids ...uint) *ArticleUpdateOne {
 	_u.mutation.AddPostTagIDs(ids...)
@@ -2289,6 +2319,12 @@ func (_u *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err er
 	}
 	if _u.mutation.TakedownByCleared() {
 		_spec.ClearField(article.FieldTakedownBy, field.TypeUint)
+	}
+	if value, ok := _u.mutation.ExtraConfig(); ok {
+		_spec.SetField(article.FieldExtraConfig, field.TypeJSON, value)
+	}
+	if _u.mutation.ExtraConfigCleared() {
+		_spec.ClearField(article.FieldExtraConfig, field.TypeJSON)
 	}
 	if _u.mutation.PostTagsCleared() {
 		edge := &sqlgraph.EdgeSpec{
