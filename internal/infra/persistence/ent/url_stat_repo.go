@@ -102,7 +102,7 @@ func (r *entURLStatRepository) GetAll(ctx context.Context, offset, limit int) ([
 	return stats, int64(total), nil
 }
 
-func (r *entURLStatRepository) IncrementViews(ctx context.Context, urlPath string, isUnique bool, duration int) error {
+func (r *entURLStatRepository) IncrementViews(ctx context.Context, urlPath string, isUnique bool, duration int, isBounce bool) error {
 	now := time.Now()
 
 	// 尝试获取现有记录
@@ -112,8 +112,12 @@ func (r *entURLStatRepository) IncrementViews(ctx context.Context, urlPath strin
 		if ent.IsNotFound(err) {
 			totalViews := int64(1)
 			uniqueViews := int64(0)
+			bounceCount := int64(0)
 			if isUnique {
 				uniqueViews = 1
+			}
+			if isBounce {
+				bounceCount = 1
 			}
 
 			// 使用CreateOrUpdate确保原子性，避免竞态条件
@@ -121,7 +125,7 @@ func (r *entURLStatRepository) IncrementViews(ctx context.Context, urlPath strin
 				URLPath:       urlPath,
 				TotalViews:    totalViews,
 				UniqueViews:   uniqueViews,
-				BounceCount:   0,
+				BounceCount:   bounceCount,
 				AvgDuration:   float64(duration),
 				LastVisitedAt: &now,
 			}
@@ -134,8 +138,12 @@ func (r *entURLStatRepository) IncrementViews(ctx context.Context, urlPath strin
 	// 更新现有记录
 	newTotalViews := existing.TotalViews + 1
 	newUniqueViews := existing.UniqueViews
+	newBounceCount := existing.BounceCount
 	if isUnique {
 		newUniqueViews++
+	}
+	if isBounce {
+		newBounceCount++
 	}
 
 	// 计算新的平均停留时间
@@ -144,6 +152,7 @@ func (r *entURLStatRepository) IncrementViews(ctx context.Context, urlPath strin
 	return r.client.URLStat.UpdateOneID(existing.ID).
 		SetTotalViews(newTotalViews).
 		SetUniqueViews(newUniqueViews).
+		SetBounceCount(newBounceCount).
 		SetAvgDuration(newAvgDuration).
 		SetLastVisitedAt(now).
 		Exec(ctx)
