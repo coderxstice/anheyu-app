@@ -78,6 +78,18 @@ type UpdateContentRequest struct {
 	Content string `json:"content" binding:"required,min=1,max=1000"` // 更新后的 Markdown 内容
 }
 
+// UpdateCommentRequest 定义了更新评论信息（包括用户信息和内容）的API请求体。
+type UpdateCommentRequest struct {
+	// 评论内容（Markdown原文），可选
+	Content *string `json:"content" binding:"omitempty,min=1,max=1000"`
+	// 用户昵称，可选
+	Nickname *string `json:"nickname" binding:"omitempty,min=2,max=50"`
+	// 用户邮箱，可选
+	Email *string `json:"email" binding:"omitempty,email"`
+	// 用户网站URL，可选
+	Website *string `json:"website" binding:"omitempty"`
+}
+
 // Response 定义了单条评论的API响应结构。
 // 这个结构是为前端展示专门设计的。
 type Response struct {
@@ -138,9 +150,9 @@ type ImportOptionsRequest struct {
 
 // ImportResult 定义了导入评论的结果。
 type ImportResult struct {
-	TotalCount   int      `json:"total_count"`    // 总数
-	SuccessCount int      `json:"success_count"`  // 成功数
-	SkippedCount int      `json:"skipped_count"`  // 跳过数
-	FailedCount  int      `json:"failed_count"`   // 失败数
+	TotalCount    int      `json:"total_count"`    // 总数
+	SuccessCount  int      `json:"success_count"`  // 成功数
+	SkippedCount  int      `json:"skipped_count"`  // 跳过数
+	FailedCount   int      `json:"failed_count"`   // 失败数
 	ErrorMessages []string `json:"error_messages"` // 错误信息列表
 }

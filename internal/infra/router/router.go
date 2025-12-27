@@ -221,6 +221,7 @@ func (r *Router) registerCommentRoutes(api *gin.RouterGroup) {
 		commentsAdmin.GET("", r.commentHandler.AdminList)
 		commentsAdmin.DELETE("", r.commentHandler.Delete)
 		commentsAdmin.PUT("/:id", r.commentHandler.UpdateContent)
+		commentsAdmin.PUT("/:id/info", r.commentHandler.UpdateCommentInfo)
 		commentsAdmin.PUT("/:id/status", r.commentHandler.UpdateStatus)
 		commentsAdmin.PUT("/:id/pin", r.commentHandler.SetPin)
 		commentsAdmin.POST("/export", r.commentHandler.ExportComments)
