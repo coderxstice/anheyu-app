@@ -81,5 +81,5 @@ type URLStatRepository interface {
 	GetAll(ctx context.Context, offset, limit int) ([]*ent.URLStat, int64, error)
 
 	// 更新URL访问统计
-	IncrementViews(ctx context.Context, urlPath string, isUnique bool, duration int) error
+	IncrementViews(ctx context.Context, urlPath string, isUnique bool, duration int, isBounce bool) error
 }

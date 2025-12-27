@@ -307,8 +307,9 @@ func (s *visitorStatService) processVisitTask(task *visitTask) {
 		urlStatStart = time.Now()
 	}
 
-	// 5. 更新URL统计
-	if err := s.urlStatRepo.IncrementViews(ctx, task.req.URLPath, isUnique, task.req.Duration); err != nil {
+	// 5. 更新URL统计（传入跳出标记）
+	isBounce := task.req.Duration < 10 // 停留时间小于10秒视为跳出
+	if err := s.urlStatRepo.IncrementViews(ctx, task.req.URLPath, isUnique, task.req.Duration, isBounce); err != nil {
 		fmt.Printf("[统计] 更新URL统计失败: %v\n", err)
 	}
 
@@ -921,9 +922,10 @@ func (s *visitorStatService) batchUpdateURLStats(ctx context.Context, logs []*en
 	for urlPath, stats := range urlStats {
 		uniqueVisitors := int64(len(stats.Visitors))
 		avgDuration := stats.Duration / int64(stats.Count)
+		isBounce := avgDuration < 10 // 平均停留时间小于10秒视为跳出
 
 		// 使用现有的IncrementViews方法逐个更新
-		if err := s.urlStatRepo.IncrementViews(ctx, urlPath, uniqueVisitors > 0, int(avgDuration)); err != nil {
+		if err := s.urlStatRepo.IncrementViews(ctx, urlPath, uniqueVisitors > 0, int(avgDuration), isBounce); err != nil {
 			return fmt.Errorf("更新URL统计失败: %w", err)
 		}
 	}
