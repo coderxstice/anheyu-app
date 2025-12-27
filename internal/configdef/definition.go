@@ -57,7 +57,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyDefaultThemeMode, Value: "light", Comment: "默认主题模式 (light/dark)，决定新访问者进入时使用亮色模式还是暗色模式", IsPublic: true},
 	{Key: constant.KeyDefaultThumbParam, Value: "", Comment: "默认缩略图处理参数", IsPublic: true},
 	{Key: constant.KeyDefaultBigParam, Value: "", Comment: "默认大图处理参数", IsPublic: true},
-	{Key: constant.KeyGravatarURL, Value: "https://cdn.sep.cc/", Comment: "Gravatar 服务器地址", IsPublic: true},
+	{Key: constant.KeyGravatarURL, Value: "https://cravatar.cn/", Comment: "Gravatar 服务器地址", IsPublic: true},
 	{Key: constant.KeyDefaultGravatarType, Value: "mp", Comment: "Gravatar默认头像类型", IsPublic: true},
 	{Key: constant.KeyUploadAllowedExtensions, Value: "", Comment: "允许上传的文件后缀名白名单，逗号分隔", IsPublic: true},
 	{Key: constant.KeyUploadDeniedExtensions, Value: "", Comment: "禁止上传的文件后缀名黑名单，在白名单未启用时生效", IsPublic: true},
