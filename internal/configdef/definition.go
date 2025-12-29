@@ -444,6 +444,20 @@ var AllSettings = []Definition{
 	{Key: constant.KeyCDNRegion, Value: "ap-beijing", Comment: "腾讯云地域 (如: ap-beijing, ap-shanghai)", IsPublic: false},
 	{Key: constant.KeyCDNDomain, Value: "", Comment: "腾讯云CDN加速域名", IsPublic: false},
 	{Key: constant.KeyCDNZoneID, Value: "", Comment: "EdgeOne站点ID", IsPublic: false},
+
+	// --- 相册页面配置 ---
+	{Key: constant.KeyAlbumPageBannerBackground, Value: "", Comment: "相册页面横幅背景图/视频URL", IsPublic: true},
+	{Key: constant.KeyAlbumPageBannerTitle, Value: "相册", Comment: "相册页面横幅标题", IsPublic: true},
+	{Key: constant.KeyAlbumPageBannerDescription, Value: "记录生活的美好瞬间", Comment: "相册页面横幅描述", IsPublic: true},
+	{Key: constant.KeyAlbumPageBannerTip, Value: "分享精彩图片", Comment: "相册页面横幅提示文字", IsPublic: true},
+	{Key: constant.KeyAlbumPageLayoutMode, Value: "grid", Comment: "相册布局模式 (grid/waterfall)", IsPublic: true},
+	{Key: constant.KeyAlbumPageWaterfallColumnCount, Value: `{"large":4,"medium":3,"small":1}`, Comment: "瀑布流列数配置 (JSON格式)", IsPublic: true},
+	{Key: constant.KeyAlbumPageWaterfallGap, Value: "16", Comment: "瀑布流间距 (像素)", IsPublic: true},
+	{Key: constant.KeyAlbumPageSize, Value: "24", Comment: "相册每页显示数量", IsPublic: true},
+	{Key: constant.KeyAlbumPageEnableComment, Value: "false", Comment: "是否启用相册页评论 (true/false)", IsPublic: true},
+	{Key: constant.KeyAlbumPageApiURL, Value: "", Comment: "相册API地址", IsPublic: true},
+	{Key: constant.KeyAlbumPageDefaultThumbParam, Value: "", Comment: "相册缩略图处理参数", IsPublic: true},
+	{Key: constant.KeyAlbumPageDefaultBigParam, Value: "", Comment: "相册大图处理参数", IsPublic: true},
 }
 
 // AllUserGroups 是所有默认用户组的"单一事实来源"
