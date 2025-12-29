@@ -277,6 +277,19 @@ func (h *StoragePolicyHandler) Update(c *gin.Context) {
 		return
 	}
 
+	// 获取原始策略，以便在 VirtualPath 为空时使用原始值
+	existingPolicy, err := h.svc.GetPolicyByID(c.Request.Context(), publicID)
+	if err != nil {
+		response.Fail(c, http.StatusNotFound, "存储策略不存在")
+		return
+	}
+
+	// 如果 VirtualPath 为空字符串（前端未发送或为空），使用原始值
+	virtualPath := req.VirtualPath
+	if virtualPath == "" {
+		virtualPath = existingPolicy.VirtualPath
+	}
+
 	policy := &model.StoragePolicy{
 		ID:          internalID,
 		Name:        req.Name,
@@ -289,7 +302,7 @@ func (h *StoragePolicyHandler) Update(c *gin.Context) {
 		SecretKey:   req.SecretKey,
 		MaxSize:     req.MaxSize,
 		BasePath:    req.BasePath,
-		VirtualPath: req.VirtualPath,
+		VirtualPath: virtualPath,
 		Settings:    req.Settings,
 	}
 
