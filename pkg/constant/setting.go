@@ -339,4 +339,18 @@ const (
 	KeyCDNRegion    SettingKey = "cdn.region"
 	KeyCDNDomain    SettingKey = "cdn.domain"
 	KeyCDNZoneID    SettingKey = "cdn.zone_id"
+
+	// --- 相册页面配置 ---
+	KeyAlbumPageBannerBackground     SettingKey = "album.banner.background"
+	KeyAlbumPageBannerTitle          SettingKey = "album.banner.title"
+	KeyAlbumPageBannerDescription    SettingKey = "album.banner.description"
+	KeyAlbumPageBannerTip            SettingKey = "album.banner.tip"
+	KeyAlbumPageLayoutMode           SettingKey = "album.layout_mode"
+	KeyAlbumPageWaterfallColumnCount SettingKey = "album.waterfall.column_count"
+	KeyAlbumPageWaterfallGap         SettingKey = "album.waterfall.gap"
+	KeyAlbumPageSize                 SettingKey = "album.page_size"
+	KeyAlbumPageEnableComment        SettingKey = "album.enable_comment"
+	KeyAlbumPageApiURL               SettingKey = "album.api_url"
+	KeyAlbumPageDefaultThumbParam    SettingKey = "album.default_thumb_param"
+	KeyAlbumPageDefaultBigParam      SettingKey = "album.default_big_param"
 )
