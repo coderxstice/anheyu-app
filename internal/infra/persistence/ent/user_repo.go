@@ -10,6 +10,7 @@ import (
 
 	"github.com/anzhiyu-c/anheyu-app/ent"
 	"github.com/anzhiyu-c/anheyu-app/ent/comment"
+	"github.com/anzhiyu-c/anheyu-app/ent/directlink"
 	"github.com/anzhiyu-c/anheyu-app/ent/file"
 	"github.com/anzhiyu-c/anheyu-app/ent/user"
 	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
@@ -227,6 +228,11 @@ func (r *entUserRepository) Save(ctx context.Context, user *model.User) error {
 
 // Delete 软删除用户
 func (r *entUserRepository) Delete(ctx context.Context, id uint) error {
+	// 不允许删除 ID 为 1 的超级管理员用户
+	if id == 1 {
+		return errors.New("不允许删除超级管理员用户")
+	}
+
 	// 开启事务
 	tx, err := r.client.Tx(ctx)
 	if err != nil {
@@ -239,7 +245,27 @@ func (r *entUserRepository) Delete(ctx context.Context, id uint) error {
 		}
 	}()
 
-	// 1. 物理删除该用户的所有文件（包括已软删除的）
+	// 1. 先查询该用户的所有文件ID
+	fileIDs, err := tx.File.Query().
+		Where(file.OwnerID(id)).
+		IDs(ctx)
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("查询用户文件ID失败: %w", err)
+	}
+
+	// 1.1. 如果该用户有文件，先删除这些文件关联的所有直链记录
+	if len(fileIDs) > 0 {
+		_, err = tx.DirectLink.Delete().
+			Where(directlink.FileIDIn(fileIDs...)).
+			Exec(ctx)
+		if err != nil {
+			tx.Rollback()
+			return fmt.Errorf("物理删除用户文件直链失败: %w", err)
+		}
+	}
+
+	// 1.2. 物理删除该用户的所有文件（包括已软删除的）
 	_, err = tx.File.Delete().
 		Where(file.OwnerID(id)).
 		Exec(ctx)
