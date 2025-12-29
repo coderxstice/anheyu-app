@@ -175,6 +175,7 @@ const (
 	KeyPostRewardListButtonText  SettingKey = "post.reward.list_button_text"
 	KeyPostRewardListButtonDesc  SettingKey = "post.reward.list_button_desc"
 	KeyPostCodeBlockCodeMaxLines SettingKey = "post.code_block.code_max_lines"
+	KeyPostCodeBlockMacStyle     SettingKey = "post.code_block.mac_style"
 
 	// 文章复制版权配置
 	KeyPostCopyEnable            SettingKey = "post.copy.enable"             // 是否允许复制文章内容
