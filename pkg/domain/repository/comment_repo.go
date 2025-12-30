@@ -33,6 +33,9 @@ type CreateCommentParams struct {
 	Status         int
 	IsAdminComment bool
 	IsAnonymous    bool
+	CreatedAt      *time.Time // 可选的创建时间（用于导入时保留原始时间）
+	UpdatedAt      *time.Time // 可选的更新时间（用于导入时保留原始时间）
+	LikeCount      int        // 点赞数（用于导入时保留原始点赞数）
 }
 type AdminListParams struct {
 	Page       int
