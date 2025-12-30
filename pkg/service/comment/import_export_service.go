@@ -516,6 +516,15 @@ func (s *Service) importSingleComment(ctx context.Context, commentData ExportCom
 		emailMD5 = fmt.Sprintf("%x", md5.Sum([]byte(emailLower)))
 	}
 
+	// 处理创建时间和更新时间
+	var createdAtPtr, updatedAtPtr *time.Time
+	if req.KeepCreateTime && !commentData.CreatedAt.IsZero() {
+		createdAtPtr = &commentData.CreatedAt
+	}
+	if req.KeepCreateTime && !commentData.UpdatedAt.IsZero() {
+		updatedAtPtr = &commentData.UpdatedAt
+	}
+
 	// 创建评论
 	createParams := &repository.CreateCommentParams{
 		TargetPath:     commentData.TargetPath,
@@ -534,6 +543,9 @@ func (s *Service) importSingleComment(ctx context.Context, commentData ExportCom
 		IPAddress:      commentData.IPAddress,
 		IPLocation:     commentData.IPLocation,
 		UserAgent:      userAgentPtr,
+		CreatedAt:      createdAtPtr,
+		UpdatedAt:      updatedAtPtr,
+		LikeCount:      commentData.LikeCount,
 	}
 
 	newComment, err := s.repo.Create(ctx, createParams)

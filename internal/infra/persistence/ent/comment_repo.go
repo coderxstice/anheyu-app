@@ -101,6 +101,17 @@ func (r *commentRepo) Create(ctx context.Context, params *repository.CreateComme
 	if params.UserAgent != nil {
 		creator.SetUserAgent(*params.UserAgent)
 	}
+	// 支持设置创建和更新时间（用于导入时保留原始时间）
+	if params.CreatedAt != nil {
+		creator.SetCreatedAt(*params.CreatedAt)
+	}
+	if params.UpdatedAt != nil {
+		creator.SetUpdatedAt(*params.UpdatedAt)
+	}
+	// 支持设置点赞数（用于导入时保留原始点赞数）
+	if params.LikeCount > 0 {
+		creator.SetLikeCount(params.LikeCount)
+	}
 
 	newEntComment, err := creator.Save(ctx)
 	if err != nil {
