@@ -43,12 +43,12 @@ type ExportCommentItem struct {
 	TargetTitle string `json:"target_title,omitempty"` // 目标页面的标题
 
 	// 评论者信息
-	Nickname  string `json:"nickname"`            // 昵称
-	Email     string `json:"email,omitempty"`     // 邮箱
-	Website   string `json:"website,omitempty"`   // 个人网站
-	IPAddress string `json:"ip_address"`          // IP地址
+	Nickname   string `json:"nickname"`              // 昵称
+	Email      string `json:"email,omitempty"`       // 邮箱
+	Website    string `json:"website,omitempty"`     // 个人网站
+	IPAddress  string `json:"ip_address"`            // IP地址
 	IPLocation string `json:"ip_location,omitempty"` // IP所在地区
-	UserAgent string `json:"user_agent"`          // User Agent
+	UserAgent  string `json:"user_agent"`            // User Agent
 
 	// 父子关系
 	ParentID  string `json:"parent_id,omitempty"`   // 父评论公共ID
@@ -63,9 +63,9 @@ type ExportCommentItem struct {
 
 // ImportCommentRequest 导入评论的请求
 type ImportCommentRequest struct {
-	Data           ExportCommentData `json:"data"`            // 导入的数据
-	SkipExisting   bool              `json:"skip_existing"`   // 是否跳过已存在的评论（根据内容+邮箱+路径判断）
-	DefaultStatus  int               `json:"default_status"`  // 默认状态（1: 已发布, 2: 待审核）
+	Data           ExportCommentData `json:"data"`             // 导入的数据
+	SkipExisting   bool              `json:"skip_existing"`    // 是否跳过已存在的评论（根据内容+邮箱+路径判断）
+	DefaultStatus  int               `json:"default_status"`   // 默认状态（1: 已发布, 2: 待审核）
 	KeepCreateTime bool              `json:"keep_create_time"` // 是否保留原创建时间
 }
 
@@ -379,18 +379,20 @@ func (s *Service) ImportComments(ctx context.Context, req *ImportCommentRequest)
 
 	// 导入顶级评论
 	for _, commentData := range topLevelComments {
-		newID, err := s.importSingleComment(ctx, commentData, idMapping, req)
+		newID, isSkipped, err := s.importSingleComment(ctx, commentData, idMapping, req)
 		if err != nil {
-			if strings.Contains(err.Error(), "跳过") {
-				result.SkippedCount++
-			} else {
-				result.FailedCount++
-				result.Errors = append(result.Errors, err.Error())
-			}
+			result.FailedCount++
+			result.Errors = append(result.Errors, err.Error())
 			continue
 		}
+		// 无论是新导入还是跳过的已存在评论，都要加入映射以便子评论能找到父评论
 		idMapping[commentData.ID] = newID
-		result.SuccessCount++
+		if isSkipped {
+			result.SkippedCount++
+			log.Printf("[导入评论] 跳过已存在的评论: %s (使用已存在ID: %d)", commentData.Nickname, newID)
+		} else {
+			result.SuccessCount++
+		}
 	}
 
 	// 导入子评论（可能需要多次迭代处理深层嵌套）
@@ -405,18 +407,20 @@ func (s *Service) ImportComments(ctx context.Context, req *ImportCommentRequest)
 				continue
 			}
 
-			newID, err := s.importSingleComment(ctx, commentData, idMapping, req)
+			newID, isSkipped, err := s.importSingleComment(ctx, commentData, idMapping, req)
 			if err != nil {
-				if strings.Contains(err.Error(), "跳过") {
-					result.SkippedCount++
-				} else {
-					result.FailedCount++
-					result.Errors = append(result.Errors, err.Error())
-				}
+				result.FailedCount++
+				result.Errors = append(result.Errors, err.Error())
 				continue
 			}
+			// 无论是新导入还是跳过的已存在评论，都要加入映射以便更深层子评论能找到父评论
 			idMapping[commentData.ID] = newID
-			result.SuccessCount++
+			if isSkipped {
+				result.SkippedCount++
+				log.Printf("[导入评论] 跳过已存在的评论: %s (使用已存在ID: %d)", commentData.Nickname, newID)
+			} else {
+				result.SuccessCount++
+			}
 		}
 
 		childComments = remainingChildren
@@ -435,7 +439,8 @@ func (s *Service) ImportComments(ctx context.Context, req *ImportCommentRequest)
 }
 
 // importSingleComment 导入单条评论
-func (s *Service) importSingleComment(ctx context.Context, commentData ExportCommentItem, idMapping map[string]uint, req *ImportCommentRequest) (uint, error) {
+// 返回值: (新评论ID, 是否为跳过的已存在评论, 错误)
+func (s *Service) importSingleComment(ctx context.Context, commentData ExportCommentItem, idMapping map[string]uint, req *ImportCommentRequest) (uint, bool, error) {
 	// 检查是否跳过已存在的评论
 	if req.SkipExisting && commentData.Email != "" {
 		// 简单检查：同路径、同邮箱、同内容的评论视为已存在
@@ -451,7 +456,8 @@ func (s *Service) importSingleComment(ctx context.Context, commentData ExportCom
 		}
 		existing, _, err := s.repo.FindWithConditions(ctx, params)
 		if err == nil && len(existing) > 0 {
-			return 0, fmt.Errorf("跳过已存在的评论: %s", commentData.Nickname)
+			// 返回已存在评论的ID，以便建立父子关系映射
+			return existing[0].ID, true, nil
 		}
 	}
 
@@ -532,7 +538,7 @@ func (s *Service) importSingleComment(ctx context.Context, commentData ExportCom
 
 	newComment, err := s.repo.Create(ctx, createParams)
 	if err != nil {
-		return 0, fmt.Errorf("导入评论 '%s' 失败: %v", commentData.Nickname, err)
+		return 0, false, fmt.Errorf("导入评论 '%s' 失败: %v", commentData.Nickname, err)
 	}
 
 	// 如果有置顶时间，设置置顶状态
@@ -543,7 +549,7 @@ func (s *Service) importSingleComment(ctx context.Context, commentData ExportCom
 	}
 
 	log.Printf("[导入评论] 成功导入评论: %s (ID: %d)", commentData.Nickname, newComment.ID)
-	return newComment.ID, nil
+	return newComment.ID, false, nil
 }
 
 // ImportCommentsFromJSON 从 JSON 数据导入评论
@@ -589,4 +595,3 @@ func (s *Service) ImportCommentsFromZip(ctx context.Context, zipData []byte, req
 
 	return s.ImportCommentsFromJSON(ctx, jsonData, req)
 }
-
