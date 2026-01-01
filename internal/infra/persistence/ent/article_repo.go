@@ -111,6 +111,10 @@ func (r *articleRepo) toModel(a *ent.Article) *model.Article {
 		TakedownBy:     a.TakedownBy,
 		// 扩展配置字段
 		ExtraConfig: convertExtraConfig(a.ExtraConfig),
+		// 文档模式相关字段
+		IsDoc:       a.IsDoc,
+		DocSeriesID: a.DocSeriesID,
+		DocSort:     a.DocSort,
 	}
 }
 
@@ -543,6 +547,13 @@ func (r *articleRepo) Create(ctx context.Context, params *model.CreateArticlePar
 		creator.SetExtraConfig(extraConfigMap)
 	}
 
+	// 设置文档模式相关字段
+	creator.SetIsDoc(params.IsDoc)
+	creator.SetDocSort(params.DocSort)
+	if params.DocSeriesID != nil {
+		creator.SetDocSeriesID(*params.DocSeriesID)
+	}
+
 	// 支持自定义发布时间
 	if params.CustomPublishedAt != nil {
 		log.Printf("[Repository.Create]设置自定义发布时间: %v", *params.CustomPublishedAt)
@@ -672,6 +683,24 @@ func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.Up
 		}
 		updater.SetExtraConfig(extraConfigMap)
 	}
+	// 更新文档模式相关字段
+	if req.IsDoc != nil {
+		updater.SetIsDoc(*req.IsDoc)
+	}
+	if req.DocSort != nil {
+		updater.SetDocSort(*req.DocSort)
+	}
+	if req.DocSeriesID != nil {
+		if *req.DocSeriesID == "" {
+			updater.ClearDocSeriesID()
+		} else {
+			// 需要将字符串ID转换为数据库ID
+			seriesDBID, _, err := idgen.DecodePublicID(*req.DocSeriesID)
+			if err == nil {
+				updater.SetDocSeriesID(seriesDBID)
+			}
+		}
+	}
 	if computed != nil {
 		if computed.WordCount > 0 || (req.ContentMd != nil && *req.ContentMd == "") {
 			updater.SetWordCount(computed.WordCount)
@@ -794,6 +823,7 @@ func (r *articleRepo) ListPublic(ctx context.Context, options *model.ListPublicA
 		article.FieldShowOnHome, article.FieldHomeSort, article.FieldPinSort, article.FieldTopImgURL,
 		article.FieldSummaries, article.FieldAbbrlink, article.FieldCopyright,
 		article.FieldCopyrightAuthor, article.FieldCopyrightAuthorHref, article.FieldCopyrightURL,
+		article.FieldIsDoc, article.FieldDocSeriesID, // 文档模式相关字段
 	).All(ctx)
 
 	if err != nil {
@@ -844,6 +874,8 @@ func (r *articleRepo) List(ctx context.Context, options *model.ListArticlesOptio
 			article.FieldTakedownReason, // 下架原因
 			article.FieldTakedownAt,     // 下架时间
 			article.FieldTakedownBy,     // 下架操作人
+			article.FieldIsDoc,          // 文档模式
+			article.FieldDocSeriesID,    // 文档系列ID
 		).All(ctx)
 	} else {
 		entities, err = q.All(ctx)

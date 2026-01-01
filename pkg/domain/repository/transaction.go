@@ -23,6 +23,7 @@ type Repositories struct {
 	Article       ArticleRepository
 	PostTag       PostTagRepository
 	PostCategory  PostCategoryRepository
+	DocSeries     DocSeriesRepository
 	Link          LinkRepository
 	LinkCategory  LinkCategoryRepository
 	LinkTag       LinkTagRepository

@@ -210,6 +210,21 @@ func TakedownBy(v uint) predicate.Article {
 	return predicate.Article(sql.FieldEQ(FieldTakedownBy, v))
 }
 
+// IsDoc applies equality check predicate on the "is_doc" field. It's identical to IsDocEQ.
+func IsDoc(v bool) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldIsDoc, v))
+}
+
+// DocSeriesID applies equality check predicate on the "doc_series_id" field. It's identical to DocSeriesIDEQ.
+func DocSeriesID(v uint) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldDocSeriesID, v))
+}
+
+// DocSort applies equality check predicate on the "doc_sort" field. It's identical to DocSortEQ.
+func DocSort(v int) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldDocSort, v))
+}
+
 // DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
 func DeletedAtEQ(v time.Time) predicate.Article {
 	return predicate.Article(sql.FieldEQ(FieldDeletedAt, v))
@@ -1920,6 +1935,86 @@ func ExtraConfigNotNil() predicate.Article {
 	return predicate.Article(sql.FieldNotNull(FieldExtraConfig))
 }
 
+// IsDocEQ applies the EQ predicate on the "is_doc" field.
+func IsDocEQ(v bool) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldIsDoc, v))
+}
+
+// IsDocNEQ applies the NEQ predicate on the "is_doc" field.
+func IsDocNEQ(v bool) predicate.Article {
+	return predicate.Article(sql.FieldNEQ(FieldIsDoc, v))
+}
+
+// DocSeriesIDEQ applies the EQ predicate on the "doc_series_id" field.
+func DocSeriesIDEQ(v uint) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldDocSeriesID, v))
+}
+
+// DocSeriesIDNEQ applies the NEQ predicate on the "doc_series_id" field.
+func DocSeriesIDNEQ(v uint) predicate.Article {
+	return predicate.Article(sql.FieldNEQ(FieldDocSeriesID, v))
+}
+
+// DocSeriesIDIn applies the In predicate on the "doc_series_id" field.
+func DocSeriesIDIn(vs ...uint) predicate.Article {
+	return predicate.Article(sql.FieldIn(FieldDocSeriesID, vs...))
+}
+
+// DocSeriesIDNotIn applies the NotIn predicate on the "doc_series_id" field.
+func DocSeriesIDNotIn(vs ...uint) predicate.Article {
+	return predicate.Article(sql.FieldNotIn(FieldDocSeriesID, vs...))
+}
+
+// DocSeriesIDIsNil applies the IsNil predicate on the "doc_series_id" field.
+func DocSeriesIDIsNil() predicate.Article {
+	return predicate.Article(sql.FieldIsNull(FieldDocSeriesID))
+}
+
+// DocSeriesIDNotNil applies the NotNil predicate on the "doc_series_id" field.
+func DocSeriesIDNotNil() predicate.Article {
+	return predicate.Article(sql.FieldNotNull(FieldDocSeriesID))
+}
+
+// DocSortEQ applies the EQ predicate on the "doc_sort" field.
+func DocSortEQ(v int) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldDocSort, v))
+}
+
+// DocSortNEQ applies the NEQ predicate on the "doc_sort" field.
+func DocSortNEQ(v int) predicate.Article {
+	return predicate.Article(sql.FieldNEQ(FieldDocSort, v))
+}
+
+// DocSortIn applies the In predicate on the "doc_sort" field.
+func DocSortIn(vs ...int) predicate.Article {
+	return predicate.Article(sql.FieldIn(FieldDocSort, vs...))
+}
+
+// DocSortNotIn applies the NotIn predicate on the "doc_sort" field.
+func DocSortNotIn(vs ...int) predicate.Article {
+	return predicate.Article(sql.FieldNotIn(FieldDocSort, vs...))
+}
+
+// DocSortGT applies the GT predicate on the "doc_sort" field.
+func DocSortGT(v int) predicate.Article {
+	return predicate.Article(sql.FieldGT(FieldDocSort, v))
+}
+
+// DocSortGTE applies the GTE predicate on the "doc_sort" field.
+func DocSortGTE(v int) predicate.Article {
+	return predicate.Article(sql.FieldGTE(FieldDocSort, v))
+}
+
+// DocSortLT applies the LT predicate on the "doc_sort" field.
+func DocSortLT(v int) predicate.Article {
+	return predicate.Article(sql.FieldLT(FieldDocSort, v))
+}
+
+// DocSortLTE applies the LTE predicate on the "doc_sort" field.
+func DocSortLTE(v int) predicate.Article {
+	return predicate.Article(sql.FieldLTE(FieldDocSort, v))
+}
+
 // HasPostTags applies the HasEdge predicate on the "post_tags" edge.
 func HasPostTags() predicate.Article {
 	return predicate.Article(func(s *sql.Selector) {
@@ -1981,6 +2076,29 @@ func HasComments() predicate.Article {
 func HasCommentsWith(preds ...predicate.Comment) predicate.Article {
 	return predicate.Article(func(s *sql.Selector) {
 		step := newCommentsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasDocSeries applies the HasEdge predicate on the "doc_series" edge.
+func HasDocSeries() predicate.Article {
+	return predicate.Article(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, DocSeriesTable, DocSeriesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasDocSeriesWith applies the HasEdge predicate on the "doc_series" edge with a given conditions (other predicates).
+func HasDocSeriesWith(preds ...predicate.DocSeries) predicate.Article {
+	return predicate.Article(func(s *sql.Selector) {
+		step := newDocSeriesStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

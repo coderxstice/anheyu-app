@@ -21,6 +21,9 @@ type Comment func(*sql.Selector)
 // DirectLink is the predicate function for directlink builders.
 type DirectLink func(*sql.Selector)
 
+// DocSeries is the predicate function for docseries builders.
+type DocSeries func(*sql.Selector)
+
 // Entity is the predicate function for entity builders.
 type Entity func(*sql.Selector)
 

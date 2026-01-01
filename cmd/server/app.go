@@ -41,6 +41,7 @@ import (
 	comment_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/comment"
 	config_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/config"
 	direct_link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/direct_link"
+	doc_series_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/doc_series"
 	file_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/file"
 	link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/link"
 	music_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/music"
@@ -69,6 +70,7 @@ import (
 	comment_service "github.com/anzhiyu-c/anheyu-app/pkg/service/comment"
 	config_service "github.com/anzhiyu-c/anheyu-app/pkg/service/config"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/direct_link"
+	doc_series_service "github.com/anzhiyu-c/anheyu-app/pkg/service/doc_series"
 	file_service "github.com/anzhiyu-c/anheyu-app/pkg/service/file"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/file_info"
 	link_service "github.com/anzhiyu-c/anheyu-app/pkg/service/link"
@@ -208,6 +210,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	articleRepo := ent_impl.NewArticleRepo(entClient, dbType)
 	postTagRepo := ent_impl.NewPostTagRepo(entClient, dbType)
 	postCategoryRepo := ent_impl.NewPostCategoryRepo(entClient)
+	docSeriesRepo := ent_impl.NewDocSeriesRepo(entClient)
 	cleanupRepo := ent_impl.NewCleanupRepo(entClient)
 	commentRepo := ent_impl.NewCommentRepo(entClient, dbType)
 	linkRepo := ent_impl.NewLinkRepo(entClient, dbType)
@@ -257,6 +260,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	metadataSvc := file_info.NewMetadataService(metadataRepo)
 	postTagSvc := post_tag_service.NewService(postTagRepo)
 	postCategorySvc := post_category_service.NewService(postCategoryRepo, articleRepo)
+	docSeriesSvc := doc_series_service.NewService(docSeriesRepo)
 	cleanupSvc := cleanup_service.NewCleanupService(cleanupRepo)
 	userSvc := user.NewUserService(userRepo, userGroupRepo)
 	storagePolicySvc := volume.NewStoragePolicyService(storagePolicyRepo, fileRepo, txManager, strategyManager, settingSvc, cacheSvc, storageProviders)
@@ -355,7 +359,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	cdnSvc := cdn.NewService(settingSvc)
 	log.Printf("[DEBUG] CDNService 初始化完成")
 
-	articleSvc := article_service.NewService(articleRepo, postTagRepo, postCategoryRepo, commentRepo, txManager, cacheSvc, geoSvc, taskBroker, settingSvc, parserSvc, fileSvc, directLinkSvc, searchSvc, primaryColorSvc, cdnSvc, userRepo)
+	articleSvc := article_service.NewService(articleRepo, postTagRepo, postCategoryRepo, commentRepo, docSeriesRepo, txManager, cacheSvc, geoSvc, taskBroker, settingSvc, parserSvc, fileSvc, directLinkSvc, searchSvc, primaryColorSvc, cdnSvc, userRepo)
 	log.Printf("[DEBUG] 正在初始化 PushooService...")
 	pushooSvc := utility.NewPushooService(settingSvc)
 	log.Printf("[DEBUG] PushooService 初始化完成")
@@ -402,6 +406,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	articleHandler := article_handler.NewHandler(articleSvc)
 	postTagHandler := post_tag_handler.NewHandler(postTagSvc)
 	postCategoryHandler := post_category_handler.NewHandler(postCategorySvc)
+	docSeriesHandler := doc_series_handler.NewHandler(docSeriesSvc)
 	commentHandler := comment_handler.NewHandler(commentSvc)
 	pageHandler := page_handler.NewHandler(pageSvc)
 	searchHandler := search_handler.NewHandler(searchSvc)
@@ -430,6 +435,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		articleHandler,
 		postTagHandler,
 		postCategoryHandler,
+		docSeriesHandler,
 		commentHandler,
 		linkHandler,
 		musicHandler,

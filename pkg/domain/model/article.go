@@ -65,67 +65,81 @@ type Article struct {
 
 	// --- 扩展配置 ---
 	ExtraConfig *ArticleExtraConfig // 文章扩展配置
+
+	// --- 文档模式相关字段 ---
+	IsDoc       bool       // 是否为文档模式
+	DocSeriesID *uint      // 文档系列ID
+	DocSort     int        // 文档在系列中的排序
+	DocSeries   *DocSeries // 关联的文档系列信息
 }
 
 // --- API 数据传输对象 (Data Transfer Objects) ---
 
 // CreateArticleRequest 定义了创建文章的请求体
 type CreateArticleRequest struct {
-	Title                string   `json:"title" binding:"required"`
-	ContentMd            string   `json:"content_md"`
-	CoverURL             string   `json:"cover_url"`
-	Status               string   `json:"status" binding:"omitempty,oneof=DRAFT PUBLISHED ARCHIVED"`
-	PostTagIDs           []string `json:"post_tag_ids"`
-	PostCategoryIDs      []string `json:"post_category_ids"`
-	IPLocation           string   `json:"ip_location,omitempty"`
-	ShowOnHome           *bool    `json:"show_on_home,omitempty"`
-	HomeSort             int      `json:"home_sort"`
-	PinSort              int      `json:"pin_sort"`
-	TopImgURL            string   `json:"top_img_url"`
-	Summaries            []string `json:"summaries"`
-	PrimaryColor         string   `json:"primary_color"`
-	IsPrimaryColorManual *bool    `json:"is_primary_color_manual"`
-	Abbrlink             string   `json:"abbrlink,omitempty"`
-	Copyright            *bool    `json:"copyright,omitempty"`
-	CopyrightAuthor      string   `json:"copyright_author,omitempty"`
-	CopyrightAuthorHref  string   `json:"copyright_author_href,omitempty"`
-	CopyrightURL         string   `json:"copyright_url,omitempty"`
-	ContentHTML          string   `json:"content_html"`
-	CustomPublishedAt    *string  `json:"custom_published_at,omitempty"`
-	CustomUpdatedAt      *string  `json:"custom_updated_at,omitempty"`
+	Title                string              `json:"title" binding:"required"`
+	ContentMd            string              `json:"content_md"`
+	CoverURL             string              `json:"cover_url"`
+	Status               string              `json:"status" binding:"omitempty,oneof=DRAFT PUBLISHED ARCHIVED"`
+	PostTagIDs           []string            `json:"post_tag_ids"`
+	PostCategoryIDs      []string            `json:"post_category_ids"`
+	IPLocation           string              `json:"ip_location,omitempty"`
+	ShowOnHome           *bool               `json:"show_on_home,omitempty"`
+	HomeSort             int                 `json:"home_sort"`
+	PinSort              int                 `json:"pin_sort"`
+	TopImgURL            string              `json:"top_img_url"`
+	Summaries            []string            `json:"summaries"`
+	PrimaryColor         string              `json:"primary_color"`
+	IsPrimaryColorManual *bool               `json:"is_primary_color_manual"`
+	Abbrlink             string              `json:"abbrlink,omitempty"`
+	Copyright            *bool               `json:"copyright,omitempty"`
+	CopyrightAuthor      string              `json:"copyright_author,omitempty"`
+	CopyrightAuthorHref  string              `json:"copyright_author_href,omitempty"`
+	CopyrightURL         string              `json:"copyright_url,omitempty"`
+	ContentHTML          string              `json:"content_html"`
+	CustomPublishedAt    *string             `json:"custom_published_at,omitempty"`
+	CustomUpdatedAt      *string             `json:"custom_updated_at,omitempty"`
 	Keywords             string              `json:"keywords,omitempty"`
 	OwnerID              uint                `json:"owner_id,omitempty"`      // 文章作者ID（多人共创功能）
 	ReviewStatus         string              `json:"review_status,omitempty"` // 审核状态（多人共创功能）
 	ExtraConfig          *ArticleExtraConfig `json:"extra_config,omitempty"`  // 文章扩展配置
+	// 文档模式相关字段
+	IsDoc       bool   `json:"is_doc,omitempty"`        // 是否为文档模式
+	DocSeriesID string `json:"doc_series_id,omitempty"` // 文档系列ID (公共ID)
+	DocSort     int    `json:"doc_sort,omitempty"`      // 文档在系列中的排序
 }
 
 // UpdateArticleRequest 定义了更新文章的请求体
 type UpdateArticleRequest struct {
-	Title                *string  `json:"title"`
-	ContentMd            *string  `json:"content_md"`
-	CoverURL             *string  `json:"cover_url"`
-	Status               *string  `json:"status" binding:"omitempty,oneof=DRAFT PUBLISHED ARCHIVED"`
-	PostTagIDs           []string `json:"post_tag_ids"`
-	PostCategoryIDs      []string `json:"post_category_ids"`
-	IPLocation           *string  `json:"ip_location"`
-	ShowOnHome           *bool    `json:"show_on_home"`
-	HomeSort             *int     `json:"home_sort"`
-	PinSort              *int     `json:"pin_sort"`
-	TopImgURL            *string  `json:"top_img_url"`
-	Summaries            []string `json:"summaries"`
-	PrimaryColor         *string  `json:"primary_color"`
-	IsPrimaryColorManual *bool    `json:"is_primary_color_manual"`
-	Abbrlink             *string  `json:"abbrlink"`
-	Copyright            *bool    `json:"copyright"`
-	CopyrightAuthor      *string  `json:"copyright_author"`
-	CopyrightAuthorHref  *string  `json:"copyright_author_href"`
-	CopyrightURL         *string  `json:"copyright_url"`
-	ContentHTML          *string  `json:"content_html"`
-	CustomPublishedAt    *string  `json:"custom_published_at,omitempty"`
-	CustomUpdatedAt      *string  `json:"custom_updated_at,omitempty"`
+	Title                *string             `json:"title"`
+	ContentMd            *string             `json:"content_md"`
+	CoverURL             *string             `json:"cover_url"`
+	Status               *string             `json:"status" binding:"omitempty,oneof=DRAFT PUBLISHED ARCHIVED"`
+	PostTagIDs           []string            `json:"post_tag_ids"`
+	PostCategoryIDs      []string            `json:"post_category_ids"`
+	IPLocation           *string             `json:"ip_location"`
+	ShowOnHome           *bool               `json:"show_on_home"`
+	HomeSort             *int                `json:"home_sort"`
+	PinSort              *int                `json:"pin_sort"`
+	TopImgURL            *string             `json:"top_img_url"`
+	Summaries            []string            `json:"summaries"`
+	PrimaryColor         *string             `json:"primary_color"`
+	IsPrimaryColorManual *bool               `json:"is_primary_color_manual"`
+	Abbrlink             *string             `json:"abbrlink"`
+	Copyright            *bool               `json:"copyright"`
+	CopyrightAuthor      *string             `json:"copyright_author"`
+	CopyrightAuthorHref  *string             `json:"copyright_author_href"`
+	CopyrightURL         *string             `json:"copyright_url"`
+	ContentHTML          *string             `json:"content_html"`
+	CustomPublishedAt    *string             `json:"custom_published_at,omitempty"`
+	CustomUpdatedAt      *string             `json:"custom_updated_at,omitempty"`
 	Keywords             *string             `json:"keywords"`
 	ReviewStatus         *string             `json:"review_status,omitempty"` // 审核状态（多人共创功能）
 	ExtraConfig          *ArticleExtraConfig `json:"extra_config,omitempty"`  // 文章扩展配置
+	// 文档模式相关字段
+	IsDoc       *bool   `json:"is_doc,omitempty"`        // 是否为文档模式
+	DocSeriesID *string `json:"doc_series_id,omitempty"` // 文档系列ID (公共ID)
+	DocSort     *int    `json:"doc_sort,omitempty"`      // 文档在系列中的排序
 }
 
 // ArticleResponse 定义了文章信息的标准 API 响应结构
@@ -173,15 +187,22 @@ type ArticleResponse struct {
 	TakedownBy     *uint      `json:"takedown_by,omitempty"`     // 下架操作人ID
 	// 扩展配置
 	ExtraConfig *ArticleExtraConfig `json:"extra_config,omitempty"` // 文章扩展配置
+	// 文档模式相关字段
+	IsDoc       bool               `json:"is_doc,omitempty"`        // 是否为文档模式
+	DocSeriesID string             `json:"doc_series_id,omitempty"` // 文档系列ID (公共ID)
+	DocSort     int                `json:"doc_sort,omitempty"`      // 文档在系列中的排序
+	DocSeries   *DocSeriesResponse `json:"doc_series,omitempty"`    // 关联的文档系列信息
 }
 
 // 用于上一篇/下一篇/相关文章的简化信息响应
 type SimpleArticleResponse struct {
-	ID        string    `json:"id"`
-	Title     string    `json:"title"`
-	CoverURL  string    `json:"cover_url"`
-	Abbrlink  string    `json:"abbrlink"`
-	CreatedAt time.Time `json:"created_at"`
+	ID          string    `json:"id"`
+	Title       string    `json:"title"`
+	CoverURL    string    `json:"cover_url"`
+	Abbrlink    string    `json:"abbrlink"`
+	CreatedAt   time.Time `json:"created_at"`
+	IsDoc       bool      `json:"is_doc,omitempty"`
+	DocSeriesID string    `json:"doc_series_id,omitempty"`
 }
 
 // 用于文章详情页的完整响应，包含上下文文章
@@ -262,6 +283,10 @@ type CreateArticleParams struct {
 	Keywords             string
 	ReviewStatus         string              // 审核状态（多人共创功能）：NONE-无需审核, PENDING-待审核
 	ExtraConfig          *ArticleExtraConfig // 文章扩展配置
+	// 文档模式相关字段
+	IsDoc       bool  // 是否为文档模式
+	DocSeriesID *uint // 文档系列ID
+	DocSort     int   // 文档在系列中的排序
 }
 
 // 用于解析颜色 API 响应的结构体

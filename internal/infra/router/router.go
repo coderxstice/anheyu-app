@@ -19,6 +19,7 @@ import (
 	comment_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/comment"
 	config_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/config"
 	direct_link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/direct_link"
+	doc_series_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/doc_series"
 	file_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/file"
 	link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/link"
 	music_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/music"
@@ -70,6 +71,7 @@ type Router struct {
 	articleHandler            *article_handler.Handler
 	postTagHandler            *post_tag_handler.Handler
 	postCategoryHandler       *post_category_handler.Handler
+	docSeriesHandler          *doc_series_handler.Handler
 	commentHandler            *comment_handler.Handler
 	linkHandler               *link_handler.Handler
 	musicHandler              *music_handler.MusicHandler
@@ -101,6 +103,7 @@ func NewRouter(
 	articleHandler *article_handler.Handler,
 	postTagHandler *post_tag_handler.Handler,
 	postCategoryHandler *post_category_handler.Handler,
+	docSeriesHandler *doc_series_handler.Handler,
 	commentHandler *comment_handler.Handler,
 	linkHandler *link_handler.Handler,
 	musicHandler *music_handler.MusicHandler,
@@ -130,6 +133,7 @@ func NewRouter(
 		articleHandler:            articleHandler,
 		postTagHandler:            postTagHandler,
 		postCategoryHandler:       postCategoryHandler,
+		docSeriesHandler:          docSeriesHandler,
 		commentHandler:            commentHandler,
 		linkHandler:               linkHandler,
 		musicHandler:              musicHandler,
@@ -184,6 +188,7 @@ func (r *Router) Setup(engine *gin.Engine) {
 	r.registerArticleRoutes(apiGroup)
 	r.registerPostTagRoutes(apiGroup)
 	r.registerPostCategoryRoutes(apiGroup)
+	r.registerDocSeriesRoutes(apiGroup)
 	r.registerCommentRoutes(apiGroup)
 	r.registerPageRoutes(apiGroup)
 	r.registerSearchRoutes(apiGroup)
@@ -258,6 +263,26 @@ func (r *Router) registerPostCategoryRoutes(api *gin.RouterGroup) {
 		postCategoriesAdmin.POST("", r.postCategoryHandler.Create)
 		postCategoriesAdmin.PUT("/:id", r.postCategoryHandler.Update)
 		postCategoriesAdmin.DELETE("/:id", r.postCategoryHandler.Delete)
+	}
+}
+
+func (r *Router) registerDocSeriesRoutes(api *gin.RouterGroup) {
+	// 公开接口：获取文档系列列表和详情
+	docSeriesPublic := api.Group("/public/doc-series")
+	{
+		docSeriesPublic.GET("", r.docSeriesHandler.List)
+		docSeriesPublic.GET("/:id", r.docSeriesHandler.Get)
+		docSeriesPublic.GET("/:id/articles", r.docSeriesHandler.GetWithArticles)
+	}
+
+	// 管理员接口：创建、更新、删除文档系列
+	docSeriesAdmin := api.Group("/doc-series").Use(r.mw.JWTAuth(), r.mw.AdminAuth())
+	{
+		docSeriesAdmin.GET("", r.docSeriesHandler.List)
+		docSeriesAdmin.GET("/:id", r.docSeriesHandler.Get)
+		docSeriesAdmin.POST("", r.docSeriesHandler.Create)
+		docSeriesAdmin.PUT("/:id", r.docSeriesHandler.Update)
+		docSeriesAdmin.DELETE("/:id", r.docSeriesHandler.Delete)
 	}
 }
 

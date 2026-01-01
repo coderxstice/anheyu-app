@@ -52,6 +52,9 @@ type SearchHit struct {
 	ViewCount   int       `json:"view_count"`
 	WordCount   int       `json:"word_count"`
 	ReadingTime int       `json:"reading_time"`
+	// 文档模式相关字段
+	IsDoc       bool   `json:"is_doc,omitempty"`
+	DocSeriesID string `json:"doc_series_id,omitempty"`
 }
 
 // SearchRequest 定义了搜索请求的参数

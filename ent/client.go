@@ -20,6 +20,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/article"
 	"github.com/anzhiyu-c/anheyu-app/ent/comment"
 	"github.com/anzhiyu-c/anheyu-app/ent/directlink"
+	"github.com/anzhiyu-c/anheyu-app/ent/docseries"
 	"github.com/anzhiyu-c/anheyu-app/ent/entity"
 	"github.com/anzhiyu-c/anheyu-app/ent/file"
 	"github.com/anzhiyu-c/anheyu-app/ent/fileentity"
@@ -58,6 +59,8 @@ type Client struct {
 	Comment *CommentClient
 	// DirectLink is the client for interacting with the DirectLink builders.
 	DirectLink *DirectLinkClient
+	// DocSeries is the client for interacting with the DocSeries builders.
+	DocSeries *DocSeriesClient
 	// Entity is the client for interacting with the Entity builders.
 	Entity *EntityClient
 	// File is the client for interacting with the File builders.
@@ -116,6 +119,7 @@ func (c *Client) init() {
 	c.Article = NewArticleClient(c.config)
 	c.Comment = NewCommentClient(c.config)
 	c.DirectLink = NewDirectLinkClient(c.config)
+	c.DocSeries = NewDocSeriesClient(c.config)
 	c.Entity = NewEntityClient(c.config)
 	c.File = NewFileClient(c.config)
 	c.FileEntity = NewFileEntityClient(c.config)
@@ -234,6 +238,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Article:                NewArticleClient(cfg),
 		Comment:                NewCommentClient(cfg),
 		DirectLink:             NewDirectLinkClient(cfg),
+		DocSeries:              NewDocSeriesClient(cfg),
 		Entity:                 NewEntityClient(cfg),
 		File:                   NewFileClient(cfg),
 		FileEntity:             NewFileEntityClient(cfg),
@@ -279,6 +284,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Article:                NewArticleClient(cfg),
 		Comment:                NewCommentClient(cfg),
 		DirectLink:             NewDirectLinkClient(cfg),
+		DocSeries:              NewDocSeriesClient(cfg),
 		Entity:                 NewEntityClient(cfg),
 		File:                   NewFileClient(cfg),
 		FileEntity:             NewFileEntityClient(cfg),
@@ -329,8 +335,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.Album, c.AlbumCategory, c.Article, c.Comment, c.DirectLink, c.Entity, c.File,
-		c.FileEntity, c.Link, c.LinkCategory, c.LinkTag, c.Metadata,
+		c.Album, c.AlbumCategory, c.Article, c.Comment, c.DirectLink, c.DocSeries,
+		c.Entity, c.File, c.FileEntity, c.Link, c.LinkCategory, c.LinkTag, c.Metadata,
 		c.NotificationType, c.Page, c.PostCategory, c.PostTag, c.Setting,
 		c.StoragePolicy, c.Tag, c.URLStat, c.User, c.UserGroup, c.UserInstalledTheme,
 		c.UserNotificationConfig, c.VisitorLog, c.VisitorStat,
@@ -343,8 +349,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Album, c.AlbumCategory, c.Article, c.Comment, c.DirectLink, c.Entity, c.File,
-		c.FileEntity, c.Link, c.LinkCategory, c.LinkTag, c.Metadata,
+		c.Album, c.AlbumCategory, c.Article, c.Comment, c.DirectLink, c.DocSeries,
+		c.Entity, c.File, c.FileEntity, c.Link, c.LinkCategory, c.LinkTag, c.Metadata,
 		c.NotificationType, c.Page, c.PostCategory, c.PostTag, c.Setting,
 		c.StoragePolicy, c.Tag, c.URLStat, c.User, c.UserGroup, c.UserInstalledTheme,
 		c.UserNotificationConfig, c.VisitorLog, c.VisitorStat,
@@ -366,6 +372,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Comment.mutate(ctx, m)
 	case *DirectLinkMutation:
 		return c.DirectLink.mutate(ctx, m)
+	case *DocSeriesMutation:
+		return c.DocSeries.mutate(ctx, m)
 	case *EntityMutation:
 		return c.Entity.mutate(ctx, m)
 	case *FileMutation:
@@ -868,6 +876,22 @@ func (c *ArticleClient) QueryComments(_m *Article) *CommentQuery {
 	return query
 }
 
+// QueryDocSeries queries the doc_series edge of a Article.
+func (c *ArticleClient) QueryDocSeries(_m *Article) *DocSeriesQuery {
+	query := (&DocSeriesClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(article.Table, article.FieldID, id),
+			sqlgraph.To(docseries.Table, docseries.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, article.DocSeriesTable, article.DocSeriesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *ArticleClient) Hooks() []Hook {
 	hooks := c.hooks.Article
@@ -1223,6 +1247,155 @@ func (c *DirectLinkClient) mutate(ctx context.Context, m *DirectLinkMutation) (V
 		return (&DirectLinkDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown DirectLink mutation op: %q", m.Op())
+	}
+}
+
+// DocSeriesClient is a client for the DocSeries schema.
+type DocSeriesClient struct {
+	config
+}
+
+// NewDocSeriesClient returns a client for the DocSeries from the given config.
+func NewDocSeriesClient(c config) *DocSeriesClient {
+	return &DocSeriesClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `docseries.Hooks(f(g(h())))`.
+func (c *DocSeriesClient) Use(hooks ...Hook) {
+	c.hooks.DocSeries = append(c.hooks.DocSeries, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `docseries.Intercept(f(g(h())))`.
+func (c *DocSeriesClient) Intercept(interceptors ...Interceptor) {
+	c.inters.DocSeries = append(c.inters.DocSeries, interceptors...)
+}
+
+// Create returns a builder for creating a DocSeries entity.
+func (c *DocSeriesClient) Create() *DocSeriesCreate {
+	mutation := newDocSeriesMutation(c.config, OpCreate)
+	return &DocSeriesCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of DocSeries entities.
+func (c *DocSeriesClient) CreateBulk(builders ...*DocSeriesCreate) *DocSeriesCreateBulk {
+	return &DocSeriesCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DocSeriesClient) MapCreateBulk(slice any, setFunc func(*DocSeriesCreate, int)) *DocSeriesCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DocSeriesCreateBulk{err: fmt.Errorf("calling to DocSeriesClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DocSeriesCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DocSeriesCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for DocSeries.
+func (c *DocSeriesClient) Update() *DocSeriesUpdate {
+	mutation := newDocSeriesMutation(c.config, OpUpdate)
+	return &DocSeriesUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *DocSeriesClient) UpdateOne(_m *DocSeries) *DocSeriesUpdateOne {
+	mutation := newDocSeriesMutation(c.config, OpUpdateOne, withDocSeries(_m))
+	return &DocSeriesUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *DocSeriesClient) UpdateOneID(id uint) *DocSeriesUpdateOne {
+	mutation := newDocSeriesMutation(c.config, OpUpdateOne, withDocSeriesID(id))
+	return &DocSeriesUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for DocSeries.
+func (c *DocSeriesClient) Delete() *DocSeriesDelete {
+	mutation := newDocSeriesMutation(c.config, OpDelete)
+	return &DocSeriesDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *DocSeriesClient) DeleteOne(_m *DocSeries) *DocSeriesDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *DocSeriesClient) DeleteOneID(id uint) *DocSeriesDeleteOne {
+	builder := c.Delete().Where(docseries.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &DocSeriesDeleteOne{builder}
+}
+
+// Query returns a query builder for DocSeries.
+func (c *DocSeriesClient) Query() *DocSeriesQuery {
+	return &DocSeriesQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeDocSeries},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a DocSeries entity by its id.
+func (c *DocSeriesClient) Get(ctx context.Context, id uint) (*DocSeries, error) {
+	return c.Query().Where(docseries.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *DocSeriesClient) GetX(ctx context.Context, id uint) *DocSeries {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryArticles queries the articles edge of a DocSeries.
+func (c *DocSeriesClient) QueryArticles(_m *DocSeries) *ArticleQuery {
+	query := (&ArticleClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(docseries.Table, docseries.FieldID, id),
+			sqlgraph.To(article.Table, article.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, docseries.ArticlesTable, docseries.ArticlesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *DocSeriesClient) Hooks() []Hook {
+	return c.hooks.DocSeries
+}
+
+// Interceptors returns the client interceptors.
+func (c *DocSeriesClient) Interceptors() []Interceptor {
+	return c.inters.DocSeries
+}
+
+func (c *DocSeriesClient) mutate(ctx context.Context, m *DocSeriesMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&DocSeriesCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&DocSeriesUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&DocSeriesUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&DocSeriesDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown DocSeries mutation op: %q", m.Op())
 	}
 }
 
@@ -4466,15 +4639,15 @@ func (c *VisitorStatClient) mutate(ctx context.Context, m *VisitorStatMutation) 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Album, AlbumCategory, Article, Comment, DirectLink, Entity, File, FileEntity,
-		Link, LinkCategory, LinkTag, Metadata, NotificationType, Page, PostCategory,
-		PostTag, Setting, StoragePolicy, Tag, URLStat, User, UserGroup,
+		Album, AlbumCategory, Article, Comment, DirectLink, DocSeries, Entity, File,
+		FileEntity, Link, LinkCategory, LinkTag, Metadata, NotificationType, Page,
+		PostCategory, PostTag, Setting, StoragePolicy, Tag, URLStat, User, UserGroup,
 		UserInstalledTheme, UserNotificationConfig, VisitorLog, VisitorStat []ent.Hook
 	}
 	inters struct {
-		Album, AlbumCategory, Article, Comment, DirectLink, Entity, File, FileEntity,
-		Link, LinkCategory, LinkTag, Metadata, NotificationType, Page, PostCategory,
-		PostTag, Setting, StoragePolicy, Tag, URLStat, User, UserGroup,
+		Album, AlbumCategory, Article, Comment, DirectLink, DocSeries, Entity, File,
+		FileEntity, Link, LinkCategory, LinkTag, Metadata, NotificationType, Page,
+		PostCategory, PostTag, Setting, StoragePolicy, Tag, URLStat, User, UserGroup,
 		UserInstalledTheme, UserNotificationConfig, VisitorLog,
 		VisitorStat []ent.Interceptor
 	}

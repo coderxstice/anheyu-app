@@ -64,6 +64,7 @@ type serviceImpl struct {
 	postTagRepo      repository.PostTagRepository
 	postCategoryRepo repository.PostCategoryRepository
 	commentRepo      repository.CommentRepository
+	docSeriesRepo    repository.DocSeriesRepository
 	txManager        repository.TransactionManager
 	cacheSvc         utility.CacheService
 	geoService       utility.GeoIPService
@@ -85,6 +86,7 @@ func NewService(
 	postTagRepo repository.PostTagRepository,
 	postCategoryRepo repository.PostCategoryRepository,
 	commentRepo repository.CommentRepository,
+	docSeriesRepo repository.DocSeriesRepository,
 	txManager repository.TransactionManager,
 	cacheSvc utility.CacheService,
 	geoService utility.GeoIPService,
@@ -103,6 +105,7 @@ func NewService(
 		postTagRepo:      postTagRepo,
 		postCategoryRepo: postCategoryRepo,
 		commentRepo:      commentRepo,
+		docSeriesRepo:    docSeriesRepo,
 		txManager:        txManager,
 		cacheSvc:         cacheSvc,
 		geoService:       geoService,
@@ -322,6 +325,17 @@ func (s *serviceImpl) ToAPIResponse(a *model.Article, useAbbrlinkAsID bool, incl
 		TakedownAt:           a.TakedownAt,     // 下架时间
 		TakedownBy:           a.TakedownBy,     // 下架操作人
 		ExtraConfig:          a.ExtraConfig,    // 文章扩展配置
+		// 文档模式相关字段
+		IsDoc:   a.IsDoc,
+		DocSort: a.DocSort,
+	}
+
+	// 转换文档系列ID (数据库ID -> 公共ID)
+	if a.DocSeriesID != nil {
+		docSeriesPublicID, err := idgen.GeneratePublicID(*a.DocSeriesID, idgen.EntityTypeDocSeries)
+		if err == nil {
+			resp.DocSeriesID = docSeriesPublicID
+		}
 	}
 
 	if includeHTML {
@@ -339,7 +353,24 @@ func toSimpleAPIResponse(a *model.Article) *model.SimpleArticleResponse {
 	if a.Abbrlink != "" {
 		responseID = a.Abbrlink
 	}
-	return &model.SimpleArticleResponse{ID: responseID, Title: a.Title, CoverURL: a.CoverURL, Abbrlink: a.Abbrlink, CreatedAt: a.CreatedAt}
+
+	// 转换文档系列ID
+	docSeriesID := ""
+	if a.DocSeriesID != nil {
+		if publicID, err := idgen.GeneratePublicID(*a.DocSeriesID, idgen.EntityTypeDocSeries); err == nil {
+			docSeriesID = publicID
+		}
+	}
+
+	return &model.SimpleArticleResponse{
+		ID:          responseID,
+		Title:       a.Title,
+		CoverURL:    a.CoverURL,
+		Abbrlink:    a.Abbrlink,
+		CreatedAt:   a.CreatedAt,
+		IsDoc:       a.IsDoc,
+		DocSeriesID: docSeriesID,
+	}
 }
 
 // getCacheKey 生成文章渲染结果的 Redis 缓存键。
@@ -771,6 +802,18 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 			Keywords:             req.Keywords,
 			ReviewStatus:         req.ReviewStatus, // 审核状态（多人共创功能）
 			ExtraConfig:          req.ExtraConfig,  // 文章扩展配置
+			// 文档模式相关字段
+			IsDoc:   req.IsDoc,
+			DocSort: req.DocSort,
+		}
+		// 转换文档系列ID (公共ID -> 数据库ID)
+		var seriesDBID uint
+		if req.DocSeriesID != "" {
+			dbID, _, err := idgen.DecodePublicID(req.DocSeriesID)
+			if err == nil {
+				seriesDBID = dbID
+				params.DocSeriesID = &seriesDBID
+			}
 		}
 		createdArticle, err := repos.Article.Create(ctx, params)
 		if err != nil {
@@ -782,6 +825,12 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 		}
 		if err := repos.PostCategory.UpdateCount(ctx, categoryDBIDs, nil); err != nil {
 			return fmt.Errorf("更新分类计数失败: %w", err)
+		}
+		// 如果是文档模式且有系列ID，更新文档系列的文档计数
+		if req.IsDoc && seriesDBID > 0 {
+			if err := repos.DocSeries.UpdateDocCount(ctx, seriesDBID, 1); err != nil {
+				return fmt.Errorf("更新文档系列计数失败: %w", err)
+			}
 		}
 		return nil
 	})
@@ -1043,6 +1092,38 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 			return fmt.Errorf("删除未使用的分类失败: %w", err)
 		}
 
+		// 处理文档系列计数更新
+		oldSeriesID := uint(0)
+		if oldArticle.DocSeriesID != nil {
+			oldSeriesID = *oldArticle.DocSeriesID
+		}
+		newSeriesID := uint(0)
+		if req.DocSeriesID != nil && *req.DocSeriesID != "" {
+			dbID, _, err := idgen.DecodePublicID(*req.DocSeriesID)
+			if err == nil {
+				newSeriesID = dbID
+			}
+		}
+		oldIsDoc := oldArticle.IsDoc
+		newIsDoc := oldIsDoc
+		if req.IsDoc != nil {
+			newIsDoc = *req.IsDoc
+		}
+
+		// 计算文档系列计数变化
+		if oldIsDoc && oldSeriesID > 0 && (!newIsDoc || newSeriesID != oldSeriesID) {
+			// 旧系列减少计数
+			if err := repos.DocSeries.UpdateDocCount(ctx, oldSeriesID, -1); err != nil {
+				return fmt.Errorf("更新旧文档系列计数失败: %w", err)
+			}
+		}
+		if newIsDoc && newSeriesID > 0 && (!oldIsDoc || newSeriesID != oldSeriesID) {
+			// 新系列增加计数
+			if err := repos.DocSeries.UpdateDocCount(ctx, newSeriesID, 1); err != nil {
+				return fmt.Errorf("更新新文档系列计数失败: %w", err)
+			}
+		}
+
 		return nil
 	})
 
@@ -1086,6 +1167,12 @@ func (s *serviceImpl) Delete(ctx context.Context, publicID string) error {
 			categoryIDs[i], _, _ = idgen.DecodePublicID(c.ID)
 		}
 
+		// 保存文档系列ID，用于后续更新计数
+		var docSeriesDBID uint
+		if article.IsDoc && article.DocSeriesID != nil {
+			docSeriesDBID = *article.DocSeriesID
+		}
+
 		if err := repos.Article.Delete(ctx, publicID); err != nil {
 			return err
 		}
@@ -1102,6 +1189,13 @@ func (s *serviceImpl) Delete(ctx context.Context, publicID string) error {
 		}
 		if err := repos.PostCategory.DeleteIfUnused(ctx, categoryIDs); err != nil {
 			return fmt.Errorf("删除未使用的分类失败: %w", err)
+		}
+
+		// 如果是文档模式且有系列ID，减少文档系列的文档计数
+		if docSeriesDBID > 0 {
+			if err := repos.DocSeries.UpdateDocCount(ctx, docSeriesDBID, -1); err != nil {
+				return fmt.Errorf("更新文档系列计数失败: %w", err)
+			}
 		}
 
 		_ = s.cacheSvc.Delete(ctx, s.getCacheKey(publicID))

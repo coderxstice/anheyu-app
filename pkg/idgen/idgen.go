@@ -29,6 +29,7 @@ const (
 	EntityTypePostTag       uint64 = 9  // 文章标签实体的类型标识
 	EntityTypePostCategory  uint64 = 10 // 文章分类实体的类型标识
 	EntityTypeComment       uint64 = 11 // 评论实体的类型标识
+	EntityTypeDocSeries     uint64 = 12 // 文档系列实体的类型标识
 )
 
 // InitSqidsEncoder 初始化 Sqids 编码器。
