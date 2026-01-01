@@ -230,6 +230,30 @@ func (f DirectLinkMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Muta
 	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.DirectLinkMutation", m)
 }
 
+// The DocSeriesQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type DocSeriesQueryRuleFunc func(context.Context, *ent.DocSeriesQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f DocSeriesQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.DocSeriesQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.DocSeriesQuery", q)
+}
+
+// The DocSeriesMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type DocSeriesMutationRuleFunc func(context.Context, *ent.DocSeriesMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f DocSeriesMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.DocSeriesMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.DocSeriesMutation", m)
+}
+
 // The EntityQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type EntityQueryRuleFunc func(context.Context, *ent.EntityQuery) error

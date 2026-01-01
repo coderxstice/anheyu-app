@@ -16,6 +16,7 @@ import (
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 )
 
@@ -124,6 +125,15 @@ func (s *SimpleSearcher) articleToSearchHit(article *model.Article) *model.Searc
 		ViewCount:   article.ViewCount,
 		WordCount:   article.WordCount,
 		ReadingTime: article.ReadingTime,
+		IsDoc:       article.IsDoc,
+	}
+
+	// 转换文档系列ID
+	if article.DocSeriesID != nil {
+		docSeriesPublicID, err := idgen.GeneratePublicID(*article.DocSeriesID, idgen.EntityTypeDocSeries)
+		if err == nil {
+			hit.DocSeriesID = docSeriesPublicID
+		}
 	}
 
 	// 提取分类

@@ -142,6 +142,19 @@ func (Article) Fields() []ent.Field {
 		field.JSON("extra_config", map[string]interface{}{}).
 			Optional().
 			Comment("文章扩展配置（JSON格式，用于存储各种可选功能配置，如 enable_ai_podcast 等）"),
+
+		// --- 文档模式相关字段 ---
+		field.Bool("is_doc").
+			Comment("是否为文档模式：文档模式的文章会在文档页面展示").
+			Default(false),
+		field.Uint("doc_series_id").
+			Comment("文档系列ID，关联到doc_series表").
+			Optional().
+			Nillable(),
+		field.Int("doc_sort").
+			Comment("文档在系列中的排序，数值越小越靠前").
+			Default(0).
+			NonNegative(),
 	}
 }
 
@@ -151,5 +164,9 @@ func (Article) Edges() []ent.Edge {
 		edge.To("post_tags", PostTag.Type),
 		edge.To("post_categories", PostCategory.Type),
 		edge.To("comments", Comment.Type),
+		edge.From("doc_series", DocSeries.Type).
+			Ref("articles").
+			Field("doc_series_id").
+			Unique(),
 	}
 }

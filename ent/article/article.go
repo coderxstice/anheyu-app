@@ -86,12 +86,20 @@ const (
 	FieldTakedownBy = "takedown_by"
 	// FieldExtraConfig holds the string denoting the extra_config field in the database.
 	FieldExtraConfig = "extra_config"
+	// FieldIsDoc holds the string denoting the is_doc field in the database.
+	FieldIsDoc = "is_doc"
+	// FieldDocSeriesID holds the string denoting the doc_series_id field in the database.
+	FieldDocSeriesID = "doc_series_id"
+	// FieldDocSort holds the string denoting the doc_sort field in the database.
+	FieldDocSort = "doc_sort"
 	// EdgePostTags holds the string denoting the post_tags edge name in mutations.
 	EdgePostTags = "post_tags"
 	// EdgePostCategories holds the string denoting the post_categories edge name in mutations.
 	EdgePostCategories = "post_categories"
 	// EdgeComments holds the string denoting the comments edge name in mutations.
 	EdgeComments = "comments"
+	// EdgeDocSeries holds the string denoting the doc_series edge name in mutations.
+	EdgeDocSeries = "doc_series"
 	// Table holds the table name of the article in the database.
 	Table = "articles"
 	// PostTagsTable is the table that holds the post_tags relation/edge. The primary key declared below.
@@ -111,6 +119,13 @@ const (
 	CommentsInverseTable = "comments"
 	// CommentsColumn is the table column denoting the comments relation/edge.
 	CommentsColumn = "article_comments"
+	// DocSeriesTable is the table that holds the doc_series relation/edge.
+	DocSeriesTable = "articles"
+	// DocSeriesInverseTable is the table name for the DocSeries entity.
+	// It exists in this package in order to avoid circular dependency with the "docseries" package.
+	DocSeriesInverseTable = "doc_series"
+	// DocSeriesColumn is the table column denoting the doc_series relation/edge.
+	DocSeriesColumn = "doc_series_id"
 )
 
 // Columns holds all SQL columns for article fields.
@@ -151,6 +166,9 @@ var Columns = []string{
 	FieldTakedownAt,
 	FieldTakedownBy,
 	FieldExtraConfig,
+	FieldIsDoc,
+	FieldDocSeriesID,
+	FieldDocSort,
 }
 
 var (
@@ -217,6 +235,12 @@ var (
 	DefaultCopyright bool
 	// DefaultIsTakedown holds the default value on creation for the "is_takedown" field.
 	DefaultIsTakedown bool
+	// DefaultIsDoc holds the default value on creation for the "is_doc" field.
+	DefaultIsDoc bool
+	// DefaultDocSort holds the default value on creation for the "doc_sort" field.
+	DefaultDocSort int
+	// DocSortValidator is a validator for the "doc_sort" field. It is called by the builders before save.
+	DocSortValidator func(int) error
 )
 
 // Status defines the type for the "status" enum field.
@@ -447,6 +471,21 @@ func ByTakedownBy(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTakedownBy, opts...).ToFunc()
 }
 
+// ByIsDoc orders the results by the is_doc field.
+func ByIsDoc(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsDoc, opts...).ToFunc()
+}
+
+// ByDocSeriesID orders the results by the doc_series_id field.
+func ByDocSeriesID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDocSeriesID, opts...).ToFunc()
+}
+
+// ByDocSort orders the results by the doc_sort field.
+func ByDocSort(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDocSort, opts...).ToFunc()
+}
+
 // ByPostTagsCount orders the results by post_tags count.
 func ByPostTagsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -488,6 +527,13 @@ func ByComments(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newCommentsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByDocSeriesField orders the results by doc_series field.
+func ByDocSeriesField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDocSeriesStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newPostTagsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -507,5 +553,12 @@ func newCommentsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(CommentsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, CommentsTable, CommentsColumn),
+	)
+}
+func newDocSeriesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DocSeriesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, DocSeriesTable, DocSeriesColumn),
 	)
 }

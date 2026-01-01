@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/anzhiyu-c/anheyu-app/ent/article"
 	"github.com/anzhiyu-c/anheyu-app/ent/comment"
+	"github.com/anzhiyu-c/anheyu-app/ent/docseries"
 	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
 	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
@@ -29,6 +30,7 @@ type ArticleQuery struct {
 	withPostTags       *PostTagQuery
 	withPostCategories *PostCategoryQuery
 	withComments       *CommentQuery
+	withDocSeries      *DocSeriesQuery
 	modifiers          []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -125,6 +127,28 @@ func (_q *ArticleQuery) QueryComments() *CommentQuery {
 			sqlgraph.From(article.Table, article.FieldID, selector),
 			sqlgraph.To(comment.Table, comment.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, article.CommentsTable, article.CommentsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDocSeries chains the current query on the "doc_series" edge.
+func (_q *ArticleQuery) QueryDocSeries() *DocSeriesQuery {
+	query := (&DocSeriesClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(article.Table, article.FieldID, selector),
+			sqlgraph.To(docseries.Table, docseries.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, article.DocSeriesTable, article.DocSeriesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -327,6 +351,7 @@ func (_q *ArticleQuery) Clone() *ArticleQuery {
 		withPostTags:       _q.withPostTags.Clone(),
 		withPostCategories: _q.withPostCategories.Clone(),
 		withComments:       _q.withComments.Clone(),
+		withDocSeries:      _q.withDocSeries.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -364,6 +389,17 @@ func (_q *ArticleQuery) WithComments(opts ...func(*CommentQuery)) *ArticleQuery 
 		opt(query)
 	}
 	_q.withComments = query
+	return _q
+}
+
+// WithDocSeries tells the query-builder to eager-load the nodes that are connected to
+// the "doc_series" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *ArticleQuery) WithDocSeries(opts ...func(*DocSeriesQuery)) *ArticleQuery {
+	query := (&DocSeriesClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withDocSeries = query
 	return _q
 }
 
@@ -445,10 +481,11 @@ func (_q *ArticleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Arti
 	var (
 		nodes       = []*Article{}
 		_spec       = _q.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			_q.withPostTags != nil,
 			_q.withPostCategories != nil,
 			_q.withComments != nil,
+			_q.withDocSeries != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -490,6 +527,12 @@ func (_q *ArticleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Arti
 		if err := _q.loadComments(ctx, query, nodes,
 			func(n *Article) { n.Edges.Comments = []*Comment{} },
 			func(n *Article, e *Comment) { n.Edges.Comments = append(n.Edges.Comments, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withDocSeries; query != nil {
+		if err := _q.loadDocSeries(ctx, query, nodes, nil,
+			func(n *Article, e *DocSeries) { n.Edges.DocSeries = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -649,6 +692,38 @@ func (_q *ArticleQuery) loadComments(ctx context.Context, query *CommentQuery, n
 	}
 	return nil
 }
+func (_q *ArticleQuery) loadDocSeries(ctx context.Context, query *DocSeriesQuery, nodes []*Article, init func(*Article), assign func(*Article, *DocSeries)) error {
+	ids := make([]uint, 0, len(nodes))
+	nodeids := make(map[uint][]*Article)
+	for i := range nodes {
+		if nodes[i].DocSeriesID == nil {
+			continue
+		}
+		fk := *nodes[i].DocSeriesID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(docseries.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "doc_series_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (_q *ArticleQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -677,6 +752,9 @@ func (_q *ArticleQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != article.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withDocSeries != nil {
+			_spec.Node.AddColumnOnce(article.FieldDocSeriesID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

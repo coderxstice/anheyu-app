@@ -62,6 +62,7 @@ func (tm *entTransactionManager) Do(ctx context.Context, fn func(repos repositor
 		Article:       NewArticleRepo(tx.Client(), tm.dbType),
 		PostTag:       NewPostTagRepo(tx.Client(), tm.dbType),
 		PostCategory:  NewPostCategoryRepo(tx.Client()),
+		DocSeries:     NewDocSeriesRepo(tx.Client()),
 		Link:          NewLinkRepo(tx.Client(), tm.dbType),
 		LinkCategory:  NewLinkCategoryRepo(tx.Client()),
 		LinkTag:       NewLinkTagRepo(tx.Client()),

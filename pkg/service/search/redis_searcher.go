@@ -20,6 +20,7 @@ import (
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -364,19 +365,29 @@ func (rs *RedisSearcher) IndexArticle(ctx context.Context, article *model.Articl
 		tags[i] = tag.Name
 	}
 
+	// 转换文档系列ID
+	docSeriesIDStr := ""
+	if article.DocSeriesID != nil {
+		if publicID, err := idgen.GeneratePublicID(*article.DocSeriesID, idgen.EntityTypeDocSeries); err == nil {
+			docSeriesIDStr = publicID
+		}
+	}
+
 	articleData := map[string]interface{}{
-		"id":           article.ID,
-		"title":        article.Title,
-		"content":      article.ContentHTML,
-		"author":       rs.settingSvc.Get(constant.KeyFrontDeskSiteOwnerName.String()),
-		"category":     category,
-		"publish_date": article.CreatedAt.Format(time.RFC3339),
-		"cover_url":    article.CoverURL,
-		"abbrlink":     article.Abbrlink,
-		"view_count":   article.ViewCount,
-		"word_count":   article.WordCount,
-		"reading_time": article.ReadingTime,
-		"status":       article.Status,
+		"id":            article.ID,
+		"title":         article.Title,
+		"content":       article.ContentHTML,
+		"author":        rs.settingSvc.Get(constant.KeyFrontDeskSiteOwnerName.String()),
+		"category":      category,
+		"publish_date":  article.CreatedAt.Format(time.RFC3339),
+		"cover_url":     article.CoverURL,
+		"abbrlink":      article.Abbrlink,
+		"view_count":    article.ViewCount,
+		"word_count":    article.WordCount,
+		"reading_time":  article.ReadingTime,
+		"status":        article.Status,
+		"is_doc":        article.IsDoc,
+		"doc_series_id": docSeriesIDStr,
 	}
 	if len(tags) > 0 {
 		articleData["tags"] = strings.Join(tags, ",")
@@ -472,6 +483,12 @@ func (rs *RedisSearcher) mapDataToSearchHit(id string, data map[string]string) *
 	fmt.Sscanf(data["view_count"], "%d", &hit.ViewCount)
 	fmt.Sscanf(data["word_count"], "%d", &hit.WordCount)
 	fmt.Sscanf(data["reading_time"], "%d", &hit.ReadingTime)
+
+	// 文档模式相关字段
+	if data["is_doc"] == "true" || data["is_doc"] == "1" {
+		hit.IsDoc = true
+	}
+	hit.DocSeriesID = data["doc_series_id"]
 
 	// 生成摘要
 	cleanContent := reHTMLTags.ReplaceAllString(data["content"], " ")

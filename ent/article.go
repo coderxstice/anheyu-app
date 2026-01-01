@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/anzhiyu-c/anheyu-app/ent/article"
+	"github.com/anzhiyu-c/anheyu-app/ent/docseries"
 )
 
 // 文章表
@@ -88,6 +89,12 @@ type Article struct {
 	TakedownBy *uint `json:"takedown_by,omitempty"`
 	// 文章扩展配置（JSON格式，用于存储各种可选功能配置，如 enable_ai_podcast 等）
 	ExtraConfig map[string]interface{} `json:"extra_config,omitempty"`
+	// 是否为文档模式：文档模式的文章会在文档页面展示
+	IsDoc bool `json:"is_doc,omitempty"`
+	// 文档系列ID，关联到doc_series表
+	DocSeriesID *uint `json:"doc_series_id,omitempty"`
+	// 文档在系列中的排序，数值越小越靠前
+	DocSort int `json:"doc_sort,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ArticleQuery when eager-loading is set.
 	Edges        ArticleEdges `json:"edges"`
@@ -102,9 +109,11 @@ type ArticleEdges struct {
 	PostCategories []*PostCategory `json:"post_categories,omitempty"`
 	// Comments holds the value of the comments edge.
 	Comments []*Comment `json:"comments,omitempty"`
+	// DocSeries holds the value of the doc_series edge.
+	DocSeries *DocSeries `json:"doc_series,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 }
 
 // PostTagsOrErr returns the PostTags value or an error if the edge
@@ -134,6 +143,17 @@ func (e ArticleEdges) CommentsOrErr() ([]*Comment, error) {
 	return nil, &NotLoadedError{edge: "comments"}
 }
 
+// DocSeriesOrErr returns the DocSeries value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ArticleEdges) DocSeriesOrErr() (*DocSeries, error) {
+	if e.DocSeries != nil {
+		return e.DocSeries, nil
+	} else if e.loadedTypes[3] {
+		return nil, &NotFoundError{label: docseries.Label}
+	}
+	return nil, &NotLoadedError{edge: "doc_series"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Article) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -141,9 +161,9 @@ func (*Article) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case article.FieldSummaries, article.FieldExtraConfig:
 			values[i] = new([]byte)
-		case article.FieldIsPrimaryColorManual, article.FieldShowOnHome, article.FieldCopyright, article.FieldIsTakedown:
+		case article.FieldIsPrimaryColorManual, article.FieldShowOnHome, article.FieldCopyright, article.FieldIsTakedown, article.FieldIsDoc:
 			values[i] = new(sql.NullBool)
-		case article.FieldID, article.FieldOwnerID, article.FieldViewCount, article.FieldWordCount, article.FieldReadingTime, article.FieldHomeSort, article.FieldPinSort, article.FieldReviewedBy, article.FieldTakedownBy:
+		case article.FieldID, article.FieldOwnerID, article.FieldViewCount, article.FieldWordCount, article.FieldReadingTime, article.FieldHomeSort, article.FieldPinSort, article.FieldReviewedBy, article.FieldTakedownBy, article.FieldDocSeriesID, article.FieldDocSort:
 			values[i] = new(sql.NullInt64)
 		case article.FieldTitle, article.FieldContentMd, article.FieldContentHTML, article.FieldCoverURL, article.FieldStatus, article.FieldIPLocation, article.FieldPrimaryColor, article.FieldTopImgURL, article.FieldAbbrlink, article.FieldCopyrightAuthor, article.FieldCopyrightAuthorHref, article.FieldCopyrightURL, article.FieldKeywords, article.FieldReviewStatus, article.FieldReviewComment, article.FieldTakedownReason:
 			values[i] = new(sql.NullString)
@@ -390,6 +410,25 @@ func (_m *Article) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field extra_config: %w", err)
 				}
 			}
+		case article.FieldIsDoc:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_doc", values[i])
+			} else if value.Valid {
+				_m.IsDoc = value.Bool
+			}
+		case article.FieldDocSeriesID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field doc_series_id", values[i])
+			} else if value.Valid {
+				_m.DocSeriesID = new(uint)
+				*_m.DocSeriesID = uint(value.Int64)
+			}
+		case article.FieldDocSort:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field doc_sort", values[i])
+			} else if value.Valid {
+				_m.DocSort = int(value.Int64)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -416,6 +455,11 @@ func (_m *Article) QueryPostCategories() *PostCategoryQuery {
 // QueryComments queries the "comments" edge of the Article entity.
 func (_m *Article) QueryComments() *CommentQuery {
 	return NewArticleClient(_m.config).QueryComments(_m)
+}
+
+// QueryDocSeries queries the "doc_series" edge of the Article entity.
+func (_m *Article) QueryDocSeries() *DocSeriesQuery {
+	return NewArticleClient(_m.config).QueryDocSeries(_m)
 }
 
 // Update returns a builder for updating this Article.
@@ -557,6 +601,17 @@ func (_m *Article) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("extra_config=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ExtraConfig))
+	builder.WriteString(", ")
+	builder.WriteString("is_doc=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IsDoc))
+	builder.WriteString(", ")
+	if v := _m.DocSeriesID; v != nil {
+		builder.WriteString("doc_series_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("doc_sort=")
+	builder.WriteString(fmt.Sprintf("%v", _m.DocSort))
 	builder.WriteByte(')')
 	return builder.String()
 }

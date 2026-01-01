@@ -16,6 +16,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/article"
 	"github.com/anzhiyu-c/anheyu-app/ent/comment"
 	"github.com/anzhiyu-c/anheyu-app/ent/directlink"
+	"github.com/anzhiyu-c/anheyu-app/ent/docseries"
 	"github.com/anzhiyu-c/anheyu-app/ent/entity"
 	"github.com/anzhiyu-c/anheyu-app/ent/file"
 	"github.com/anzhiyu-c/anheyu-app/ent/fileentity"
@@ -55,6 +56,7 @@ const (
 	TypeArticle                = "Article"
 	TypeComment                = "Comment"
 	TypeDirectLink             = "DirectLink"
+	TypeDocSeries              = "DocSeries"
 	TypeEntity                 = "Entity"
 	TypeFile                   = "File"
 	TypeFileEntity             = "FileEntity"
@@ -2658,6 +2660,9 @@ type ArticleMutation struct {
 	takedown_by             *uint
 	addtakedown_by          *int
 	extra_config            *map[string]interface{}
+	is_doc                  *bool
+	doc_sort                *int
+	adddoc_sort             *int
 	clearedFields           map[string]struct{}
 	post_tags               map[uint]struct{}
 	removedpost_tags        map[uint]struct{}
@@ -2668,6 +2673,8 @@ type ArticleMutation struct {
 	comments                map[uint]struct{}
 	removedcomments         map[uint]struct{}
 	clearedcomments         bool
+	doc_series              *uint
+	cleareddoc_series       bool
 	done                    bool
 	oldValue                func(context.Context) (*Article, error)
 	predicates              []predicate.Article
@@ -4475,6 +4482,147 @@ func (m *ArticleMutation) ResetExtraConfig() {
 	delete(m.clearedFields, article.FieldExtraConfig)
 }
 
+// SetIsDoc sets the "is_doc" field.
+func (m *ArticleMutation) SetIsDoc(b bool) {
+	m.is_doc = &b
+}
+
+// IsDoc returns the value of the "is_doc" field in the mutation.
+func (m *ArticleMutation) IsDoc() (r bool, exists bool) {
+	v := m.is_doc
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsDoc returns the old "is_doc" field's value of the Article entity.
+// If the Article object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ArticleMutation) OldIsDoc(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsDoc is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsDoc requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsDoc: %w", err)
+	}
+	return oldValue.IsDoc, nil
+}
+
+// ResetIsDoc resets all changes to the "is_doc" field.
+func (m *ArticleMutation) ResetIsDoc() {
+	m.is_doc = nil
+}
+
+// SetDocSeriesID sets the "doc_series_id" field.
+func (m *ArticleMutation) SetDocSeriesID(u uint) {
+	m.doc_series = &u
+}
+
+// DocSeriesID returns the value of the "doc_series_id" field in the mutation.
+func (m *ArticleMutation) DocSeriesID() (r uint, exists bool) {
+	v := m.doc_series
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDocSeriesID returns the old "doc_series_id" field's value of the Article entity.
+// If the Article object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ArticleMutation) OldDocSeriesID(ctx context.Context) (v *uint, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDocSeriesID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDocSeriesID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDocSeriesID: %w", err)
+	}
+	return oldValue.DocSeriesID, nil
+}
+
+// ClearDocSeriesID clears the value of the "doc_series_id" field.
+func (m *ArticleMutation) ClearDocSeriesID() {
+	m.doc_series = nil
+	m.clearedFields[article.FieldDocSeriesID] = struct{}{}
+}
+
+// DocSeriesIDCleared returns if the "doc_series_id" field was cleared in this mutation.
+func (m *ArticleMutation) DocSeriesIDCleared() bool {
+	_, ok := m.clearedFields[article.FieldDocSeriesID]
+	return ok
+}
+
+// ResetDocSeriesID resets all changes to the "doc_series_id" field.
+func (m *ArticleMutation) ResetDocSeriesID() {
+	m.doc_series = nil
+	delete(m.clearedFields, article.FieldDocSeriesID)
+}
+
+// SetDocSort sets the "doc_sort" field.
+func (m *ArticleMutation) SetDocSort(i int) {
+	m.doc_sort = &i
+	m.adddoc_sort = nil
+}
+
+// DocSort returns the value of the "doc_sort" field in the mutation.
+func (m *ArticleMutation) DocSort() (r int, exists bool) {
+	v := m.doc_sort
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDocSort returns the old "doc_sort" field's value of the Article entity.
+// If the Article object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ArticleMutation) OldDocSort(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDocSort is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDocSort requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDocSort: %w", err)
+	}
+	return oldValue.DocSort, nil
+}
+
+// AddDocSort adds i to the "doc_sort" field.
+func (m *ArticleMutation) AddDocSort(i int) {
+	if m.adddoc_sort != nil {
+		*m.adddoc_sort += i
+	} else {
+		m.adddoc_sort = &i
+	}
+}
+
+// AddedDocSort returns the value that was added to the "doc_sort" field in this mutation.
+func (m *ArticleMutation) AddedDocSort() (r int, exists bool) {
+	v := m.adddoc_sort
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDocSort resets all changes to the "doc_sort" field.
+func (m *ArticleMutation) ResetDocSort() {
+	m.doc_sort = nil
+	m.adddoc_sort = nil
+}
+
 // AddPostTagIDs adds the "post_tags" edge to the PostTag entity by ids.
 func (m *ArticleMutation) AddPostTagIDs(ids ...uint) {
 	if m.post_tags == nil {
@@ -4637,6 +4785,33 @@ func (m *ArticleMutation) ResetComments() {
 	m.removedcomments = nil
 }
 
+// ClearDocSeries clears the "doc_series" edge to the DocSeries entity.
+func (m *ArticleMutation) ClearDocSeries() {
+	m.cleareddoc_series = true
+	m.clearedFields[article.FieldDocSeriesID] = struct{}{}
+}
+
+// DocSeriesCleared reports if the "doc_series" edge to the DocSeries entity was cleared.
+func (m *ArticleMutation) DocSeriesCleared() bool {
+	return m.DocSeriesIDCleared() || m.cleareddoc_series
+}
+
+// DocSeriesIDs returns the "doc_series" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// DocSeriesID instead. It exists only for internal usage by the builders.
+func (m *ArticleMutation) DocSeriesIDs() (ids []uint) {
+	if id := m.doc_series; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetDocSeries resets all changes to the "doc_series" edge.
+func (m *ArticleMutation) ResetDocSeries() {
+	m.doc_series = nil
+	m.cleareddoc_series = false
+}
+
 // Where appends a list predicates to the ArticleMutation builder.
 func (m *ArticleMutation) Where(ps ...predicate.Article) {
 	m.predicates = append(m.predicates, ps...)
@@ -4671,7 +4846,7 @@ func (m *ArticleMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ArticleMutation) Fields() []string {
-	fields := make([]string, 0, 35)
+	fields := make([]string, 0, 38)
 	if m.deleted_at != nil {
 		fields = append(fields, article.FieldDeletedAt)
 	}
@@ -4777,6 +4952,15 @@ func (m *ArticleMutation) Fields() []string {
 	if m.extra_config != nil {
 		fields = append(fields, article.FieldExtraConfig)
 	}
+	if m.is_doc != nil {
+		fields = append(fields, article.FieldIsDoc)
+	}
+	if m.doc_series != nil {
+		fields = append(fields, article.FieldDocSeriesID)
+	}
+	if m.doc_sort != nil {
+		fields = append(fields, article.FieldDocSort)
+	}
 	return fields
 }
 
@@ -4855,6 +5039,12 @@ func (m *ArticleMutation) Field(name string) (ent.Value, bool) {
 		return m.TakedownBy()
 	case article.FieldExtraConfig:
 		return m.ExtraConfig()
+	case article.FieldIsDoc:
+		return m.IsDoc()
+	case article.FieldDocSeriesID:
+		return m.DocSeriesID()
+	case article.FieldDocSort:
+		return m.DocSort()
 	}
 	return nil, false
 }
@@ -4934,6 +5124,12 @@ func (m *ArticleMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldTakedownBy(ctx)
 	case article.FieldExtraConfig:
 		return m.OldExtraConfig(ctx)
+	case article.FieldIsDoc:
+		return m.OldIsDoc(ctx)
+	case article.FieldDocSeriesID:
+		return m.OldDocSeriesID(ctx)
+	case article.FieldDocSort:
+		return m.OldDocSort(ctx)
 	}
 	return nil, fmt.Errorf("unknown Article field %s", name)
 }
@@ -5188,6 +5384,27 @@ func (m *ArticleMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetExtraConfig(v)
 		return nil
+	case article.FieldIsDoc:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsDoc(v)
+		return nil
+	case article.FieldDocSeriesID:
+		v, ok := value.(uint)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDocSeriesID(v)
+		return nil
+	case article.FieldDocSort:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDocSort(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Article field %s", name)
 }
@@ -5220,6 +5437,9 @@ func (m *ArticleMutation) AddedFields() []string {
 	if m.addtakedown_by != nil {
 		fields = append(fields, article.FieldTakedownBy)
 	}
+	if m.adddoc_sort != nil {
+		fields = append(fields, article.FieldDocSort)
+	}
 	return fields
 }
 
@@ -5244,6 +5464,8 @@ func (m *ArticleMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedReviewedBy()
 	case article.FieldTakedownBy:
 		return m.AddedTakedownBy()
+	case article.FieldDocSort:
+		return m.AddedDocSort()
 	}
 	return nil, false
 }
@@ -5308,6 +5530,13 @@ func (m *ArticleMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddTakedownBy(v)
+		return nil
+	case article.FieldDocSort:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDocSort(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Article numeric field %s", name)
@@ -5376,6 +5605,9 @@ func (m *ArticleMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(article.FieldExtraConfig) {
 		fields = append(fields, article.FieldExtraConfig)
+	}
+	if m.FieldCleared(article.FieldDocSeriesID) {
+		fields = append(fields, article.FieldDocSeriesID)
 	}
 	return fields
 }
@@ -5450,6 +5682,9 @@ func (m *ArticleMutation) ClearField(name string) error {
 		return nil
 	case article.FieldExtraConfig:
 		m.ClearExtraConfig()
+		return nil
+	case article.FieldDocSeriesID:
+		m.ClearDocSeriesID()
 		return nil
 	}
 	return fmt.Errorf("unknown Article nullable field %s", name)
@@ -5564,13 +5799,22 @@ func (m *ArticleMutation) ResetField(name string) error {
 	case article.FieldExtraConfig:
 		m.ResetExtraConfig()
 		return nil
+	case article.FieldIsDoc:
+		m.ResetIsDoc()
+		return nil
+	case article.FieldDocSeriesID:
+		m.ResetDocSeriesID()
+		return nil
+	case article.FieldDocSort:
+		m.ResetDocSort()
+		return nil
 	}
 	return fmt.Errorf("unknown Article field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ArticleMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.post_tags != nil {
 		edges = append(edges, article.EdgePostTags)
 	}
@@ -5579,6 +5823,9 @@ func (m *ArticleMutation) AddedEdges() []string {
 	}
 	if m.comments != nil {
 		edges = append(edges, article.EdgeComments)
+	}
+	if m.doc_series != nil {
+		edges = append(edges, article.EdgeDocSeries)
 	}
 	return edges
 }
@@ -5605,13 +5852,17 @@ func (m *ArticleMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case article.EdgeDocSeries:
+		if id := m.doc_series; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ArticleMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.removedpost_tags != nil {
 		edges = append(edges, article.EdgePostTags)
 	}
@@ -5652,7 +5903,7 @@ func (m *ArticleMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ArticleMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.clearedpost_tags {
 		edges = append(edges, article.EdgePostTags)
 	}
@@ -5661,6 +5912,9 @@ func (m *ArticleMutation) ClearedEdges() []string {
 	}
 	if m.clearedcomments {
 		edges = append(edges, article.EdgeComments)
+	}
+	if m.cleareddoc_series {
+		edges = append(edges, article.EdgeDocSeries)
 	}
 	return edges
 }
@@ -5675,6 +5929,8 @@ func (m *ArticleMutation) EdgeCleared(name string) bool {
 		return m.clearedpost_categories
 	case article.EdgeComments:
 		return m.clearedcomments
+	case article.EdgeDocSeries:
+		return m.cleareddoc_series
 	}
 	return false
 }
@@ -5683,6 +5939,9 @@ func (m *ArticleMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *ArticleMutation) ClearEdge(name string) error {
 	switch name {
+	case article.EdgeDocSeries:
+		m.ClearDocSeries()
+		return nil
 	}
 	return fmt.Errorf("unknown Article unique edge %s", name)
 }
@@ -5699,6 +5958,9 @@ func (m *ArticleMutation) ResetEdge(name string) error {
 		return nil
 	case article.EdgeComments:
 		m.ResetComments()
+		return nil
+	case article.EdgeDocSeries:
+		m.ResetDocSeries()
 		return nil
 	}
 	return fmt.Errorf("unknown Article edge %s", name)
@@ -8463,6 +8725,865 @@ func (m *DirectLinkMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown DirectLink edge %s", name)
+}
+
+// DocSeriesMutation represents an operation that mutates the DocSeries nodes in the graph.
+type DocSeriesMutation struct {
+	config
+	op              Op
+	typ             string
+	id              *uint
+	created_at      *time.Time
+	updated_at      *time.Time
+	name            *string
+	description     *string
+	cover_url       *string
+	sort            *int
+	addsort         *int
+	doc_count       *int
+	adddoc_count    *int
+	clearedFields   map[string]struct{}
+	articles        map[uint]struct{}
+	removedarticles map[uint]struct{}
+	clearedarticles bool
+	done            bool
+	oldValue        func(context.Context) (*DocSeries, error)
+	predicates      []predicate.DocSeries
+}
+
+var _ ent.Mutation = (*DocSeriesMutation)(nil)
+
+// docseriesOption allows management of the mutation configuration using functional options.
+type docseriesOption func(*DocSeriesMutation)
+
+// newDocSeriesMutation creates new mutation for the DocSeries entity.
+func newDocSeriesMutation(c config, op Op, opts ...docseriesOption) *DocSeriesMutation {
+	m := &DocSeriesMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeDocSeries,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withDocSeriesID sets the ID field of the mutation.
+func withDocSeriesID(id uint) docseriesOption {
+	return func(m *DocSeriesMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *DocSeries
+		)
+		m.oldValue = func(ctx context.Context) (*DocSeries, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().DocSeries.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withDocSeries sets the old DocSeries of the mutation.
+func withDocSeries(node *DocSeries) docseriesOption {
+	return func(m *DocSeriesMutation) {
+		m.oldValue = func(context.Context) (*DocSeries, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m DocSeriesMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m DocSeriesMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of DocSeries entities.
+func (m *DocSeriesMutation) SetID(id uint) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *DocSeriesMutation) ID() (id uint, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *DocSeriesMutation) IDs(ctx context.Context) ([]uint, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uint{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().DocSeries.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *DocSeriesMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *DocSeriesMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the DocSeries entity.
+// If the DocSeries object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DocSeriesMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *DocSeriesMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *DocSeriesMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *DocSeriesMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the DocSeries entity.
+// If the DocSeries object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DocSeriesMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *DocSeriesMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetName sets the "name" field.
+func (m *DocSeriesMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *DocSeriesMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the DocSeries entity.
+// If the DocSeries object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DocSeriesMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *DocSeriesMutation) ResetName() {
+	m.name = nil
+}
+
+// SetDescription sets the "description" field.
+func (m *DocSeriesMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *DocSeriesMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the DocSeries entity.
+// If the DocSeries object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DocSeriesMutation) OldDescription(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ClearDescription clears the value of the "description" field.
+func (m *DocSeriesMutation) ClearDescription() {
+	m.description = nil
+	m.clearedFields[docseries.FieldDescription] = struct{}{}
+}
+
+// DescriptionCleared returns if the "description" field was cleared in this mutation.
+func (m *DocSeriesMutation) DescriptionCleared() bool {
+	_, ok := m.clearedFields[docseries.FieldDescription]
+	return ok
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *DocSeriesMutation) ResetDescription() {
+	m.description = nil
+	delete(m.clearedFields, docseries.FieldDescription)
+}
+
+// SetCoverURL sets the "cover_url" field.
+func (m *DocSeriesMutation) SetCoverURL(s string) {
+	m.cover_url = &s
+}
+
+// CoverURL returns the value of the "cover_url" field in the mutation.
+func (m *DocSeriesMutation) CoverURL() (r string, exists bool) {
+	v := m.cover_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCoverURL returns the old "cover_url" field's value of the DocSeries entity.
+// If the DocSeries object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DocSeriesMutation) OldCoverURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCoverURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCoverURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCoverURL: %w", err)
+	}
+	return oldValue.CoverURL, nil
+}
+
+// ClearCoverURL clears the value of the "cover_url" field.
+func (m *DocSeriesMutation) ClearCoverURL() {
+	m.cover_url = nil
+	m.clearedFields[docseries.FieldCoverURL] = struct{}{}
+}
+
+// CoverURLCleared returns if the "cover_url" field was cleared in this mutation.
+func (m *DocSeriesMutation) CoverURLCleared() bool {
+	_, ok := m.clearedFields[docseries.FieldCoverURL]
+	return ok
+}
+
+// ResetCoverURL resets all changes to the "cover_url" field.
+func (m *DocSeriesMutation) ResetCoverURL() {
+	m.cover_url = nil
+	delete(m.clearedFields, docseries.FieldCoverURL)
+}
+
+// SetSort sets the "sort" field.
+func (m *DocSeriesMutation) SetSort(i int) {
+	m.sort = &i
+	m.addsort = nil
+}
+
+// Sort returns the value of the "sort" field in the mutation.
+func (m *DocSeriesMutation) Sort() (r int, exists bool) {
+	v := m.sort
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSort returns the old "sort" field's value of the DocSeries entity.
+// If the DocSeries object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DocSeriesMutation) OldSort(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSort is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSort requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSort: %w", err)
+	}
+	return oldValue.Sort, nil
+}
+
+// AddSort adds i to the "sort" field.
+func (m *DocSeriesMutation) AddSort(i int) {
+	if m.addsort != nil {
+		*m.addsort += i
+	} else {
+		m.addsort = &i
+	}
+}
+
+// AddedSort returns the value that was added to the "sort" field in this mutation.
+func (m *DocSeriesMutation) AddedSort() (r int, exists bool) {
+	v := m.addsort
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSort resets all changes to the "sort" field.
+func (m *DocSeriesMutation) ResetSort() {
+	m.sort = nil
+	m.addsort = nil
+}
+
+// SetDocCount sets the "doc_count" field.
+func (m *DocSeriesMutation) SetDocCount(i int) {
+	m.doc_count = &i
+	m.adddoc_count = nil
+}
+
+// DocCount returns the value of the "doc_count" field in the mutation.
+func (m *DocSeriesMutation) DocCount() (r int, exists bool) {
+	v := m.doc_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDocCount returns the old "doc_count" field's value of the DocSeries entity.
+// If the DocSeries object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DocSeriesMutation) OldDocCount(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDocCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDocCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDocCount: %w", err)
+	}
+	return oldValue.DocCount, nil
+}
+
+// AddDocCount adds i to the "doc_count" field.
+func (m *DocSeriesMutation) AddDocCount(i int) {
+	if m.adddoc_count != nil {
+		*m.adddoc_count += i
+	} else {
+		m.adddoc_count = &i
+	}
+}
+
+// AddedDocCount returns the value that was added to the "doc_count" field in this mutation.
+func (m *DocSeriesMutation) AddedDocCount() (r int, exists bool) {
+	v := m.adddoc_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDocCount resets all changes to the "doc_count" field.
+func (m *DocSeriesMutation) ResetDocCount() {
+	m.doc_count = nil
+	m.adddoc_count = nil
+}
+
+// AddArticleIDs adds the "articles" edge to the Article entity by ids.
+func (m *DocSeriesMutation) AddArticleIDs(ids ...uint) {
+	if m.articles == nil {
+		m.articles = make(map[uint]struct{})
+	}
+	for i := range ids {
+		m.articles[ids[i]] = struct{}{}
+	}
+}
+
+// ClearArticles clears the "articles" edge to the Article entity.
+func (m *DocSeriesMutation) ClearArticles() {
+	m.clearedarticles = true
+}
+
+// ArticlesCleared reports if the "articles" edge to the Article entity was cleared.
+func (m *DocSeriesMutation) ArticlesCleared() bool {
+	return m.clearedarticles
+}
+
+// RemoveArticleIDs removes the "articles" edge to the Article entity by IDs.
+func (m *DocSeriesMutation) RemoveArticleIDs(ids ...uint) {
+	if m.removedarticles == nil {
+		m.removedarticles = make(map[uint]struct{})
+	}
+	for i := range ids {
+		delete(m.articles, ids[i])
+		m.removedarticles[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedArticles returns the removed IDs of the "articles" edge to the Article entity.
+func (m *DocSeriesMutation) RemovedArticlesIDs() (ids []uint) {
+	for id := range m.removedarticles {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ArticlesIDs returns the "articles" edge IDs in the mutation.
+func (m *DocSeriesMutation) ArticlesIDs() (ids []uint) {
+	for id := range m.articles {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetArticles resets all changes to the "articles" edge.
+func (m *DocSeriesMutation) ResetArticles() {
+	m.articles = nil
+	m.clearedarticles = false
+	m.removedarticles = nil
+}
+
+// Where appends a list predicates to the DocSeriesMutation builder.
+func (m *DocSeriesMutation) Where(ps ...predicate.DocSeries) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the DocSeriesMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *DocSeriesMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.DocSeries, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *DocSeriesMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *DocSeriesMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (DocSeries).
+func (m *DocSeriesMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *DocSeriesMutation) Fields() []string {
+	fields := make([]string, 0, 7)
+	if m.created_at != nil {
+		fields = append(fields, docseries.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, docseries.FieldUpdatedAt)
+	}
+	if m.name != nil {
+		fields = append(fields, docseries.FieldName)
+	}
+	if m.description != nil {
+		fields = append(fields, docseries.FieldDescription)
+	}
+	if m.cover_url != nil {
+		fields = append(fields, docseries.FieldCoverURL)
+	}
+	if m.sort != nil {
+		fields = append(fields, docseries.FieldSort)
+	}
+	if m.doc_count != nil {
+		fields = append(fields, docseries.FieldDocCount)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *DocSeriesMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case docseries.FieldCreatedAt:
+		return m.CreatedAt()
+	case docseries.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case docseries.FieldName:
+		return m.Name()
+	case docseries.FieldDescription:
+		return m.Description()
+	case docseries.FieldCoverURL:
+		return m.CoverURL()
+	case docseries.FieldSort:
+		return m.Sort()
+	case docseries.FieldDocCount:
+		return m.DocCount()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *DocSeriesMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case docseries.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case docseries.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case docseries.FieldName:
+		return m.OldName(ctx)
+	case docseries.FieldDescription:
+		return m.OldDescription(ctx)
+	case docseries.FieldCoverURL:
+		return m.OldCoverURL(ctx)
+	case docseries.FieldSort:
+		return m.OldSort(ctx)
+	case docseries.FieldDocCount:
+		return m.OldDocCount(ctx)
+	}
+	return nil, fmt.Errorf("unknown DocSeries field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DocSeriesMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case docseries.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case docseries.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case docseries.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case docseries.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
+		return nil
+	case docseries.FieldCoverURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCoverURL(v)
+		return nil
+	case docseries.FieldSort:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSort(v)
+		return nil
+	case docseries.FieldDocCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDocCount(v)
+		return nil
+	}
+	return fmt.Errorf("unknown DocSeries field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *DocSeriesMutation) AddedFields() []string {
+	var fields []string
+	if m.addsort != nil {
+		fields = append(fields, docseries.FieldSort)
+	}
+	if m.adddoc_count != nil {
+		fields = append(fields, docseries.FieldDocCount)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *DocSeriesMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case docseries.FieldSort:
+		return m.AddedSort()
+	case docseries.FieldDocCount:
+		return m.AddedDocCount()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DocSeriesMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case docseries.FieldSort:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSort(v)
+		return nil
+	case docseries.FieldDocCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDocCount(v)
+		return nil
+	}
+	return fmt.Errorf("unknown DocSeries numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *DocSeriesMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(docseries.FieldDescription) {
+		fields = append(fields, docseries.FieldDescription)
+	}
+	if m.FieldCleared(docseries.FieldCoverURL) {
+		fields = append(fields, docseries.FieldCoverURL)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *DocSeriesMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *DocSeriesMutation) ClearField(name string) error {
+	switch name {
+	case docseries.FieldDescription:
+		m.ClearDescription()
+		return nil
+	case docseries.FieldCoverURL:
+		m.ClearCoverURL()
+		return nil
+	}
+	return fmt.Errorf("unknown DocSeries nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *DocSeriesMutation) ResetField(name string) error {
+	switch name {
+	case docseries.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case docseries.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case docseries.FieldName:
+		m.ResetName()
+		return nil
+	case docseries.FieldDescription:
+		m.ResetDescription()
+		return nil
+	case docseries.FieldCoverURL:
+		m.ResetCoverURL()
+		return nil
+	case docseries.FieldSort:
+		m.ResetSort()
+		return nil
+	case docseries.FieldDocCount:
+		m.ResetDocCount()
+		return nil
+	}
+	return fmt.Errorf("unknown DocSeries field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *DocSeriesMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.articles != nil {
+		edges = append(edges, docseries.EdgeArticles)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *DocSeriesMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case docseries.EdgeArticles:
+		ids := make([]ent.Value, 0, len(m.articles))
+		for id := range m.articles {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *DocSeriesMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.removedarticles != nil {
+		edges = append(edges, docseries.EdgeArticles)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *DocSeriesMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case docseries.EdgeArticles:
+		ids := make([]ent.Value, 0, len(m.removedarticles))
+		for id := range m.removedarticles {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *DocSeriesMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedarticles {
+		edges = append(edges, docseries.EdgeArticles)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *DocSeriesMutation) EdgeCleared(name string) bool {
+	switch name {
+	case docseries.EdgeArticles:
+		return m.clearedarticles
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *DocSeriesMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown DocSeries unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *DocSeriesMutation) ResetEdge(name string) error {
+	switch name {
+	case docseries.EdgeArticles:
+		m.ResetArticles()
+		return nil
+	}
+	return fmt.Errorf("unknown DocSeries edge %s", name)
 }
 
 // EntityMutation represents an operation that mutates the Entity nodes in the graph.

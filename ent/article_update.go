@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/anzhiyu-c/anheyu-app/ent/article"
 	"github.com/anzhiyu-c/anheyu-app/ent/comment"
+	"github.com/anzhiyu-c/anheyu-app/ent/docseries"
 	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
 	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
@@ -689,6 +690,61 @@ func (_u *ArticleUpdate) ClearExtraConfig() *ArticleUpdate {
 	return _u
 }
 
+// SetIsDoc sets the "is_doc" field.
+func (_u *ArticleUpdate) SetIsDoc(v bool) *ArticleUpdate {
+	_u.mutation.SetIsDoc(v)
+	return _u
+}
+
+// SetNillableIsDoc sets the "is_doc" field if the given value is not nil.
+func (_u *ArticleUpdate) SetNillableIsDoc(v *bool) *ArticleUpdate {
+	if v != nil {
+		_u.SetIsDoc(*v)
+	}
+	return _u
+}
+
+// SetDocSeriesID sets the "doc_series_id" field.
+func (_u *ArticleUpdate) SetDocSeriesID(v uint) *ArticleUpdate {
+	_u.mutation.SetDocSeriesID(v)
+	return _u
+}
+
+// SetNillableDocSeriesID sets the "doc_series_id" field if the given value is not nil.
+func (_u *ArticleUpdate) SetNillableDocSeriesID(v *uint) *ArticleUpdate {
+	if v != nil {
+		_u.SetDocSeriesID(*v)
+	}
+	return _u
+}
+
+// ClearDocSeriesID clears the value of the "doc_series_id" field.
+func (_u *ArticleUpdate) ClearDocSeriesID() *ArticleUpdate {
+	_u.mutation.ClearDocSeriesID()
+	return _u
+}
+
+// SetDocSort sets the "doc_sort" field.
+func (_u *ArticleUpdate) SetDocSort(v int) *ArticleUpdate {
+	_u.mutation.ResetDocSort()
+	_u.mutation.SetDocSort(v)
+	return _u
+}
+
+// SetNillableDocSort sets the "doc_sort" field if the given value is not nil.
+func (_u *ArticleUpdate) SetNillableDocSort(v *int) *ArticleUpdate {
+	if v != nil {
+		_u.SetDocSort(*v)
+	}
+	return _u
+}
+
+// AddDocSort adds value to the "doc_sort" field.
+func (_u *ArticleUpdate) AddDocSort(v int) *ArticleUpdate {
+	_u.mutation.AddDocSort(v)
+	return _u
+}
+
 // AddPostTagIDs adds the "post_tags" edge to the PostTag entity by IDs.
 func (_u *ArticleUpdate) AddPostTagIDs(ids ...uint) *ArticleUpdate {
 	_u.mutation.AddPostTagIDs(ids...)
@@ -732,6 +788,11 @@ func (_u *ArticleUpdate) AddComments(v ...*Comment) *ArticleUpdate {
 		ids[i] = v[i].ID
 	}
 	return _u.AddCommentIDs(ids...)
+}
+
+// SetDocSeries sets the "doc_series" edge to the DocSeries entity.
+func (_u *ArticleUpdate) SetDocSeries(v *DocSeries) *ArticleUpdate {
+	return _u.SetDocSeriesID(v.ID)
 }
 
 // Mutation returns the ArticleMutation object of the builder.
@@ -802,6 +863,12 @@ func (_u *ArticleUpdate) RemoveComments(v ...*Comment) *ArticleUpdate {
 	return _u.RemoveCommentIDs(ids...)
 }
 
+// ClearDocSeries clears the "doc_series" edge to the DocSeries entity.
+func (_u *ArticleUpdate) ClearDocSeries() *ArticleUpdate {
+	_u.mutation.ClearDocSeries()
+	return _u
+}
+
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *ArticleUpdate) Save(ctx context.Context) (int, error) {
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
@@ -869,6 +936,11 @@ func (_u *ArticleUpdate) check() error {
 	if v, ok := _u.mutation.ReviewStatus(); ok {
 		if err := article.ReviewStatusValidator(v); err != nil {
 			return &ValidationError{Name: "review_status", err: fmt.Errorf(`ent: validator failed for field "Article.review_status": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.DocSort(); ok {
+		if err := article.DocSortValidator(v); err != nil {
+			return &ValidationError{Name: "doc_sort", err: fmt.Errorf(`ent: validator failed for field "Article.doc_sort": %w`, err)}
 		}
 	}
 	return nil
@@ -1086,6 +1158,15 @@ func (_u *ArticleUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.ExtraConfigCleared() {
 		_spec.ClearField(article.FieldExtraConfig, field.TypeJSON)
 	}
+	if value, ok := _u.mutation.IsDoc(); ok {
+		_spec.SetField(article.FieldIsDoc, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.DocSort(); ok {
+		_spec.SetField(article.FieldDocSort, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedDocSort(); ok {
+		_spec.AddField(article.FieldDocSort, field.TypeInt, value)
+	}
 	if _u.mutation.PostTagsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -1214,6 +1295,35 @@ func (_u *ArticleUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(comment.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.DocSeriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   article.DocSeriesTable,
+			Columns: []string{article.DocSeriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(docseries.FieldID, field.TypeUint),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DocSeriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   article.DocSeriesTable,
+			Columns: []string{article.DocSeriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(docseries.FieldID, field.TypeUint),
 			},
 		}
 		for _, k := range nodes {
@@ -1899,6 +2009,61 @@ func (_u *ArticleUpdateOne) ClearExtraConfig() *ArticleUpdateOne {
 	return _u
 }
 
+// SetIsDoc sets the "is_doc" field.
+func (_u *ArticleUpdateOne) SetIsDoc(v bool) *ArticleUpdateOne {
+	_u.mutation.SetIsDoc(v)
+	return _u
+}
+
+// SetNillableIsDoc sets the "is_doc" field if the given value is not nil.
+func (_u *ArticleUpdateOne) SetNillableIsDoc(v *bool) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetIsDoc(*v)
+	}
+	return _u
+}
+
+// SetDocSeriesID sets the "doc_series_id" field.
+func (_u *ArticleUpdateOne) SetDocSeriesID(v uint) *ArticleUpdateOne {
+	_u.mutation.SetDocSeriesID(v)
+	return _u
+}
+
+// SetNillableDocSeriesID sets the "doc_series_id" field if the given value is not nil.
+func (_u *ArticleUpdateOne) SetNillableDocSeriesID(v *uint) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetDocSeriesID(*v)
+	}
+	return _u
+}
+
+// ClearDocSeriesID clears the value of the "doc_series_id" field.
+func (_u *ArticleUpdateOne) ClearDocSeriesID() *ArticleUpdateOne {
+	_u.mutation.ClearDocSeriesID()
+	return _u
+}
+
+// SetDocSort sets the "doc_sort" field.
+func (_u *ArticleUpdateOne) SetDocSort(v int) *ArticleUpdateOne {
+	_u.mutation.ResetDocSort()
+	_u.mutation.SetDocSort(v)
+	return _u
+}
+
+// SetNillableDocSort sets the "doc_sort" field if the given value is not nil.
+func (_u *ArticleUpdateOne) SetNillableDocSort(v *int) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetDocSort(*v)
+	}
+	return _u
+}
+
+// AddDocSort adds value to the "doc_sort" field.
+func (_u *ArticleUpdateOne) AddDocSort(v int) *ArticleUpdateOne {
+	_u.mutation.AddDocSort(v)
+	return _u
+}
+
 // AddPostTagIDs adds the "post_tags" edge to the PostTag entity by IDs.
 func (_u *ArticleUpdateOne) AddPostTagIDs(ids ...uint) *ArticleUpdateOne {
 	_u.mutation.AddPostTagIDs(ids...)
@@ -1942,6 +2107,11 @@ func (_u *ArticleUpdateOne) AddComments(v ...*Comment) *ArticleUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.AddCommentIDs(ids...)
+}
+
+// SetDocSeries sets the "doc_series" edge to the DocSeries entity.
+func (_u *ArticleUpdateOne) SetDocSeries(v *DocSeries) *ArticleUpdateOne {
+	return _u.SetDocSeriesID(v.ID)
 }
 
 // Mutation returns the ArticleMutation object of the builder.
@@ -2010,6 +2180,12 @@ func (_u *ArticleUpdateOne) RemoveComments(v ...*Comment) *ArticleUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveCommentIDs(ids...)
+}
+
+// ClearDocSeries clears the "doc_series" edge to the DocSeries entity.
+func (_u *ArticleUpdateOne) ClearDocSeries() *ArticleUpdateOne {
+	_u.mutation.ClearDocSeries()
+	return _u
 }
 
 // Where appends a list predicates to the ArticleUpdate builder.
@@ -2092,6 +2268,11 @@ func (_u *ArticleUpdateOne) check() error {
 	if v, ok := _u.mutation.ReviewStatus(); ok {
 		if err := article.ReviewStatusValidator(v); err != nil {
 			return &ValidationError{Name: "review_status", err: fmt.Errorf(`ent: validator failed for field "Article.review_status": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.DocSort(); ok {
+		if err := article.DocSortValidator(v); err != nil {
+			return &ValidationError{Name: "doc_sort", err: fmt.Errorf(`ent: validator failed for field "Article.doc_sort": %w`, err)}
 		}
 	}
 	return nil
@@ -2326,6 +2507,15 @@ func (_u *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err er
 	if _u.mutation.ExtraConfigCleared() {
 		_spec.ClearField(article.FieldExtraConfig, field.TypeJSON)
 	}
+	if value, ok := _u.mutation.IsDoc(); ok {
+		_spec.SetField(article.FieldIsDoc, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.DocSort(); ok {
+		_spec.SetField(article.FieldDocSort, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedDocSort(); ok {
+		_spec.AddField(article.FieldDocSort, field.TypeInt, value)
+	}
 	if _u.mutation.PostTagsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -2454,6 +2644,35 @@ func (_u *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err er
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(comment.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.DocSeriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   article.DocSeriesTable,
+			Columns: []string{article.DocSeriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(docseries.FieldID, field.TypeUint),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.DocSeriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   article.DocSeriesTable,
+			Columns: []string{article.DocSeriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(docseries.FieldID, field.TypeUint),
 			},
 		}
 		for _, k := range nodes {

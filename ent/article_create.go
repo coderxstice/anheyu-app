@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/anzhiyu-c/anheyu-app/ent/article"
 	"github.com/anzhiyu-c/anheyu-app/ent/comment"
+	"github.com/anzhiyu-c/anheyu-app/ent/docseries"
 	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
 )
@@ -491,6 +492,48 @@ func (_c *ArticleCreate) SetExtraConfig(v map[string]interface{}) *ArticleCreate
 	return _c
 }
 
+// SetIsDoc sets the "is_doc" field.
+func (_c *ArticleCreate) SetIsDoc(v bool) *ArticleCreate {
+	_c.mutation.SetIsDoc(v)
+	return _c
+}
+
+// SetNillableIsDoc sets the "is_doc" field if the given value is not nil.
+func (_c *ArticleCreate) SetNillableIsDoc(v *bool) *ArticleCreate {
+	if v != nil {
+		_c.SetIsDoc(*v)
+	}
+	return _c
+}
+
+// SetDocSeriesID sets the "doc_series_id" field.
+func (_c *ArticleCreate) SetDocSeriesID(v uint) *ArticleCreate {
+	_c.mutation.SetDocSeriesID(v)
+	return _c
+}
+
+// SetNillableDocSeriesID sets the "doc_series_id" field if the given value is not nil.
+func (_c *ArticleCreate) SetNillableDocSeriesID(v *uint) *ArticleCreate {
+	if v != nil {
+		_c.SetDocSeriesID(*v)
+	}
+	return _c
+}
+
+// SetDocSort sets the "doc_sort" field.
+func (_c *ArticleCreate) SetDocSort(v int) *ArticleCreate {
+	_c.mutation.SetDocSort(v)
+	return _c
+}
+
+// SetNillableDocSort sets the "doc_sort" field if the given value is not nil.
+func (_c *ArticleCreate) SetNillableDocSort(v *int) *ArticleCreate {
+	if v != nil {
+		_c.SetDocSort(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *ArticleCreate) SetID(v uint) *ArticleCreate {
 	_c.mutation.SetID(v)
@@ -540,6 +583,11 @@ func (_c *ArticleCreate) AddComments(v ...*Comment) *ArticleCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddCommentIDs(ids...)
+}
+
+// SetDocSeries sets the "doc_series" edge to the DocSeries entity.
+func (_c *ArticleCreate) SetDocSeries(v *DocSeries) *ArticleCreate {
+	return _c.SetDocSeriesID(v.ID)
 }
 
 // Mutation returns the ArticleMutation object of the builder.
@@ -645,6 +693,14 @@ func (_c *ArticleCreate) defaults() error {
 		v := article.DefaultIsTakedown
 		_c.mutation.SetIsTakedown(v)
 	}
+	if _, ok := _c.mutation.IsDoc(); !ok {
+		v := article.DefaultIsDoc
+		_c.mutation.SetIsDoc(v)
+	}
+	if _, ok := _c.mutation.DocSort(); !ok {
+		v := article.DefaultDocSort
+		_c.mutation.SetDocSort(v)
+	}
 	return nil
 }
 
@@ -734,6 +790,17 @@ func (_c *ArticleCreate) check() error {
 	}
 	if _, ok := _c.mutation.IsTakedown(); !ok {
 		return &ValidationError{Name: "is_takedown", err: errors.New(`ent: missing required field "Article.is_takedown"`)}
+	}
+	if _, ok := _c.mutation.IsDoc(); !ok {
+		return &ValidationError{Name: "is_doc", err: errors.New(`ent: missing required field "Article.is_doc"`)}
+	}
+	if _, ok := _c.mutation.DocSort(); !ok {
+		return &ValidationError{Name: "doc_sort", err: errors.New(`ent: missing required field "Article.doc_sort"`)}
+	}
+	if v, ok := _c.mutation.DocSort(); ok {
+		if err := article.DocSortValidator(v); err != nil {
+			return &ValidationError{Name: "doc_sort", err: fmt.Errorf(`ent: validator failed for field "Article.doc_sort": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -908,6 +975,14 @@ func (_c *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 		_spec.SetField(article.FieldExtraConfig, field.TypeJSON, value)
 		_node.ExtraConfig = value
 	}
+	if value, ok := _c.mutation.IsDoc(); ok {
+		_spec.SetField(article.FieldIsDoc, field.TypeBool, value)
+		_node.IsDoc = value
+	}
+	if value, ok := _c.mutation.DocSort(); ok {
+		_spec.SetField(article.FieldDocSort, field.TypeInt, value)
+		_node.DocSort = value
+	}
 	if nodes := _c.mutation.PostTagsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -954,6 +1029,23 @@ func (_c *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.DocSeriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   article.DocSeriesTable,
+			Columns: []string{article.DocSeriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(docseries.FieldID, field.TypeUint),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.DocSeriesID = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -1593,6 +1685,54 @@ func (u *ArticleUpsert) UpdateExtraConfig() *ArticleUpsert {
 // ClearExtraConfig clears the value of the "extra_config" field.
 func (u *ArticleUpsert) ClearExtraConfig() *ArticleUpsert {
 	u.SetNull(article.FieldExtraConfig)
+	return u
+}
+
+// SetIsDoc sets the "is_doc" field.
+func (u *ArticleUpsert) SetIsDoc(v bool) *ArticleUpsert {
+	u.Set(article.FieldIsDoc, v)
+	return u
+}
+
+// UpdateIsDoc sets the "is_doc" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateIsDoc() *ArticleUpsert {
+	u.SetExcluded(article.FieldIsDoc)
+	return u
+}
+
+// SetDocSeriesID sets the "doc_series_id" field.
+func (u *ArticleUpsert) SetDocSeriesID(v uint) *ArticleUpsert {
+	u.Set(article.FieldDocSeriesID, v)
+	return u
+}
+
+// UpdateDocSeriesID sets the "doc_series_id" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateDocSeriesID() *ArticleUpsert {
+	u.SetExcluded(article.FieldDocSeriesID)
+	return u
+}
+
+// ClearDocSeriesID clears the value of the "doc_series_id" field.
+func (u *ArticleUpsert) ClearDocSeriesID() *ArticleUpsert {
+	u.SetNull(article.FieldDocSeriesID)
+	return u
+}
+
+// SetDocSort sets the "doc_sort" field.
+func (u *ArticleUpsert) SetDocSort(v int) *ArticleUpsert {
+	u.Set(article.FieldDocSort, v)
+	return u
+}
+
+// UpdateDocSort sets the "doc_sort" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateDocSort() *ArticleUpsert {
+	u.SetExcluded(article.FieldDocSort)
+	return u
+}
+
+// AddDocSort adds v to the "doc_sort" field.
+func (u *ArticleUpsert) AddDocSort(v int) *ArticleUpsert {
+	u.Add(article.FieldDocSort, v)
 	return u
 }
 
@@ -2327,6 +2467,62 @@ func (u *ArticleUpsertOne) UpdateExtraConfig() *ArticleUpsertOne {
 func (u *ArticleUpsertOne) ClearExtraConfig() *ArticleUpsertOne {
 	return u.Update(func(s *ArticleUpsert) {
 		s.ClearExtraConfig()
+	})
+}
+
+// SetIsDoc sets the "is_doc" field.
+func (u *ArticleUpsertOne) SetIsDoc(v bool) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetIsDoc(v)
+	})
+}
+
+// UpdateIsDoc sets the "is_doc" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateIsDoc() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateIsDoc()
+	})
+}
+
+// SetDocSeriesID sets the "doc_series_id" field.
+func (u *ArticleUpsertOne) SetDocSeriesID(v uint) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetDocSeriesID(v)
+	})
+}
+
+// UpdateDocSeriesID sets the "doc_series_id" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateDocSeriesID() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateDocSeriesID()
+	})
+}
+
+// ClearDocSeriesID clears the value of the "doc_series_id" field.
+func (u *ArticleUpsertOne) ClearDocSeriesID() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.ClearDocSeriesID()
+	})
+}
+
+// SetDocSort sets the "doc_sort" field.
+func (u *ArticleUpsertOne) SetDocSort(v int) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetDocSort(v)
+	})
+}
+
+// AddDocSort adds v to the "doc_sort" field.
+func (u *ArticleUpsertOne) AddDocSort(v int) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.AddDocSort(v)
+	})
+}
+
+// UpdateDocSort sets the "doc_sort" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateDocSort() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateDocSort()
 	})
 }
 
@@ -3227,6 +3423,62 @@ func (u *ArticleUpsertBulk) UpdateExtraConfig() *ArticleUpsertBulk {
 func (u *ArticleUpsertBulk) ClearExtraConfig() *ArticleUpsertBulk {
 	return u.Update(func(s *ArticleUpsert) {
 		s.ClearExtraConfig()
+	})
+}
+
+// SetIsDoc sets the "is_doc" field.
+func (u *ArticleUpsertBulk) SetIsDoc(v bool) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetIsDoc(v)
+	})
+}
+
+// UpdateIsDoc sets the "is_doc" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateIsDoc() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateIsDoc()
+	})
+}
+
+// SetDocSeriesID sets the "doc_series_id" field.
+func (u *ArticleUpsertBulk) SetDocSeriesID(v uint) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetDocSeriesID(v)
+	})
+}
+
+// UpdateDocSeriesID sets the "doc_series_id" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateDocSeriesID() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateDocSeriesID()
+	})
+}
+
+// ClearDocSeriesID clears the value of the "doc_series_id" field.
+func (u *ArticleUpsertBulk) ClearDocSeriesID() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.ClearDocSeriesID()
+	})
+}
+
+// SetDocSort sets the "doc_sort" field.
+func (u *ArticleUpsertBulk) SetDocSort(v int) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetDocSort(v)
+	})
+}
+
+// AddDocSort adds v to the "doc_sort" field.
+func (u *ArticleUpsertBulk) AddDocSort(v int) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.AddDocSort(v)
+	})
+}
+
+// UpdateDocSort sets the "doc_sort" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateDocSort() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateDocSort()
 	})
 }
 

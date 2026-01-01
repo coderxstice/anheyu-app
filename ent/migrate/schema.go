@@ -100,6 +100,9 @@ var (
 		{Name: "takedown_at", Type: field.TypeTime, Nullable: true, Comment: "下架时间"},
 		{Name: "takedown_by", Type: field.TypeUint, Nullable: true, Comment: "下架操作人ID"},
 		{Name: "extra_config", Type: field.TypeJSON, Nullable: true, Comment: "文章扩展配置（JSON格式，用于存储各种可选功能配置，如 enable_ai_podcast 等）"},
+		{Name: "is_doc", Type: field.TypeBool, Comment: "是否为文档模式：文档模式的文章会在文档页面展示", Default: false},
+		{Name: "doc_sort", Type: field.TypeInt, Comment: "文档在系列中的排序，数值越小越靠前", Default: 0},
+		{Name: "doc_series_id", Type: field.TypeUint, Nullable: true, Comment: "文档系列ID，关联到doc_series表"},
 	}
 	// ArticlesTable holds the schema information for the "articles" table.
 	ArticlesTable = &schema.Table{
@@ -107,6 +110,14 @@ var (
 		Comment:    "文章表",
 		Columns:    ArticlesColumns,
 		PrimaryKey: []*schema.Column{ArticlesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "articles_doc_series_articles",
+				Columns:    []*schema.Column{ArticlesColumns[38]},
+				RefColumns: []*schema.Column{DocSeriesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// CommentsColumns holds the columns for the "comments" table.
 	CommentsColumns = []*schema.Column{
@@ -209,6 +220,24 @@ var (
 				OnDelete:   schema.NoAction,
 			},
 		},
+	}
+	// DocSeriesColumns holds the columns for the "doc_series" table.
+	DocSeriesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint, Increment: true},
+		{Name: "created_at", Type: field.TypeTime, Comment: "创建时间"},
+		{Name: "updated_at", Type: field.TypeTime, Comment: "更新时间"},
+		{Name: "name", Type: field.TypeString, Unique: true, Comment: "系列名称"},
+		{Name: "description", Type: field.TypeString, Nullable: true, Comment: "系列描述"},
+		{Name: "cover_url", Type: field.TypeString, Nullable: true, Comment: "系列封面图URL"},
+		{Name: "sort", Type: field.TypeInt, Comment: "系列排序，数值越小越靠前", Default: 0},
+		{Name: "doc_count", Type: field.TypeInt, Comment: "该系列下的文档数量", Default: 0},
+	}
+	// DocSeriesTable holds the schema information for the "doc_series" table.
+	DocSeriesTable = &schema.Table{
+		Name:       "doc_series",
+		Comment:    "文档系列表",
+		Columns:    DocSeriesColumns,
+		PrimaryKey: []*schema.Column{DocSeriesColumns[0]},
 	}
 	// EntitiesColumns holds the columns for the "entities" table.
 	EntitiesColumns = []*schema.Column{
@@ -904,6 +933,7 @@ var (
 		ArticlesTable,
 		CommentsTable,
 		DirectLinksTable,
+		DocSeriesTable,
 		EntitiesTable,
 		FilesTable,
 		FileEntitiesTable,
@@ -933,6 +963,7 @@ var (
 
 func init() {
 	AlbumsTable.ForeignKeys[0].RefTable = AlbumCategoriesTable
+	ArticlesTable.ForeignKeys[0].RefTable = DocSeriesTable
 	CommentsTable.ForeignKeys[0].RefTable = ArticlesTable
 	CommentsTable.ForeignKeys[1].RefTable = CommentsTable
 	CommentsTable.ForeignKeys[2].RefTable = UsersTable

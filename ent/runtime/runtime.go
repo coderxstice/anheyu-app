@@ -10,6 +10,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/article"
 	"github.com/anzhiyu-c/anheyu-app/ent/comment"
 	"github.com/anzhiyu-c/anheyu-app/ent/directlink"
+	"github.com/anzhiyu-c/anheyu-app/ent/docseries"
 	"github.com/anzhiyu-c/anheyu-app/ent/entity"
 	"github.com/anzhiyu-c/anheyu-app/ent/file"
 	"github.com/anzhiyu-c/anheyu-app/ent/fileentity"
@@ -205,6 +206,16 @@ func init() {
 	articleDescIsTakedown := articleFields[30].Descriptor()
 	// article.DefaultIsTakedown holds the default value on creation for the is_takedown field.
 	article.DefaultIsTakedown = articleDescIsTakedown.Default.(bool)
+	// articleDescIsDoc is the schema descriptor for is_doc field.
+	articleDescIsDoc := articleFields[35].Descriptor()
+	// article.DefaultIsDoc holds the default value on creation for the is_doc field.
+	article.DefaultIsDoc = articleDescIsDoc.Default.(bool)
+	// articleDescDocSort is the schema descriptor for doc_sort field.
+	articleDescDocSort := articleFields[37].Descriptor()
+	// article.DefaultDocSort holds the default value on creation for the doc_sort field.
+	article.DefaultDocSort = articleDescDocSort.Default.(int)
+	// article.DocSortValidator is a validator for the "doc_sort" field. It is called by the builders before save.
+	article.DocSortValidator = articleDescDocSort.Validators[0].(func(int) error)
 	commentMixin := schema.Comment{}.Mixin()
 	commentMixinHooks0 := commentMixin[0].Hooks()
 	comment.Hooks[0] = commentMixinHooks0[0]
@@ -337,6 +348,34 @@ func init() {
 	directlinkDescDownloads := directlinkFields[6].Descriptor()
 	// directlink.DefaultDownloads holds the default value on creation for the downloads field.
 	directlink.DefaultDownloads = directlinkDescDownloads.Default.(int64)
+	docseriesFields := schema.DocSeries{}.Fields()
+	_ = docseriesFields
+	// docseriesDescCreatedAt is the schema descriptor for created_at field.
+	docseriesDescCreatedAt := docseriesFields[1].Descriptor()
+	// docseries.DefaultCreatedAt holds the default value on creation for the created_at field.
+	docseries.DefaultCreatedAt = docseriesDescCreatedAt.Default.(func() time.Time)
+	// docseriesDescUpdatedAt is the schema descriptor for updated_at field.
+	docseriesDescUpdatedAt := docseriesFields[2].Descriptor()
+	// docseries.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	docseries.DefaultUpdatedAt = docseriesDescUpdatedAt.Default.(func() time.Time)
+	// docseries.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	docseries.UpdateDefaultUpdatedAt = docseriesDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// docseriesDescName is the schema descriptor for name field.
+	docseriesDescName := docseriesFields[3].Descriptor()
+	// docseries.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	docseries.NameValidator = docseriesDescName.Validators[0].(func(string) error)
+	// docseriesDescSort is the schema descriptor for sort field.
+	docseriesDescSort := docseriesFields[6].Descriptor()
+	// docseries.DefaultSort holds the default value on creation for the sort field.
+	docseries.DefaultSort = docseriesDescSort.Default.(int)
+	// docseries.SortValidator is a validator for the "sort" field. It is called by the builders before save.
+	docseries.SortValidator = docseriesDescSort.Validators[0].(func(int) error)
+	// docseriesDescDocCount is the schema descriptor for doc_count field.
+	docseriesDescDocCount := docseriesFields[7].Descriptor()
+	// docseries.DefaultDocCount holds the default value on creation for the doc_count field.
+	docseries.DefaultDocCount = docseriesDescDocCount.Default.(int)
+	// docseries.DocCountValidator is a validator for the "doc_count" field. It is called by the builders before save.
+	docseries.DocCountValidator = docseriesDescDocCount.Validators[0].(func(int) error)
 	entityFields := schema.Entity{}.Fields()
 	_ = entityFields
 	// entityDescCreatedAt is the schema descriptor for created_at field.
