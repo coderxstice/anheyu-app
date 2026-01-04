@@ -690,6 +690,20 @@ func (_u *ArticleUpdate) ClearExtraConfig() *ArticleUpdate {
 	return _u
 }
 
+// SetExcludeFromMembership sets the "exclude_from_membership" field.
+func (_u *ArticleUpdate) SetExcludeFromMembership(v bool) *ArticleUpdate {
+	_u.mutation.SetExcludeFromMembership(v)
+	return _u
+}
+
+// SetNillableExcludeFromMembership sets the "exclude_from_membership" field if the given value is not nil.
+func (_u *ArticleUpdate) SetNillableExcludeFromMembership(v *bool) *ArticleUpdate {
+	if v != nil {
+		_u.SetExcludeFromMembership(*v)
+	}
+	return _u
+}
+
 // SetIsDoc sets the "is_doc" field.
 func (_u *ArticleUpdate) SetIsDoc(v bool) *ArticleUpdate {
 	_u.mutation.SetIsDoc(v)
@@ -1157,6 +1171,9 @@ func (_u *ArticleUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.ExtraConfigCleared() {
 		_spec.ClearField(article.FieldExtraConfig, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.ExcludeFromMembership(); ok {
+		_spec.SetField(article.FieldExcludeFromMembership, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.IsDoc(); ok {
 		_spec.SetField(article.FieldIsDoc, field.TypeBool, value)
@@ -2009,6 +2026,20 @@ func (_u *ArticleUpdateOne) ClearExtraConfig() *ArticleUpdateOne {
 	return _u
 }
 
+// SetExcludeFromMembership sets the "exclude_from_membership" field.
+func (_u *ArticleUpdateOne) SetExcludeFromMembership(v bool) *ArticleUpdateOne {
+	_u.mutation.SetExcludeFromMembership(v)
+	return _u
+}
+
+// SetNillableExcludeFromMembership sets the "exclude_from_membership" field if the given value is not nil.
+func (_u *ArticleUpdateOne) SetNillableExcludeFromMembership(v *bool) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetExcludeFromMembership(*v)
+	}
+	return _u
+}
+
 // SetIsDoc sets the "is_doc" field.
 func (_u *ArticleUpdateOne) SetIsDoc(v bool) *ArticleUpdateOne {
 	_u.mutation.SetIsDoc(v)
@@ -2506,6 +2537,9 @@ func (_u *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err er
 	}
 	if _u.mutation.ExtraConfigCleared() {
 		_spec.ClearField(article.FieldExtraConfig, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.ExcludeFromMembership(); ok {
+		_spec.SetField(article.FieldExcludeFromMembership, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.IsDoc(); ok {
 		_spec.SetField(article.FieldIsDoc, field.TypeBool, value)

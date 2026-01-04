@@ -210,6 +210,11 @@ func TakedownBy(v uint) predicate.Article {
 	return predicate.Article(sql.FieldEQ(FieldTakedownBy, v))
 }
 
+// ExcludeFromMembership applies equality check predicate on the "exclude_from_membership" field. It's identical to ExcludeFromMembershipEQ.
+func ExcludeFromMembership(v bool) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldExcludeFromMembership, v))
+}
+
 // IsDoc applies equality check predicate on the "is_doc" field. It's identical to IsDocEQ.
 func IsDoc(v bool) predicate.Article {
 	return predicate.Article(sql.FieldEQ(FieldIsDoc, v))
@@ -1933,6 +1938,16 @@ func ExtraConfigIsNil() predicate.Article {
 // ExtraConfigNotNil applies the NotNil predicate on the "extra_config" field.
 func ExtraConfigNotNil() predicate.Article {
 	return predicate.Article(sql.FieldNotNull(FieldExtraConfig))
+}
+
+// ExcludeFromMembershipEQ applies the EQ predicate on the "exclude_from_membership" field.
+func ExcludeFromMembershipEQ(v bool) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldExcludeFromMembership, v))
+}
+
+// ExcludeFromMembershipNEQ applies the NEQ predicate on the "exclude_from_membership" field.
+func ExcludeFromMembershipNEQ(v bool) predicate.Article {
+	return predicate.Article(sql.FieldNEQ(FieldExcludeFromMembership, v))
 }
 
 // IsDocEQ applies the EQ predicate on the "is_doc" field.

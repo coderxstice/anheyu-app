@@ -86,6 +86,8 @@ const (
 	FieldTakedownBy = "takedown_by"
 	// FieldExtraConfig holds the string denoting the extra_config field in the database.
 	FieldExtraConfig = "extra_config"
+	// FieldExcludeFromMembership holds the string denoting the exclude_from_membership field in the database.
+	FieldExcludeFromMembership = "exclude_from_membership"
 	// FieldIsDoc holds the string denoting the is_doc field in the database.
 	FieldIsDoc = "is_doc"
 	// FieldDocSeriesID holds the string denoting the doc_series_id field in the database.
@@ -166,6 +168,7 @@ var Columns = []string{
 	FieldTakedownAt,
 	FieldTakedownBy,
 	FieldExtraConfig,
+	FieldExcludeFromMembership,
 	FieldIsDoc,
 	FieldDocSeriesID,
 	FieldDocSort,
@@ -235,6 +238,8 @@ var (
 	DefaultCopyright bool
 	// DefaultIsTakedown holds the default value on creation for the "is_takedown" field.
 	DefaultIsTakedown bool
+	// DefaultExcludeFromMembership holds the default value on creation for the "exclude_from_membership" field.
+	DefaultExcludeFromMembership bool
 	// DefaultIsDoc holds the default value on creation for the "is_doc" field.
 	DefaultIsDoc bool
 	// DefaultDocSort holds the default value on creation for the "doc_sort" field.
@@ -469,6 +474,11 @@ func ByTakedownAt(opts ...sql.OrderTermOption) OrderOption {
 // ByTakedownBy orders the results by the takedown_by field.
 func ByTakedownBy(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTakedownBy, opts...).ToFunc()
+}
+
+// ByExcludeFromMembership orders the results by the exclude_from_membership field.
+func ByExcludeFromMembership(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldExcludeFromMembership, opts...).ToFunc()
 }
 
 // ByIsDoc orders the results by the is_doc field.

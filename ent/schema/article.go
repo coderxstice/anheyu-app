@@ -143,6 +143,11 @@ func (Article) Fields() []ent.Field {
 			Optional().
 			Comment("文章扩展配置（JSON格式，用于存储各种可选功能配置，如 enable_ai_podcast 等）"),
 
+		// --- 会员权益相关字段 ---
+		field.Bool("exclude_from_membership").
+			Comment("是否排除在会员权益外：true表示会员也需要单独购买此文章").
+			Default(false),
+
 		// --- 文档模式相关字段 ---
 		field.Bool("is_doc").
 			Comment("是否为文档模式：文档模式的文章会在文档页面展示").
