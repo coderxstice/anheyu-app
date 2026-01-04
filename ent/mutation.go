@@ -2660,6 +2660,7 @@ type ArticleMutation struct {
 	takedown_by             *uint
 	addtakedown_by          *int
 	extra_config            *map[string]interface{}
+	exclude_from_membership *bool
 	is_doc                  *bool
 	doc_sort                *int
 	adddoc_sort             *int
@@ -4482,6 +4483,42 @@ func (m *ArticleMutation) ResetExtraConfig() {
 	delete(m.clearedFields, article.FieldExtraConfig)
 }
 
+// SetExcludeFromMembership sets the "exclude_from_membership" field.
+func (m *ArticleMutation) SetExcludeFromMembership(b bool) {
+	m.exclude_from_membership = &b
+}
+
+// ExcludeFromMembership returns the value of the "exclude_from_membership" field in the mutation.
+func (m *ArticleMutation) ExcludeFromMembership() (r bool, exists bool) {
+	v := m.exclude_from_membership
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExcludeFromMembership returns the old "exclude_from_membership" field's value of the Article entity.
+// If the Article object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ArticleMutation) OldExcludeFromMembership(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExcludeFromMembership is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExcludeFromMembership requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExcludeFromMembership: %w", err)
+	}
+	return oldValue.ExcludeFromMembership, nil
+}
+
+// ResetExcludeFromMembership resets all changes to the "exclude_from_membership" field.
+func (m *ArticleMutation) ResetExcludeFromMembership() {
+	m.exclude_from_membership = nil
+}
+
 // SetIsDoc sets the "is_doc" field.
 func (m *ArticleMutation) SetIsDoc(b bool) {
 	m.is_doc = &b
@@ -4846,7 +4883,7 @@ func (m *ArticleMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ArticleMutation) Fields() []string {
-	fields := make([]string, 0, 38)
+	fields := make([]string, 0, 39)
 	if m.deleted_at != nil {
 		fields = append(fields, article.FieldDeletedAt)
 	}
@@ -4952,6 +4989,9 @@ func (m *ArticleMutation) Fields() []string {
 	if m.extra_config != nil {
 		fields = append(fields, article.FieldExtraConfig)
 	}
+	if m.exclude_from_membership != nil {
+		fields = append(fields, article.FieldExcludeFromMembership)
+	}
 	if m.is_doc != nil {
 		fields = append(fields, article.FieldIsDoc)
 	}
@@ -5039,6 +5079,8 @@ func (m *ArticleMutation) Field(name string) (ent.Value, bool) {
 		return m.TakedownBy()
 	case article.FieldExtraConfig:
 		return m.ExtraConfig()
+	case article.FieldExcludeFromMembership:
+		return m.ExcludeFromMembership()
 	case article.FieldIsDoc:
 		return m.IsDoc()
 	case article.FieldDocSeriesID:
@@ -5124,6 +5166,8 @@ func (m *ArticleMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldTakedownBy(ctx)
 	case article.FieldExtraConfig:
 		return m.OldExtraConfig(ctx)
+	case article.FieldExcludeFromMembership:
+		return m.OldExcludeFromMembership(ctx)
 	case article.FieldIsDoc:
 		return m.OldIsDoc(ctx)
 	case article.FieldDocSeriesID:
@@ -5383,6 +5427,13 @@ func (m *ArticleMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetExtraConfig(v)
+		return nil
+	case article.FieldExcludeFromMembership:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExcludeFromMembership(v)
 		return nil
 	case article.FieldIsDoc:
 		v, ok := value.(bool)
@@ -5798,6 +5849,9 @@ func (m *ArticleMutation) ResetField(name string) error {
 		return nil
 	case article.FieldExtraConfig:
 		m.ResetExtraConfig()
+		return nil
+	case article.FieldExcludeFromMembership:
+		m.ResetExcludeFromMembership()
 		return nil
 	case article.FieldIsDoc:
 		m.ResetIsDoc()

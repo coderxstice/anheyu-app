@@ -89,6 +89,8 @@ type Article struct {
 	TakedownBy *uint `json:"takedown_by,omitempty"`
 	// 文章扩展配置（JSON格式，用于存储各种可选功能配置，如 enable_ai_podcast 等）
 	ExtraConfig map[string]interface{} `json:"extra_config,omitempty"`
+	// 是否排除在会员权益外：true表示会员也需要单独购买此文章
+	ExcludeFromMembership bool `json:"exclude_from_membership,omitempty"`
 	// 是否为文档模式：文档模式的文章会在文档页面展示
 	IsDoc bool `json:"is_doc,omitempty"`
 	// 文档系列ID，关联到doc_series表
@@ -161,7 +163,7 @@ func (*Article) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case article.FieldSummaries, article.FieldExtraConfig:
 			values[i] = new([]byte)
-		case article.FieldIsPrimaryColorManual, article.FieldShowOnHome, article.FieldCopyright, article.FieldIsTakedown, article.FieldIsDoc:
+		case article.FieldIsPrimaryColorManual, article.FieldShowOnHome, article.FieldCopyright, article.FieldIsTakedown, article.FieldExcludeFromMembership, article.FieldIsDoc:
 			values[i] = new(sql.NullBool)
 		case article.FieldID, article.FieldOwnerID, article.FieldViewCount, article.FieldWordCount, article.FieldReadingTime, article.FieldHomeSort, article.FieldPinSort, article.FieldReviewedBy, article.FieldTakedownBy, article.FieldDocSeriesID, article.FieldDocSort:
 			values[i] = new(sql.NullInt64)
@@ -410,6 +412,12 @@ func (_m *Article) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field extra_config: %w", err)
 				}
 			}
+		case article.FieldExcludeFromMembership:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field exclude_from_membership", values[i])
+			} else if value.Valid {
+				_m.ExcludeFromMembership = value.Bool
+			}
 		case article.FieldIsDoc:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field is_doc", values[i])
@@ -601,6 +609,9 @@ func (_m *Article) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("extra_config=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ExtraConfig))
+	builder.WriteString(", ")
+	builder.WriteString("exclude_from_membership=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ExcludeFromMembership))
 	builder.WriteString(", ")
 	builder.WriteString("is_doc=")
 	builder.WriteString(fmt.Sprintf("%v", _m.IsDoc))

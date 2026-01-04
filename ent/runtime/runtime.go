@@ -206,12 +206,16 @@ func init() {
 	articleDescIsTakedown := articleFields[30].Descriptor()
 	// article.DefaultIsTakedown holds the default value on creation for the is_takedown field.
 	article.DefaultIsTakedown = articleDescIsTakedown.Default.(bool)
+	// articleDescExcludeFromMembership is the schema descriptor for exclude_from_membership field.
+	articleDescExcludeFromMembership := articleFields[35].Descriptor()
+	// article.DefaultExcludeFromMembership holds the default value on creation for the exclude_from_membership field.
+	article.DefaultExcludeFromMembership = articleDescExcludeFromMembership.Default.(bool)
 	// articleDescIsDoc is the schema descriptor for is_doc field.
-	articleDescIsDoc := articleFields[35].Descriptor()
+	articleDescIsDoc := articleFields[36].Descriptor()
 	// article.DefaultIsDoc holds the default value on creation for the is_doc field.
 	article.DefaultIsDoc = articleDescIsDoc.Default.(bool)
 	// articleDescDocSort is the schema descriptor for doc_sort field.
-	articleDescDocSort := articleFields[37].Descriptor()
+	articleDescDocSort := articleFields[38].Descriptor()
 	// article.DefaultDocSort holds the default value on creation for the doc_sort field.
 	article.DefaultDocSort = articleDescDocSort.Default.(int)
 	// article.DocSortValidator is a validator for the "doc_sort" field. It is called by the builders before save.

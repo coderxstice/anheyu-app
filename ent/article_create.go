@@ -492,6 +492,20 @@ func (_c *ArticleCreate) SetExtraConfig(v map[string]interface{}) *ArticleCreate
 	return _c
 }
 
+// SetExcludeFromMembership sets the "exclude_from_membership" field.
+func (_c *ArticleCreate) SetExcludeFromMembership(v bool) *ArticleCreate {
+	_c.mutation.SetExcludeFromMembership(v)
+	return _c
+}
+
+// SetNillableExcludeFromMembership sets the "exclude_from_membership" field if the given value is not nil.
+func (_c *ArticleCreate) SetNillableExcludeFromMembership(v *bool) *ArticleCreate {
+	if v != nil {
+		_c.SetExcludeFromMembership(*v)
+	}
+	return _c
+}
+
 // SetIsDoc sets the "is_doc" field.
 func (_c *ArticleCreate) SetIsDoc(v bool) *ArticleCreate {
 	_c.mutation.SetIsDoc(v)
@@ -693,6 +707,10 @@ func (_c *ArticleCreate) defaults() error {
 		v := article.DefaultIsTakedown
 		_c.mutation.SetIsTakedown(v)
 	}
+	if _, ok := _c.mutation.ExcludeFromMembership(); !ok {
+		v := article.DefaultExcludeFromMembership
+		_c.mutation.SetExcludeFromMembership(v)
+	}
 	if _, ok := _c.mutation.IsDoc(); !ok {
 		v := article.DefaultIsDoc
 		_c.mutation.SetIsDoc(v)
@@ -790,6 +808,9 @@ func (_c *ArticleCreate) check() error {
 	}
 	if _, ok := _c.mutation.IsTakedown(); !ok {
 		return &ValidationError{Name: "is_takedown", err: errors.New(`ent: missing required field "Article.is_takedown"`)}
+	}
+	if _, ok := _c.mutation.ExcludeFromMembership(); !ok {
+		return &ValidationError{Name: "exclude_from_membership", err: errors.New(`ent: missing required field "Article.exclude_from_membership"`)}
 	}
 	if _, ok := _c.mutation.IsDoc(); !ok {
 		return &ValidationError{Name: "is_doc", err: errors.New(`ent: missing required field "Article.is_doc"`)}
@@ -974,6 +995,10 @@ func (_c *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.ExtraConfig(); ok {
 		_spec.SetField(article.FieldExtraConfig, field.TypeJSON, value)
 		_node.ExtraConfig = value
+	}
+	if value, ok := _c.mutation.ExcludeFromMembership(); ok {
+		_spec.SetField(article.FieldExcludeFromMembership, field.TypeBool, value)
+		_node.ExcludeFromMembership = value
 	}
 	if value, ok := _c.mutation.IsDoc(); ok {
 		_spec.SetField(article.FieldIsDoc, field.TypeBool, value)
@@ -1685,6 +1710,18 @@ func (u *ArticleUpsert) UpdateExtraConfig() *ArticleUpsert {
 // ClearExtraConfig clears the value of the "extra_config" field.
 func (u *ArticleUpsert) ClearExtraConfig() *ArticleUpsert {
 	u.SetNull(article.FieldExtraConfig)
+	return u
+}
+
+// SetExcludeFromMembership sets the "exclude_from_membership" field.
+func (u *ArticleUpsert) SetExcludeFromMembership(v bool) *ArticleUpsert {
+	u.Set(article.FieldExcludeFromMembership, v)
+	return u
+}
+
+// UpdateExcludeFromMembership sets the "exclude_from_membership" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateExcludeFromMembership() *ArticleUpsert {
+	u.SetExcluded(article.FieldExcludeFromMembership)
 	return u
 }
 
@@ -2467,6 +2504,20 @@ func (u *ArticleUpsertOne) UpdateExtraConfig() *ArticleUpsertOne {
 func (u *ArticleUpsertOne) ClearExtraConfig() *ArticleUpsertOne {
 	return u.Update(func(s *ArticleUpsert) {
 		s.ClearExtraConfig()
+	})
+}
+
+// SetExcludeFromMembership sets the "exclude_from_membership" field.
+func (u *ArticleUpsertOne) SetExcludeFromMembership(v bool) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetExcludeFromMembership(v)
+	})
+}
+
+// UpdateExcludeFromMembership sets the "exclude_from_membership" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateExcludeFromMembership() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateExcludeFromMembership()
 	})
 }
 
@@ -3423,6 +3474,20 @@ func (u *ArticleUpsertBulk) UpdateExtraConfig() *ArticleUpsertBulk {
 func (u *ArticleUpsertBulk) ClearExtraConfig() *ArticleUpsertBulk {
 	return u.Update(func(s *ArticleUpsert) {
 		s.ClearExtraConfig()
+	})
+}
+
+// SetExcludeFromMembership sets the "exclude_from_membership" field.
+func (u *ArticleUpsertBulk) SetExcludeFromMembership(v bool) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetExcludeFromMembership(v)
+	})
+}
+
+// UpdateExcludeFromMembership sets the "exclude_from_membership" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateExcludeFromMembership() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateExcludeFromMembership()
 	})
 }
 

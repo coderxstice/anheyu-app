@@ -18,18 +18,26 @@ var sqidsEncoder *sqids.Sqids
 
 // EntityType 定义了不同实体在生成公共 ID 时的类型标识。
 const (
-	EntityTypeUser          uint64 = 1  // 用户实体的类型标识
-	EntityTypeFile          uint64 = 2  // 文件实体的类型标识
-	EntityTypeAlbum         uint64 = 3  // 相册实体的类型标识
-	EntityTypeUserGroup     uint64 = 4  // 用户组实体的类型标识
-	EntityTypeStoragePolicy uint64 = 5  // 存储策略实体的类型标识
-	EntityTypeStorageEntity uint64 = 6  // 物理存储实体的类型标识
-	EntityTypeDirectLink    uint64 = 7  // 直链实体的类型标识
-	EntityTypeArticle       uint64 = 8  // 文章实体的类型标识
-	EntityTypePostTag       uint64 = 9  // 文章标签实体的类型标识
-	EntityTypePostCategory  uint64 = 10 // 文章分类实体的类型标识
-	EntityTypeComment       uint64 = 11 // 评论实体的类型标识
-	EntityTypeDocSeries     uint64 = 12 // 文档系列实体的类型标识
+	EntityTypeUser           uint64 = 1  // 用户实体的类型标识
+	EntityTypeFile           uint64 = 2  // 文件实体的类型标识
+	EntityTypeAlbum          uint64 = 3  // 相册实体的类型标识
+	EntityTypeUserGroup      uint64 = 4  // 用户组实体的类型标识
+	EntityTypeStoragePolicy  uint64 = 5  // 存储策略实体的类型标识
+	EntityTypeStorageEntity  uint64 = 6  // 物理存储实体的类型标识
+	EntityTypeDirectLink     uint64 = 7  // 直链实体的类型标识
+	EntityTypeArticle        uint64 = 8  // 文章实体的类型标识
+	EntityTypePostTag        uint64 = 9  // 文章标签实体的类型标识
+	EntityTypePostCategory   uint64 = 10 // 文章分类实体的类型标识
+	EntityTypeComment        uint64 = 11 // 评论实体的类型标识
+	EntityTypeDocSeries      uint64 = 12 // 文档系列实体的类型标识
+	EntityTypeProduct        uint64 = 13 // 商品实体的类型标识
+	EntityTypeProductVariant uint64 = 14 // 商品型号实体的类型标识
+	EntityTypeStockItem      uint64 = 15 // 卡密实体的类型标识
+	EntityTypeMembershipPlan uint64 = 16 // 会员套餐实体的类型标识
+	EntityTypeUserMembership uint64 = 17 // 用户会员实体的类型标识
+	EntityTypeSupportTicket  uint64 = 18 // 工单实体的类型标识
+	EntityTypeTicketMessage  uint64 = 19 // 工单消息实体的类型标识
+	EntityTypeNotification   uint64 = 20 // 通知实体的类型标识
 )
 
 // InitSqidsEncoder 初始化 Sqids 编码器。
