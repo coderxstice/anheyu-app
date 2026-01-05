@@ -108,6 +108,7 @@ type App struct {
 	storagePolicyService volume.IStoragePolicyService
 	fileService          file_service.FileService
 	mw                   *middleware.Middleware
+	settingRepo          repository.SettingRepository
 	settingSvc           setting.SettingService
 	tokenSvc             auth.TokenService
 	userSvc              user.UserService
@@ -488,6 +489,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		storagePolicyService: storagePolicySvc,
 		fileService:          fileSvc,
 		mw:                   mw,
+		settingRepo:          settingRepo,
 		settingSvc:           settingSvc,
 		tokenSvc:             tokenSvc,
 		userSvc:              userSvc,
@@ -531,6 +533,10 @@ func (a *App) FileRepository() repository.FileRepository {
 
 func (a *App) EntityRepository() repository.EntityRepository {
 	return a.entityRepo
+}
+
+func (a *App) SettingRepository() repository.SettingRepository {
+	return a.settingRepo
 }
 
 func (a *App) SettingService() setting.SettingService {
