@@ -311,6 +311,8 @@ func (r *Router) registerArticleRoutes(api *gin.RouterGroup) {
 		// 文章导入导出功能（仅管理员可用）
 		articlesAdmin.POST("/export", r.articleHandler.ExportArticles)
 		articlesAdmin.POST("/import", r.articleHandler.ImportArticles)
+		// 批量删除文章（仅管理员可用）
+		articlesAdmin.DELETE("/batch", r.articleHandler.BatchDelete)
 	}
 
 	articlesPublic := api.Group("/public/articles")

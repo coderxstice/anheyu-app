@@ -30,6 +30,13 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/utility"
 )
 
+// BatchDeleteResult 批量删除结果
+type BatchDeleteResult struct {
+	SuccessCount int      `json:"success_count"` // 成功删除的数量
+	FailedCount  int      `json:"failed_count"`  // 删除失败的数量
+	FailedIDs    []string `json:"failed_ids"`    // 删除失败的文章ID列表
+}
+
 type Service interface {
 	UploadArticleImage(ctx context.Context, ownerID uint, fileReader io.Reader, originalFilename string) (fileURL string, publicFileID string, err error)
 	// UploadArticleImageWithGroup 上传文章图片，并检查用户组权限
@@ -38,6 +45,7 @@ type Service interface {
 	Get(ctx context.Context, publicID string) (*model.ArticleResponse, error)
 	Update(ctx context.Context, publicID string, req *model.UpdateArticleRequest, ip string) (*model.ArticleResponse, error)
 	Delete(ctx context.Context, publicID string) error
+	BatchDelete(ctx context.Context, publicIDs []string) (*BatchDeleteResult, error)
 	List(ctx context.Context, options *model.ListArticlesOptions) (*model.ArticleListResponse, error)
 	GetPublicBySlugOrID(ctx context.Context, slugOrID string) (*model.ArticleDetailResponse, error)
 	GetBySlugOrIDForPreview(ctx context.Context, slugOrID string) (*model.ArticleDetailResponse, error)
@@ -172,8 +180,8 @@ func (s *serviceImpl) UploadArticleImageWithGroup(ctx context.Context, ownerID, 
 	} else if policy != nil && policy.Settings != nil {
 		// 从存储策略配置中获取样式分隔符
 		if styleSeparator, ok := policy.Settings[constant.StyleSeparatorSettingKey].(string); ok && styleSeparator != "" {
-			// 只有腾讯云COS和阿里云OSS支持样式分隔符
-			if policy.Type == constant.PolicyTypeTencentCOS || policy.Type == constant.PolicyTypeAliOSS {
+			// 腾讯云COS、阿里云OSS和七牛云支持样式分隔符
+			if policy.Type == constant.PolicyTypeTencentCOS || policy.Type == constant.PolicyTypeAliOSS || policy.Type == constant.PolicyTypeQiniu {
 				finalURL = finalURL + styleSeparator
 				log.Printf("[文章图片上传] 已拼接样式分隔符: %s，最终URL: %s", styleSeparator, finalURL)
 			}
@@ -1222,6 +1230,25 @@ func (s *serviceImpl) Delete(ctx context.Context, publicID string) error {
 	}()
 
 	return nil
+}
+
+// BatchDelete 批量删除文章
+func (s *serviceImpl) BatchDelete(ctx context.Context, publicIDs []string) (*BatchDeleteResult, error) {
+	result := &BatchDeleteResult{
+		FailedIDs: make([]string, 0),
+	}
+
+	for _, publicID := range publicIDs {
+		if err := s.Delete(ctx, publicID); err != nil {
+			log.Printf("[BatchDelete] 删除文章 %s 失败: %v", publicID, err)
+			result.FailedCount++
+			result.FailedIDs = append(result.FailedIDs, publicID)
+		} else {
+			result.SuccessCount++
+		}
+	}
+
+	return result, nil
 }
 
 // diffIDs 是一个辅助函数，用于计算两个 ID 切片的差异
