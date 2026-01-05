@@ -108,6 +108,7 @@ type App struct {
 	storagePolicyService volume.IStoragePolicyService
 	fileService          file_service.FileService
 	mw                   *middleware.Middleware
+	settingRepo          repository.SettingRepository
 	settingSvc           setting.SettingService
 	tokenSvc             auth.TokenService
 	userSvc              user.UserService
@@ -117,6 +118,7 @@ type App struct {
 	eventBus             *event.EventBus
 	postCategorySvc      *post_category_service.Service
 	postTagSvc           *post_tag_service.Service
+	commentSvc           *comment_service.Service
 }
 
 func (a *App) PrintBanner() {
@@ -487,6 +489,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		storagePolicyService: storagePolicySvc,
 		fileService:          fileSvc,
 		mw:                   mw,
+		settingRepo:          settingRepo,
 		settingSvc:           settingSvc,
 		tokenSvc:             tokenSvc,
 		userSvc:              userSvc,
@@ -496,6 +499,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		eventBus:             eventBus,
 		postCategorySvc:      postCategorySvc,
 		postTagSvc:           postTagSvc,
+		commentSvc:           commentSvc,
 	}
 
 	// 创建cleanup函数
@@ -529,6 +533,10 @@ func (a *App) FileRepository() repository.FileRepository {
 
 func (a *App) EntityRepository() repository.EntityRepository {
 	return a.entityRepo
+}
+
+func (a *App) SettingRepository() repository.SettingRepository {
+	return a.settingRepo
 }
 
 func (a *App) SettingService() setting.SettingService {
@@ -596,6 +604,11 @@ func (a *App) PostCategoryService() *post_category_service.Service {
 // PostTagService 返回文章标签服务（用于 PRO 版多人共创功能）
 func (a *App) PostTagService() *post_tag_service.Service {
 	return a.postTagSvc
+}
+
+// CommentService 返回评论服务（用于 PRO 版注入站内通知回调）
+func (a *App) CommentService() *comment_service.Service {
+	return a.commentSvc
 }
 
 func (a *App) Run() error {
