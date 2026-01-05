@@ -250,6 +250,7 @@ const (
 	KeySidebarWechatFace             SettingKey = "sidebar.wechat.face"
 	KeySidebarWechatBackFace         SettingKey = "sidebar.wechat.backFace"
 	KeySidebarWechatBlurBackground   SettingKey = "sidebar.wechat.blurBackground"
+	KeySidebarWechatLink             SettingKey = "sidebar.wechat.link"
 	KeySidebarTagsEnable             SettingKey = "sidebar.tags.enable"
 	KeySidebarTagsHighlight          SettingKey = "sidebar.tags.highlight"
 	KeySidebarSiteInfoRuntimeEnable  SettingKey = "sidebar.siteinfo.runtimeEnable"

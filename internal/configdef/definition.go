@@ -233,6 +233,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeySidebarWechatFace, Value: "https://upload-bbs.miyoushe.com/upload/2025/08/06/125766904/cf92d0f791458c288c7e308e9e8df1f5_5078983739960715024.png", Comment: "微信卡片正面图片URL", IsPublic: true},
 	{Key: constant.KeySidebarWechatBackFace, Value: "https://upload-bbs.miyoushe.com/upload/2025/08/06/125766904/ed37b3b3c45bccaa11afa7c538e20b58_8343041924448947243.png?x-oss-process=image/format,avif", Comment: "微信卡片背面图片URL", IsPublic: true},
 	{Key: constant.KeySidebarWechatBlurBackground, Value: "https://upload-bbs.miyoushe.com/upload/2025/08/06/125766904/92d74a9ef6ceb9465fec923e90dff04d_3079701216996731938.png", Comment: "微信卡片图片URL", IsPublic: true},
+	{Key: constant.KeySidebarWechatLink, Value: "", Comment: "微信卡片点击链接URL（为空时不跳转）", IsPublic: true},
 	{Key: constant.KeySidebarTagsEnable, Value: "true", Comment: "是否启用侧边栏标签卡片", IsPublic: true},
 	{Key: constant.KeySidebarTagsHighlight, Value: "[]", Comment: "侧边栏高亮标签", IsPublic: true},
 	{Key: constant.KeySidebarSiteInfoRuntimeEnable, Value: "true", Comment: "是否在侧边栏显示建站天数", IsPublic: true},
