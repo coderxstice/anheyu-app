@@ -167,7 +167,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyPostCopyCopyrightReprint, Value: "本文转载自 {originalAuthor}，原文地址：{originalUrl}\n当前页面：{currentUrl}", Comment: "转载文章版权信息模板，支持变量：{originalAuthor}原作者、{originalUrl}原文链接、{currentUrl}当前链接", IsPublic: true},
 
 	// 文章目录 Hash 更新配置
-	{Key: constant.KeyPostTocHashUpdateMode, Value: "replace", Comment: "目录滚动时URL Hash更新模式: replace(替换不产生历史记录), none(不更新URL)", IsPublic: true},
+	{Key: constant.KeyPostTocHashUpdateMode, Value: "replace", Comment: "目录滚动是否更新URL Hash: replace(启用), none(禁用)", IsPublic: true},
 
 	// 文章页面波浪区域配置
 	{Key: constant.KeyPostWavesEnable, Value: "true", Comment: "是否显示文章页面波浪区域 (true/false)，默认显示", IsPublic: true},

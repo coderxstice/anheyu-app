@@ -184,7 +184,7 @@ const (
 	KeyPostCopyCopyrightReprint  SettingKey = "post.copy.copyright_reprint"  // 转载文章版权信息模板
 
 	// 文章目录 Hash 更新配置
-	KeyPostTocHashUpdateMode SettingKey = "post.toc.hash_update_mode" // 目录滚动时URL Hash更新模式: replace(替换不产生历史), none(不更新)
+	KeyPostTocHashUpdateMode SettingKey = "post.toc.hash_update_mode" // 目录滚动是否更新URL Hash: replace(启用), none(禁用)
 
 	// 文章页面波浪区域配置
 	KeyPostWavesEnable SettingKey = "post.waves.enable" // 是否显示文章页面波浪区域
