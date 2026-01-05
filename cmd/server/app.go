@@ -238,6 +238,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	strategyManager.Register(constant.PolicyTypeTencentCOS, strategy.NewTencentCOSStrategy())
 	strategyManager.Register(constant.PolicyTypeAliOSS, strategy.NewAliyunOSSStrategy())
 	strategyManager.Register(constant.PolicyTypeS3, strategy.NewAWSS3Strategy())
+	strategyManager.Register(constant.PolicyTypeQiniu, strategy.NewQiniuKodoStrategy())
 
 	// 使用智能缓存工厂，自动选择 Redis 或内存缓存
 	cacheSvc := utility.NewCacheServiceWithFallback(redisClient)
@@ -257,6 +258,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	storageProviders[constant.PolicyTypeTencentCOS] = storage.NewTencentCOSProvider()
 	storageProviders[constant.PolicyTypeAliOSS] = storage.NewAliOSSProvider()
 	storageProviders[constant.PolicyTypeS3] = storage.NewAWSS3Provider()
+	storageProviders[constant.PolicyTypeQiniu] = storage.NewQiniuKodoProvider()
 	metadataSvc := file_info.NewMetadataService(metadataRepo)
 	postTagSvc := post_tag_service.NewService(postTagRepo)
 	postCategorySvc := post_category_service.NewService(postCategoryRepo, articleRepo)

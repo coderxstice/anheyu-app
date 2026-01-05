@@ -180,8 +180,8 @@ func (s *serviceImpl) UploadArticleImageWithGroup(ctx context.Context, ownerID, 
 	} else if policy != nil && policy.Settings != nil {
 		// 从存储策略配置中获取样式分隔符
 		if styleSeparator, ok := policy.Settings[constant.StyleSeparatorSettingKey].(string); ok && styleSeparator != "" {
-			// 只有腾讯云COS和阿里云OSS支持样式分隔符
-			if policy.Type == constant.PolicyTypeTencentCOS || policy.Type == constant.PolicyTypeAliOSS {
+			// 腾讯云COS、阿里云OSS和七牛云支持样式分隔符
+			if policy.Type == constant.PolicyTypeTencentCOS || policy.Type == constant.PolicyTypeAliOSS || policy.Type == constant.PolicyTypeQiniu {
 				finalURL = finalURL + styleSeparator
 				log.Printf("[文章图片上传] 已拼接样式分隔符: %s，最终URL: %s", styleSeparator, finalURL)
 			}
