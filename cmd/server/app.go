@@ -184,9 +184,6 @@ func NewApp(content embed.FS) (*App, func(), error) {
 			redisClient.Close()
 		}
 	}
-	if err := idgen.InitSqidsEncoder(); err != nil {
-		return nil, tempCleanup, fmt.Errorf("初始化 ID 编码器失败: %w", err)
-	}
 	eventBus := event.NewEventBus()
 	dbType := cfg.GetString(config.KeyDBType)
 	if dbType == "" {
@@ -227,6 +224,17 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	if err := bootstrapper.InitializeDatabase(); err != nil {
 		return nil, tempCleanup, fmt.Errorf("数据库初始化失败: %w", err)
 	}
+
+	// --- Phase 4.5: 初始化 ID 编码器 ---
+	// 从数据库获取或生成 IDSeed（存储在数据库中，不可被外部修改）
+	idSeed, err := getOrCreateIDSeed(context.Background(), settingRepo, userRepo)
+	if err != nil {
+		return nil, tempCleanup, fmt.Errorf("获取 IDSeed 失败: %w", err)
+	}
+	if err := idgen.InitSqidsEncoderWithSeed(idSeed); err != nil {
+		return nil, tempCleanup, fmt.Errorf("初始化 ID 编码器失败: %w", err)
+	}
+	log.Println("✅ ID 编码器初始化成功")
 
 	// --- Phase 5: 初始化业务逻辑层 ---
 	txManager := ent_impl.NewEntTransactionManager(entClient, sqlDB, dbType)
@@ -629,4 +637,61 @@ func (a *App) Stop() {
 		a.taskBroker.Stop()
 		log.Println("任务调度器已停止。")
 	}
+}
+
+// getOrCreateIDSeed 从数据库获取或创建 IDSeed
+// IDSeed 用于生成唯一的公共ID，存储在数据库中以防止被外部修改
+// 重要：对于已有数据的老用户，使用空字符串（默认字母表）保持兼容
+func getOrCreateIDSeed(ctx context.Context, settingRepo repository.SettingRepository, userRepo repository.UserRepository) (string, error) {
+	const idSeedKey = "id_seed"
+
+	// 尝试从数据库获取现有的 IDSeed
+	setting, err := settingRepo.FindByKey(ctx, idSeedKey)
+	if err == nil && setting != nil {
+		// 已存在配置（包括空字符串的情况，表示老用户兼容模式）
+		if setting.Value != "" {
+			log.Println("📦 已从数据库加载 IDSeed")
+		} else {
+			log.Println("📦 使用兼容模式（默认字母表）")
+		}
+		return setting.Value, nil
+	}
+
+	// id_seed 不存在，需要判断是全新安装还是老用户升级
+	// 通过检查用户表是否有数据来判断（有用户 = 老用户升级，无用户 = 全新安装）
+	userCount, err := userRepo.Count(ctx)
+	if err != nil {
+		log.Printf("警告: 无法查询用户数量: %v，假设为老用户升级", err)
+		userCount = 1 // 保守处理，假设有用户
+	}
+
+	var newSeed string
+	var comment string
+
+	if userCount > 0 {
+		// 已有用户数据，说明是老用户升级，使用空字符串保持兼容
+		newSeed = ""
+		comment = "兼容模式：老用户升级，使用默认字母表"
+		log.Println("⚠️  检测到老用户升级，使用兼容模式（默认字母表）以保持已有ID正常解码")
+	} else {
+		// 用户表为空，说明是全新安装，生成新的随机种子
+		newSeed, err = idgen.GenerateRandomSeed()
+		if err != nil {
+			return "", fmt.Errorf("生成随机 IDSeed 失败: %w", err)
+		}
+		comment = "系统自动生成的ID种子，用于生成唯一的公共ID，请勿修改"
+		log.Println("✅ 全新安装，已生成随机 IDSeed")
+	}
+
+	// 保存到数据库（无论是空字符串还是新种子，都要保存，避免重复判断）
+	newSetting := &model.Setting{
+		ConfigKey: idSeedKey,
+		Value:     newSeed,
+		Comment:   comment,
+	}
+	if err := settingRepo.Save(ctx, newSetting); err != nil {
+		return "", fmt.Errorf("保存 IDSeed 到数据库失败: %w", err)
+	}
+
+	return newSeed, nil
 }
