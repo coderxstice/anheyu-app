@@ -1346,30 +1346,42 @@ func httpGetQQInfo(apiURL, apiKey, qqNumber string) (*QQInfoResponse, error) {
 		return nil, err
 	}
 
-	// 解析API响应
-	// API返回格式: { code: 200, msg: "Success", data: { nick: "昵称", ... }, ... }
-	var apiResp struct {
-		Code int    `json:"code"`
-		Msg  string `json:"msg"`
-		Data struct {
-			Nick   string `json:"nick"`
-			Avatar string `json:"avatar"`
-		} `json:"data"`
+	// 解析API响应 - 使用 json.RawMessage 处理 data 字段可能是字符串或对象的情况
+	// API成功返回格式: { code: 200, msg: "Success", data: { nick: "昵称", avatar: "..." }, ... }
+	// API失败返回格式: { code: xxx, msg: "Error", data: "错误信息" }
+	var baseResp struct {
+		Code int             `json:"code"`
+		Msg  string          `json:"msg"`
+		Data json.RawMessage `json:"data"`
 	}
 
-	if err := json.Unmarshal(body, &apiResp); err != nil {
+	if err := json.Unmarshal(body, &baseResp); err != nil {
 		return nil, fmt.Errorf("解析API响应失败: %w", err)
 	}
 
-	if apiResp.Code != 200 {
-		return nil, fmt.Errorf("API返回错误: %s", apiResp.Msg)
+	if baseResp.Code != 200 {
+		// 尝试解析 data 作为错误信息字符串
+		var dataStr string
+		if json.Unmarshal(baseResp.Data, &dataStr) == nil && dataStr != "" {
+			return nil, fmt.Errorf("API返回错误: %s - %s", baseResp.Msg, dataStr)
+		}
+		return nil, fmt.Errorf("API返回错误: %s", baseResp.Msg)
+	}
+
+	// 解析成功时的 data 对象
+	var dataObj struct {
+		Nick   string `json:"nick"`
+		Avatar string `json:"avatar"`
+	}
+	if err := json.Unmarshal(baseResp.Data, &dataObj); err != nil {
+		return nil, fmt.Errorf("解析API数据失败: %w", err)
 	}
 
 	// 构建QQ头像URL
 	avatarURL := fmt.Sprintf("https://q.qlogo.cn/headimg_dl?dst_uin=%s&spec=100", qqNumber)
 
 	return &QQInfoResponse{
-		Nickname: apiResp.Data.Nick,
+		Nickname: dataObj.Nick,
 		Avatar:   avatarURL,
 	}, nil
 }
