@@ -175,6 +175,11 @@ func Keywords(v string) predicate.Article {
 	return predicate.Article(sql.FieldEQ(FieldKeywords, v))
 }
 
+// ScheduledAt applies equality check predicate on the "scheduled_at" field. It's identical to ScheduledAtEQ.
+func ScheduledAt(v time.Time) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldScheduledAt, v))
+}
+
 // ReviewComment applies equality check predicate on the "review_comment" field. It's identical to ReviewCommentEQ.
 func ReviewComment(v string) predicate.Article {
 	return predicate.Article(sql.FieldEQ(FieldReviewComment, v))
@@ -1548,6 +1553,56 @@ func KeywordsEqualFold(v string) predicate.Article {
 // KeywordsContainsFold applies the ContainsFold predicate on the "keywords" field.
 func KeywordsContainsFold(v string) predicate.Article {
 	return predicate.Article(sql.FieldContainsFold(FieldKeywords, v))
+}
+
+// ScheduledAtEQ applies the EQ predicate on the "scheduled_at" field.
+func ScheduledAtEQ(v time.Time) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldScheduledAt, v))
+}
+
+// ScheduledAtNEQ applies the NEQ predicate on the "scheduled_at" field.
+func ScheduledAtNEQ(v time.Time) predicate.Article {
+	return predicate.Article(sql.FieldNEQ(FieldScheduledAt, v))
+}
+
+// ScheduledAtIn applies the In predicate on the "scheduled_at" field.
+func ScheduledAtIn(vs ...time.Time) predicate.Article {
+	return predicate.Article(sql.FieldIn(FieldScheduledAt, vs...))
+}
+
+// ScheduledAtNotIn applies the NotIn predicate on the "scheduled_at" field.
+func ScheduledAtNotIn(vs ...time.Time) predicate.Article {
+	return predicate.Article(sql.FieldNotIn(FieldScheduledAt, vs...))
+}
+
+// ScheduledAtGT applies the GT predicate on the "scheduled_at" field.
+func ScheduledAtGT(v time.Time) predicate.Article {
+	return predicate.Article(sql.FieldGT(FieldScheduledAt, v))
+}
+
+// ScheduledAtGTE applies the GTE predicate on the "scheduled_at" field.
+func ScheduledAtGTE(v time.Time) predicate.Article {
+	return predicate.Article(sql.FieldGTE(FieldScheduledAt, v))
+}
+
+// ScheduledAtLT applies the LT predicate on the "scheduled_at" field.
+func ScheduledAtLT(v time.Time) predicate.Article {
+	return predicate.Article(sql.FieldLT(FieldScheduledAt, v))
+}
+
+// ScheduledAtLTE applies the LTE predicate on the "scheduled_at" field.
+func ScheduledAtLTE(v time.Time) predicate.Article {
+	return predicate.Article(sql.FieldLTE(FieldScheduledAt, v))
+}
+
+// ScheduledAtIsNil applies the IsNil predicate on the "scheduled_at" field.
+func ScheduledAtIsNil() predicate.Article {
+	return predicate.Article(sql.FieldIsNull(FieldScheduledAt))
+}
+
+// ScheduledAtNotNil applies the NotNil predicate on the "scheduled_at" field.
+func ScheduledAtNotNil() predicate.Article {
+	return predicate.Article(sql.FieldNotNull(FieldScheduledAt))
 }
 
 // ReviewStatusEQ applies the EQ predicate on the "review_status" field.

@@ -73,7 +73,7 @@ var (
 		{Name: "content_md", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "文章的 Markdown 原文"},
 		{Name: "content_html", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "由 content_md 解析和净化后的 HTML"},
 		{Name: "cover_url", Type: field.TypeString, Nullable: true, Comment: "封面图URL"},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"DRAFT", "PUBLISHED", "ARCHIVED"}, Default: "DRAFT"},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"DRAFT", "PUBLISHED", "ARCHIVED", "SCHEDULED"}, Default: "DRAFT"},
 		{Name: "view_count", Type: field.TypeInt, Comment: "浏览次数", Default: 0},
 		{Name: "word_count", Type: field.TypeInt, Comment: "总字数", Default: 0},
 		{Name: "reading_time", Type: field.TypeInt, Comment: "阅读时长(分钟)", Default: 0},
@@ -91,6 +91,7 @@ var (
 		{Name: "copyright_author_href", Type: field.TypeString, Nullable: true, Comment: "版权作者链接"},
 		{Name: "copyright_url", Type: field.TypeString, Nullable: true, Comment: "版权来源链接"},
 		{Name: "keywords", Type: field.TypeString, Nullable: true, Comment: "文章关键词，用于SEO优化"},
+		{Name: "scheduled_at", Type: field.TypeTime, Nullable: true, Comment: "定时发布时间，当status为SCHEDULED时有效"},
 		{Name: "review_status", Type: field.TypeEnum, Comment: "审核状态：NONE-无需审核, PENDING-待审核, APPROVED-已通过, REJECTED-已拒绝", Enums: []string{"NONE", "PENDING", "APPROVED", "REJECTED"}, Default: "NONE"},
 		{Name: "review_comment", Type: field.TypeString, Nullable: true, Comment: "审核意见"},
 		{Name: "reviewed_at", Type: field.TypeTime, Nullable: true, Comment: "审核时间"},
@@ -114,7 +115,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "articles_doc_series_articles",
-				Columns:    []*schema.Column{ArticlesColumns[39]},
+				Columns:    []*schema.Column{ArticlesColumns[40]},
 				RefColumns: []*schema.Column{DocSeriesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

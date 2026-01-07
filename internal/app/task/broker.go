@@ -172,6 +172,15 @@ func (b *Broker) RegisterCronJobs() {
 	}
 	b.logger.Info("-> Successfully registered 'LinkHealthCheckJob'", "schedule", "every day at 3:00:00 AM")
 
+	// 添加定时发布文章任务 - 每分钟检查一次
+	scheduledPublishJob := NewScheduledPublishJob(b.articleRepo, b.cacheSvc, b.logger)
+	_, err = b.cron.AddJob("0 * * * * *", scheduledPublishJob) // 每分钟的第0秒执行
+	if err != nil {
+		b.logger.Error("Failed to add 'ScheduledPublishJob'", slog.Any("error", err))
+		os.Exit(1)
+	}
+	b.logger.Info("-> Successfully registered 'ScheduledPublishJob'", "schedule", "every minute")
+
 	b.logger.Info("All periodic jobs registered.")
 }
 

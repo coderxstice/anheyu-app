@@ -374,6 +374,20 @@ func (_c *ArticleCreate) SetNillableKeywords(v *string) *ArticleCreate {
 	return _c
 }
 
+// SetScheduledAt sets the "scheduled_at" field.
+func (_c *ArticleCreate) SetScheduledAt(v time.Time) *ArticleCreate {
+	_c.mutation.SetScheduledAt(v)
+	return _c
+}
+
+// SetNillableScheduledAt sets the "scheduled_at" field if the given value is not nil.
+func (_c *ArticleCreate) SetNillableScheduledAt(v *time.Time) *ArticleCreate {
+	if v != nil {
+		_c.SetScheduledAt(*v)
+	}
+	return _c
+}
+
 // SetReviewStatus sets the "review_status" field.
 func (_c *ArticleCreate) SetReviewStatus(v article.ReviewStatus) *ArticleCreate {
 	_c.mutation.SetReviewStatus(v)
@@ -959,6 +973,10 @@ func (_c *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Keywords(); ok {
 		_spec.SetField(article.FieldKeywords, field.TypeString, value)
 		_node.Keywords = value
+	}
+	if value, ok := _c.mutation.ScheduledAt(); ok {
+		_spec.SetField(article.FieldScheduledAt, field.TypeTime, value)
+		_node.ScheduledAt = &value
 	}
 	if value, ok := _c.mutation.ReviewStatus(); ok {
 		_spec.SetField(article.FieldReviewStatus, field.TypeEnum, value)
@@ -1548,6 +1566,24 @@ func (u *ArticleUpsert) UpdateKeywords() *ArticleUpsert {
 // ClearKeywords clears the value of the "keywords" field.
 func (u *ArticleUpsert) ClearKeywords() *ArticleUpsert {
 	u.SetNull(article.FieldKeywords)
+	return u
+}
+
+// SetScheduledAt sets the "scheduled_at" field.
+func (u *ArticleUpsert) SetScheduledAt(v time.Time) *ArticleUpsert {
+	u.Set(article.FieldScheduledAt, v)
+	return u
+}
+
+// UpdateScheduledAt sets the "scheduled_at" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateScheduledAt() *ArticleUpsert {
+	u.SetExcluded(article.FieldScheduledAt)
+	return u
+}
+
+// ClearScheduledAt clears the value of the "scheduled_at" field.
+func (u *ArticleUpsert) ClearScheduledAt() *ArticleUpsert {
+	u.SetNull(article.FieldScheduledAt)
 	return u
 }
 
@@ -2315,6 +2351,27 @@ func (u *ArticleUpsertOne) UpdateKeywords() *ArticleUpsertOne {
 func (u *ArticleUpsertOne) ClearKeywords() *ArticleUpsertOne {
 	return u.Update(func(s *ArticleUpsert) {
 		s.ClearKeywords()
+	})
+}
+
+// SetScheduledAt sets the "scheduled_at" field.
+func (u *ArticleUpsertOne) SetScheduledAt(v time.Time) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetScheduledAt(v)
+	})
+}
+
+// UpdateScheduledAt sets the "scheduled_at" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateScheduledAt() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateScheduledAt()
+	})
+}
+
+// ClearScheduledAt clears the value of the "scheduled_at" field.
+func (u *ArticleUpsertOne) ClearScheduledAt() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.ClearScheduledAt()
 	})
 }
 
@@ -3285,6 +3342,27 @@ func (u *ArticleUpsertBulk) UpdateKeywords() *ArticleUpsertBulk {
 func (u *ArticleUpsertBulk) ClearKeywords() *ArticleUpsertBulk {
 	return u.Update(func(s *ArticleUpsert) {
 		s.ClearKeywords()
+	})
+}
+
+// SetScheduledAt sets the "scheduled_at" field.
+func (u *ArticleUpsertBulk) SetScheduledAt(v time.Time) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetScheduledAt(v)
+	})
+}
+
+// UpdateScheduledAt sets the "scheduled_at" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateScheduledAt() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateScheduledAt()
+	})
+}
+
+// ClearScheduledAt clears the value of the "scheduled_at" field.
+func (u *ArticleUpsertBulk) ClearScheduledAt() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.ClearScheduledAt()
 	})
 }
 
