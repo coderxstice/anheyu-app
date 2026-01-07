@@ -172,6 +172,11 @@ var AllSettings = []Definition{
 	// 文章页面波浪区域配置
 	{Key: constant.KeyPostWavesEnable, Value: "true", Comment: "是否显示文章页面波浪区域 (true/false)，默认显示", IsPublic: true},
 
+	// 文章底部版权声明配置
+	{Key: constant.KeyPostCopyrightOriginalTemplate, Value: "", Comment: "原创文章版权声明模板，支持变量：{license}许可协议、{licenseUrl}协议链接、{author}作者、{siteUrl}站点链接", IsPublic: true},
+	{Key: constant.KeyPostCopyrightReprintTemplateWithUrl, Value: "", Comment: "转载文章版权声明模板（有原文链接），支持变量：{originalAuthor}原作者、{originalUrl}原文链接", IsPublic: true},
+	{Key: constant.KeyPostCopyrightReprintTemplateWithoutUrl, Value: "", Comment: "转载文章版权声明模板（无原文链接），支持变量：{originalAuthor}原作者", IsPublic: true},
+
 	// --- 装备页面配置 ---
 	{Key: constant.KeyPostEquipmentBannerBackground, Value: "https://upload-bbs.miyoushe.com/upload/2025/08/20/125766904/27160402b1840dbc85ccf9bec2665f0d_5042209802832493877.png", Comment: "装备页面横幅背景图", IsPublic: true},
 	{Key: constant.KeyPostEquipmentBannerTitle, Value: "好物", Comment: "装备页面横幅标题", IsPublic: true},
