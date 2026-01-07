@@ -189,6 +189,11 @@ const (
 	// 文章页面波浪区域配置
 	KeyPostWavesEnable SettingKey = "post.waves.enable" // 是否显示文章页面波浪区域
 
+	// 文章底部版权声明配置
+	KeyPostCopyrightOriginalTemplate          SettingKey = "post.copyright.original_template"            // 原创文章版权声明模板
+	KeyPostCopyrightReprintTemplateWithUrl    SettingKey = "post.copyright.reprint_template_with_url"    // 转载文章版权声明模板（有原文链接）
+	KeyPostCopyrightReprintTemplateWithoutUrl SettingKey = "post.copyright.reprint_template_without_url" // 转载文章版权声明模板（无原文链接）
+
 	KeyPostEquipmentBannerBackground  SettingKey = "equipment.banner.background"
 	KeyPostEquipmentBannerTitle       SettingKey = "equipment.banner.title"
 	KeyPostEquipmentBannerDescription SettingKey = "equipment.banner.description"
