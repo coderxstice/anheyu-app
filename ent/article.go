@@ -71,6 +71,8 @@ type Article struct {
 	CopyrightURL string `json:"copyright_url,omitempty"`
 	// 文章关键词，用于SEO优化
 	Keywords string `json:"keywords,omitempty"`
+	// 定时发布时间，当status为SCHEDULED时有效
+	ScheduledAt *time.Time `json:"scheduled_at,omitempty"`
 	// 审核状态：NONE-无需审核, PENDING-待审核, APPROVED-已通过, REJECTED-已拒绝
 	ReviewStatus article.ReviewStatus `json:"review_status,omitempty"`
 	// 审核意见
@@ -169,7 +171,7 @@ func (*Article) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case article.FieldTitle, article.FieldContentMd, article.FieldContentHTML, article.FieldCoverURL, article.FieldStatus, article.FieldIPLocation, article.FieldPrimaryColor, article.FieldTopImgURL, article.FieldAbbrlink, article.FieldCopyrightAuthor, article.FieldCopyrightAuthorHref, article.FieldCopyrightURL, article.FieldKeywords, article.FieldReviewStatus, article.FieldReviewComment, article.FieldTakedownReason:
 			values[i] = new(sql.NullString)
-		case article.FieldDeletedAt, article.FieldCreatedAt, article.FieldUpdatedAt, article.FieldReviewedAt, article.FieldTakedownAt:
+		case article.FieldDeletedAt, article.FieldCreatedAt, article.FieldUpdatedAt, article.FieldScheduledAt, article.FieldReviewedAt, article.FieldTakedownAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -351,6 +353,13 @@ func (_m *Article) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field keywords", values[i])
 			} else if value.Valid {
 				_m.Keywords = value.String
+			}
+		case article.FieldScheduledAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field scheduled_at", values[i])
+			} else if value.Valid {
+				_m.ScheduledAt = new(time.Time)
+				*_m.ScheduledAt = value.Time
 			}
 		case article.FieldReviewStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -574,6 +583,11 @@ func (_m *Article) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("keywords=")
 	builder.WriteString(_m.Keywords)
+	builder.WriteString(", ")
+	if v := _m.ScheduledAt; v != nil {
+		builder.WriteString("scheduled_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("review_status=")
 	builder.WriteString(fmt.Sprintf("%v", _m.ReviewStatus))

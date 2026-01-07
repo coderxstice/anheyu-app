@@ -326,6 +326,7 @@ func (s *serviceImpl) ToAPIResponse(a *model.Article, useAbbrlinkAsID bool, incl
 		CopyrightAuthorHref:  a.CopyrightAuthorHref,
 		CopyrightURL:         a.CopyrightURL,
 		Keywords:             a.Keywords,
+		ScheduledAt:          a.ScheduledAt,    // 定时发布时间
 		ReviewStatus:         a.ReviewStatus,   // 审核状态（多人共创功能）
 		OwnerID:              a.OwnerID,        // 发布者ID（多人共创功能）
 		IsTakedown:           a.IsTakedown,     // 下架状态（PRO版管理员功能）
@@ -781,6 +782,29 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 		log.Printf("[Service.Create] 最终传递给Repository的 CustomPublishedAt: %v", customPublishedAt)
 		log.Printf("[Service.Create] 最终传递给Repository的 CustomUpdatedAt: %v", customUpdatedAt)
 
+		// 解析定时发布时间
+		var scheduledAt *time.Time
+		if req.ScheduledAt != nil && *req.ScheduledAt != "" {
+			log.Printf("[Service.Create] 开始解析定时发布时间: %s", *req.ScheduledAt)
+			if parsedTime, parseErr := time.Parse(time.RFC3339, *req.ScheduledAt); parseErr == nil {
+				// 验证定时发布时间必须是未来时间
+				if parsedTime.Before(time.Now()) {
+					return fmt.Errorf("定时发布时间必须是未来时间")
+				}
+				scheduledAt = &parsedTime
+				log.Printf("[Service.Create] ✅ 解析定时发布时间成功: %v", parsedTime)
+			} else {
+				log.Printf("[Service.Create] ❌ 解析定时发布时间失败: %v", parseErr)
+				return fmt.Errorf("无效的定时发布时间格式")
+			}
+		}
+
+		// 如果设置了定时发布时间，状态必须是 SCHEDULED
+		if scheduledAt != nil && req.Status != "SCHEDULED" {
+			log.Printf("[Service.Create] 检测到定时发布时间但状态不是 SCHEDULED，自动修正状态")
+			req.Status = "SCHEDULED"
+		}
+
 		params := &model.CreateArticleParams{
 			Title:                req.Title,
 			OwnerID:              req.OwnerID,   // 文章作者ID（多人共创功能）
@@ -810,6 +834,7 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 			Keywords:             req.Keywords,
 			ReviewStatus:         req.ReviewStatus, // 审核状态（多人共创功能）
 			ExtraConfig:          req.ExtraConfig,  // 文章扩展配置
+			ScheduledAt:          scheduledAt,      // 定时发布时间
 			// 文档模式相关字段
 			IsDoc:   req.IsDoc,
 			DocSort: req.DocSort,
@@ -1053,6 +1078,31 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 		}
 		if req.CoverURL != nil && *req.CoverURL == "" {
 			*req.CoverURL = s.settingSvc.Get(constant.KeyPostDefaultCover.String())
+		}
+
+		// 验证定时发布逻辑
+		if req.ScheduledAt != nil && *req.ScheduledAt != "" {
+			scheduledTime, parseErr := time.Parse(time.RFC3339, *req.ScheduledAt)
+			if parseErr != nil {
+				return fmt.Errorf("无效的定时发布时间格式: %w", parseErr)
+			}
+			// 验证定时发布时间必须是未来时间
+			if scheduledTime.Before(time.Now()) {
+				return fmt.Errorf("定时发布时间必须是未来时间")
+			}
+			// 如果设置了定时发布时间，状态必须是 SCHEDULED
+			if req.Status == nil || *req.Status != "SCHEDULED" {
+				scheduledStatus := "SCHEDULED"
+				req.Status = &scheduledStatus
+				log.Printf("[更新文章] 检测到定时发布时间但状态不是 SCHEDULED，自动修正状态")
+			}
+		}
+
+		// 如果状态从 SCHEDULED 改为其他状态，清除定时发布时间
+		if req.Status != nil && *req.Status != "SCHEDULED" && oldArticle.Status == "SCHEDULED" {
+			emptyScheduledAt := ""
+			req.ScheduledAt = &emptyScheduledAt
+			log.Printf("[更新文章] 状态从 SCHEDULED 变更为 %s，清除定时发布时间", *req.Status)
 		}
 
 		articleAfterUpdate, err := repos.Article.Update(ctx, publicID, req, &computedParams)

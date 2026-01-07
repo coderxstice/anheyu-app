@@ -2649,6 +2649,7 @@ type ArticleMutation struct {
 	copyright_author_href   *string
 	copyright_url           *string
 	keywords                *string
+	scheduled_at            *time.Time
 	review_status           *article.ReviewStatus
 	review_comment          *string
 	reviewed_at             *time.Time
@@ -4026,6 +4027,55 @@ func (m *ArticleMutation) ResetKeywords() {
 	delete(m.clearedFields, article.FieldKeywords)
 }
 
+// SetScheduledAt sets the "scheduled_at" field.
+func (m *ArticleMutation) SetScheduledAt(t time.Time) {
+	m.scheduled_at = &t
+}
+
+// ScheduledAt returns the value of the "scheduled_at" field in the mutation.
+func (m *ArticleMutation) ScheduledAt() (r time.Time, exists bool) {
+	v := m.scheduled_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldScheduledAt returns the old "scheduled_at" field's value of the Article entity.
+// If the Article object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ArticleMutation) OldScheduledAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldScheduledAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldScheduledAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldScheduledAt: %w", err)
+	}
+	return oldValue.ScheduledAt, nil
+}
+
+// ClearScheduledAt clears the value of the "scheduled_at" field.
+func (m *ArticleMutation) ClearScheduledAt() {
+	m.scheduled_at = nil
+	m.clearedFields[article.FieldScheduledAt] = struct{}{}
+}
+
+// ScheduledAtCleared returns if the "scheduled_at" field was cleared in this mutation.
+func (m *ArticleMutation) ScheduledAtCleared() bool {
+	_, ok := m.clearedFields[article.FieldScheduledAt]
+	return ok
+}
+
+// ResetScheduledAt resets all changes to the "scheduled_at" field.
+func (m *ArticleMutation) ResetScheduledAt() {
+	m.scheduled_at = nil
+	delete(m.clearedFields, article.FieldScheduledAt)
+}
+
 // SetReviewStatus sets the "review_status" field.
 func (m *ArticleMutation) SetReviewStatus(as article.ReviewStatus) {
 	m.review_status = &as
@@ -4883,7 +4933,7 @@ func (m *ArticleMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ArticleMutation) Fields() []string {
-	fields := make([]string, 0, 39)
+	fields := make([]string, 0, 40)
 	if m.deleted_at != nil {
 		fields = append(fields, article.FieldDeletedAt)
 	}
@@ -4961,6 +5011,9 @@ func (m *ArticleMutation) Fields() []string {
 	}
 	if m.keywords != nil {
 		fields = append(fields, article.FieldKeywords)
+	}
+	if m.scheduled_at != nil {
+		fields = append(fields, article.FieldScheduledAt)
 	}
 	if m.review_status != nil {
 		fields = append(fields, article.FieldReviewStatus)
@@ -5061,6 +5114,8 @@ func (m *ArticleMutation) Field(name string) (ent.Value, bool) {
 		return m.CopyrightURL()
 	case article.FieldKeywords:
 		return m.Keywords()
+	case article.FieldScheduledAt:
+		return m.ScheduledAt()
 	case article.FieldReviewStatus:
 		return m.ReviewStatus()
 	case article.FieldReviewComment:
@@ -5148,6 +5203,8 @@ func (m *ArticleMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldCopyrightURL(ctx)
 	case article.FieldKeywords:
 		return m.OldKeywords(ctx)
+	case article.FieldScheduledAt:
+		return m.OldScheduledAt(ctx)
 	case article.FieldReviewStatus:
 		return m.OldReviewStatus(ctx)
 	case article.FieldReviewComment:
@@ -5364,6 +5421,13 @@ func (m *ArticleMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetKeywords(v)
+		return nil
+	case article.FieldScheduledAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetScheduledAt(v)
 		return nil
 	case article.FieldReviewStatus:
 		v, ok := value.(article.ReviewStatus)
@@ -5636,6 +5700,9 @@ func (m *ArticleMutation) ClearedFields() []string {
 	if m.FieldCleared(article.FieldKeywords) {
 		fields = append(fields, article.FieldKeywords)
 	}
+	if m.FieldCleared(article.FieldScheduledAt) {
+		fields = append(fields, article.FieldScheduledAt)
+	}
 	if m.FieldCleared(article.FieldReviewComment) {
 		fields = append(fields, article.FieldReviewComment)
 	}
@@ -5712,6 +5779,9 @@ func (m *ArticleMutation) ClearField(name string) error {
 		return nil
 	case article.FieldKeywords:
 		m.ClearKeywords()
+		return nil
+	case article.FieldScheduledAt:
+		m.ClearScheduledAt()
 		return nil
 	case article.FieldReviewComment:
 		m.ClearReviewComment()
@@ -5822,6 +5892,9 @@ func (m *ArticleMutation) ResetField(name string) error {
 		return nil
 	case article.FieldKeywords:
 		m.ResetKeywords()
+		return nil
+	case article.FieldScheduledAt:
+		m.ResetScheduledAt()
 		return nil
 	case article.FieldReviewStatus:
 		m.ResetReviewStatus()

@@ -68,6 +68,8 @@ const (
 	FieldCopyrightURL = "copyright_url"
 	// FieldKeywords holds the string denoting the keywords field in the database.
 	FieldKeywords = "keywords"
+	// FieldScheduledAt holds the string denoting the scheduled_at field in the database.
+	FieldScheduledAt = "scheduled_at"
 	// FieldReviewStatus holds the string denoting the review_status field in the database.
 	FieldReviewStatus = "review_status"
 	// FieldReviewComment holds the string denoting the review_comment field in the database.
@@ -159,6 +161,7 @@ var Columns = []string{
 	FieldCopyrightAuthorHref,
 	FieldCopyrightURL,
 	FieldKeywords,
+	FieldScheduledAt,
 	FieldReviewStatus,
 	FieldReviewComment,
 	FieldReviewedAt,
@@ -259,6 +262,7 @@ const (
 	StatusDRAFT     Status = "DRAFT"
 	StatusPUBLISHED Status = "PUBLISHED"
 	StatusARCHIVED  Status = "ARCHIVED"
+	StatusSCHEDULED Status = "SCHEDULED"
 )
 
 func (s Status) String() string {
@@ -268,7 +272,7 @@ func (s Status) String() string {
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s Status) error {
 	switch s {
-	case StatusDRAFT, StatusPUBLISHED, StatusARCHIVED:
+	case StatusDRAFT, StatusPUBLISHED, StatusARCHIVED, StatusSCHEDULED:
 		return nil
 	default:
 		return fmt.Errorf("article: invalid enum value for status field: %q", s)
@@ -434,6 +438,11 @@ func ByCopyrightURL(opts ...sql.OrderTermOption) OrderOption {
 // ByKeywords orders the results by the keywords field.
 func ByKeywords(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldKeywords, opts...).ToFunc()
+}
+
+// ByScheduledAt orders the results by the scheduled_at field.
+func ByScheduledAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldScheduledAt, opts...).ToFunc()
 }
 
 // ByReviewStatus orders the results by the review_status field.
