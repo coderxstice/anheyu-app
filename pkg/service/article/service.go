@@ -27,6 +27,7 @@ import (
 	appParser "github.com/anzhiyu-c/anheyu-app/pkg/service/parser"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/search"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/subscriber"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/utility"
 )
 
@@ -85,6 +86,7 @@ type serviceImpl struct {
 	searchSvc        *search.SearchService
 	primaryColorSvc  *utility.PrimaryColorService
 	cdnSvc           cdn.CDNService
+	subscriberSvc    *subscriber.Service
 
 	userRepo repository.UserRepository
 }
@@ -106,6 +108,7 @@ func NewService(
 	searchSvc *search.SearchService,
 	primaryColorSvc *utility.PrimaryColorService,
 	cdnSvc cdn.CDNService,
+	subscriberSvc *subscriber.Service,
 	userRepo repository.UserRepository,
 ) Service {
 	return &serviceImpl{
@@ -126,6 +129,7 @@ func NewService(
 		searchSvc:        searchSvc,
 		primaryColorSvc:  primaryColorSvc,
 		cdnSvc:           cdnSvc,
+		subscriberSvc:    subscriberSvc,
 		userRepo:         userRepo,
 	}
 }
@@ -883,6 +887,13 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 		}
 	}()
 
+	// 如果文章发布成功，触发订阅通知
+	if newArticle.Status == "PUBLISHED" {
+		if err := s.subscriberSvc.NotifyArticlePublished(ctx, newArticle); err != nil {
+			log.Printf("[Create] 触发订阅通知失败: %v", err)
+		}
+	}
+
 	resp := s.ToAPIResponse(newArticle, false, false)
 	s.fillOwnerNickname(ctx, resp, nil)
 	return resp, nil
@@ -947,12 +958,14 @@ func (s *serviceImpl) GetPublicByID(ctx context.Context, publicID string) (*mode
 // Update 处理更新文章的业务逻辑。
 func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.UpdateArticleRequest, ip string) (*model.ArticleResponse, error) {
 	var updatedArticle *model.Article
+	var oldStatus string
 
 	err := s.txManager.Do(ctx, func(repos repository.Repositories) error {
 		oldArticle, err := repos.Article.GetByID(ctx, publicID)
 		if err != nil {
 			return err
 		}
+		oldStatus = oldArticle.Status
 		oldTagIDs := make([]uint, len(oldArticle.PostTags))
 		for i, t := range oldArticle.PostTags {
 			oldTagIDs[i], _, _ = idgen.DecodePublicID(t.ID)
@@ -1203,6 +1216,13 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 			log.Printf("[警告] 更新搜索索引失败: %v", err)
 		}
 	}()
+
+	// 如果文章状态从非发布变为发布，触发订阅通知
+	if oldStatus != "PUBLISHED" && updatedArticle.Status == "PUBLISHED" {
+		if err := s.subscriberSvc.NotifyArticlePublished(ctx, updatedArticle); err != nil {
+			log.Printf("[Update] 触发订阅通知失败: %v", err)
+		}
+	}
 
 	resp := s.ToAPIResponse(updatedArticle, false, false)
 	s.fillOwnerNickname(ctx, resp, nil)
