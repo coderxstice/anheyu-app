@@ -662,6 +662,12 @@ func init() {
 	postcategoryDescIsSeries := postcategoryFields[6].Descriptor()
 	// postcategory.DefaultIsSeries holds the default value on creation for the is_series field.
 	postcategory.DefaultIsSeries = postcategoryDescIsSeries.Default.(bool)
+	// postcategoryDescSortOrder is the schema descriptor for sort_order field.
+	postcategoryDescSortOrder := postcategoryFields[7].Descriptor()
+	// postcategory.DefaultSortOrder holds the default value on creation for the sort_order field.
+	postcategory.DefaultSortOrder = postcategoryDescSortOrder.Default.(int)
+	// postcategory.SortOrderValidator is a validator for the "sort_order" field. It is called by the builders before save.
+	postcategory.SortOrderValidator = postcategoryDescSortOrder.Validators[0].(func(int) error)
 	posttagMixin := schema.PostTag{}.Mixin()
 	posttagMixinHooks0 := posttagMixin[0].Hooks()
 	posttag.Hooks[0] = posttagMixinHooks0[0]

@@ -18306,6 +18306,8 @@ type PostCategoryMutation struct {
 	count           *int
 	addcount        *int
 	is_series       *bool
+	sort_order      *int
+	addsort_order   *int
 	clearedFields   map[string]struct{}
 	articles        map[uint]struct{}
 	removedarticles map[uint]struct{}
@@ -18717,6 +18719,62 @@ func (m *PostCategoryMutation) ResetIsSeries() {
 	m.is_series = nil
 }
 
+// SetSortOrder sets the "sort_order" field.
+func (m *PostCategoryMutation) SetSortOrder(i int) {
+	m.sort_order = &i
+	m.addsort_order = nil
+}
+
+// SortOrder returns the value of the "sort_order" field in the mutation.
+func (m *PostCategoryMutation) SortOrder() (r int, exists bool) {
+	v := m.sort_order
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSortOrder returns the old "sort_order" field's value of the PostCategory entity.
+// If the PostCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PostCategoryMutation) OldSortOrder(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSortOrder is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSortOrder requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSortOrder: %w", err)
+	}
+	return oldValue.SortOrder, nil
+}
+
+// AddSortOrder adds i to the "sort_order" field.
+func (m *PostCategoryMutation) AddSortOrder(i int) {
+	if m.addsort_order != nil {
+		*m.addsort_order += i
+	} else {
+		m.addsort_order = &i
+	}
+}
+
+// AddedSortOrder returns the value that was added to the "sort_order" field in this mutation.
+func (m *PostCategoryMutation) AddedSortOrder() (r int, exists bool) {
+	v := m.addsort_order
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSortOrder resets all changes to the "sort_order" field.
+func (m *PostCategoryMutation) ResetSortOrder() {
+	m.sort_order = nil
+	m.addsort_order = nil
+}
+
 // AddArticleIDs adds the "articles" edge to the Article entity by ids.
 func (m *PostCategoryMutation) AddArticleIDs(ids ...uint) {
 	if m.articles == nil {
@@ -18805,7 +18863,7 @@ func (m *PostCategoryMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PostCategoryMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.deleted_at != nil {
 		fields = append(fields, postcategory.FieldDeletedAt)
 	}
@@ -18826,6 +18884,9 @@ func (m *PostCategoryMutation) Fields() []string {
 	}
 	if m.is_series != nil {
 		fields = append(fields, postcategory.FieldIsSeries)
+	}
+	if m.sort_order != nil {
+		fields = append(fields, postcategory.FieldSortOrder)
 	}
 	return fields
 }
@@ -18849,6 +18910,8 @@ func (m *PostCategoryMutation) Field(name string) (ent.Value, bool) {
 		return m.Count()
 	case postcategory.FieldIsSeries:
 		return m.IsSeries()
+	case postcategory.FieldSortOrder:
+		return m.SortOrder()
 	}
 	return nil, false
 }
@@ -18872,6 +18935,8 @@ func (m *PostCategoryMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldCount(ctx)
 	case postcategory.FieldIsSeries:
 		return m.OldIsSeries(ctx)
+	case postcategory.FieldSortOrder:
+		return m.OldSortOrder(ctx)
 	}
 	return nil, fmt.Errorf("unknown PostCategory field %s", name)
 }
@@ -18930,6 +18995,13 @@ func (m *PostCategoryMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetIsSeries(v)
 		return nil
+	case postcategory.FieldSortOrder:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSortOrder(v)
+		return nil
 	}
 	return fmt.Errorf("unknown PostCategory field %s", name)
 }
@@ -18941,6 +19013,9 @@ func (m *PostCategoryMutation) AddedFields() []string {
 	if m.addcount != nil {
 		fields = append(fields, postcategory.FieldCount)
 	}
+	if m.addsort_order != nil {
+		fields = append(fields, postcategory.FieldSortOrder)
+	}
 	return fields
 }
 
@@ -18951,6 +19026,8 @@ func (m *PostCategoryMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case postcategory.FieldCount:
 		return m.AddedCount()
+	case postcategory.FieldSortOrder:
+		return m.AddedSortOrder()
 	}
 	return nil, false
 }
@@ -18966,6 +19043,13 @@ func (m *PostCategoryMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddCount(v)
+		return nil
+	case postcategory.FieldSortOrder:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSortOrder(v)
 		return nil
 	}
 	return fmt.Errorf("unknown PostCategory numeric field %s", name)
@@ -19029,6 +19113,9 @@ func (m *PostCategoryMutation) ResetField(name string) error {
 		return nil
 	case postcategory.FieldIsSeries:
 		m.ResetIsSeries()
+		return nil
+	case postcategory.FieldSortOrder:
+		m.ResetSortOrder()
 		return nil
 	}
 	return fmt.Errorf("unknown PostCategory field %s", name)

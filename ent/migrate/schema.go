@@ -502,6 +502,7 @@ var (
 		{Name: "description", Type: field.TypeString, Nullable: true, Comment: "分类描述"},
 		{Name: "count", Type: field.TypeInt, Comment: "该分类下的文章数量", Default: 0},
 		{Name: "is_series", Type: field.TypeBool, Comment: "是否为系列", Default: false},
+		{Name: "sort_order", Type: field.TypeInt, Comment: "分类排序值，数值越小越靠前", Default: 0},
 	}
 	// PostCategoriesTable holds the schema information for the "post_categories" table.
 	PostCategoriesTable = &schema.Table{
