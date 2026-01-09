@@ -56,6 +56,7 @@ import (
 	sitemap_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/sitemap"
 	statistics_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/statistics"
 	storage_policy_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/storage_policy"
+	subscriber_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/subscriber"
 	theme_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/theme"
 	thumbnail_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/thumbnail"
 	user_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/user"
@@ -85,6 +86,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/sitemap"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/statistics"
+	subscriber_service "github.com/anzhiyu-c/anheyu-app/pkg/service/subscriber"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/theme"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/thumbnail"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/user"
@@ -371,7 +373,11 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	cdnSvc := cdn.NewService(settingSvc)
 	log.Printf("[DEBUG] CDNService 初始化完成")
 
-	articleSvc := article_service.NewService(articleRepo, postTagRepo, postCategoryRepo, commentRepo, docSeriesRepo, txManager, cacheSvc, geoSvc, taskBroker, settingSvc, parserSvc, fileSvc, directLinkSvc, searchSvc, primaryColorSvc, cdnSvc, userRepo)
+	// 初始化订阅服务和 Handler (需在 ArticleService 之前初始化)
+	subscriberSvc := subscriber_service.NewService(entClient, redisClient, emailSvc)
+	subscriberHandler := subscriber_handler.NewHandler(subscriberSvc)
+
+	articleSvc := article_service.NewService(articleRepo, postTagRepo, postCategoryRepo, commentRepo, docSeriesRepo, txManager, cacheSvc, geoSvc, taskBroker, settingSvc, parserSvc, fileSvc, directLinkSvc, searchSvc, primaryColorSvc, cdnSvc, subscriberSvc, userRepo)
 	log.Printf("[DEBUG] 正在初始化 PushooService...")
 	pushooSvc := utility.NewPushooService(settingSvc)
 	log.Printf("[DEBUG] PushooService 初始化完成")
@@ -462,6 +468,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		notificationHandler,
 		configBackupHandler,
 		configImportExportHandler,
+		subscriberHandler,
 	)
 
 	// --- Phase 8: 配置 Gin 引擎 ---

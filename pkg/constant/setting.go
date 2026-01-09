@@ -194,6 +194,14 @@ const (
 	KeyPostCopyrightReprintTemplateWithUrl    SettingKey = "post.copyright.reprint_template_with_url"    // 转载文章版权声明模板（有原文链接）
 	KeyPostCopyrightReprintTemplateWithoutUrl SettingKey = "post.copyright.reprint_template_without_url" // 转载文章版权声明模板（无原文链接）
 
+	// 文章订阅配置
+	KeyPostSubscribeEnable       SettingKey = "post.subscribe.enable"        // 是否启用订阅功能
+	KeyPostSubscribeButtonText   SettingKey = "post.subscribe.button_text"   // 订阅按钮文案
+	KeyPostSubscribeDialogTitle  SettingKey = "post.subscribe.dialog_title"  // 订阅弹窗标题
+	KeyPostSubscribeDialogDesc   SettingKey = "post.subscribe.dialog_desc"   // 订阅弹窗描述
+	KeyPostSubscribeMailSubject  SettingKey = "post.subscribe.mail_subject"  // 订阅邮件主题模板
+	KeyPostSubscribeMailTemplate SettingKey = "post.subscribe.mail_template" // 订阅邮件HTML模板
+
 	KeyPostEquipmentBannerBackground  SettingKey = "equipment.banner.background"
 	KeyPostEquipmentBannerTitle       SettingKey = "equipment.banner.title"
 	KeyPostEquipmentBannerDescription SettingKey = "equipment.banner.description"

@@ -502,6 +502,7 @@ var (
 		{Name: "description", Type: field.TypeString, Nullable: true, Comment: "分类描述"},
 		{Name: "count", Type: field.TypeInt, Comment: "该分类下的文章数量", Default: 0},
 		{Name: "is_series", Type: field.TypeBool, Comment: "是否为系列", Default: false},
+		{Name: "sort_order", Type: field.TypeInt, Comment: "分类排序值，数值越小越靠前", Default: 0},
 	}
 	// PostCategoriesTable holds the schema information for the "post_categories" table.
 	PostCategoriesTable = &schema.Table{
@@ -569,6 +570,38 @@ var (
 		Comment:    "存储策略表",
 		Columns:    StoragePoliciesColumns,
 		PrimaryKey: []*schema.Column{StoragePoliciesColumns[0]},
+	}
+	// SubscribersColumns holds the columns for the "subscribers" table.
+	SubscribersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "email", Type: field.TypeString, Unique: true, Size: 255},
+		{Name: "is_active", Type: field.TypeBool, Default: true},
+		{Name: "token", Type: field.TypeString, Unique: true, Nullable: true, Size: 64},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// SubscribersTable holds the schema information for the "subscribers" table.
+	SubscribersTable = &schema.Table{
+		Name:       "subscribers",
+		Columns:    SubscribersColumns,
+		PrimaryKey: []*schema.Column{SubscribersColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "subscriber_email",
+				Unique:  true,
+				Columns: []*schema.Column{SubscribersColumns[1]},
+			},
+			{
+				Name:    "subscriber_token",
+				Unique:  true,
+				Columns: []*schema.Column{SubscribersColumns[3]},
+			},
+			{
+				Name:    "subscriber_is_active",
+				Unique:  false,
+				Columns: []*schema.Column{SubscribersColumns[2]},
+			},
+		},
 	}
 	// TagsColumns holds the columns for the "tags" table.
 	TagsColumns = []*schema.Column{
@@ -949,6 +982,7 @@ var (
 		PostTagsTable,
 		SettingsTable,
 		StoragePoliciesTable,
+		SubscribersTable,
 		TagsTable,
 		URLStatsTable,
 		UsersTable,
