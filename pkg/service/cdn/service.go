@@ -2,6 +2,7 @@
 package cdn
 
 import (
+	"bytes"
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
@@ -55,7 +56,7 @@ func (s *serviceImpl) getConfig() (enabled bool, provider, secretID, secretKey, 
 	region = s.settingSvc.Get(constant.KeyCDNRegion.String())
 	domain = s.settingSvc.Get(constant.KeyCDNDomain.String())
 	zoneID = s.settingSvc.Get(constant.KeyCDNZoneID.String())
-	baseUrl = s.settingSvc.Get(constant.KeyCDNBaseUrl.String())
+	baseUrl = s.settingSvc.Get(constant.KeyCDNBaseURL.String())
 
 	// 设置默认地域
 	if region == "" {
@@ -554,9 +555,6 @@ func (s *serviceImpl) purgeCDNflyCache(ctx context.Context, urls []string) error
 		return nil
 	}
 
-	// CDNFLY API地址
-	host := baseURL
-
 	// 构建请求体
 	params := []map[string]interface{}{}
 	for _, url := range urls {
@@ -576,13 +574,13 @@ func (s *serviceImpl) purgeCDNflyCache(ctx context.Context, urls []string) error
 	}
 
 	// 创建HTTP请求
-	apiURL := fmt.Sprintf("%s", host+"/v1/jobs")
-	req, err := http.NewRequestWithContext(ctx, "POST", apiURL, strings.NewReader(string(jsonData)))
-	log.Printf("[CDNFLY] 请求体body: %s", req.Body)
-
+	apiURL := baseURL + "/v1/jobs"
+	req, err := http.NewRequestWithContext(ctx, "POST", apiURL, bytes.NewReader(jsonData))
 	if err != nil {
 		return fmt.Errorf("创建HTTP请求失败: %w", err)
 	}
+
+	log.Printf("[CDNFLY] 请求URL: %s, 请求体: %s", apiURL, string(jsonData))
 
 	// 设置请求头
 	req.Header.Set("api-key", secretKey)

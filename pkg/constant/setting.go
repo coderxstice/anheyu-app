@@ -353,8 +353,8 @@ const (
 	KeyCDNSecretKey SettingKey = "cdn.secret_key"
 	KeyCDNRegion    SettingKey = "cdn.region"
 	KeyCDNDomain    SettingKey = "cdn.domain"
-	KeyCDNZoneID    SettingKey = "cdn.zone_id"
-	KeyCDNBaseUrl   SettingKey = "cdn.baseUrl"
+	KeyCDNZoneID  SettingKey = "cdn.zone_id"
+	KeyCDNBaseURL SettingKey = "cdn.base_url"
 
 	// --- 相册页面配置 ---
 	KeyAlbumPageBannerBackground     SettingKey = "album.banner.background"

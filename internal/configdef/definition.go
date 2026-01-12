@@ -459,7 +459,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyCDNRegion, Value: "ap-beijing", Comment: "腾讯云地域 (如: ap-beijing, ap-shanghai)", IsPublic: false},
 	{Key: constant.KeyCDNDomain, Value: "", Comment: "腾讯云CDN加速域名", IsPublic: false},
 	{Key: constant.KeyCDNZoneID, Value: "", Comment: "EdgeOne站点ID", IsPublic: false},
-	{Key: constant.KeyCDNBaseUrl, Value: "", Comment: "CDNFLY网站Url", IsPublic: false},
+	{Key: constant.KeyCDNBaseURL, Value: "", Comment: "CDNFLY网站URL", IsPublic: false},
 
 	// --- 相册页面配置 ---
 	{Key: constant.KeyAlbumPageBannerBackground, Value: "", Comment: "相册页面横幅背景图/视频URL", IsPublic: true},
