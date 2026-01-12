@@ -474,6 +474,11 @@ var AllSettings = []Definition{
 	{Key: constant.KeyAlbumPageApiURL, Value: "", Comment: "相册API地址", IsPublic: true},
 	{Key: constant.KeyAlbumPageDefaultThumbParam, Value: "", Comment: "相册缩略图处理参数", IsPublic: true},
 	{Key: constant.KeyAlbumPageDefaultBigParam, Value: "", Comment: "相册大图处理参数", IsPublic: true},
+
+	// --- Cloudflare Turnstile 人机验证配置 ---
+	{Key: constant.KeyTurnstileEnable, Value: "false", Comment: "是否启用 Cloudflare Turnstile 人机验证 (true/false)", IsPublic: true},
+	{Key: constant.KeyTurnstileSiteKey, Value: "", Comment: "Turnstile Site Key（公钥，前端使用，从 Cloudflare 控制台获取）", IsPublic: true},
+	{Key: constant.KeyTurnstileSecretKey, Value: "", Comment: "Turnstile Secret Key（私钥，后端验证使用，从 Cloudflare 控制台获取）", IsPublic: false},
 }
 
 // AllUserGroups 是所有默认用户组的"单一事实来源"
