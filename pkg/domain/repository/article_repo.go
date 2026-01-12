@@ -86,7 +86,4 @@ type ArticleRepository interface {
 	// PublishScheduledArticle 发布一篇定时文章
 	// 将文章状态从 SCHEDULED 改为 PUBLISHED，并更新 created_at 为 scheduled_at
 	PublishScheduledArticle(ctx context.Context, articleID uint) error
-
-	// ExistsByAbbrlink 检查指定的 abbrlink 是否已存在（排除指定文章ID）
-	ExistsByAbbrlink(ctx context.Context, abbrlink string, excludePublicID string) (bool, error)
 }
