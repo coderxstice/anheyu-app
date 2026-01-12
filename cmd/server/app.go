@@ -378,7 +378,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	subscriberSvc := subscriber_service.NewService(entClient, redisClient, emailSvc)
 	subscriberHandler := subscriber_handler.NewHandler(subscriberSvc)
 
-	articleSvc := article_service.NewService(articleRepo, postTagRepo, postCategoryRepo, commentRepo, docSeriesRepo, txManager, cacheSvc, geoSvc, taskBroker, settingSvc, parserSvc, fileSvc, directLinkSvc, searchSvc, primaryColorSvc, cdnSvc, subscriberSvc, userRepo)
+	articleSvc := article_service.NewService(articleRepo, postTagRepo, postCategoryRepo, commentRepo, docSeriesRepo, pageRepo, txManager, cacheSvc, geoSvc, taskBroker, settingSvc, parserSvc, fileSvc, directLinkSvc, searchSvc, primaryColorSvc, cdnSvc, subscriberSvc, userRepo)
 	log.Printf("[DEBUG] 正在初始化 PushooService...")
 	pushooSvc := utility.NewPushooService(settingSvc)
 	log.Printf("[DEBUG] PushooService 初始化完成")
