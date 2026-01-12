@@ -459,6 +459,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyCDNRegion, Value: "ap-beijing", Comment: "腾讯云地域 (如: ap-beijing, ap-shanghai)", IsPublic: false},
 	{Key: constant.KeyCDNDomain, Value: "", Comment: "腾讯云CDN加速域名", IsPublic: false},
 	{Key: constant.KeyCDNZoneID, Value: "", Comment: "EdgeOne站点ID", IsPublic: false},
+	{Key: constant.KeyCDNBaseURL, Value: "", Comment: "CDNFLY网站URL", IsPublic: false},
 
 	// --- 相册页面配置 ---
 	{Key: constant.KeyAlbumPageBannerBackground, Value: "", Comment: "相册页面横幅背景图/视频URL", IsPublic: true},
@@ -473,6 +474,11 @@ var AllSettings = []Definition{
 	{Key: constant.KeyAlbumPageApiURL, Value: "", Comment: "相册API地址", IsPublic: true},
 	{Key: constant.KeyAlbumPageDefaultThumbParam, Value: "", Comment: "相册缩略图处理参数", IsPublic: true},
 	{Key: constant.KeyAlbumPageDefaultBigParam, Value: "", Comment: "相册大图处理参数", IsPublic: true},
+
+	// --- Cloudflare Turnstile 人机验证配置 ---
+	{Key: constant.KeyTurnstileEnable, Value: "false", Comment: "是否启用 Cloudflare Turnstile 人机验证 (true/false)", IsPublic: true},
+	{Key: constant.KeyTurnstileSiteKey, Value: "", Comment: "Turnstile Site Key（公钥，前端使用，从 Cloudflare 控制台获取）", IsPublic: true},
+	{Key: constant.KeyTurnstileSecretKey, Value: "", Comment: "Turnstile Secret Key（私钥，后端验证使用，从 Cloudflare 控制台获取）", IsPublic: false},
 }
 
 // AllUserGroups 是所有默认用户组的"单一事实来源"

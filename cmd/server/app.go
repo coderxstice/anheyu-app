@@ -89,6 +89,7 @@ import (
 	subscriber_service "github.com/anzhiyu-c/anheyu-app/pkg/service/subscriber"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/theme"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/thumbnail"
+	turnstile_service "github.com/anzhiyu-c/anheyu-app/pkg/service/turnstile"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/user"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/utility"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/volume"
@@ -408,9 +409,14 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	configImportExportSvc := config_service.NewImportExportService(settingRepo, settingSvc)
 	log.Printf("[DEBUG] ConfigImportExportService 初始化完成")
 
+	// 初始化 Turnstile 人机验证服务
+	log.Printf("[DEBUG] 正在初始化 TurnstileService...")
+	turnstileSvc := turnstile_service.NewTurnstileService(settingSvc)
+	log.Printf("[DEBUG] TurnstileService 初始化完成")
+
 	// --- Phase 6: 初始化表现层 (Handlers) ---
 	mw := middleware.NewMiddleware(tokenSvc)
-	authHandler := auth_handler.NewAuthHandler(authSvc, tokenSvc, settingSvc)
+	authHandler := auth_handler.NewAuthHandler(authSvc, tokenSvc, settingSvc, turnstileSvc)
 	albumHandler := album_handler.NewAlbumHandler(albumSvc)
 	albumCategoryHandler := album_category_handler.NewHandler(albumCategorySvc)
 	userHandler := user_handler.NewUserHandler(userSvc, settingSvc, fileSvc, directLinkSvc)
