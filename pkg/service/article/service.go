@@ -303,43 +303,31 @@ func (s *serviceImpl) validateAbbrlink(ctx context.Context, abbrlink string, exc
 		return errors.New("永久链接长度不能超过200个字符")
 	}
 
-	// 2. 不能以 / 开头或结尾
-	if strings.HasPrefix(abbrlink, "/") {
-		return errors.New("永久链接不能以 / 开头")
-	}
-	if strings.HasSuffix(abbrlink, "/") {
-		return errors.New("永久链接不能以 / 结尾")
+	// 2. 不能包含斜杠（abbrlink 仅用于自定义文章ID，不支持路径格式）
+	if strings.Contains(abbrlink, "/") {
+		return errors.New("永久链接不能包含斜杠 /（仅支持自定义文章ID，不支持路径格式）")
 	}
 
-	// 3. 不能包含连续的 /
-	if strings.Contains(abbrlink, "//") {
-		return errors.New("永久链接不能包含连续的 /")
-	}
-
-	// 4. 检查特殊字符（允许字母、数字、中文、连字符、下划线、斜杠）
+	// 3. 检查特殊字符（允许字母、数字、中文、连字符、下划线、点）
 	for _, char := range abbrlink {
 		if unicode.IsLetter(char) || unicode.IsDigit(char) || unicode.Is(unicode.Han, char) {
 			continue
 		}
-		if char == '-' || char == '_' || char == '/' || char == '.' {
+		if char == '-' || char == '_' || char == '.' {
 			continue
 		}
-		return fmt.Errorf("永久链接包含不允许的字符: %c（只允许字母、数字、中文、连字符-、下划线_、斜杠/、点.）", char)
+		return fmt.Errorf("永久链接包含不允许的字符: %c（只允许字母、数字、中文、连字符-、下划线_、点.）", char)
 	}
 
-	// 5. 检查系统保留路径冲突（检查路径的第一段）
-	firstSegment := abbrlink
-	if idx := strings.Index(abbrlink, "/"); idx > 0 {
-		firstSegment = abbrlink[:idx]
-	}
-	firstSegmentLower := strings.ToLower(firstSegment)
+	// 4. 检查系统保留路径冲突
+	firstSegmentLower := strings.ToLower(abbrlink)
 	for _, reserved := range reservedPaths {
 		if firstSegmentLower == reserved {
 			return fmt.Errorf("永久链接不能以系统保留路径 '%s' 开头", reserved)
 		}
 	}
 
-	// 6. 检查与自定义页面路径的冲突
+	// 5. 检查与自定义页面路径的冲突
 	// 自定义页面路径存储格式为 /path，所以需要添加前导斜杠
 	pagePath := "/" + abbrlink
 	if s.pageRepo != nil {
@@ -352,7 +340,7 @@ func (s *serviceImpl) validateAbbrlink(ctx context.Context, abbrlink string, exc
 		}
 	}
 
-	// 7. 检查与其他文章 abbrlink 的冲突
+	// 6. 检查与其他文章 abbrlink 的冲突
 	exists, err := s.repo.ExistsByAbbrlink(ctx, abbrlink, excludeDBID)
 	if err != nil {
 		return fmt.Errorf("检查永久链接冲突失败: %w", err)
