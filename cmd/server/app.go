@@ -314,8 +314,8 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		log.Printf("[DEBUG] 默认通知类型初始化完成")
 	}
 
-	// 初始化邮件服务（需要 notificationSvc）
-	emailSvc := utility.NewEmailService(settingSvc, notificationSvc)
+	// 初始化邮件服务（需要 notificationSvc 和 parserSvc 用于表情包解析）
+	emailSvc := utility.NewEmailService(settingSvc, notificationSvc, parserSvc)
 
 	taskBroker := task.NewBroker(uploadSvc, thumbnailSvc, cleanupSvc, articleRepo, commentRepo, emailSvc, cacheSvc, linkCategoryRepo, linkTagRepo, linkRepo, settingSvc, statService)
 	pageSvc := page_service.NewService(pageRepo)
