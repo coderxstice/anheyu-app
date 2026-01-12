@@ -1156,8 +1156,9 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 			req.Summaries = filteredSummaries
 		}
 
-		if req.IPLocation != nil && *req.IPLocation == "" {
-			log.Printf("[更新文章] 检测到IPLocation为空字符串，开始自动获取IP属地 - 传入IP: %s", ip)
+		// 当 IP 属地为空字符串或"未知"时，尝试重新获取
+		if req.IPLocation != nil && (*req.IPLocation == "" || *req.IPLocation == "未知") {
+			log.Printf("[更新文章] 检测到IPLocation为'%s'，开始自动获取IP属地 - 传入IP: %s", *req.IPLocation, ip)
 			location := "未知"
 
 			if ip == "" {

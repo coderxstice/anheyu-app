@@ -140,7 +140,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyFooterUptimeKumaEnable, Value: "false", Comment: "是否启用 Uptime Kuma 状态显示 (true/false)", IsPublic: true},
 	{Key: constant.KeyFooterUptimeKumaPageURL, Value: "", Comment: "Uptime Kuma 状态页完整地址（例如：https://status.example.com/status/main）", IsPublic: true},
 
-	{Key: constant.KeyIPAPI, Value: `https://v1.nsuuu.com/api/ipip`, Comment: "获取IP信息 API 地址", IsPublic: false},
+	{Key: constant.KeyIPAPI, Value: `https://v1.nsuuu.com/api/ipip`, Comment: "获取IP信息 API 地址（全球IPv4/IPv6信息查询）", IsPublic: false},
 	{Key: constant.KeyIPAPIToKen, Value: ``, Comment: "获取IP信息 API Token", IsPublic: false},
 	{Key: constant.KeyPostDefaultCover, Value: ``, Comment: "文章默认封面", IsPublic: true},
 	{Key: constant.KeyPostDefaultDoubleColumn, Value: "true", Comment: "文章默认双栏", IsPublic: true},
