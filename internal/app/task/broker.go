@@ -270,11 +270,11 @@ func (b *Broker) CheckAndRunMissedAggregation() {
 			startDate = lastDate.AddDate(0, 0, 1)
 		}
 
-		// 3. 循环追补数据直到昨天（使用 UTC 时区确保与查询时一致）
-		nowUTC := time.Now().UTC()
-		today := time.Date(nowUTC.Year(), nowUTC.Month(), nowUTC.Day(), 0, 0, 0, 0, time.UTC)
-		// 将 startDate 也转换为 UTC 时区
-		startDate = time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 0, 0, 0, 0, time.UTC)
+		// 3. 循环追补数据直到昨天（使用本地时区，与访问日志记录时间保持一致）
+		now := time.Now()
+		today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+		// 将 startDate 也转换为本地时区
+		startDate = time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 0, 0, 0, 0, time.Local)
 
 		// 如果起始日期不在今天之前，说明数据已经是最新的，无需追补
 		if !startDate.Before(today) {
