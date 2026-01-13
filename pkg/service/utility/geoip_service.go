@@ -47,7 +47,7 @@ type apiResponse struct {
 type apiKeyErrorResponse struct {
 	Code      int    `json:"code"`
 	Msg       string `json:"msg"`
-	Data      string `json:data`
+	Data      string `json:"data"`
 	RequestID string `json:"request_id"`
 }
 
