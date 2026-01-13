@@ -11,6 +11,7 @@ import (
 
 	"github.com/anzhiyu-c/anheyu-app/ent"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
+	article_history_service "github.com/anzhiyu-c/anheyu-app/pkg/service/article_history"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/cleanup"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/file"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
@@ -23,21 +24,22 @@ import (
 
 // Broker 是整个后台任务模块的核心协调者。
 type Broker struct {
-	cron             *cron.Cron
-	logger           *slog.Logger
-	uploadSvc        file.IUploadService
-	thumbnailSvc     *thumbnail.ThumbnailService
-	cleanupSvc       cleanup.ICleanupService
-	jobQueue         chan Job
-	articleRepo      repository.ArticleRepository // 保留，用于其他任务
-	commentRepo      repository.CommentRepository
-	emailSvc         utility.EmailService
-	cacheSvc         utility.CacheService
-	linkCategoryRepo repository.LinkCategoryRepository
-	linkTagRepo      repository.LinkTagRepository
-	linkRepo         repository.LinkRepository
-	settingSvc       setting.SettingService
-	statService      statistics.VisitorStatService
+	cron              *cron.Cron
+	logger            *slog.Logger
+	uploadSvc         file.IUploadService
+	thumbnailSvc      *thumbnail.ThumbnailService
+	cleanupSvc        cleanup.ICleanupService
+	jobQueue          chan Job
+	articleRepo       repository.ArticleRepository // 保留，用于其他任务
+	commentRepo       repository.CommentRepository
+	emailSvc          utility.EmailService
+	cacheSvc          utility.CacheService
+	linkCategoryRepo  repository.LinkCategoryRepository
+	linkTagRepo       repository.LinkTagRepository
+	linkRepo          repository.LinkRepository
+	settingSvc        setting.SettingService
+	statService       statistics.VisitorStatService
+	articleHistorySvc article_history_service.Service
 }
 
 // NewBroker 是 Broker 的构造函数。
@@ -54,6 +56,7 @@ func NewBroker(
 	linkRepo repository.LinkRepository,
 	settingSvc setting.SettingService,
 	statService statistics.VisitorStatService,
+	articleHistorySvc article_history_service.Service,
 ) *Broker {
 
 	slogHandler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
@@ -71,21 +74,22 @@ func NewBroker(
 	jobQueue := make(chan Job, 1000)
 
 	broker := &Broker{
-		cron:             c,
-		logger:           logger,
-		uploadSvc:        uploadSvc,
-		thumbnailSvc:     thumbnailSvc,
-		cleanupSvc:       cleanupSvc,
-		jobQueue:         jobQueue,
-		articleRepo:      articleRepo,
-		commentRepo:      commentRepo,
-		emailSvc:         emailSvc,
-		cacheSvc:         cacheSvc,
-		linkCategoryRepo: linkCategoryRepo,
-		linkTagRepo:      linkTagRepo,
-		linkRepo:         linkRepo,
-		settingSvc:       settingSvc,
-		statService:      statService,
+		cron:              c,
+		logger:            logger,
+		uploadSvc:         uploadSvc,
+		thumbnailSvc:      thumbnailSvc,
+		cleanupSvc:        cleanupSvc,
+		jobQueue:          jobQueue,
+		articleRepo:       articleRepo,
+		commentRepo:       commentRepo,
+		emailSvc:          emailSvc,
+		cacheSvc:          cacheSvc,
+		linkCategoryRepo:  linkCategoryRepo,
+		linkTagRepo:       linkTagRepo,
+		linkRepo:          linkRepo,
+		settingSvc:        settingSvc,
+		statService:       statService,
+		articleHistorySvc: articleHistorySvc,
 	}
 
 	broker.startWorkerPool()
@@ -180,6 +184,17 @@ func (b *Broker) RegisterCronJobs() {
 		os.Exit(1)
 	}
 	b.logger.Info("-> Successfully registered 'ScheduledPublishJob'", "schedule", "every minute")
+
+	// 添加文章历史版本清理任务 - 每天凌晨3:30执行
+	if b.articleHistorySvc != nil {
+		articleHistoryCleanupJob := NewArticleHistoryCleanupJob(b.articleHistorySvc)
+		_, err = b.cron.AddJob("0 30 3 * * *", articleHistoryCleanupJob) // 每天凌晨3:30执行
+		if err != nil {
+			b.logger.Error("Failed to add 'ArticleHistoryCleanupJob'", slog.Any("error", err))
+			os.Exit(1)
+		}
+		b.logger.Info("-> Successfully registered 'ArticleHistoryCleanupJob'", "schedule", "every day at 3:30:00 AM")
+	}
 
 	b.logger.Info("All periodic jobs registered.")
 }
