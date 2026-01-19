@@ -133,12 +133,15 @@ func (s *smartGeoIPService) lookupViaAPI(apiURL, apiToken, ipStr string) (string
 		return "", fmt.Errorf("读取响应体失败: %w", err)
 	}
 
-	// 1. 尝试解析为apiKeyErrorResponse
+	// 打印 API 原始返回内容，便于调试
+	log.Printf("[IP属地查询] API原始返回内容 - IP: %s, 响应体: %s", ipStr, string(body))
+
+	// 1. 尝试解析为apiKeyErrorResponse（检查是否是 API KEY 错误）
 	var keyErrorResult apiKeyErrorResponse
-	if err := json.Unmarshal(body, &keyErrorResult); err == nil {
-		// 如果能解析成功，说明是API KEY错误
-		log.Printf("[IP属地查询] ❌ API KEY错误 - IP: %s", ipStr)
-		return "", fmt.Errorf("API KEY配置错误")
+	if err := json.Unmarshal(body, &keyErrorResult); err == nil && keyErrorResult.Code < 0 {
+		// 只有当解析成功且 Code 为负数时才认为是 API KEY 错误
+		log.Printf("[IP属地查询] ❌ API KEY错误 - IP: %s, 错误码: %d, 错误信息: %s", ipStr, keyErrorResult.Code, keyErrorResult.Msg)
+		return "", fmt.Errorf("API KEY配置错误: %s", keyErrorResult.Msg)
 	}
 
 	// 2. 上述错误结构无法解析，尝试解析为正常响应
