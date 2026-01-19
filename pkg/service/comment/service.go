@@ -204,7 +204,7 @@ func (s *Service) ListLatest(ctx context.Context, page, pageSize int) (*dto.List
 	}, nil
 }
 
-func (s *Service) Create(ctx context.Context, req *dto.CreateRequest, ip, ua string, claims *auth.CustomClaims) (*dto.Response, error) {
+func (s *Service) Create(ctx context.Context, req *dto.CreateRequest, ip, ua, referer string, claims *auth.CustomClaims) (*dto.Response, error) {
 	limitStr := s.settingSvc.Get(constant.KeyCommentLimitPerMinute.String())
 	limit, err := strconv.Atoi(limitStr)
 	if err == nil && limit > 0 {
@@ -275,7 +275,7 @@ func (s *Service) Create(ctx context.Context, req *dto.CreateRequest, ip, ua str
 	}
 	ipLocation := "未知"
 	if ip != "" && s.geoService != nil {
-		location, err := s.geoService.Lookup(ip)
+		location, err := s.geoService.Lookup(ip, referer)
 		if err == nil {
 			ipLocation = location
 		}
@@ -301,7 +301,7 @@ func (s *Service) Create(ctx context.Context, req *dto.CreateRequest, ip, ua str
 			aiDetectRiskLevel := s.settingSvc.Get(constant.KeyCommentAIDetectRiskLevel.String())
 
 			if aiDetectAPIURL != "" {
-				isViolation, riskLevel, err := s.checkAIForbiddenWords(req.Content, aiDetectAPIURL)
+				isViolation, riskLevel, err := s.checkAIForbiddenWords(req.Content, aiDetectAPIURL, referer)
 				if err != nil {
 					log.Printf("AI违禁词检测API调用失败: %v，跳过检测", err)
 				} else if isViolation && shouldTakeAction(riskLevel, aiDetectRiskLevel) {
@@ -1303,7 +1303,8 @@ type QQInfoResponse struct {
 
 // GetQQInfo 根据QQ号获取QQ昵称和头像
 // 该方法在后端调用第三方API，避免将API密钥暴露给前端
-func (s *Service) GetQQInfo(ctx context.Context, qqNumber string) (*QQInfoResponse, error) {
+// referer 参数用于设置 Referer 请求头，以通过 NSUUU API 的白名单验证
+func (s *Service) GetQQInfo(ctx context.Context, qqNumber string, referer string) (*QQInfoResponse, error) {
 	// 验证QQ号格式
 	if !regexp.MustCompile(`^[1-9]\d{4,10}$`).MatchString(qqNumber) {
 		return nil, errors.New("无效的QQ号格式")
@@ -1319,7 +1320,7 @@ func (s *Service) GetQQInfo(ctx context.Context, qqNumber string) (*QQInfoRespon
 	}
 
 	// 调用第三方API
-	resp, err := httpGetQQInfo(apiURL, apiKey, qqNumber)
+	resp, err := httpGetQQInfo(apiURL, apiKey, qqNumber, referer)
 	if err != nil {
 		log.Printf("获取QQ信息失败: %v", err)
 		return nil, fmt.Errorf("获取QQ信息失败: %w", err)
@@ -1329,11 +1330,28 @@ func (s *Service) GetQQInfo(ctx context.Context, qqNumber string) (*QQInfoRespon
 }
 
 // httpGetQQInfo 调用第三方QQ信息API
-func httpGetQQInfo(apiURL, apiKey, qqNumber string) (*QQInfoResponse, error) {
-	// 构建请求URL
-	url := fmt.Sprintf("%s?key=%s&qq=%s", apiURL, apiKey, qqNumber)
+// referer 参数用于设置 Referer 请求头，以通过 NSUUU API 的白名单验证
+func httpGetQQInfo(apiURL, apiKey, qqNumber, referer string) (*QQInfoResponse, error) {
+	// 构建请求URL - 使用 Bearer Token 方式传递 API Key
+	requestURL := fmt.Sprintf("%s?qq=%s", apiURL, qqNumber)
 
-	resp, err := http.Get(url)
+	// 创建 HTTP 请求
+	req, err := http.NewRequest("GET", requestURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("创建HTTP请求失败: %w", err)
+	}
+
+	// 使用 Bearer Token 方式传递 API Key（推荐方式，更安全）
+	req.Header.Set("Authorization", "Bearer "+apiKey)
+
+	// 设置 Referer 请求头，用于 NSUUU API 的白名单验证
+	if referer != "" {
+		req.Header.Set("Referer", referer)
+		log.Printf("[QQ信息查询] 设置 Referer 请求头: %s", referer)
+	}
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -1416,7 +1434,8 @@ type AIDetectResponse struct {
 
 // checkAIForbiddenWords 调用AI违禁词检测API检查评论内容
 // 返回: isViolation(是否违规), riskLevel(风险等级), error
-func (s *Service) checkAIForbiddenWords(content string, apiURL string) (bool, string, error) {
+// referer 参数用于设置 Referer 请求头，以通过 NSUUU API 的白名单验证
+func (s *Service) checkAIForbiddenWords(content string, apiURL string, referer string) (bool, string, error) {
 	// 限制检测内容长度，防止URL过长
 	// URL编码后中文字符会变成 %XX%XX%XX 格式（约3倍），为确保URL不超限，原始内容限制为500字符
 	const maxContentLength = 500
@@ -1429,12 +1448,24 @@ func (s *Service) checkAIForbiddenWords(content string, apiURL string) (bool, st
 	// 构建请求URL，对内容进行URL编码
 	requestURL := fmt.Sprintf("%s?msg=%s", apiURL, url.QueryEscape(checkContent))
 
+	// 创建 HTTP 请求
+	req, err := http.NewRequest("GET", requestURL, nil)
+	if err != nil {
+		return false, "", fmt.Errorf("创建AI违禁词检测请求失败: %w", err)
+	}
+
+	// 设置 Referer 请求头，用于 NSUUU API 的白名单验证
+	if referer != "" {
+		req.Header.Set("Referer", referer)
+		log.Printf("[AI违禁词检测] 设置 Referer 请求头: %s", referer)
+	}
+
 	// 创建HTTP客户端，设置超时时间
 	client := &http.Client{
 		Timeout: 10 * time.Second,
 	}
 
-	resp, err := client.Get(requestURL)
+	resp, err := client.Do(req)
 	if err != nil {
 		return false, "", fmt.Errorf("AI违禁词检测API请求失败: %w", err)
 	}
@@ -1491,4 +1522,44 @@ func shouldTakeAction(detectedLevel string, configuredLevel string) bool {
 
 	// 检测到的风险等级 >= 配置的阈值等级时采取行动
 	return detected >= configured
+}
+
+// IPLocationResponse IP定位响应结构
+// 与 NSUUU ipip API 响应结构一致
+type IPLocationResponse struct {
+	IP        string `json:"ip"`
+	Country   string `json:"country"`
+	Province  string `json:"province"`
+	City      string `json:"city"`
+	ISP       string `json:"isp"`       // 运营商
+	Latitude  string `json:"latitude"`  // 纬度
+	Longitude string `json:"longitude"` // 经度
+	Address   string `json:"address"`   // 地址
+}
+
+// GetIPLocation 根据IP地址获取地理位置信息
+// 该方法由后端调用第三方API，避免将API密钥暴露给前端
+// referer 参数用于设置 Referer 请求头，以通过 NSUUU API 的白名单验证
+func (s *Service) GetIPLocation(ctx context.Context, clientIP, referer string) (*IPLocationResponse, error) {
+	if s.geoService == nil {
+		return nil, errors.New("IP定位服务未配置")
+	}
+
+	// 调用 GeoIP 服务获取完整位置信息（包含经纬度）
+	result, err := s.geoService.LookupFull(clientIP, referer)
+	if err != nil {
+		log.Printf("[IP定位] 查询失败: IP=%s, 错误=%v", clientIP, err)
+		return nil, fmt.Errorf("IP定位查询失败: %w", err)
+	}
+
+	return &IPLocationResponse{
+		IP:        result.IP,
+		Country:   result.Country,
+		Province:  result.Province,
+		City:      result.City,
+		ISP:       result.ISP,
+		Latitude:  result.Latitude,
+		Longitude: result.Longitude,
+		Address:   result.Address,
+	}, nil
 }
