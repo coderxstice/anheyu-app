@@ -370,8 +370,19 @@ const (
 	KeyAlbumPageDefaultThumbParam    SettingKey = "album.default_thumb_param"
 	KeyAlbumPageDefaultBigParam      SettingKey = "album.default_big_param"
 
+	// --- 人机验证配置 ---
+	KeyCaptchaProvider SettingKey = "captcha.provider" // 人机验证方式：turnstile / geetest / image / none
+
 	// --- Cloudflare Turnstile 人机验证配置 ---
-	KeyTurnstileEnable    SettingKey = "turnstile.enable"     // 是否启用 Turnstile 人机验证
+	KeyTurnstileEnable    SettingKey = "turnstile.enable"     // 是否启用 Turnstile 人机验证（已废弃，使用 captcha.provider）
 	KeyTurnstileSiteKey   SettingKey = "turnstile.site_key"   // Turnstile Site Key（公钥，前端使用）
 	KeyTurnstileSecretKey SettingKey = "turnstile.secret_key" // Turnstile Secret Key（私钥，后端验证使用）
+
+	// --- 极验 GeeTest 4.0 人机验证配置 ---
+	KeyGeetestCaptchaId  SettingKey = "geetest.captcha_id"  // 极验验证 ID（公钥，前端使用）
+	KeyGeetestCaptchaKey SettingKey = "geetest.captcha_key" // 极验验证 Key（私钥，后端验证使用）
+
+	// --- 系统图形验证码配置 ---
+	KeyImageCaptchaLength SettingKey = "image_captcha.length" // 图形验证码字符长度
+	KeyImageCaptchaExpire SettingKey = "image_captcha.expire" // 图形验证码过期时间（秒）
 )

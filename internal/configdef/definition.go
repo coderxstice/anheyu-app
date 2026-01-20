@@ -475,10 +475,21 @@ var AllSettings = []Definition{
 	{Key: constant.KeyAlbumPageDefaultThumbParam, Value: "", Comment: "相册缩略图处理参数", IsPublic: true},
 	{Key: constant.KeyAlbumPageDefaultBigParam, Value: "", Comment: "相册大图处理参数", IsPublic: true},
 
+	// --- 人机验证配置 ---
+	{Key: constant.KeyCaptchaProvider, Value: "none", Comment: "人机验证方式: none(不启用) / turnstile(Cloudflare Turnstile) / geetest(极验4.0) / image(系统图形验证码)", IsPublic: true},
+
 	// --- Cloudflare Turnstile 人机验证配置 ---
-	{Key: constant.KeyTurnstileEnable, Value: "false", Comment: "是否启用 Cloudflare Turnstile 人机验证 (true/false)", IsPublic: true},
+	{Key: constant.KeyTurnstileEnable, Value: "false", Comment: "是否启用 Cloudflare Turnstile 人机验证 (true/false)，已废弃，请使用 captcha.provider", IsPublic: true},
 	{Key: constant.KeyTurnstileSiteKey, Value: "", Comment: "Turnstile Site Key（公钥，前端使用，从 Cloudflare 控制台获取）", IsPublic: true},
 	{Key: constant.KeyTurnstileSecretKey, Value: "", Comment: "Turnstile Secret Key（私钥，后端验证使用，从 Cloudflare 控制台获取）", IsPublic: false},
+
+	// --- 极验 GeeTest 4.0 人机验证配置 ---
+	{Key: constant.KeyGeetestCaptchaId, Value: "", Comment: "极验验证 ID（公钥，前端使用，从极验后台获取）", IsPublic: true},
+	{Key: constant.KeyGeetestCaptchaKey, Value: "", Comment: "极验验证 Key（私钥，后端验证使用，从极验后台获取）", IsPublic: false},
+
+	// --- 系统图形验证码配置 ---
+	{Key: constant.KeyImageCaptchaLength, Value: "4", Comment: "图形验证码字符长度 (默认4位)", IsPublic: true},
+	{Key: constant.KeyImageCaptchaExpire, Value: "300", Comment: "图形验证码过期时间（秒，默认300秒/5分钟）", IsPublic: true},
 }
 
 // AllUserGroups 是所有默认用户组的"单一事实来源"
