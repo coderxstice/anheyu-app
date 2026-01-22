@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-10-17 10:35:28
- * @LastEditTime: 2025-11-13 13:36:28
+ * @LastEditTime: 2026-01-22 16:15:28
  * @LastEditors: 安知鱼
  */
 // anheyu-app/cmd/server/app.go
@@ -69,6 +69,7 @@ import (
 	article_service "github.com/anzhiyu-c/anheyu-app/pkg/service/article"
 	article_history_service "github.com/anzhiyu-c/anheyu-app/pkg/service/article_history"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/auth"
+	captcha_service "github.com/anzhiyu-c/anheyu-app/pkg/service/captcha"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/cdn"
 	cleanup_service "github.com/anzhiyu-c/anheyu-app/pkg/service/cleanup"
 	comment_service "github.com/anzhiyu-c/anheyu-app/pkg/service/comment"
@@ -77,6 +78,8 @@ import (
 	doc_series_service "github.com/anzhiyu-c/anheyu-app/pkg/service/doc_series"
 	file_service "github.com/anzhiyu-c/anheyu-app/pkg/service/file"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/file_info"
+	geetest_service "github.com/anzhiyu-c/anheyu-app/pkg/service/geetest"
+	imagecaptcha_service "github.com/anzhiyu-c/anheyu-app/pkg/service/imagecaptcha"
 	link_service "github.com/anzhiyu-c/anheyu-app/pkg/service/link"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/music"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/notification"
@@ -93,9 +96,6 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/theme"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/thumbnail"
 	turnstile_service "github.com/anzhiyu-c/anheyu-app/pkg/service/turnstile"
-	geetest_service "github.com/anzhiyu-c/anheyu-app/pkg/service/geetest"
-	imagecaptcha_service "github.com/anzhiyu-c/anheyu-app/pkg/service/imagecaptcha"
-	captcha_service "github.com/anzhiyu-c/anheyu-app/pkg/service/captcha"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/user"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/utility"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/volume"
@@ -376,7 +376,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	log.Printf("[DEBUG] 正在初始化 PrimaryColorService...")
 	colorSvc := utility.NewColorService()
 	httpClient := &http.Client{Timeout: 10 * time.Second}
-	primaryColorSvc := utility.NewPrimaryColorService(colorSvc, settingSvc, fileRepo, storagePolicyRepo, httpClient, storageProviders)
+	primaryColorSvc := utility.NewPrimaryColorService(colorSvc, settingSvc, fileRepo, directLinkRepo, storagePolicyRepo, httpClient, storageProviders)
 	log.Printf("[DEBUG] PrimaryColorService 初始化完成")
 
 	// 初始化CDN服务
