@@ -63,6 +63,8 @@ type Article struct {
 	Abbrlink *string `json:"abbrlink,omitempty"`
 	// 是否显示版权信息
 	Copyright bool `json:"copyright,omitempty"`
+	// 是否为转载文章
+	IsReprint bool `json:"is_reprint,omitempty"`
 	// 版权作者
 	CopyrightAuthor string `json:"copyright_author,omitempty"`
 	// 版权作者链接
@@ -176,7 +178,7 @@ func (*Article) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case article.FieldSummaries, article.FieldExtraConfig:
 			values[i] = new([]byte)
-		case article.FieldIsPrimaryColorManual, article.FieldShowOnHome, article.FieldCopyright, article.FieldIsTakedown, article.FieldExcludeFromMembership, article.FieldIsDoc:
+		case article.FieldIsPrimaryColorManual, article.FieldShowOnHome, article.FieldCopyright, article.FieldIsReprint, article.FieldIsTakedown, article.FieldExcludeFromMembership, article.FieldIsDoc:
 			values[i] = new(sql.NullBool)
 		case article.FieldID, article.FieldOwnerID, article.FieldViewCount, article.FieldWordCount, article.FieldReadingTime, article.FieldHomeSort, article.FieldPinSort, article.FieldReviewedBy, article.FieldTakedownBy, article.FieldDocSeriesID, article.FieldDocSort:
 			values[i] = new(sql.NullInt64)
@@ -340,6 +342,12 @@ func (_m *Article) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field copyright", values[i])
 			} else if value.Valid {
 				_m.Copyright = value.Bool
+			}
+		case article.FieldIsReprint:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_reprint", values[i])
+			} else if value.Valid {
+				_m.IsReprint = value.Bool
 			}
 		case article.FieldCopyrightAuthor:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -587,6 +595,9 @@ func (_m *Article) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("copyright=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Copyright))
+	builder.WriteString(", ")
+	builder.WriteString("is_reprint=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IsReprint))
 	builder.WriteString(", ")
 	builder.WriteString("copyright_author=")
 	builder.WriteString(_m.CopyrightAuthor)

@@ -92,6 +92,9 @@ func (Article) Fields() []ent.Field {
 		field.Bool("copyright").
 			Comment("是否显示版权信息").
 			Default(true),
+		field.Bool("is_reprint").
+			Comment("是否为转载文章").
+			Default(false),
 		field.String("copyright_author").
 			Comment("版权作者").
 			Optional(),

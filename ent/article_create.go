@@ -319,6 +319,20 @@ func (_c *ArticleCreate) SetNillableCopyright(v *bool) *ArticleCreate {
 	return _c
 }
 
+// SetIsReprint sets the "is_reprint" field.
+func (_c *ArticleCreate) SetIsReprint(v bool) *ArticleCreate {
+	_c.mutation.SetIsReprint(v)
+	return _c
+}
+
+// SetNillableIsReprint sets the "is_reprint" field if the given value is not nil.
+func (_c *ArticleCreate) SetNillableIsReprint(v *bool) *ArticleCreate {
+	if v != nil {
+		_c.SetIsReprint(*v)
+	}
+	return _c
+}
+
 // SetCopyrightAuthor sets the "copyright_author" field.
 func (_c *ArticleCreate) SetCopyrightAuthor(v string) *ArticleCreate {
 	_c.mutation.SetCopyrightAuthor(v)
@@ -729,6 +743,10 @@ func (_c *ArticleCreate) defaults() error {
 		v := article.DefaultCopyright
 		_c.mutation.SetCopyright(v)
 	}
+	if _, ok := _c.mutation.IsReprint(); !ok {
+		v := article.DefaultIsReprint
+		_c.mutation.SetIsReprint(v)
+	}
 	if _, ok := _c.mutation.ReviewStatus(); !ok {
 		v := article.DefaultReviewStatus
 		_c.mutation.SetReviewStatus(v)
@@ -827,6 +845,9 @@ func (_c *ArticleCreate) check() error {
 	}
 	if _, ok := _c.mutation.Copyright(); !ok {
 		return &ValidationError{Name: "copyright", err: errors.New(`ent: missing required field "Article.copyright"`)}
+	}
+	if _, ok := _c.mutation.IsReprint(); !ok {
+		return &ValidationError{Name: "is_reprint", err: errors.New(`ent: missing required field "Article.is_reprint"`)}
 	}
 	if _, ok := _c.mutation.ReviewStatus(); !ok {
 		return &ValidationError{Name: "review_status", err: errors.New(`ent: missing required field "Article.review_status"`)}
@@ -973,6 +994,10 @@ func (_c *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Copyright(); ok {
 		_spec.SetField(article.FieldCopyright, field.TypeBool, value)
 		_node.Copyright = value
+	}
+	if value, ok := _c.mutation.IsReprint(); ok {
+		_spec.SetField(article.FieldIsReprint, field.TypeBool, value)
+		_node.IsReprint = value
 	}
 	if value, ok := _c.mutation.CopyrightAuthor(); ok {
 		_spec.SetField(article.FieldCopyrightAuthor, field.TypeString, value)
@@ -1526,6 +1551,18 @@ func (u *ArticleUpsert) SetCopyright(v bool) *ArticleUpsert {
 // UpdateCopyright sets the "copyright" field to the value that was provided on create.
 func (u *ArticleUpsert) UpdateCopyright() *ArticleUpsert {
 	u.SetExcluded(article.FieldCopyright)
+	return u
+}
+
+// SetIsReprint sets the "is_reprint" field.
+func (u *ArticleUpsert) SetIsReprint(v bool) *ArticleUpsert {
+	u.Set(article.FieldIsReprint, v)
+	return u
+}
+
+// UpdateIsReprint sets the "is_reprint" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateIsReprint() *ArticleUpsert {
+	u.SetExcluded(article.FieldIsReprint)
 	return u
 }
 
@@ -2299,6 +2336,20 @@ func (u *ArticleUpsertOne) SetCopyright(v bool) *ArticleUpsertOne {
 func (u *ArticleUpsertOne) UpdateCopyright() *ArticleUpsertOne {
 	return u.Update(func(s *ArticleUpsert) {
 		s.UpdateCopyright()
+	})
+}
+
+// SetIsReprint sets the "is_reprint" field.
+func (u *ArticleUpsertOne) SetIsReprint(v bool) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetIsReprint(v)
+	})
+}
+
+// UpdateIsReprint sets the "is_reprint" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateIsReprint() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateIsReprint()
 	})
 }
 
@@ -3290,6 +3341,20 @@ func (u *ArticleUpsertBulk) SetCopyright(v bool) *ArticleUpsertBulk {
 func (u *ArticleUpsertBulk) UpdateCopyright() *ArticleUpsertBulk {
 	return u.Update(func(s *ArticleUpsert) {
 		s.UpdateCopyright()
+	})
+}
+
+// SetIsReprint sets the "is_reprint" field.
+func (u *ArticleUpsertBulk) SetIsReprint(v bool) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetIsReprint(v)
+	})
+}
+
+// UpdateIsReprint sets the "is_reprint" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateIsReprint() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateIsReprint()
 	})
 }
 

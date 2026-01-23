@@ -88,6 +88,7 @@ var (
 		{Name: "summaries", Type: field.TypeJSON, Nullable: true, Comment: "文章摘要列表，用于随机摘要功能"},
 		{Name: "abbrlink", Type: field.TypeString, Unique: true, Nullable: true, Comment: "永久链接，用于替换ID，需要保证唯一性"},
 		{Name: "copyright", Type: field.TypeBool, Comment: "是否显示版权信息", Default: true},
+		{Name: "is_reprint", Type: field.TypeBool, Comment: "是否为转载文章", Default: false},
 		{Name: "copyright_author", Type: field.TypeString, Nullable: true, Comment: "版权作者"},
 		{Name: "copyright_author_href", Type: field.TypeString, Nullable: true, Comment: "版权作者链接"},
 		{Name: "copyright_url", Type: field.TypeString, Nullable: true, Comment: "版权来源链接"},
@@ -116,7 +117,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "articles_doc_series_articles",
-				Columns:    []*schema.Column{ArticlesColumns[40]},
+				Columns:    []*schema.Column{ArticlesColumns[41]},
 				RefColumns: []*schema.Column{DocSeriesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

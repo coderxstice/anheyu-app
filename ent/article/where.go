@@ -155,6 +155,11 @@ func Copyright(v bool) predicate.Article {
 	return predicate.Article(sql.FieldEQ(FieldCopyright, v))
 }
 
+// IsReprint applies equality check predicate on the "is_reprint" field. It's identical to IsReprintEQ.
+func IsReprint(v bool) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldIsReprint, v))
+}
+
 // CopyrightAuthor applies equality check predicate on the "copyright_author" field. It's identical to CopyrightAuthorEQ.
 func CopyrightAuthor(v string) predicate.Article {
 	return predicate.Article(sql.FieldEQ(FieldCopyrightAuthor, v))
@@ -1253,6 +1258,16 @@ func CopyrightEQ(v bool) predicate.Article {
 // CopyrightNEQ applies the NEQ predicate on the "copyright" field.
 func CopyrightNEQ(v bool) predicate.Article {
 	return predicate.Article(sql.FieldNEQ(FieldCopyright, v))
+}
+
+// IsReprintEQ applies the EQ predicate on the "is_reprint" field.
+func IsReprintEQ(v bool) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldIsReprint, v))
+}
+
+// IsReprintNEQ applies the NEQ predicate on the "is_reprint" field.
+func IsReprintNEQ(v bool) predicate.Article {
+	return predicate.Article(sql.FieldNEQ(FieldIsReprint, v))
 }
 
 // CopyrightAuthorEQ applies the EQ predicate on the "copyright_author" field.

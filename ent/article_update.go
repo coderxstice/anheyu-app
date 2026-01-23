@@ -437,6 +437,20 @@ func (_u *ArticleUpdate) SetNillableCopyright(v *bool) *ArticleUpdate {
 	return _u
 }
 
+// SetIsReprint sets the "is_reprint" field.
+func (_u *ArticleUpdate) SetIsReprint(v bool) *ArticleUpdate {
+	_u.mutation.SetIsReprint(v)
+	return _u
+}
+
+// SetNillableIsReprint sets the "is_reprint" field if the given value is not nil.
+func (_u *ArticleUpdate) SetNillableIsReprint(v *bool) *ArticleUpdate {
+	if v != nil {
+		_u.SetIsReprint(*v)
+	}
+	return _u
+}
+
 // SetCopyrightAuthor sets the "copyright_author" field.
 func (_u *ArticleUpdate) SetCopyrightAuthor(v string) *ArticleUpdate {
 	_u.mutation.SetCopyrightAuthor(v)
@@ -1150,6 +1164,9 @@ func (_u *ArticleUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Copyright(); ok {
 		_spec.SetField(article.FieldCopyright, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.IsReprint(); ok {
+		_spec.SetField(article.FieldIsReprint, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.CopyrightAuthor(); ok {
 		_spec.SetField(article.FieldCopyrightAuthor, field.TypeString, value)
@@ -1876,6 +1893,20 @@ func (_u *ArticleUpdateOne) SetCopyright(v bool) *ArticleUpdateOne {
 func (_u *ArticleUpdateOne) SetNillableCopyright(v *bool) *ArticleUpdateOne {
 	if v != nil {
 		_u.SetCopyright(*v)
+	}
+	return _u
+}
+
+// SetIsReprint sets the "is_reprint" field.
+func (_u *ArticleUpdateOne) SetIsReprint(v bool) *ArticleUpdateOne {
+	_u.mutation.SetIsReprint(v)
+	return _u
+}
+
+// SetNillableIsReprint sets the "is_reprint" field if the given value is not nil.
+func (_u *ArticleUpdateOne) SetNillableIsReprint(v *bool) *ArticleUpdateOne {
+	if v != nil {
+		_u.SetIsReprint(*v)
 	}
 	return _u
 }
@@ -2623,6 +2654,9 @@ func (_u *ArticleUpdateOne) sqlSave(ctx context.Context) (_node *Article, err er
 	}
 	if value, ok := _u.mutation.Copyright(); ok {
 		_spec.SetField(article.FieldCopyright, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.IsReprint(); ok {
+		_spec.SetField(article.FieldIsReprint, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.CopyrightAuthor(); ok {
 		_spec.SetField(article.FieldCopyrightAuthor, field.TypeString, value)

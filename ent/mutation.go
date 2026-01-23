@@ -2722,6 +2722,7 @@ type ArticleMutation struct {
 	appendsummaries         []string
 	abbrlink                *string
 	copyright               *bool
+	is_reprint              *bool
 	copyright_author        *string
 	copyright_author_href   *string
 	copyright_url           *string
@@ -3911,6 +3912,42 @@ func (m *ArticleMutation) ResetCopyright() {
 	m.copyright = nil
 }
 
+// SetIsReprint sets the "is_reprint" field.
+func (m *ArticleMutation) SetIsReprint(b bool) {
+	m.is_reprint = &b
+}
+
+// IsReprint returns the value of the "is_reprint" field in the mutation.
+func (m *ArticleMutation) IsReprint() (r bool, exists bool) {
+	v := m.is_reprint
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsReprint returns the old "is_reprint" field's value of the Article entity.
+// If the Article object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ArticleMutation) OldIsReprint(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsReprint is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsReprint requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsReprint: %w", err)
+	}
+	return oldValue.IsReprint, nil
+}
+
+// ResetIsReprint resets all changes to the "is_reprint" field.
+func (m *ArticleMutation) ResetIsReprint() {
+	m.is_reprint = nil
+}
+
 // SetCopyrightAuthor sets the "copyright_author" field.
 func (m *ArticleMutation) SetCopyrightAuthor(s string) {
 	m.copyright_author = &s
@@ -5067,7 +5104,7 @@ func (m *ArticleMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ArticleMutation) Fields() []string {
-	fields := make([]string, 0, 40)
+	fields := make([]string, 0, 41)
 	if m.deleted_at != nil {
 		fields = append(fields, article.FieldDeletedAt)
 	}
@@ -5133,6 +5170,9 @@ func (m *ArticleMutation) Fields() []string {
 	}
 	if m.copyright != nil {
 		fields = append(fields, article.FieldCopyright)
+	}
+	if m.is_reprint != nil {
+		fields = append(fields, article.FieldIsReprint)
 	}
 	if m.copyright_author != nil {
 		fields = append(fields, article.FieldCopyrightAuthor)
@@ -5240,6 +5280,8 @@ func (m *ArticleMutation) Field(name string) (ent.Value, bool) {
 		return m.Abbrlink()
 	case article.FieldCopyright:
 		return m.Copyright()
+	case article.FieldIsReprint:
+		return m.IsReprint()
 	case article.FieldCopyrightAuthor:
 		return m.CopyrightAuthor()
 	case article.FieldCopyrightAuthorHref:
@@ -5329,6 +5371,8 @@ func (m *ArticleMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldAbbrlink(ctx)
 	case article.FieldCopyright:
 		return m.OldCopyright(ctx)
+	case article.FieldIsReprint:
+		return m.OldIsReprint(ctx)
 	case article.FieldCopyrightAuthor:
 		return m.OldCopyrightAuthor(ctx)
 	case article.FieldCopyrightAuthorHref:
@@ -5527,6 +5571,13 @@ func (m *ArticleMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCopyright(v)
+		return nil
+	case article.FieldIsReprint:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsReprint(v)
 		return nil
 	case article.FieldCopyrightAuthor:
 		v, ok := value.(string)
@@ -6014,6 +6065,9 @@ func (m *ArticleMutation) ResetField(name string) error {
 		return nil
 	case article.FieldCopyright:
 		m.ResetCopyright()
+		return nil
+	case article.FieldIsReprint:
+		m.ResetIsReprint()
 		return nil
 	case article.FieldCopyrightAuthor:
 		m.ResetCopyrightAuthor()

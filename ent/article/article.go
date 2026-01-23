@@ -60,6 +60,8 @@ const (
 	FieldAbbrlink = "abbrlink"
 	// FieldCopyright holds the string denoting the copyright field in the database.
 	FieldCopyright = "copyright"
+	// FieldIsReprint holds the string denoting the is_reprint field in the database.
+	FieldIsReprint = "is_reprint"
 	// FieldCopyrightAuthor holds the string denoting the copyright_author field in the database.
 	FieldCopyrightAuthor = "copyright_author"
 	// FieldCopyrightAuthorHref holds the string denoting the copyright_author_href field in the database.
@@ -166,6 +168,7 @@ var Columns = []string{
 	FieldSummaries,
 	FieldAbbrlink,
 	FieldCopyright,
+	FieldIsReprint,
 	FieldCopyrightAuthor,
 	FieldCopyrightAuthorHref,
 	FieldCopyrightURL,
@@ -248,6 +251,8 @@ var (
 	PinSortValidator func(int) error
 	// DefaultCopyright holds the default value on creation for the "copyright" field.
 	DefaultCopyright bool
+	// DefaultIsReprint holds the default value on creation for the "is_reprint" field.
+	DefaultIsReprint bool
 	// DefaultIsTakedown holds the default value on creation for the "is_takedown" field.
 	DefaultIsTakedown bool
 	// DefaultExcludeFromMembership holds the default value on creation for the "exclude_from_membership" field.
@@ -427,6 +432,11 @@ func ByAbbrlink(opts ...sql.OrderTermOption) OrderOption {
 // ByCopyright orders the results by the copyright field.
 func ByCopyright(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCopyright, opts...).ToFunc()
+}
+
+// ByIsReprint orders the results by the is_reprint field.
+func ByIsReprint(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsReprint, opts...).ToFunc()
 }
 
 // ByCopyrightAuthor orders the results by the copyright_author field.
