@@ -240,6 +240,21 @@ func DocSort(v int) predicate.Article {
 	return predicate.Article(sql.FieldEQ(FieldDocSort, v))
 }
 
+// ShowRewardButton applies equality check predicate on the "show_reward_button" field. It's identical to ShowRewardButtonEQ.
+func ShowRewardButton(v bool) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldShowRewardButton, v))
+}
+
+// ShowShareButton applies equality check predicate on the "show_share_button" field. It's identical to ShowShareButtonEQ.
+func ShowShareButton(v bool) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldShowShareButton, v))
+}
+
+// ShowSubscribeButton applies equality check predicate on the "show_subscribe_button" field. It's identical to ShowSubscribeButtonEQ.
+func ShowSubscribeButton(v bool) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldShowSubscribeButton, v))
+}
+
 // DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
 func DeletedAtEQ(v time.Time) predicate.Article {
 	return predicate.Article(sql.FieldEQ(FieldDeletedAt, v))
@@ -2098,6 +2113,36 @@ func DocSortLT(v int) predicate.Article {
 // DocSortLTE applies the LTE predicate on the "doc_sort" field.
 func DocSortLTE(v int) predicate.Article {
 	return predicate.Article(sql.FieldLTE(FieldDocSort, v))
+}
+
+// ShowRewardButtonEQ applies the EQ predicate on the "show_reward_button" field.
+func ShowRewardButtonEQ(v bool) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldShowRewardButton, v))
+}
+
+// ShowRewardButtonNEQ applies the NEQ predicate on the "show_reward_button" field.
+func ShowRewardButtonNEQ(v bool) predicate.Article {
+	return predicate.Article(sql.FieldNEQ(FieldShowRewardButton, v))
+}
+
+// ShowShareButtonEQ applies the EQ predicate on the "show_share_button" field.
+func ShowShareButtonEQ(v bool) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldShowShareButton, v))
+}
+
+// ShowShareButtonNEQ applies the NEQ predicate on the "show_share_button" field.
+func ShowShareButtonNEQ(v bool) predicate.Article {
+	return predicate.Article(sql.FieldNEQ(FieldShowShareButton, v))
+}
+
+// ShowSubscribeButtonEQ applies the EQ predicate on the "show_subscribe_button" field.
+func ShowSubscribeButtonEQ(v bool) predicate.Article {
+	return predicate.Article(sql.FieldEQ(FieldShowSubscribeButton, v))
+}
+
+// ShowSubscribeButtonNEQ applies the NEQ predicate on the "show_subscribe_button" field.
+func ShowSubscribeButtonNEQ(v bool) predicate.Article {
+	return predicate.Article(sql.FieldNEQ(FieldShowSubscribeButton, v))
 }
 
 // HasPostTags applies the HasEdge predicate on the "post_tags" edge.

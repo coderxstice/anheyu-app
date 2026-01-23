@@ -577,6 +577,48 @@ func (_c *ArticleCreate) SetNillableDocSort(v *int) *ArticleCreate {
 	return _c
 }
 
+// SetShowRewardButton sets the "show_reward_button" field.
+func (_c *ArticleCreate) SetShowRewardButton(v bool) *ArticleCreate {
+	_c.mutation.SetShowRewardButton(v)
+	return _c
+}
+
+// SetNillableShowRewardButton sets the "show_reward_button" field if the given value is not nil.
+func (_c *ArticleCreate) SetNillableShowRewardButton(v *bool) *ArticleCreate {
+	if v != nil {
+		_c.SetShowRewardButton(*v)
+	}
+	return _c
+}
+
+// SetShowShareButton sets the "show_share_button" field.
+func (_c *ArticleCreate) SetShowShareButton(v bool) *ArticleCreate {
+	_c.mutation.SetShowShareButton(v)
+	return _c
+}
+
+// SetNillableShowShareButton sets the "show_share_button" field if the given value is not nil.
+func (_c *ArticleCreate) SetNillableShowShareButton(v *bool) *ArticleCreate {
+	if v != nil {
+		_c.SetShowShareButton(*v)
+	}
+	return _c
+}
+
+// SetShowSubscribeButton sets the "show_subscribe_button" field.
+func (_c *ArticleCreate) SetShowSubscribeButton(v bool) *ArticleCreate {
+	_c.mutation.SetShowSubscribeButton(v)
+	return _c
+}
+
+// SetNillableShowSubscribeButton sets the "show_subscribe_button" field if the given value is not nil.
+func (_c *ArticleCreate) SetNillableShowSubscribeButton(v *bool) *ArticleCreate {
+	if v != nil {
+		_c.SetShowSubscribeButton(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *ArticleCreate) SetID(v uint) *ArticleCreate {
 	_c.mutation.SetID(v)
@@ -767,6 +809,18 @@ func (_c *ArticleCreate) defaults() error {
 		v := article.DefaultDocSort
 		_c.mutation.SetDocSort(v)
 	}
+	if _, ok := _c.mutation.ShowRewardButton(); !ok {
+		v := article.DefaultShowRewardButton
+		_c.mutation.SetShowRewardButton(v)
+	}
+	if _, ok := _c.mutation.ShowShareButton(); !ok {
+		v := article.DefaultShowShareButton
+		_c.mutation.SetShowShareButton(v)
+	}
+	if _, ok := _c.mutation.ShowSubscribeButton(); !ok {
+		v := article.DefaultShowSubscribeButton
+		_c.mutation.SetShowSubscribeButton(v)
+	}
 	return nil
 }
 
@@ -873,6 +927,15 @@ func (_c *ArticleCreate) check() error {
 		if err := article.DocSortValidator(v); err != nil {
 			return &ValidationError{Name: "doc_sort", err: fmt.Errorf(`ent: validator failed for field "Article.doc_sort": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.ShowRewardButton(); !ok {
+		return &ValidationError{Name: "show_reward_button", err: errors.New(`ent: missing required field "Article.show_reward_button"`)}
+	}
+	if _, ok := _c.mutation.ShowShareButton(); !ok {
+		return &ValidationError{Name: "show_share_button", err: errors.New(`ent: missing required field "Article.show_share_button"`)}
+	}
+	if _, ok := _c.mutation.ShowSubscribeButton(); !ok {
+		return &ValidationError{Name: "show_subscribe_button", err: errors.New(`ent: missing required field "Article.show_subscribe_button"`)}
 	}
 	return nil
 }
@@ -1066,6 +1129,18 @@ func (_c *ArticleCreate) createSpec() (*Article, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DocSort(); ok {
 		_spec.SetField(article.FieldDocSort, field.TypeInt, value)
 		_node.DocSort = value
+	}
+	if value, ok := _c.mutation.ShowRewardButton(); ok {
+		_spec.SetField(article.FieldShowRewardButton, field.TypeBool, value)
+		_node.ShowRewardButton = value
+	}
+	if value, ok := _c.mutation.ShowShareButton(); ok {
+		_spec.SetField(article.FieldShowShareButton, field.TypeBool, value)
+		_node.ShowShareButton = value
+	}
+	if value, ok := _c.mutation.ShowSubscribeButton(); ok {
+		_spec.SetField(article.FieldShowSubscribeButton, field.TypeBool, value)
+		_node.ShowSubscribeButton = value
 	}
 	if nodes := _c.mutation.PostTagsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -1875,6 +1950,42 @@ func (u *ArticleUpsert) UpdateDocSort() *ArticleUpsert {
 // AddDocSort adds v to the "doc_sort" field.
 func (u *ArticleUpsert) AddDocSort(v int) *ArticleUpsert {
 	u.Add(article.FieldDocSort, v)
+	return u
+}
+
+// SetShowRewardButton sets the "show_reward_button" field.
+func (u *ArticleUpsert) SetShowRewardButton(v bool) *ArticleUpsert {
+	u.Set(article.FieldShowRewardButton, v)
+	return u
+}
+
+// UpdateShowRewardButton sets the "show_reward_button" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateShowRewardButton() *ArticleUpsert {
+	u.SetExcluded(article.FieldShowRewardButton)
+	return u
+}
+
+// SetShowShareButton sets the "show_share_button" field.
+func (u *ArticleUpsert) SetShowShareButton(v bool) *ArticleUpsert {
+	u.Set(article.FieldShowShareButton, v)
+	return u
+}
+
+// UpdateShowShareButton sets the "show_share_button" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateShowShareButton() *ArticleUpsert {
+	u.SetExcluded(article.FieldShowShareButton)
+	return u
+}
+
+// SetShowSubscribeButton sets the "show_subscribe_button" field.
+func (u *ArticleUpsert) SetShowSubscribeButton(v bool) *ArticleUpsert {
+	u.Set(article.FieldShowSubscribeButton, v)
+	return u
+}
+
+// UpdateShowSubscribeButton sets the "show_subscribe_button" field to the value that was provided on create.
+func (u *ArticleUpsert) UpdateShowSubscribeButton() *ArticleUpsert {
+	u.SetExcluded(article.FieldShowSubscribeButton)
 	return u
 }
 
@@ -2714,6 +2825,48 @@ func (u *ArticleUpsertOne) AddDocSort(v int) *ArticleUpsertOne {
 func (u *ArticleUpsertOne) UpdateDocSort() *ArticleUpsertOne {
 	return u.Update(func(s *ArticleUpsert) {
 		s.UpdateDocSort()
+	})
+}
+
+// SetShowRewardButton sets the "show_reward_button" field.
+func (u *ArticleUpsertOne) SetShowRewardButton(v bool) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetShowRewardButton(v)
+	})
+}
+
+// UpdateShowRewardButton sets the "show_reward_button" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateShowRewardButton() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateShowRewardButton()
+	})
+}
+
+// SetShowShareButton sets the "show_share_button" field.
+func (u *ArticleUpsertOne) SetShowShareButton(v bool) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetShowShareButton(v)
+	})
+}
+
+// UpdateShowShareButton sets the "show_share_button" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateShowShareButton() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateShowShareButton()
+	})
+}
+
+// SetShowSubscribeButton sets the "show_subscribe_button" field.
+func (u *ArticleUpsertOne) SetShowSubscribeButton(v bool) *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetShowSubscribeButton(v)
+	})
+}
+
+// UpdateShowSubscribeButton sets the "show_subscribe_button" field to the value that was provided on create.
+func (u *ArticleUpsertOne) UpdateShowSubscribeButton() *ArticleUpsertOne {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateShowSubscribeButton()
 	})
 }
 
@@ -3719,6 +3872,48 @@ func (u *ArticleUpsertBulk) AddDocSort(v int) *ArticleUpsertBulk {
 func (u *ArticleUpsertBulk) UpdateDocSort() *ArticleUpsertBulk {
 	return u.Update(func(s *ArticleUpsert) {
 		s.UpdateDocSort()
+	})
+}
+
+// SetShowRewardButton sets the "show_reward_button" field.
+func (u *ArticleUpsertBulk) SetShowRewardButton(v bool) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetShowRewardButton(v)
+	})
+}
+
+// UpdateShowRewardButton sets the "show_reward_button" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateShowRewardButton() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateShowRewardButton()
+	})
+}
+
+// SetShowShareButton sets the "show_share_button" field.
+func (u *ArticleUpsertBulk) SetShowShareButton(v bool) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetShowShareButton(v)
+	})
+}
+
+// UpdateShowShareButton sets the "show_share_button" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateShowShareButton() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateShowShareButton()
+	})
+}
+
+// SetShowSubscribeButton sets the "show_subscribe_button" field.
+func (u *ArticleUpsertBulk) SetShowSubscribeButton(v bool) *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.SetShowSubscribeButton(v)
+	})
+}
+
+// UpdateShowSubscribeButton sets the "show_subscribe_button" field to the value that was provided on create.
+func (u *ArticleUpsertBulk) UpdateShowSubscribeButton() *ArticleUpsertBulk {
+	return u.Update(func(s *ArticleUpsert) {
+		s.UpdateShowSubscribeButton()
 	})
 }
 

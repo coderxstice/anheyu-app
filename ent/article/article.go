@@ -98,6 +98,12 @@ const (
 	FieldDocSeriesID = "doc_series_id"
 	// FieldDocSort holds the string denoting the doc_sort field in the database.
 	FieldDocSort = "doc_sort"
+	// FieldShowRewardButton holds the string denoting the show_reward_button field in the database.
+	FieldShowRewardButton = "show_reward_button"
+	// FieldShowShareButton holds the string denoting the show_share_button field in the database.
+	FieldShowShareButton = "show_share_button"
+	// FieldShowSubscribeButton holds the string denoting the show_subscribe_button field in the database.
+	FieldShowSubscribeButton = "show_subscribe_button"
 	// EdgePostTags holds the string denoting the post_tags edge name in mutations.
 	EdgePostTags = "post_tags"
 	// EdgePostCategories holds the string denoting the post_categories edge name in mutations.
@@ -187,6 +193,9 @@ var Columns = []string{
 	FieldIsDoc,
 	FieldDocSeriesID,
 	FieldDocSort,
+	FieldShowRewardButton,
+	FieldShowShareButton,
+	FieldShowSubscribeButton,
 }
 
 var (
@@ -263,6 +272,12 @@ var (
 	DefaultDocSort int
 	// DocSortValidator is a validator for the "doc_sort" field. It is called by the builders before save.
 	DocSortValidator func(int) error
+	// DefaultShowRewardButton holds the default value on creation for the "show_reward_button" field.
+	DefaultShowRewardButton bool
+	// DefaultShowShareButton holds the default value on creation for the "show_share_button" field.
+	DefaultShowShareButton bool
+	// DefaultShowSubscribeButton holds the default value on creation for the "show_subscribe_button" field.
+	DefaultShowSubscribeButton bool
 )
 
 // Status defines the type for the "status" enum field.
@@ -522,6 +537,21 @@ func ByDocSeriesID(opts ...sql.OrderTermOption) OrderOption {
 // ByDocSort orders the results by the doc_sort field.
 func ByDocSort(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDocSort, opts...).ToFunc()
+}
+
+// ByShowRewardButton orders the results by the show_reward_button field.
+func ByShowRewardButton(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldShowRewardButton, opts...).ToFunc()
+}
+
+// ByShowShareButton orders the results by the show_share_button field.
+func ByShowShareButton(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldShowShareButton, opts...).ToFunc()
+}
+
+// ByShowSubscribeButton orders the results by the show_subscribe_button field.
+func ByShowSubscribeButton(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldShowSubscribeButton, opts...).ToFunc()
 }
 
 // ByPostTagsCount orders the results by post_tags count.

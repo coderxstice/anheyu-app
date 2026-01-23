@@ -230,6 +230,18 @@ func init() {
 	article.DefaultDocSort = articleDescDocSort.Default.(int)
 	// article.DocSortValidator is a validator for the "doc_sort" field. It is called by the builders before save.
 	article.DocSortValidator = articleDescDocSort.Validators[0].(func(int) error)
+	// articleDescShowRewardButton is the schema descriptor for show_reward_button field.
+	articleDescShowRewardButton := articleFields[41].Descriptor()
+	// article.DefaultShowRewardButton holds the default value on creation for the show_reward_button field.
+	article.DefaultShowRewardButton = articleDescShowRewardButton.Default.(bool)
+	// articleDescShowShareButton is the schema descriptor for show_share_button field.
+	articleDescShowShareButton := articleFields[42].Descriptor()
+	// article.DefaultShowShareButton holds the default value on creation for the show_share_button field.
+	article.DefaultShowShareButton = articleDescShowShareButton.Default.(bool)
+	// articleDescShowSubscribeButton is the schema descriptor for show_subscribe_button field.
+	articleDescShowSubscribeButton := articleFields[43].Descriptor()
+	// article.DefaultShowSubscribeButton holds the default value on creation for the show_subscribe_button field.
+	article.DefaultShowSubscribeButton = articleDescShowSubscribeButton.Default.(bool)
 	articlehistoryFields := schema.ArticleHistory{}.Fields()
 	_ = articlehistoryFields
 	// articlehistoryDescVersion is the schema descriptor for version field.

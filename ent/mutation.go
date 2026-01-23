@@ -2743,6 +2743,9 @@ type ArticleMutation struct {
 	is_doc                  *bool
 	doc_sort                *int
 	adddoc_sort             *int
+	show_reward_button      *bool
+	show_share_button       *bool
+	show_subscribe_button   *bool
 	clearedFields           map[string]struct{}
 	post_tags               map[uint]struct{}
 	removedpost_tags        map[uint]struct{}
@@ -4827,6 +4830,114 @@ func (m *ArticleMutation) ResetDocSort() {
 	m.adddoc_sort = nil
 }
 
+// SetShowRewardButton sets the "show_reward_button" field.
+func (m *ArticleMutation) SetShowRewardButton(b bool) {
+	m.show_reward_button = &b
+}
+
+// ShowRewardButton returns the value of the "show_reward_button" field in the mutation.
+func (m *ArticleMutation) ShowRewardButton() (r bool, exists bool) {
+	v := m.show_reward_button
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldShowRewardButton returns the old "show_reward_button" field's value of the Article entity.
+// If the Article object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ArticleMutation) OldShowRewardButton(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldShowRewardButton is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldShowRewardButton requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldShowRewardButton: %w", err)
+	}
+	return oldValue.ShowRewardButton, nil
+}
+
+// ResetShowRewardButton resets all changes to the "show_reward_button" field.
+func (m *ArticleMutation) ResetShowRewardButton() {
+	m.show_reward_button = nil
+}
+
+// SetShowShareButton sets the "show_share_button" field.
+func (m *ArticleMutation) SetShowShareButton(b bool) {
+	m.show_share_button = &b
+}
+
+// ShowShareButton returns the value of the "show_share_button" field in the mutation.
+func (m *ArticleMutation) ShowShareButton() (r bool, exists bool) {
+	v := m.show_share_button
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldShowShareButton returns the old "show_share_button" field's value of the Article entity.
+// If the Article object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ArticleMutation) OldShowShareButton(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldShowShareButton is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldShowShareButton requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldShowShareButton: %w", err)
+	}
+	return oldValue.ShowShareButton, nil
+}
+
+// ResetShowShareButton resets all changes to the "show_share_button" field.
+func (m *ArticleMutation) ResetShowShareButton() {
+	m.show_share_button = nil
+}
+
+// SetShowSubscribeButton sets the "show_subscribe_button" field.
+func (m *ArticleMutation) SetShowSubscribeButton(b bool) {
+	m.show_subscribe_button = &b
+}
+
+// ShowSubscribeButton returns the value of the "show_subscribe_button" field in the mutation.
+func (m *ArticleMutation) ShowSubscribeButton() (r bool, exists bool) {
+	v := m.show_subscribe_button
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldShowSubscribeButton returns the old "show_subscribe_button" field's value of the Article entity.
+// If the Article object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ArticleMutation) OldShowSubscribeButton(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldShowSubscribeButton is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldShowSubscribeButton requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldShowSubscribeButton: %w", err)
+	}
+	return oldValue.ShowSubscribeButton, nil
+}
+
+// ResetShowSubscribeButton resets all changes to the "show_subscribe_button" field.
+func (m *ArticleMutation) ResetShowSubscribeButton() {
+	m.show_subscribe_button = nil
+}
+
 // AddPostTagIDs adds the "post_tags" edge to the PostTag entity by ids.
 func (m *ArticleMutation) AddPostTagIDs(ids ...uint) {
 	if m.post_tags == nil {
@@ -5104,7 +5215,7 @@ func (m *ArticleMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ArticleMutation) Fields() []string {
-	fields := make([]string, 0, 41)
+	fields := make([]string, 0, 44)
 	if m.deleted_at != nil {
 		fields = append(fields, article.FieldDeletedAt)
 	}
@@ -5228,6 +5339,15 @@ func (m *ArticleMutation) Fields() []string {
 	if m.doc_sort != nil {
 		fields = append(fields, article.FieldDocSort)
 	}
+	if m.show_reward_button != nil {
+		fields = append(fields, article.FieldShowRewardButton)
+	}
+	if m.show_share_button != nil {
+		fields = append(fields, article.FieldShowShareButton)
+	}
+	if m.show_subscribe_button != nil {
+		fields = append(fields, article.FieldShowSubscribeButton)
+	}
 	return fields
 }
 
@@ -5318,6 +5438,12 @@ func (m *ArticleMutation) Field(name string) (ent.Value, bool) {
 		return m.DocSeriesID()
 	case article.FieldDocSort:
 		return m.DocSort()
+	case article.FieldShowRewardButton:
+		return m.ShowRewardButton()
+	case article.FieldShowShareButton:
+		return m.ShowShareButton()
+	case article.FieldShowSubscribeButton:
+		return m.ShowSubscribeButton()
 	}
 	return nil, false
 }
@@ -5409,6 +5535,12 @@ func (m *ArticleMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldDocSeriesID(ctx)
 	case article.FieldDocSort:
 		return m.OldDocSort(ctx)
+	case article.FieldShowRewardButton:
+		return m.OldShowRewardButton(ctx)
+	case article.FieldShowShareButton:
+		return m.OldShowShareButton(ctx)
+	case article.FieldShowSubscribeButton:
+		return m.OldShowSubscribeButton(ctx)
 	}
 	return nil, fmt.Errorf("unknown Article field %s", name)
 }
@@ -5704,6 +5836,27 @@ func (m *ArticleMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDocSort(v)
+		return nil
+	case article.FieldShowRewardButton:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetShowRewardButton(v)
+		return nil
+	case article.FieldShowShareButton:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetShowShareButton(v)
+		return nil
+	case article.FieldShowSubscribeButton:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetShowSubscribeButton(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Article field %s", name)
@@ -6122,6 +6275,15 @@ func (m *ArticleMutation) ResetField(name string) error {
 		return nil
 	case article.FieldDocSort:
 		m.ResetDocSort()
+		return nil
+	case article.FieldShowRewardButton:
+		m.ResetShowRewardButton()
+		return nil
+	case article.FieldShowShareButton:
+		m.ResetShowShareButton()
+		return nil
+	case article.FieldShowSubscribeButton:
+		m.ResetShowSubscribeButton()
 		return nil
 	}
 	return fmt.Errorf("unknown Article field %s", name)

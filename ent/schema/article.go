@@ -169,6 +169,17 @@ func (Article) Fields() []ent.Field {
 			Comment("文档在系列中的排序，数值越小越靠前").
 			Default(0).
 			NonNegative(),
+
+		// --- 版权区域按钮显示控制字段 ---
+		field.Bool("show_reward_button").
+			Comment("是否显示打赏作者按钮").
+			Default(true),
+		field.Bool("show_share_button").
+			Comment("是否显示分享按钮").
+			Default(true),
+		field.Bool("show_subscribe_button").
+			Comment("是否显示订阅按钮").
+			Default(true),
 	}
 }
 

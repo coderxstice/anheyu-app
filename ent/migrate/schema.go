@@ -106,6 +106,9 @@ var (
 		{Name: "exclude_from_membership", Type: field.TypeBool, Comment: "是否排除在会员权益外：true表示会员也需要单独购买此文章", Default: false},
 		{Name: "is_doc", Type: field.TypeBool, Comment: "是否为文档模式：文档模式的文章会在文档页面展示", Default: false},
 		{Name: "doc_sort", Type: field.TypeInt, Comment: "文档在系列中的排序，数值越小越靠前", Default: 0},
+		{Name: "show_reward_button", Type: field.TypeBool, Comment: "是否显示打赏作者按钮", Default: true},
+		{Name: "show_share_button", Type: field.TypeBool, Comment: "是否显示分享按钮", Default: true},
+		{Name: "show_subscribe_button", Type: field.TypeBool, Comment: "是否显示订阅按钮", Default: true},
 		{Name: "doc_series_id", Type: field.TypeUint, Nullable: true, Comment: "文档系列ID，关联到doc_series表"},
 	}
 	// ArticlesTable holds the schema information for the "articles" table.
@@ -117,7 +120,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "articles_doc_series_articles",
-				Columns:    []*schema.Column{ArticlesColumns[41]},
+				Columns:    []*schema.Column{ArticlesColumns[44]},
 				RefColumns: []*schema.Column{DocSeriesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
