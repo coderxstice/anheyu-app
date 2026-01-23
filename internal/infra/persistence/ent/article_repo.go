@@ -95,6 +95,7 @@ func (r *articleRepo) toModel(a *ent.Article) *model.Article {
 		Summaries:            a.Summaries,
 		Abbrlink:             abbrlinkStr,
 		Copyright:            a.Copyright,
+		IsReprint:            a.IsReprint,
 		CopyrightAuthor:      a.CopyrightAuthor,
 		CopyrightAuthorHref:  a.CopyrightAuthorHref,
 		CopyrightURL:         a.CopyrightURL,
@@ -520,6 +521,7 @@ func (r *articleRepo) Create(ctx context.Context, params *model.CreateArticlePar
 		SetTopImgURL(topImgURL).
 		SetSummaries(params.Summaries).
 		SetCopyright(params.Copyright).
+		SetIsReprint(params.IsReprint).
 		SetCopyrightAuthor(params.CopyrightAuthor).
 		SetCopyrightAuthorHref(params.CopyrightAuthorHref).
 		SetCopyrightURL(params.CopyrightURL).
@@ -668,6 +670,9 @@ func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.Up
 	}
 	if req.Copyright != nil {
 		updater.SetCopyright(*req.Copyright)
+	}
+	if req.IsReprint != nil {
+		updater.SetIsReprint(*req.IsReprint)
 	}
 	if req.CopyrightAuthor != nil {
 		updater.SetCopyrightAuthor(*req.CopyrightAuthor)
