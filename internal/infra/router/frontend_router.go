@@ -172,6 +172,23 @@ func getRequestScheme(c *gin.Context) string {
 	return "http"
 }
 
+// getCanonicalURL 获取用于 SEO 的规范 URL
+// 优先使用系统配置的 SITE_URL，确保 og:url、canonical 等标签使用正确的域名
+// 而不是从请求中获取的可能是内部地址（如 127.0.0.1）的 Host
+func getCanonicalURL(c *gin.Context, settingSvc setting.SettingService) string {
+	// 优先使用系统配置的 SITE_URL
+	siteURL := settingSvc.Get(constant.KeySiteURL.String())
+	if siteURL != "" {
+		// 移除末尾斜杠，避免重复
+		siteURL = strings.TrimSuffix(siteURL, "/")
+		// 拼接请求路径
+		return siteURL + c.Request.URL.RequestURI()
+	}
+
+	// 回退：从请求中构建 URL（可能不准确，但保持向后兼容）
+	return fmt.Sprintf("%s://%s%s", getRequestScheme(c), c.Request.Host, c.Request.URL.RequestURI())
+}
+
 // generateFileETag 为文件生成基于内容的ETag
 func generateFileETag(filePath string, modTime time.Time, size int64) string {
 	// 使用文件路径、修改时间和大小生成ETag，避免读取大文件内容
@@ -1119,8 +1136,8 @@ func renderHTMLPageWithAdminRewrite(c *gin.Context, settingSvc setting.SettingSe
 	c.Header("Expires", "0")
 	c.Header("Content-Type", "text/html; charset=utf-8")
 
-	// 获取完整的当前页面 URL
-	fullURL := fmt.Sprintf("%s://%s%s", getRequestScheme(c), c.Request.Host, c.Request.URL.RequestURI())
+	// 获取用于 SEO 的规范 URL（优先使用 SITE_URL 配置）
+	fullURL := getCanonicalURL(c, settingSvc)
 
 	// 获取默认页面数据
 	defaultTitle := fmt.Sprintf("%s - %s", settingSvc.Get(constant.KeyAppName.String()), settingSvc.Get(constant.KeySubTitle.String()))
@@ -1182,8 +1199,8 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 	c.Header("Pragma", "no-cache")
 	c.Header("Expires", "0")
 
-	// 获取完整的当前页面 URL
-	fullURL := fmt.Sprintf("%s://%s%s", getRequestScheme(c), c.Request.Host, c.Request.URL.RequestURI())
+	// 获取用于 SEO 的规范 URL（优先使用 SITE_URL 配置）
+	fullURL := getCanonicalURL(c, settingSvc)
 
 	isPostDetail, _ := regexp.MatchString(`^/posts/([^/]+)$`, c.Request.URL.Path)
 	if isPostDetail {
