@@ -484,6 +484,11 @@ var AllSettings = []Definition{
 	// --- 人机验证配置 ---
 	{Key: constant.KeyCaptchaProvider, Value: "none", Comment: "人机验证方式: none(不启用) / turnstile(Cloudflare Turnstile) / geetest(极验4.0) / image(系统图形验证码)", IsPublic: true},
 
+	// --- 微信分享配置 ---
+	{Key: constant.KeyWechatShareEnable, Value: "false", Comment: "是否启用微信分享功能 (true/false)", IsPublic: true},
+	{Key: constant.KeyWechatShareAppID, Value: "", Comment: "微信公众号 AppID", IsPublic: true},
+	{Key: constant.KeyWechatShareAppSecret, Value: "", Comment: "微信公众号 AppSecret（用于生成 JS-SDK 签名）", IsPublic: false},
+
 	// --- Cloudflare Turnstile 人机验证配置 ---
 	{Key: constant.KeyTurnstileEnable, Value: "false", Comment: "是否启用 Cloudflare Turnstile 人机验证 (true/false)，已废弃，请使用 captcha.provider", IsPublic: true},
 	{Key: constant.KeyTurnstileSiteKey, Value: "", Comment: "Turnstile Site Key（公钥，前端使用，从 Cloudflare 控制台获取）", IsPublic: true},

@@ -702,6 +702,9 @@ func (r *Router) registerThemeRoutes(api *gin.RouterGroup) {
 
 		// 检查静态模式状态: GET /api/public/theme/static-mode
 		themePublic.GET("/static-mode", r.themeHandler.CheckStaticMode)
+
+		// 获取当前主题配置（公开接口，供前端主题使用）: GET /api/public/theme/config
+		themePublic.GET("/config", r.themeHandler.GetPublicThemeConfig)
 	}
 
 	// 需要登录的主题管理接口
@@ -730,6 +733,20 @@ func (r *Router) registerThemeRoutes(api *gin.RouterGroup) {
 
 		// 卸载主题: POST /api/theme/uninstall
 		themeAuth.POST("/uninstall", r.themeHandler.UninstallTheme)
+
+		// ===== 主题配置相关 =====
+
+		// 获取主题配置定义: GET /api/theme/settings?theme_name=xxx
+		themeAuth.GET("/settings", r.themeHandler.GetThemeSettings)
+
+		// 获取用户主题配置: GET /api/theme/config?theme_name=xxx
+		themeAuth.GET("/config", r.themeHandler.GetUserThemeConfig)
+
+		// 保存用户主题配置: POST /api/theme/config
+		themeAuth.POST("/config", r.themeHandler.SaveUserThemeConfig)
+
+		// 获取当前主题的完整配置（定义+值）: GET /api/theme/current-config
+		themeAuth.GET("/current-config", r.themeHandler.GetCurrentThemeConfig)
 	}
 }
 

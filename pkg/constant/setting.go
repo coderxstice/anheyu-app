@@ -378,6 +378,11 @@ const (
 	// --- 人机验证配置 ---
 	KeyCaptchaProvider SettingKey = "captcha.provider" // 人机验证方式：turnstile / geetest / image / none
 
+	// --- 微信分享配置 ---
+	KeyWechatShareEnable    SettingKey = "wechat.share.enable"     // 是否启用微信分享功能
+	KeyWechatShareAppID     SettingKey = "wechat.share.app_id"     // 微信公众号 AppID
+	KeyWechatShareAppSecret SettingKey = "wechat.share.app_secret" // 微信公众号 AppSecret
+
 	// --- Cloudflare Turnstile 人机验证配置 ---
 	KeyTurnstileEnable    SettingKey = "turnstile.enable"     // 是否启用 Turnstile 人机验证（已废弃，使用 captcha.provider）
 	KeyTurnstileSiteKey   SettingKey = "turnstile.site_key"   // Turnstile Site Key（公钥，前端使用）
