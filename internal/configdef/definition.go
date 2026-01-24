@@ -178,6 +178,11 @@ var AllSettings = []Definition{
 	{Key: constant.KeyPostCopyrightReprintTemplateWithUrl, Value: "", Comment: "转载文章版权声明模板（有原文链接），支持变量：{originalAuthor}原作者、{originalUrl}原文链接", IsPublic: true},
 	{Key: constant.KeyPostCopyrightReprintTemplateWithoutUrl, Value: "", Comment: "转载文章版权声明模板（无原文链接），支持变量：{originalAuthor}原作者", IsPublic: true},
 
+	// 版权区域按钮全局开关
+	{Key: constant.KeyPostCopyrightShowRewardButton, Value: "true", Comment: "是否显示打赏按钮 (true/false)，全局控制所有文章底部是否显示打赏按钮", IsPublic: true},
+	{Key: constant.KeyPostCopyrightShowShareButton, Value: "true", Comment: "是否显示分享按钮 (true/false)，全局控制所有文章底部是否显示分享按钮", IsPublic: true},
+	{Key: constant.KeyPostCopyrightShowSubscribeButton, Value: "true", Comment: "是否显示订阅按钮 (true/false)，全局控制所有文章底部是否显示订阅按钮", IsPublic: true},
+
 	// 文章订阅配置
 	{Key: constant.KeyPostSubscribeEnable, Value: "false", Comment: "是否启用文章订阅功能 (true/false)", IsPublic: true},
 	{Key: constant.KeyPostSubscribeButtonText, Value: "订阅", Comment: "订阅按钮文案", IsPublic: true},
