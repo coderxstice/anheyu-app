@@ -1,6 +1,7 @@
 package router
 
 import (
+	"bytes"
 	"crypto/md5"
 	"embed"
 	"encoding/json"
@@ -464,6 +465,33 @@ func shouldReturnIndexHTML(path string) bool {
 	return true
 }
 
+// isAdminPath 判断是否是后台管理路径
+// 后台路径始终使用官方内嵌资源，不受外部主题影响
+func isAdminPath(path string) bool {
+	adminPrefixes := []string{
+		"/admin", // 后台管理页面
+		"/login", // 登录页面（后台入口）
+	}
+
+	for _, prefix := range adminPrefixes {
+		if path == prefix || strings.HasPrefix(path, prefix+"/") {
+			return true
+		}
+	}
+	return false
+}
+
+// shouldUseExternalTheme 判断当前路径是否应该使用外部主题
+// 只有前台页面且 static 目录存在时才使用外部主题
+func shouldUseExternalTheme(path string) bool {
+	// 后台路径始终使用官方内嵌资源
+	if isAdminPath(path) {
+		return false
+	}
+	// 前台路径：检查是否有外部主题
+	return isStaticModeActive()
+}
+
 // isStaticModeActive 检查是否使用静态模式（与主题服务保持一致）
 func isStaticModeActive() bool {
 	staticDirName := "static"
@@ -520,17 +548,17 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 	isDebugMode = cfg.GetBool(config.KeyServerDebug)
 
 	// 启动时打印主题模式信息
+	log.Println("========================================")
+	log.Println("🎨 前后台分离主题系统已启用")
+	log.Println("   后台管理 (/admin/*, /login): 始终使用官方内嵌资源")
 	if isStaticModeActive() {
-		log.Println("========================================")
-		log.Println("🎨 前端主题模式: 外部主题模式 (static 目录)")
-		log.Println("   说明: 检测到 static/index.html，将从 static 目录加载前端资源")
-		log.Println("========================================")
+		log.Println("   前台展示 (其他路径): 外部主题模式 (static 目录)")
+		log.Println("   说明: 检测到 static/index.html，前台将从 static 目录加载")
 	} else {
-		log.Println("========================================")
-		log.Println("🎨 前端主题模式: 内嵌主题模式 (embed)")
-		log.Println("   说明: 未检测到 static/index.html，将使用内嵌的前端资源")
-		log.Println("========================================")
+		log.Println("   前台展示 (其他路径): 官方主题模式 (embed)")
+		log.Println("   说明: 未检测到 static/index.html，前台将使用内嵌资源")
 	}
+	log.Println("========================================")
 
 	debugLog("正在配置动态前端路由系统...")
 
@@ -561,7 +589,58 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 		log.Fatalf("解析嵌入式HTML模板失败: %v", err)
 	}
 
-	// 动态静态文件路由 - 每次请求都检查静态模式（支持压缩）
+	// 后台专用静态文件路由 - 始终从 embed 读取，不受外部主题影响
+	// 这是前后台分离的关键：后台的 JS/CSS 使用 /admin-static/ 路径
+	engine.GET("/admin-static/*filepath", func(c *gin.Context) {
+		filePath := strings.TrimPrefix(c.Param("filepath"), "/")
+		debugLog("后台静态资源请求: %s (始终使用内嵌资源)", filePath)
+
+		// 首先尝试提供压缩文件
+		if compressed, compressedPath, modTime, size := tryServeCompressedFile(c, "static/"+filePath, false, distFS); compressed {
+			etag := generateFileETag(compressedPath, modTime, size)
+			if handleStaticFileConditionalRequest(c, etag, "static/"+filePath) {
+				return
+			}
+			c.Header("ETag", etag)
+			if isHTMLFile(filePath) {
+				c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+				c.Header("Pragma", "no-cache")
+				c.Header("Expires", "0")
+			} else {
+				c.Header("Cache-Control", "public, max-age=31536000, must-revalidate")
+			}
+			c.Header("Vary", "Accept-Encoding")
+			http.ServeFileFS(c.Writer, c.Request, distFS, compressedPath)
+			return
+		}
+
+		// 提供原始文件
+		staticFilePath := "static/" + filePath
+		if file, err := distFS.Open(staticFilePath); err == nil {
+			defer file.Close()
+			if stat, err := file.Stat(); err == nil && !stat.IsDir() {
+				etag := generateFileETag(filePath, stat.ModTime(), stat.Size())
+				if handleStaticFileConditionalRequest(c, etag, filePath) {
+					return
+				}
+				c.Header("ETag", etag)
+				if isHTMLFile(filePath) {
+					c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+					c.Header("Pragma", "no-cache")
+					c.Header("Expires", "0")
+				} else {
+					c.Header("Cache-Control", "public, max-age=31536000, must-revalidate")
+				}
+				c.Header("Vary", "Accept-Encoding")
+				c.Header("Content-Type", getContentType(filePath))
+				http.ServeFileFS(c.Writer, c.Request, distFS, staticFilePath)
+				return
+			}
+		}
+		c.Status(http.StatusNotFound)
+	})
+
+	// 动态静态文件路由 - 前台静态资源，根据外部主题是否存在决定来源
 	engine.GET("/static/*filepath", func(c *gin.Context) {
 		filePath := strings.TrimPrefix(c.Param("filepath"), "/")
 		staticMode := isStaticModeActive()
@@ -687,12 +766,15 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 		if shouldReturnIndexHTML(path) {
 			debugLog("SPA路由请求: %s，返回index.html让前端处理", path)
 
-			// 渲染HTML页面
-			staticMode := isStaticModeActive()
+			// 核心改进：根据路径决定使用哪个模板
+			// - 后台路径（/admin/*, /login）：始终使用官方内嵌模板，且静态资源路径重写
+			// - 前台路径：根据 static 目录是否存在决定
+			isAdmin := isAdminPath(path)
+			useExternalTheme := shouldUseExternalTheme(path)
 			var templateInstance *template.Template
 
-			if staticMode {
-				debugLog("动态路由：当前使用外部主题模式，路径: %s", path)
+			if useExternalTheme {
+				debugLog("动态路由：前台页面使用外部主题模式，路径: %s", path)
 				// 每次都重新解析外部模板，确保获取最新内容
 				overrideDir := "static"
 				parsedTemplates, err := template.New("index.html").Funcs(funcMap).ParseFiles(filepath.Join(overrideDir, "index.html"))
@@ -703,18 +785,29 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 					templateInstance = parsedTemplates
 				}
 			} else {
-				debugLog("动态路由：当前使用内嵌主题模式，路径: %s", path)
+				if isAdmin {
+					debugLog("动态路由：后台页面始终使用内嵌模板，路径: %s", path)
+				} else {
+					debugLog("动态路由：前台页面使用内嵌主题模式，路径: %s", path)
+				}
 				templateInstance = embeddedTemplates
 			}
 
 			// 渲染HTML页面
-			renderHTMLPage(c, settingSvc, articleSvc, templateInstance)
+			// 如果是后台页面且存在外部主题，需要重写静态资源路径
+			if isAdmin && isStaticModeActive() {
+				renderHTMLPageWithAdminRewrite(c, settingSvc, articleSvc, templateInstance)
+			} else {
+				renderHTMLPage(c, settingSvc, articleSvc, templateInstance)
+			}
 			return
 		}
 
 		// 尝试提供静态文件（处理根目录下的静态文件，如 favicon.ico, robots.txt 等）
 		filePath := strings.TrimPrefix(path, "/")
-		if filePath != "" && tryServeStaticFile(c, filePath, isStaticModeActive(), distFS) {
+		// 静态文件也需要区分前后台：后台的静态文件始终从 embed 读取
+		useExternalForStatic := !isAdminPath(path) && isStaticModeActive()
+		if filePath != "" && tryServeStaticFile(c, filePath, useExternalForStatic, distFS) {
 			return
 		}
 
@@ -1002,6 +1095,84 @@ func generateSocialMediaLinks(settingSvc setting.SettingService) []string {
 	}
 
 	return allLinks
+}
+
+// rewriteStaticPathsForAdmin 为后台页面重写静态资源路径
+// 将 /static/ 替换为 /admin-static/，确保后台资源始终从官方 embed 加载
+func rewriteStaticPathsForAdmin(html string) string {
+	// 替换 script src 中的 /static/
+	html = strings.ReplaceAll(html, `src="/static/`, `src="/admin-static/`)
+	// 替换 link href 中的 /static/
+	html = strings.ReplaceAll(html, `href="/static/`, `href="/admin-static/`)
+	// 替换可能的其他资源路径
+	html = strings.ReplaceAll(html, `url("/static/`, `url("/admin-static/`)
+	html = strings.ReplaceAll(html, `url('/static/`, `url('/admin-static/`)
+	return html
+}
+
+// renderHTMLPageWithAdminRewrite 为后台页面渲染HTML，并重写静态资源路径
+// 这确保后台页面的JS/CSS始终从官方embed加载，不受外部主题影响
+func renderHTMLPageWithAdminRewrite(c *gin.Context, settingSvc setting.SettingService, articleSvc article_service.Service, templates *template.Template) {
+	// 设置响应头
+	c.Header("Cache-Control", "no-cache, no-store, must-revalidate, private, max-age=0")
+	c.Header("Pragma", "no-cache")
+	c.Header("Expires", "0")
+	c.Header("Content-Type", "text/html; charset=utf-8")
+
+	// 获取完整的当前页面 URL
+	fullURL := fmt.Sprintf("%s://%s%s", getRequestScheme(c), c.Request.Host, c.Request.URL.RequestURI())
+
+	// 获取默认页面数据
+	defaultTitle := fmt.Sprintf("%s - %s", settingSvc.Get(constant.KeyAppName.String()), settingSvc.Get(constant.KeySubTitle.String()))
+	defaultDescription := settingSvc.Get(constant.KeySiteDescription.String())
+	defaultImage := settingSvc.Get(constant.KeyLogoURL512.String())
+
+	// 处理自定义HTML
+	customHeaderHTML := ensureScriptTagsClosed(settingSvc.Get(constant.KeyCustomHeaderHTML.String()))
+	customFooterHTML := ensureScriptTagsClosed(settingSvc.Get(constant.KeyCustomFooterHTML.String()))
+
+	// 准备模板数据
+	data := gin.H{
+		"pageTitle":            defaultTitle,
+		"pageDescription":      defaultDescription,
+		"keywords":             settingSvc.Get(constant.KeySiteKeywords.String()),
+		"author":               settingSvc.Get(constant.KeyFrontDeskSiteOwnerName.String()),
+		"themeColor":           "#f7f9fe",
+		"favicon":              settingSvc.Get(constant.KeyIconURL.String()),
+		"initialData":          nil,
+		"ogType":               "website",
+		"ogUrl":                fullURL,
+		"ogTitle":              defaultTitle,
+		"ogDescription":        defaultDescription,
+		"ogImage":              defaultImage,
+		"ogSiteName":           settingSvc.Get(constant.KeyAppName.String()),
+		"ogLocale":             "zh_CN",
+		"articlePublishedTime": nil,
+		"articleModifiedTime":  nil,
+		"articleAuthor":        nil,
+		"articleTags":          nil,
+		"breadcrumbList":       nil,
+		"socialMediaLinks":     []string{},
+		"customHeaderHTML":     template.HTML(customHeaderHTML),
+		"customFooterHTML":     template.HTML(customFooterHTML),
+	}
+
+	// 渲染到 buffer
+	var buf bytes.Buffer
+	if err := templates.ExecuteTemplate(&buf, "index.html", data); err != nil {
+		log.Printf("[Admin Render] 渲染模板失败: %v", err)
+		c.String(http.StatusInternalServerError, "渲染页面失败")
+		return
+	}
+
+	// 重写静态资源路径
+	html := rewriteStaticPathsForAdmin(buf.String())
+
+	debugLog("后台页面静态资源路径已重写为 /admin-static/")
+
+	// 写入响应
+	c.Writer.WriteHeader(http.StatusOK)
+	c.Writer.Write([]byte(html))
 }
 
 // renderHTMLPage 渲染HTML页面的通用函数（版本）
