@@ -250,6 +250,7 @@ type ListPublicArticlesOptions struct {
 	TagName      string `json:"tagName"`
 	Year         int    `json:"year"`
 	Month        int    `json:"month"`
+	WithContent  bool   // 是否包含 ContentMd 字段（用于知识库同步等场景）
 }
 
 type SiteStats struct {
