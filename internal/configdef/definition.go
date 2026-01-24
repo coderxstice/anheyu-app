@@ -159,6 +159,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyPostRewardListButtonText, Value: "打赏者名单", Comment: "打赏者名单按钮文案", IsPublic: true},
 	{Key: constant.KeyPostRewardListButtonDesc, Value: "因为你们的支持让我意识到写文章的价值", Comment: "打赏者名单按钮描述文案", IsPublic: true},
 	{Key: constant.KeyPostCodeBlockCodeMaxLines, Value: "10", Comment: "代码块最大行数（超过会折叠）", IsPublic: true},
+	{Key: constant.KeyPostCodeBlockMacStyle, Value: "false", Comment: "是否启用Mac样式代码块 (true/false)，启用后显示红黄绿三个装饰圆点", IsPublic: true},
 
 	// 文章复制版权配置
 	{Key: constant.KeyPostCopyEnable, Value: "true", Comment: "是否允许复制文章内容 (true/false)，默认允许", IsPublic: true},
