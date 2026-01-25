@@ -63,6 +63,7 @@ import (
 	thumbnail_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/thumbnail"
 	user_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/user"
 	version_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/version"
+	wechat_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/wechat"
 	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/album"
 	album_category_service "github.com/anzhiyu-c/anheyu-app/pkg/service/album_category"
@@ -100,6 +101,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/utility"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/volume"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/volume/strategy"
+	wechat_service "github.com/anzhiyu-c/anheyu-app/pkg/service/wechat"
 
 	_ "github.com/anzhiyu-c/anheyu-app/ent/runtime"
 )
@@ -529,6 +531,9 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	router.SetupFrontend(engine, settingSvc, articleSvc, cacheSvc, content, cfg)
 	appRouter.Setup(engine)
 
+	// --- 微信分享路由 ---
+	setupWechatShareRoutes(engine, settingSvc)
+
 	// 将所有初始化好的组件装配到 App 实例中
 	app := &App{
 		cfg:                  cfg,
@@ -739,4 +744,33 @@ func getOrCreateIDSeed(ctx context.Context, settingRepo repository.SettingReposi
 	}
 
 	return newSeed, nil
+}
+
+// setupWechatShareRoutes 设置微信分享相关路由
+func setupWechatShareRoutes(engine *gin.Engine, settingSvc setting.SettingService) {
+	// 获取微信分享配置
+	wechatEnable := settingSvc.Get(constant.KeyWechatShareEnable.String())
+	wechatAppID := settingSvc.Get(constant.KeyWechatShareAppID.String())
+	wechatAppSecret := settingSvc.Get(constant.KeyWechatShareAppSecret.String())
+
+	// 如果未启用或配置不完整，跳过初始化
+	if wechatEnable != "true" || wechatAppID == "" || wechatAppSecret == "" {
+		log.Println("⚠️ 微信分享功能未启用或配置不完整，跳过初始化")
+		return
+	}
+
+	log.Println("🔧 初始化微信JS-SDK分享服务...")
+
+	// 创建微信分享服务
+	jssdkService := wechat_service.NewJSSDKService(wechatAppID, wechatAppSecret)
+	wechatShareHandler := wechat_handler.NewHandler(jssdkService)
+
+	// 注册路由
+	wechatGroup := engine.Group("/api/wechat/jssdk")
+	{
+		wechatGroup.GET("/config", wechatShareHandler.GetJSSDKConfig)    // 获取JS-SDK配置
+		wechatGroup.GET("/status", wechatShareHandler.CheckShareEnabled) // 检查分享功能状态
+	}
+
+	log.Println("✅ 微信JS-SDK分享服务已启动")
 }

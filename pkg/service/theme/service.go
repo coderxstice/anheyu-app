@@ -2,7 +2,7 @@
  * @Description: 主题管理服务（优化版）
  * @Author: 安知鱼
  * @Date: 2025-09-18 11:00:00
- * @LastEditTime: 2025-09-19 11:16:05
+ * @LastEditTime: 2026-01-24 17:52:13
  * @LastEditors: 安知鱼
  *
  * 设计原则：
@@ -126,6 +126,52 @@ type ThemeMetadata struct {
 	Screenshots interface{}       `json:"screenshots"` // 支持字符串或字符串数组
 	Engines     map[string]string `json:"engines"`
 	Features    []string          `json:"features"`
+	// 主题配置定义（类似 Halo 的 settings.yaml）
+	Settings []ThemeSettingGroup `json:"settings,omitempty"`
+}
+
+// ThemeSettingGroup 主题配置分组
+type ThemeSettingGroup struct {
+	Group  string              `json:"group"`  // 分组标识（如 style, layout, footer）
+	Label  string              `json:"label"`  // 分组显示名称
+	Fields []ThemeSettingField `json:"fields"` // 配置字段列表
+}
+
+// ThemeSettingField 主题配置字段定义
+type ThemeSettingField struct {
+	Name        string                `json:"name"`                  // 字段名称（唯一标识）
+	Label       string                `json:"label"`                 // 显示标签
+	Type        string                `json:"type"`                  // 字段类型: text, textarea, number, select, color, switch, image, code
+	Default     interface{}           `json:"default,omitempty"`     // 默认值
+	Placeholder string                `json:"placeholder,omitempty"` // 占位提示
+	Description string                `json:"description,omitempty"` // 字段描述
+	Required    bool                  `json:"required,omitempty"`    // 是否必填
+	Options     []ThemeSettingOption  `json:"options,omitempty"`     // 选项（用于 select、radio 类型）
+	Validation  *ThemeFieldValidation `json:"validation,omitempty"`  // 验证规则
+	Condition   *ThemeFieldCondition  `json:"condition,omitempty"`   // 显示条件（依赖其他字段）
+}
+
+// ThemeSettingOption 配置字段选项
+type ThemeSettingOption struct {
+	Label string      `json:"label"` // 选项显示名称
+	Value interface{} `json:"value"` // 选项值
+}
+
+// ThemeFieldValidation 字段验证规则
+type ThemeFieldValidation struct {
+	MinLength *int     `json:"minLength,omitempty"` // 最小长度
+	MaxLength *int     `json:"maxLength,omitempty"` // 最大长度
+	Min       *float64 `json:"min,omitempty"`       // 最小值（数字类型）
+	Max       *float64 `json:"max,omitempty"`       // 最大值（数字类型）
+	Pattern   string   `json:"pattern,omitempty"`   // 正则表达式
+	Message   string   `json:"message,omitempty"`   // 验证失败提示
+}
+
+// ThemeFieldCondition 字段显示条件
+type ThemeFieldCondition struct {
+	Field    string      `json:"field"`    // 依赖的字段名
+	Operator string      `json:"operator"` // 操作符: eq, neq, contains, gt, lt
+	Value    interface{} `json:"value"`    // 比较值
 }
 
 // AuthorInfo 作者信息结构
@@ -180,6 +226,27 @@ type ThemeService interface {
 
 	// 修复用户主题的当前状态数据一致性
 	FixThemeCurrentStatus(ctx context.Context, userID uint) error
+
+	// ===== 主题配置相关 =====
+
+	// 获取主题的配置定义（从 theme.json 读取）
+	GetThemeSettings(ctx context.Context, themeName string) ([]ThemeSettingGroup, error)
+
+	// 获取用户对某主题的配置值
+	GetUserThemeConfig(ctx context.Context, userID uint, themeName string) (map[string]interface{}, error)
+
+	// 保存用户对某主题的配置值
+	SaveUserThemeConfig(ctx context.Context, userID uint, themeName string, config map[string]interface{}) error
+
+	// 获取当前激活主题的配置（供前端主题使用的公开接口）
+	GetCurrentThemeConfig(ctx context.Context, userID uint) (*ThemeConfigResponse, error)
+}
+
+// ThemeConfigResponse 主题配置响应
+type ThemeConfigResponse struct {
+	ThemeName string                 `json:"theme_name"` // 主题名称
+	Settings  []ThemeSettingGroup    `json:"settings"`   // 配置定义
+	Values    map[string]interface{} `json:"values"`     // 当前配置值（用户配置 + 默认值）
 }
 
 // themeService 主题服务实现
@@ -1905,4 +1972,236 @@ func (s *themeService) FixThemeCurrentStatus(ctx context.Context, userID uint) e
 	}
 
 	return nil
+}
+
+// ===== 主题配置相关方法实现 =====
+
+// GetThemeSettings 获取主题的配置定义
+func (s *themeService) GetThemeSettings(ctx context.Context, themeName string) ([]ThemeSettingGroup, error) {
+	// 官方主题没有自定义配置
+	if s.isOfficialTheme(themeName) {
+		return []ThemeSettingGroup{}, nil
+	}
+
+	// 从磁盘读取 theme.json
+	metadata, err := s.loadThemeMetadataFromDisk(themeName)
+	if err != nil {
+		return nil, fmt.Errorf("读取主题元数据失败: %w", err)
+	}
+
+	// 返回配置定义
+	if metadata.Settings == nil {
+		return []ThemeSettingGroup{}, nil
+	}
+
+	return metadata.Settings, nil
+}
+
+// GetUserThemeConfig 获取用户对某主题的配置值
+func (s *themeService) GetUserThemeConfig(ctx context.Context, userID uint, themeName string) (map[string]interface{}, error) {
+	// 查询用户安装的主题
+	installedTheme, err := s.db.UserInstalledTheme.
+		Query().
+		Where(
+			userinstalledtheme.UserID(userID),
+			userinstalledtheme.ThemeName(themeName),
+		).
+		First(ctx)
+
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, fmt.Errorf("主题 %s 未安装", themeName)
+		}
+		return nil, fmt.Errorf("查询主题失败: %w", err)
+	}
+
+	// 返回用户配置
+	if installedTheme.UserThemeConfig == nil {
+		return map[string]interface{}{}, nil
+	}
+
+	return installedTheme.UserThemeConfig, nil
+}
+
+// SaveUserThemeConfig 保存用户对某主题的配置值
+func (s *themeService) SaveUserThemeConfig(ctx context.Context, userID uint, themeName string, config map[string]interface{}) error {
+	// 获取配置定义用于验证
+	settings, err := s.GetThemeSettings(ctx, themeName)
+	if err != nil {
+		return fmt.Errorf("获取主题配置定义失败: %w", err)
+	}
+
+	// 验证配置值
+	if err := s.validateThemeConfig(settings, config); err != nil {
+		return fmt.Errorf("配置验证失败: %w", err)
+	}
+
+	// 更新数据库
+	_, err = s.db.UserInstalledTheme.
+		Update().
+		Where(
+			userinstalledtheme.UserID(userID),
+			userinstalledtheme.ThemeName(themeName),
+		).
+		SetUserThemeConfig(config).
+		Save(ctx)
+
+	if err != nil {
+		return fmt.Errorf("保存主题配置失败: %w", err)
+	}
+
+	log.Printf("用户 %d 的主题 %s 配置已保存", userID, themeName)
+	return nil
+}
+
+// GetCurrentThemeConfig 获取当前激活主题的配置（供前端主题使用）
+func (s *themeService) GetCurrentThemeConfig(ctx context.Context, userID uint) (*ThemeConfigResponse, error) {
+	// 获取当前主题
+	currentTheme, err := s.GetCurrentTheme(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("获取当前主题失败: %w", err)
+	}
+
+	// 官方主题返回空配置
+	if currentTheme.IsOfficial || s.isOfficialTheme(currentTheme.Name) {
+		return &ThemeConfigResponse{
+			ThemeName: currentTheme.Name,
+			Settings:  []ThemeSettingGroup{},
+			Values:    map[string]interface{}{},
+		}, nil
+	}
+
+	// 获取配置定义
+	settings, err := s.GetThemeSettings(ctx, currentTheme.Name)
+	if err != nil {
+		log.Printf("获取主题 %s 的配置定义失败: %v", currentTheme.Name, err)
+		settings = []ThemeSettingGroup{}
+	}
+
+	// 获取用户配置
+	userConfig, err := s.GetUserThemeConfig(ctx, userID, currentTheme.Name)
+	if err != nil {
+		log.Printf("获取用户主题配置失败: %v", err)
+		userConfig = map[string]interface{}{}
+	}
+
+	// 合并默认值和用户配置
+	mergedValues := s.mergeConfigWithDefaults(settings, userConfig)
+
+	return &ThemeConfigResponse{
+		ThemeName: currentTheme.Name,
+		Settings:  settings,
+		Values:    mergedValues,
+	}, nil
+}
+
+// validateThemeConfig 验证主题配置值
+func (s *themeService) validateThemeConfig(settings []ThemeSettingGroup, config map[string]interface{}) error {
+	// 构建字段定义映射
+	fieldDefs := make(map[string]ThemeSettingField)
+	for _, group := range settings {
+		for _, field := range group.Fields {
+			fieldDefs[field.Name] = field
+		}
+	}
+
+	// 验证每个配置项
+	for key, value := range config {
+		fieldDef, exists := fieldDefs[key]
+		if !exists {
+			// 允许额外的配置项（向前兼容）
+			log.Printf("警告：未知的配置项 %s", key)
+			continue
+		}
+
+		// 验证必填字段
+		if fieldDef.Required && (value == nil || value == "") {
+			return fmt.Errorf("字段 %s 为必填项", fieldDef.Label)
+		}
+
+		// 验证字段类型
+		if err := s.validateFieldValue(fieldDef, value); err != nil {
+			return fmt.Errorf("字段 %s 验证失败: %w", fieldDef.Label, err)
+		}
+	}
+
+	// 检查必填字段是否都有值
+	for _, group := range settings {
+		for _, field := range group.Fields {
+			if field.Required {
+				if _, exists := config[field.Name]; !exists {
+					return fmt.Errorf("字段 %s 为必填项", field.Label)
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+// validateFieldValue 验证单个字段值
+func (s *themeService) validateFieldValue(field ThemeSettingField, value interface{}) error {
+	if value == nil {
+		return nil
+	}
+
+	validation := field.Validation
+	if validation == nil {
+		return nil
+	}
+
+	// 字符串类型验证
+	if strVal, ok := value.(string); ok {
+		if validation.MinLength != nil && len(strVal) < *validation.MinLength {
+			return fmt.Errorf("长度不能小于 %d", *validation.MinLength)
+		}
+		if validation.MaxLength != nil && len(strVal) > *validation.MaxLength {
+			return fmt.Errorf("长度不能大于 %d", *validation.MaxLength)
+		}
+		if validation.Pattern != "" {
+			matched, err := regexp.MatchString(validation.Pattern, strVal)
+			if err != nil {
+				return fmt.Errorf("正则表达式无效")
+			}
+			if !matched {
+				if validation.Message != "" {
+					return fmt.Errorf("%s", validation.Message)
+				}
+				return fmt.Errorf("格式不正确")
+			}
+		}
+	}
+
+	// 数字类型验证
+	if numVal, ok := value.(float64); ok {
+		if validation.Min != nil && numVal < *validation.Min {
+			return fmt.Errorf("值不能小于 %v", *validation.Min)
+		}
+		if validation.Max != nil && numVal > *validation.Max {
+			return fmt.Errorf("值不能大于 %v", *validation.Max)
+		}
+	}
+
+	return nil
+}
+
+// mergeConfigWithDefaults 合并用户配置和默认值
+func (s *themeService) mergeConfigWithDefaults(settings []ThemeSettingGroup, userConfig map[string]interface{}) map[string]interface{} {
+	result := make(map[string]interface{})
+
+	// 首先设置所有默认值
+	for _, group := range settings {
+		for _, field := range group.Fields {
+			if field.Default != nil {
+				result[field.Name] = field.Default
+			}
+		}
+	}
+
+	// 然后用用户配置覆盖
+	for key, value := range userConfig {
+		result[key] = value
+	}
+
+	return result
 }
