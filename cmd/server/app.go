@@ -57,6 +57,7 @@ import (
 	search_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/search"
 	setting_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/setting"
 	sitemap_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/sitemap"
+	ssrtheme_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/ssrtheme"
 	statistics_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/statistics"
 	storage_policy_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/storage_policy"
 	subscriber_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/subscriber"
@@ -66,6 +67,7 @@ import (
 	version_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/version"
 	wechat_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/wechat"
 	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
+	app_middleware "github.com/anzhiyu-c/anheyu-app/pkg/middleware"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/album"
 	album_category_service "github.com/anzhiyu-c/anheyu-app/pkg/service/album_category"
 	article_service "github.com/anzhiyu-c/anheyu-app/pkg/service/article"
@@ -103,6 +105,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/volume"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/volume/strategy"
 	wechat_service "github.com/anzhiyu-c/anheyu-app/pkg/service/wechat"
+	"github.com/anzhiyu-c/anheyu-app/pkg/ssr"
 
 	_ "github.com/anzhiyu-c/anheyu-app/ent/runtime"
 )
@@ -133,6 +136,8 @@ type App struct {
 	commentSvc           *comment_service.Service
 	themeSvc             theme.ThemeService
 	themeHandler         *theme_handler.Handler
+	ssrManager           *ssr.Manager
+	ssrThemeHandler      *ssrtheme_handler.Handler
 }
 
 func (a *App) PrintBanner() {
@@ -451,6 +456,11 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	captchaSvc := captcha_service.NewCaptchaService(settingSvc, turnstileSvc, geetestSvc, imageCaptchaSvc)
 	log.Printf("[DEBUG] CaptchaService 初始化完成")
 
+	// --- Phase 5.5: 初始化 SSR 主题管理器 ---
+	ssrManager := ssr.NewManager("./themes")
+	ssrThemeHandler := ssrtheme_handler.NewHandler(ssrManager)
+	log.Println("✅ SSR 主题管理器初始化成功")
+
 	// --- Phase 6: 初始化表现层 (Handlers) ---
 	mw := middleware.NewMiddleware(tokenSvc)
 	authHandler := auth_handler.NewAuthHandler(authSvc, tokenSvc, settingSvc, captchaSvc)
@@ -507,6 +517,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		pageHandler,
 		statisticsHandler,
 		themeHandler,
+		ssrThemeHandler,
 		mw,
 		searchHandler,
 		proxyHandler,
@@ -536,6 +547,12 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	}
 	engine.ForwardedByClientIP = true
 	engine.Use(middleware.Cors())
+
+	// 注册 SSR 代理中间件（在路由之前）
+	// 当有 SSR 主题运行时，前台请求会被代理到 SSR 主题
+	engine.Use(app_middleware.SSRProxyMiddleware(ssrManager))
+	log.Println("✅ SSR 代理中间件已注册")
+
 	router.SetupFrontend(engine, settingSvc, articleSvc, cacheSvc, content, cfg, pageRepo)
 	appRouter.Setup(engine)
 
@@ -568,13 +585,20 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		commentSvc:           commentSvc,
 		themeSvc:             themeSvc,
 		themeHandler:         themeHandler,
+		ssrManager:           ssrManager,
+		ssrThemeHandler:      ssrThemeHandler,
 	}
 
 	// 创建cleanup函数
 	cleanup := func() {
-		log.Println("执行清理操作：关闭数据库连接...")
+		log.Println("执行清理操作...")
+
+		// 停止所有 SSR 主题
+		log.Println("停止所有 SSR 主题...")
+		ssrManager.StopAll()
 
 		// 关闭数据库连接
+		log.Println("关闭数据库连接...")
 		sqlDB.Close()
 
 		// 关闭 Redis 连接（如果存在）
@@ -682,6 +706,16 @@ func (a *App) CommentService() *comment_service.Service {
 // ThemeService 返回主题服务（用于 PRO 版获取主题商城列表）
 func (a *App) ThemeService() theme.ThemeService {
 	return a.themeSvc
+}
+
+// SSRManager 返回 SSR 主题管理器（用于 PRO 版继承 SSR 功能）
+func (a *App) SSRManager() *ssr.Manager {
+	return a.ssrManager
+}
+
+// SSRThemeHandler 返回 SSR 主题处理器（用于 PRO 版继承 SSR 功能）
+func (a *App) SSRThemeHandler() *ssrtheme_handler.Handler {
+	return a.ssrThemeHandler
 }
 
 // ThemeHandler 返回主题处理器（用于 PRO 版配置为 PRO 模式）
