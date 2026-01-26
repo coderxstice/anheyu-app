@@ -218,6 +218,9 @@ type ThemeService interface {
 	// 获取主题商城列表（从外部API获取）
 	GetThemeMarketList(ctx context.Context) ([]*MarketTheme, error)
 
+	// 获取 PRO 版本主题商城列表（包含完整的 PRO 主题下载链接）
+	GetThemeMarketListForPro(ctx context.Context, licenseKey string) ([]*MarketTheme, error)
+
 	// 上传主题压缩包
 	UploadTheme(ctx context.Context, userID uint, file *multipart.FileHeader, forceUpdate ...bool) (*ThemeInfo, error)
 
@@ -316,8 +319,8 @@ func (s *themeService) GetThemeMarketList(ctx context.Context) ([]*MarketTheme, 
 		return []*MarketTheme{}, nil
 	}
 
-	// 检查API响应码
-	if apiResp.Code != 200 {
+	// 检查API响应码（官网 API 成功时返回 code: 0）
+	if apiResp.Code != 0 && apiResp.Code != 200 {
 		log.Printf("API返回错误码: %d, 消息: %s，返回空列表", apiResp.Code, apiResp.Message)
 		return []*MarketTheme{}, nil
 	}
@@ -329,6 +332,103 @@ func (s *themeService) GetThemeMarketList(ctx context.Context) ([]*MarketTheme, 
 
 	log.Printf("成功从主题商城API获取到 %d 个主题", len(apiResp.Data.List))
 	return apiResp.Data.List, nil
+}
+
+// PRO 版本主题商城 API 地址
+const ThemeMarketProAPI = "https://anheyuofficialwebsiteapi.anheyu.com/api/v1/themes/pro"
+
+// GetThemeMarketListForPro 获取 PRO 版本主题商城列表（包含完整的 PRO 主题下载链接）
+// licenseKey 参数用于授权密钥验证
+func (s *themeService) GetThemeMarketListForPro(ctx context.Context, licenseKey string) ([]*MarketTheme, error) {
+	// 创建HTTP客户端请求
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "GET", ThemeMarketProAPI, nil)
+	if err != nil {
+		return nil, fmt.Errorf("创建请求失败: %w", err)
+	}
+
+	// 设置请求头
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "Anheyu-Pro/1.0")
+	req.Header.Set("X-License-Key", licenseKey) // 传递授权密钥用于验证
+
+	log.Printf("[PRO API] 正在调用 PRO 主题商城 API: %s", ThemeMarketProAPI)
+
+	// 发送请求
+	resp, err := client.Do(req)
+	if err != nil {
+		// 如果 PRO API 调用失败，回退到普通 API
+		log.Printf("调用 PRO 主题商城API失败: %v，回退到普通API", err)
+		return s.GetThemeMarketList(ctx)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusUnauthorized {
+		// 授权密钥无效，回退到普通 API
+		log.Printf("PRO 主题商城API授权密钥无效，回退到普通API")
+		return s.GetThemeMarketList(ctx)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("PRO 主题商城API返回错误状态码: %d，回退到普通API", resp.StatusCode)
+		return s.GetThemeMarketList(ctx)
+	}
+
+	// 读取响应体
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("读取 PRO API响应失败: %v，回退到普通API", err)
+		return s.GetThemeMarketList(ctx)
+	}
+
+	// PRO API 返回格式可能有两种：
+	// 1. 直接返回 {"list":[...],"total":2}
+	// 2. 包装格式 {"code":0,"data":{"list":[...],"total":2}}
+
+	// 先尝试解析直接格式
+	type DirectResponse struct {
+		List  []*MarketTheme `json:"list"`
+		Total int            `json:"total"`
+	}
+
+	var directResp DirectResponse
+	if err := json.Unmarshal(body, &directResp); err == nil && directResp.List != nil {
+		log.Printf("成功从 PRO 主题商城API获取到 %d 个主题（直接格式，包含完整下载链接）", len(directResp.List))
+		return directResp.List, nil
+	}
+
+	// 尝试解析包装格式
+	type WrappedResponse struct {
+		Code    int    `json:"code"`
+		Message string `json:"message"`
+		Data    struct {
+			List  []*MarketTheme `json:"list"`
+			Total int            `json:"total"`
+		} `json:"data"`
+	}
+
+	var wrappedResp WrappedResponse
+	if err := json.Unmarshal(body, &wrappedResp); err != nil {
+		log.Printf("解析 PRO API响应失败: %v，回退到普通API", err)
+		return s.GetThemeMarketList(ctx)
+	}
+
+	// 检查API响应码（官网 API 成功时返回 code: 0）
+	if wrappedResp.Code != 0 && wrappedResp.Code != 200 {
+		log.Printf("PRO API返回错误码: %d, 消息: %s，回退到普通API", wrappedResp.Code, wrappedResp.Message)
+		return s.GetThemeMarketList(ctx)
+	}
+
+	// 返回主题列表
+	if wrappedResp.Data.List == nil {
+		return []*MarketTheme{}, nil
+	}
+
+	log.Printf("成功从 PRO 主题商城API获取到 %d 个主题（包装格式，包含完整下载链接）", len(wrappedResp.Data.List))
+	return wrappedResp.Data.List, nil
 }
 
 // GetCurrentTheme 获取当前使用的主题

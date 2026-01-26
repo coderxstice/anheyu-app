@@ -30,6 +30,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/internal/infra/storage"
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/event"
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/version"
+	"github.com/anzhiyu-c/anheyu-app/internal/service/cache"
 	"github.com/anzhiyu-c/anheyu-app/pkg/config"
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
@@ -130,6 +131,8 @@ type App struct {
 	postCategorySvc      *post_category_service.Service
 	postTagSvc           *post_tag_service.Service
 	commentSvc           *comment_service.Service
+	themeSvc             theme.ThemeService
+	themeHandler         *theme_handler.Handler
 }
 
 func (a *App) PrintBanner() {
@@ -408,6 +411,11 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	themeSvc := theme.NewThemeService(entClient, userRepo)
 	_ = listener.NewFilePostProcessingListener(eventBus, taskBroker, extractionSvc)
 
+	// 初始化缓存清理服务（SSR 模式下启用）
+	revalidateSvc := cache.NewRevalidateService()
+	cacheRevalidateListener := listener.NewCacheRevalidateListener(revalidateSvc)
+	cacheRevalidateListener.RegisterHandlers(eventBus)
+
 	// 初始化音乐服务
 	log.Printf("[DEBUG] 正在初始化 MusicService...")
 	musicSvc := music.NewMusicService(settingSvc)
@@ -528,7 +536,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	}
 	engine.ForwardedByClientIP = true
 	engine.Use(middleware.Cors())
-	router.SetupFrontend(engine, settingSvc, articleSvc, cacheSvc, content, cfg)
+	router.SetupFrontend(engine, settingSvc, articleSvc, cacheSvc, content, cfg, pageRepo)
 	appRouter.Setup(engine)
 
 	// --- 微信分享路由 ---
@@ -558,6 +566,8 @@ func NewApp(content embed.FS) (*App, func(), error) {
 		postCategorySvc:      postCategorySvc,
 		postTagSvc:           postTagSvc,
 		commentSvc:           commentSvc,
+		themeSvc:             themeSvc,
+		themeHandler:         themeHandler,
 	}
 
 	// 创建cleanup函数
@@ -667,6 +677,16 @@ func (a *App) PostTagService() *post_tag_service.Service {
 // CommentService 返回评论服务（用于 PRO 版注入站内通知回调）
 func (a *App) CommentService() *comment_service.Service {
 	return a.commentSvc
+}
+
+// ThemeService 返回主题服务（用于 PRO 版获取主题商城列表）
+func (a *App) ThemeService() theme.ThemeService {
+	return a.themeSvc
+}
+
+// ThemeHandler 返回主题处理器（用于 PRO 版配置为 PRO 模式）
+func (a *App) ThemeHandler() *theme_handler.Handler {
+	return a.themeHandler
 }
 
 func (a *App) Run() error {
