@@ -92,6 +92,7 @@ type MarketTheme struct {
 	Author         string   `json:"author"`
 	Description    string   `json:"description"`
 	ThemeType      string   `json:"themeType"`
+	DeployType     string   `json:"deployType"` // standard-传统安装，ssr-Docker SSR 部署
 	RepoURL        string   `json:"repoUrl"`
 	InstructionURL string   `json:"instructionUrl"`
 	Price          int      `json:"price"`
