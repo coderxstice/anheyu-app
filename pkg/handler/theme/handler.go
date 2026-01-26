@@ -28,6 +28,8 @@ import (
 // Handler 主题管理处理器
 type Handler struct {
 	themeService theme.ThemeService
+	isProVersion bool   // 是否为 PRO 版本
+	licenseKey   string // PRO 版授权密钥
 }
 
 // ThemeHandler 类型别名，简化引用
@@ -65,7 +67,17 @@ type (
 func NewHandler(themeService theme.ThemeService) *Handler {
 	return &Handler{
 		themeService: themeService,
+		isProVersion: false,
+		licenseKey:   "",
 	}
+}
+
+// ConfigureForPro 配置为 PRO 版本模式
+// 调用此方法后，GetThemeMarket 会返回包含完整 downloadUrl 的 PRO 主题
+func (h *Handler) ConfigureForPro(licenseKey string) {
+	h.isProVersion = true
+	h.licenseKey = licenseKey
+	log.Printf("[Theme Handler] 已配置为 PRO 版本模式，授权密钥已设置")
 }
 
 // 辅助函数：统一的用户ID提取和验证
@@ -358,14 +370,33 @@ type ThemeMarketListResponse struct {
 
 // GetThemeMarket 获取主题商城列表
 // @Summary      获取主题商城列表
-// @Description  获取主题商城中的所有可用主题
+// @Description  获取主题商城中的所有可用主题（PRO 版本会返回包含完整 downloadUrl 的 PRO 主题）
 // @Tags         主题商城
 // @Produce      json
 // @Success      200  {object}  response.Response{data=ThemeMarketListResponse}  "获取成功"
 // @Failure      500  {object}  response.Response  "获取失败"
 // @Router       /public/theme/market [get]
 func (h *Handler) GetThemeMarket(c *gin.Context) {
-	themes, err := h.themeService.GetThemeMarketList(c.Request.Context())
+	var themes []*theme.MarketTheme
+	var err error
+
+	// 根据版本类型选择不同的 API
+	log.Printf("[Theme Handler] 获取主题商城列表 - isProVersion: %v, hasLicenseKey: %v", h.isProVersion, h.licenseKey != "")
+	if h.isProVersion && h.licenseKey != "" {
+		// PRO 版本：调用 PRO API 获取包含完整 downloadUrl 的主题列表
+		log.Printf("[Theme Handler] 使用 PRO 模式调用主题商城 API")
+		themes, err = h.themeService.GetThemeMarketListForPro(c.Request.Context(), h.licenseKey)
+		if err != nil {
+			log.Printf("[Theme Handler] PRO API 调用失败，降级到公开 API: %v", err)
+			// 如果 PRO API 失败，降级到公开 API
+			themes, err = h.themeService.GetThemeMarketList(c.Request.Context())
+		}
+	} else {
+		// 社区版：调用公开 API
+		log.Printf("[Theme Handler] 使用社区版模式调用主题商城 API")
+		themes, err = h.themeService.GetThemeMarketList(c.Request.Context())
+	}
+
 	if err != nil {
 		response.Fail(c, http.StatusInternalServerError, "获取主题商城列表失败: "+err.Error())
 		return
