@@ -17,9 +17,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// CurrentSSRThemeChecker 检查当前是否应该使用 SSR 主题的回调函数
+// 返回 (themeName, shouldProxy)
+// - themeName: 当前 SSR 主题名称（如果应该代理）
+// - shouldProxy: 是否应该代理到 SSR
+type CurrentSSRThemeChecker func() (themeName string, shouldProxy bool)
+
 // SSRProxyMiddleware 创建 SSR 主题反向代理中间件
 // 当有 SSR 主题运行时，将前台请求（非 API、非后台）代理到 SSR 主题
+// 已废弃：请使用 SSRProxyMiddlewareWithChecker
 func SSRProxyMiddleware(ssrManager *ssr.Manager) gin.HandlerFunc {
+	return SSRProxyMiddlewareWithChecker(ssrManager, nil)
+}
+
+// SSRProxyMiddlewareWithChecker 创建带检查器的 SSR 主题反向代理中间件
+// checker: 检查当前是否应该使用 SSR 主题（基于数据库状态）
+// 如果 checker 为 nil，则仅基于进程状态判断（向后兼容）
+func SSRProxyMiddlewareWithChecker(ssrManager *ssr.Manager, checker CurrentSSRThemeChecker) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 如果没有 SSR 管理器，直接跳过
 		if ssrManager == nil {
@@ -35,8 +49,28 @@ func SSRProxyMiddleware(ssrManager *ssr.Manager) gin.HandlerFunc {
 			return
 		}
 
-		// 检查是否有运行中的 SSR 主题
-		runningTheme := ssrManager.GetRunningTheme()
+		// 优先使用 checker 检查数据库状态
+		var runningTheme *ssr.ThemeInfo
+		if checker != nil {
+			themeName, shouldProxy := checker()
+			if !shouldProxy {
+				// 数据库说不应该使用 SSR 主题
+				c.Next()
+				return
+			}
+			// 数据库说应该使用 SSR 主题，检查进程是否在运行
+			if ssrManager.IsRunning(themeName) {
+				runningTheme = &ssr.ThemeInfo{
+					Name:   themeName,
+					Status: ssr.StatusRunning,
+					Port:   ssrManager.GetPort(themeName),
+				}
+			}
+		} else {
+			// 向后兼容：仅检查进程状态
+			runningTheme = ssrManager.GetRunningTheme()
+		}
+
 		if runningTheme == nil {
 			c.Next()
 			return
@@ -114,13 +148,15 @@ func ShouldSkipSSRProxy(path string) bool {
 	}
 
 	// 前缀匹配的路径
+	// 注意：/static/ 和 /assets/ 不在此列表中，因为它们应该由当前激活的主题控制
+	// 当使用 SSR 主题时，这些路径会被代理到 SSR 进程
+	// 后台专用的静态资源使用 /admin-static/ 和 /admin-assets/ 路径
 	skipPrefixes := []string{
 		"/api/",          // API 接口
 		"/admin",         // 后台管理页面
 		"/login",         // 登录页面
-		"/admin-static/", // 后台静态资源
-		"/admin-assets/", // 后台 Vue 资源
-		"/assets/",       // 后台资源
+		"/admin-static/", // 后台静态资源（专用路径，不受主题影响）
+		"/admin-assets/", // 后台 Vue 资源（专用路径，不受主题影响）
 		"/f/",            // 文件服务
 		"/needcache/",    // 缓存服务
 	}

@@ -67,7 +67,6 @@ import (
 	version_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/version"
 	wechat_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/wechat"
 	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
-	app_middleware "github.com/anzhiyu-c/anheyu-app/pkg/middleware"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/album"
 	album_category_service "github.com/anzhiyu-c/anheyu-app/pkg/service/album_category"
 	article_service "github.com/anzhiyu-c/anheyu-app/pkg/service/article"
@@ -458,8 +457,54 @@ func NewApp(content embed.FS) (*App, func(), error) {
 
 	// --- Phase 5.5: 初始化 SSR 主题管理器 ---
 	ssrManager := ssr.NewManager("./themes")
-	ssrThemeHandler := ssrtheme_handler.NewHandler(ssrManager)
+	ssrThemeHandler := ssrtheme_handler.NewHandler(ssrManager, themeSvc)
 	log.Println("✅ SSR 主题管理器初始化成功")
+
+	// 同步 SSR 主题状态到数据库，并自动启动当前 SSR 主题
+	go func() {
+		ctx := context.Background()
+
+		// 先同步主题状态
+		if err := themeSvc.SyncSSRThemesFromFileSystem(ctx, 1, "./themes"); err != nil {
+			log.Printf("⚠️ SSR 主题同步失败: %v", err)
+			// 同步失败不影响启动流程，继续尝试启动已知的主题
+		}
+
+		// 自动启动当前激活的 SSR 主题
+		themeName, shouldStart := themeSvc.GetCurrentSSRThemeName(ctx, 1)
+		if !shouldStart || themeName == "" {
+			log.Println("📝 未检测到需要自动启动的 SSR 主题")
+			return
+		}
+
+		log.Printf("🚀 检测到当前 SSR 主题: %s，正在自动启动...", themeName)
+
+		// 使用默认端口 3000，带重试机制
+		const maxRetries = 3
+		const ssrPort = 3000
+
+		for attempt := 1; attempt <= maxRetries; attempt++ {
+			if err := ssrManager.Start(themeName, ssrPort); err != nil {
+				log.Printf("❌ 自动启动 SSR 主题失败 (尝试 %d/%d): %v", attempt, maxRetries, err)
+
+				// 如果是"已在运行"错误，不需要重试
+				if err.Error() == "theme already running" {
+					log.Printf("✅ SSR 主题 %s 已在运行", themeName)
+					return
+				}
+
+				if attempt < maxRetries {
+					log.Printf("⏳ 等待 3 秒后重试...")
+					time.Sleep(3 * time.Second)
+				}
+			} else {
+				log.Printf("✅ SSR 主题 %s 自动启动成功", themeName)
+				return
+			}
+		}
+
+		log.Printf("❌ SSR 主题 %s 自动启动失败，已达到最大重试次数", themeName)
+	}()
 
 	// --- Phase 6: 初始化表现层 (Handlers) ---
 	mw := middleware.NewMiddleware(tokenSvc)
@@ -483,7 +528,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	pageHandler := page_handler.NewHandler(pageSvc)
 	searchHandler := search_handler.NewHandler(searchSvc)
 	statisticsHandler := statistics_handler.NewStatisticsHandler(statService)
-	themeHandler := theme_handler.NewHandler(themeSvc)
+	themeHandler := theme_handler.NewHandler(themeSvc, ssrManager)
 	sitemapHandler := sitemap_handler.NewHandler(sitemapSvc)
 	proxyHandler := proxy_handler.NewHandler()
 	musicHandler := music_handler.NewMusicHandler(musicSvc)
@@ -548,10 +593,18 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	engine.ForwardedByClientIP = true
 	engine.Use(middleware.Cors())
 
+	// 设置 SSR 主题检查器（基于数据库状态判断是否应该代理）
+	// 这样即使 SSR 进程还在运行，切换到普通主题后也不会代理
+	middleware.SetSSRThemeChecker(func() (string, bool) {
+		// 使用固定的 userID=1（管理员）检查当前 SSR 主题状态
+		ctx := context.Background()
+		return themeSvc.GetCurrentSSRThemeName(ctx, 1)
+	})
+
 	// 注册 SSR 代理中间件（在路由之前）
-	// 当有 SSR 主题运行时，前台请求会被代理到 SSR 主题
-	engine.Use(app_middleware.SSRProxyMiddleware(ssrManager))
-	log.Println("✅ SSR 代理中间件已注册")
+	// 当有 SSR 主题运行且数据库标记为当前主题时，前台请求会被代理到 SSR 主题
+	engine.Use(middleware.SSRProxyMiddleware(ssrManager))
+	log.Println("✅ SSR 代理中间件已注册（基于数据库状态判断）")
 
 	router.SetupFrontend(engine, settingSvc, articleSvc, cacheSvc, content, cfg, pageRepo)
 	appRouter.Setup(engine)

@@ -28386,6 +28386,7 @@ type UserInstalledThemeMutation struct {
 	install_time       *time.Time
 	user_theme_config  *map[string]interface{}
 	installed_version  *string
+	deploy_type        *userinstalledtheme.DeployType
 	clearedFields      map[string]struct{}
 	user               *uint
 	cleareduser        bool
@@ -28931,6 +28932,42 @@ func (m *UserInstalledThemeMutation) ResetInstalledVersion() {
 	delete(m.clearedFields, userinstalledtheme.FieldInstalledVersion)
 }
 
+// SetDeployType sets the "deploy_type" field.
+func (m *UserInstalledThemeMutation) SetDeployType(ut userinstalledtheme.DeployType) {
+	m.deploy_type = &ut
+}
+
+// DeployType returns the value of the "deploy_type" field in the mutation.
+func (m *UserInstalledThemeMutation) DeployType() (r userinstalledtheme.DeployType, exists bool) {
+	v := m.deploy_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeployType returns the old "deploy_type" field's value of the UserInstalledTheme entity.
+// If the UserInstalledTheme object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserInstalledThemeMutation) OldDeployType(ctx context.Context) (v userinstalledtheme.DeployType, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeployType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeployType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeployType: %w", err)
+	}
+	return oldValue.DeployType, nil
+}
+
+// ResetDeployType resets all changes to the "deploy_type" field.
+func (m *UserInstalledThemeMutation) ResetDeployType() {
+	m.deploy_type = nil
+}
+
 // ClearUser clears the "user" edge to the User entity.
 func (m *UserInstalledThemeMutation) ClearUser() {
 	m.cleareduser = true
@@ -28992,7 +29029,7 @@ func (m *UserInstalledThemeMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserInstalledThemeMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.deleted_at != nil {
 		fields = append(fields, userinstalledtheme.FieldDeletedAt)
 	}
@@ -29023,6 +29060,9 @@ func (m *UserInstalledThemeMutation) Fields() []string {
 	if m.installed_version != nil {
 		fields = append(fields, userinstalledtheme.FieldInstalledVersion)
 	}
+	if m.deploy_type != nil {
+		fields = append(fields, userinstalledtheme.FieldDeployType)
+	}
 	return fields
 }
 
@@ -29051,6 +29091,8 @@ func (m *UserInstalledThemeMutation) Field(name string) (ent.Value, bool) {
 		return m.UserThemeConfig()
 	case userinstalledtheme.FieldInstalledVersion:
 		return m.InstalledVersion()
+	case userinstalledtheme.FieldDeployType:
+		return m.DeployType()
 	}
 	return nil, false
 }
@@ -29080,6 +29122,8 @@ func (m *UserInstalledThemeMutation) OldField(ctx context.Context, name string) 
 		return m.OldUserThemeConfig(ctx)
 	case userinstalledtheme.FieldInstalledVersion:
 		return m.OldInstalledVersion(ctx)
+	case userinstalledtheme.FieldDeployType:
+		return m.OldDeployType(ctx)
 	}
 	return nil, fmt.Errorf("unknown UserInstalledTheme field %s", name)
 }
@@ -29158,6 +29202,13 @@ func (m *UserInstalledThemeMutation) SetField(name string, value ent.Value) erro
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetInstalledVersion(v)
+		return nil
+	case userinstalledtheme.FieldDeployType:
+		v, ok := value.(userinstalledtheme.DeployType)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeployType(v)
 		return nil
 	}
 	return fmt.Errorf("unknown UserInstalledTheme field %s", name)
@@ -29279,6 +29330,9 @@ func (m *UserInstalledThemeMutation) ResetField(name string) error {
 		return nil
 	case userinstalledtheme.FieldInstalledVersion:
 		m.ResetInstalledVersion()
+		return nil
+	case userinstalledtheme.FieldDeployType:
+		m.ResetDeployType()
 		return nil
 	}
 	return fmt.Errorf("unknown UserInstalledTheme field %s", name)

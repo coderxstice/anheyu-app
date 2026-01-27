@@ -16,6 +16,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// CurrentSSRThemeChecker 检查当前是否应该使用 SSR 主题的回调函数
+// 返回 (themeName, shouldProxy)
+// - themeName: 当前 SSR 主题名称（如果应该代理）
+// - shouldProxy: 是否应该代理到 SSR
+type CurrentSSRThemeChecker func() (themeName string, shouldProxy bool)
+
+// ssrThemeChecker 全局的 SSR 主题检查器
+var ssrThemeChecker CurrentSSRThemeChecker
+
+// SetSSRThemeChecker 设置 SSR 主题检查器
+// 应在应用启动时调用，传入检查数据库状态的回调函数
+func SetSSRThemeChecker(checker CurrentSSRThemeChecker) {
+	ssrThemeChecker = checker
+}
+
 // SSRProxyMiddleware 创建 SSR 主题反向代理中间件
 // 当有 SSR 主题运行时，将前台请求（非 API、非后台）代理到 SSR 主题
 func SSRProxyMiddleware(ssrManager *ssr.Manager) gin.HandlerFunc {
@@ -34,8 +49,28 @@ func SSRProxyMiddleware(ssrManager *ssr.Manager) gin.HandlerFunc {
 			return
 		}
 
-		// 检查是否有运行中的 SSR 主题
-		runningTheme := ssrManager.GetRunningTheme()
+		// 优先使用 checker 检查数据库状态（如果已设置）
+		var runningTheme *ssr.ThemeInfo
+		if ssrThemeChecker != nil {
+			themeName, shouldProxy := ssrThemeChecker()
+			if !shouldProxy {
+				// 数据库说当前不应该使用 SSR 主题，直接跳过代理
+				c.Next()
+				return
+			}
+			// 数据库说应该使用 SSR 主题，检查进程是否在运行
+			if ssrManager.IsRunning(themeName) {
+				runningTheme = &ssr.ThemeInfo{
+					Name:   themeName,
+					Status: ssr.StatusRunning,
+					Port:   ssrManager.GetPort(themeName),
+				}
+			}
+		} else {
+			// 向后兼容：仅检查进程状态
+			runningTheme = ssrManager.GetRunningTheme()
+		}
+
 		if runningTheme == nil {
 			c.Next()
 			return
@@ -112,14 +147,15 @@ func shouldSkipSSRProxy(path string) bool {
 	}
 
 	// 前缀匹配的路径
+	// 注意：/static/ 和 /assets/ 不在此列表中，因为它们应该由当前激活的主题控制
+	// 当使用 SSR 主题时，这些路径会被代理到 SSR 进程
+	// 后台专用的静态资源使用 /admin-static/ 和 /admin-assets/ 路径
 	skipPrefixes := []string{
 		"/api/",          // API 接口
 		"/admin",         // 后台管理页面
 		"/login",         // 登录页面
-		"/admin-static/", // 后台静态资源
-		"/admin-assets/", // 后台 Vue 资源
-		"/assets/",       // 后台资源
-		"/static/",       // 后台静态资源（logo、图片等）
+		"/admin-static/", // 后台静态资源（专用路径，不受主题影响）
+		"/admin-assets/", // 后台 Vue 资源（专用路径，不受主题影响）
 		"/f/",            // 文件服务
 		"/needcache/",    // 缓存服务
 	}

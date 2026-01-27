@@ -28,8 +28,9 @@ import (
 // Handler 主题管理处理器
 type Handler struct {
 	themeService theme.ThemeService
-	isProVersion bool   // 是否为 PRO 版本
-	licenseKey   string // PRO 版授权密钥
+	ssrManager   theme.SSRManagerInterface // SSR 主题管理器
+	isProVersion bool                      // 是否为 PRO 版本
+	licenseKey   string                    // PRO 版授权密钥
 }
 
 // ThemeHandler 类型别名，简化引用
@@ -64,9 +65,10 @@ type (
 )
 
 // NewHandler 创建主题管理处理器实例
-func NewHandler(themeService theme.ThemeService) *Handler {
+func NewHandler(themeService theme.ThemeService, ssrManager theme.SSRManagerInterface) *Handler {
 	return &Handler{
 		themeService: themeService,
+		ssrManager:   ssrManager,
 		isProVersion: false,
 		licenseKey:   "",
 	}
@@ -268,7 +270,7 @@ func (h *Handler) SwitchTheme(c *gin.Context) {
 		return
 	}
 
-	err = h.themeService.SwitchToTheme(c.Request.Context(), userID, req.ThemeName)
+	err = h.themeService.SwitchToTheme(c.Request.Context(), userID, req.ThemeName, h.ssrManager)
 	if err != nil {
 		response.Fail(c, http.StatusInternalServerError, "切换主题失败: "+err.Error())
 		return
@@ -304,7 +306,7 @@ func (h *Handler) SwitchToOfficial(c *gin.Context) {
 		return
 	}
 
-	err = h.themeService.SwitchToOfficial(c.Request.Context(), userID)
+	err = h.themeService.SwitchToOfficial(c.Request.Context(), userID, h.ssrManager)
 	if err != nil {
 		response.Fail(c, http.StatusInternalServerError, "切换到官方主题失败: "+err.Error())
 		return

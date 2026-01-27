@@ -260,8 +260,50 @@ func (m *Manager) Start(themeName string, port int) error {
 		log.Printf("[SSR] 主题进程已退出: %s", themeName)
 	}()
 
+	// 等待 SSR 主题就绪（健康检查）
+	// 在后台进行健康检查，不阻塞主流程
+	go m.waitForReady(themeName, port)
+
 	log.Printf("[SSR] 主题启动成功: %s, 端口: %d", themeName, port)
 	return nil
+}
+
+// waitForReady 等待 SSR 主题 HTTP 服务就绪
+func (m *Manager) waitForReady(themeName string, port int) {
+	healthURL := fmt.Sprintf("http://localhost:%d/", port)
+	maxTimeout := 30 * time.Second // 最大等待时间 30 秒
+	checkInterval := time.Second   // 每次检查间隔 1 秒
+	httpTimeout := 2 * time.Second // HTTP 请求超时 2 秒
+	startTime := time.Now()
+
+	for {
+		elapsed := time.Since(startTime)
+		if elapsed >= maxTimeout {
+			log.Printf("[SSR] ⚠️ 主题健康检查超时: %s（已等待 %.1f 秒）", themeName, elapsed.Seconds())
+			return
+		}
+
+		// 检查进程是否还在运行
+		m.mu.RLock()
+		rt, exists := m.processes[themeName]
+		if !exists || rt.cmd.Process == nil {
+			m.mu.RUnlock()
+			log.Printf("[SSR] 主题进程已退出，停止健康检查: %s", themeName)
+			return
+		}
+		m.mu.RUnlock()
+
+		// 尝试连接
+		client := &http.Client{Timeout: httpTimeout}
+		resp, err := client.Get(healthURL)
+		if err == nil {
+			resp.Body.Close()
+			log.Printf("[SSR] 主题 HTTP 服务已就绪: %s (等待了 %.1f 秒)", themeName, time.Since(startTime).Seconds())
+			return
+		}
+
+		time.Sleep(checkInterval)
+	}
 }
 
 // Stop 停止 SSR 主题
@@ -294,6 +336,18 @@ func (m *Manager) Stop(themeName string) error {
 	delete(m.processes, themeName)
 	log.Printf("[SSR] 主题停止成功: %s", themeName)
 	return nil
+}
+
+// GetPort 获取运行中主题的端口号
+// 如果主题未运行，返回 0
+func (m *Manager) GetPort(themeName string) int {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	if rt, exists := m.processes[themeName]; exists && rt.cmd.Process != nil {
+		return rt.port
+	}
+	return 0
 }
 
 // GetStatus 获取主题状态
@@ -418,7 +472,7 @@ func (m *Manager) GetRunningTheme() *ThemeInfo {
 }
 
 // StopAll 停止所有运行中的 SSR 主题
-func (m *Manager) StopAll() {
+func (m *Manager) StopAll() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -430,4 +484,28 @@ func (m *Manager) StopAll() {
 		}
 	}
 	m.processes = make(map[string]*runningTheme)
+	return nil
+}
+
+// IsRunning 检查主题是否正在运行
+func (m *Manager) IsRunning(themeName string) bool {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	rt, exists := m.processes[themeName]
+	return exists && rt.cmd.Process != nil
+}
+
+// ListRunning 列出所有正在运行的主题
+func (m *Manager) ListRunning() []string {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	var running []string
+	for name, rt := range m.processes {
+		if rt.cmd.Process != nil {
+			running = append(running, name)
+		}
+	}
+	return running
 }

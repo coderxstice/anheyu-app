@@ -776,6 +776,7 @@ var (
 		{Name: "install_time", Type: field.TypeTime, Comment: "安装时间"},
 		{Name: "user_theme_config", Type: field.TypeJSON, Nullable: true, Comment: "用户个性化主题配置（覆盖默认配置）"},
 		{Name: "installed_version", Type: field.TypeString, Nullable: true, Size: 50, Comment: "安装时的版本号（用于版本检查和更新提醒）"},
+		{Name: "deploy_type", Type: field.TypeEnum, Comment: "部署类型：standard-普通主题，ssr-SSR主题", Enums: []string{"standard", "ssr"}, Default: "standard"},
 		{Name: "user_id", Type: field.TypeUint, Comment: "用户ID"},
 	}
 	// UserInstalledThemesTable holds the schema information for the "user_installed_themes" table.
@@ -787,7 +788,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "user_installed_themes_users_installed_themes",
-				Columns:    []*schema.Column{UserInstalledThemesColumns[10]},
+				Columns:    []*schema.Column{UserInstalledThemesColumns[11]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -796,7 +797,7 @@ var (
 			{
 				Name:    "userinstalledtheme_user_id_is_current",
 				Unique:  false,
-				Columns: []*schema.Column{UserInstalledThemesColumns[10], UserInstalledThemesColumns[6]},
+				Columns: []*schema.Column{UserInstalledThemesColumns[11], UserInstalledThemesColumns[6]},
 			},
 			{
 				Name:    "userinstalledtheme_theme_name",
@@ -806,12 +807,17 @@ var (
 			{
 				Name:    "userinstalledtheme_user_id_theme_name",
 				Unique:  true,
-				Columns: []*schema.Column{UserInstalledThemesColumns[10], UserInstalledThemesColumns[4]},
+				Columns: []*schema.Column{UserInstalledThemesColumns[11], UserInstalledThemesColumns[4]},
 			},
 			{
 				Name:    "userinstalledtheme_theme_market_id",
 				Unique:  false,
 				Columns: []*schema.Column{UserInstalledThemesColumns[5]},
+			},
+			{
+				Name:    "userinstalledtheme_deploy_type",
+				Unique:  false,
+				Columns: []*schema.Column{UserInstalledThemesColumns[10]},
 			},
 		},
 	}
