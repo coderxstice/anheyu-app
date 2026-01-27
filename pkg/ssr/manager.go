@@ -260,8 +260,44 @@ func (m *Manager) Start(themeName string, port int) error {
 		log.Printf("[SSR] 主题进程已退出: %s", themeName)
 	}()
 
+	// 等待 SSR 主题就绪（健康检查）
+	// 在后台进行健康检查，不阻塞主流程
+	go m.waitForReady(themeName, port)
+
 	log.Printf("[SSR] 主题启动成功: %s, 端口: %d", themeName, port)
 	return nil
+}
+
+// waitForReady 等待 SSR 主题 HTTP 服务就绪
+func (m *Manager) waitForReady(themeName string, port int) {
+	healthURL := fmt.Sprintf("http://localhost:%d/", port)
+	maxAttempts := 30 // 最多等待 30 秒
+	interval := time.Second
+
+	for i := 0; i < maxAttempts; i++ {
+		// 检查进程是否还在运行
+		m.mu.RLock()
+		rt, exists := m.processes[themeName]
+		if !exists || rt.cmd.Process == nil {
+			m.mu.RUnlock()
+			log.Printf("[SSR] 主题进程已退出，停止健康检查: %s", themeName)
+			return
+		}
+		m.mu.RUnlock()
+
+		// 尝试连接
+		client := &http.Client{Timeout: 2 * time.Second}
+		resp, err := client.Get(healthURL)
+		if err == nil {
+			resp.Body.Close()
+			log.Printf("[SSR] 主题 HTTP 服务已就绪: %s (等待了 %d 秒)", themeName, i+1)
+			return
+		}
+
+		time.Sleep(interval)
+	}
+
+	log.Printf("[SSR] ⚠️ 主题健康检查超时: %s（已等待 %d 秒）", themeName, maxAttempts)
 }
 
 // Stop 停止 SSR 主题

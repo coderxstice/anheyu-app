@@ -463,21 +463,47 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	// 同步 SSR 主题状态到数据库，并自动启动当前 SSR 主题
 	go func() {
 		ctx := context.Background()
+
+		// 先同步主题状态
 		if err := themeSvc.SyncSSRThemesFromFileSystem(ctx, 1, "./themes"); err != nil {
 			log.Printf("⚠️ SSR 主题同步失败: %v", err)
+			// 同步失败不影响启动流程，继续尝试启动已知的主题
 		}
 
 		// 自动启动当前激活的 SSR 主题
 		themeName, shouldStart := themeSvc.GetCurrentSSRThemeName(ctx, 1)
-		if shouldStart && themeName != "" {
-			log.Printf("🚀 检测到当前 SSR 主题: %s，正在自动启动...", themeName)
-			// 使用默认端口 3000
-			if err := ssrManager.Start(themeName, 3000); err != nil {
-				log.Printf("❌ 自动启动 SSR 主题失败: %v", err)
+		if !shouldStart || themeName == "" {
+			log.Println("📝 未检测到需要自动启动的 SSR 主题")
+			return
+		}
+
+		log.Printf("🚀 检测到当前 SSR 主题: %s，正在自动启动...", themeName)
+
+		// 使用默认端口 3000，带重试机制
+		const maxRetries = 3
+		const ssrPort = 3000
+
+		for attempt := 1; attempt <= maxRetries; attempt++ {
+			if err := ssrManager.Start(themeName, ssrPort); err != nil {
+				log.Printf("❌ 自动启动 SSR 主题失败 (尝试 %d/%d): %v", attempt, maxRetries, err)
+
+				// 如果是"已在运行"错误，不需要重试
+				if err.Error() == "theme already running" {
+					log.Printf("✅ SSR 主题 %s 已在运行", themeName)
+					return
+				}
+
+				if attempt < maxRetries {
+					log.Printf("⏳ 等待 3 秒后重试...")
+					time.Sleep(3 * time.Second)
+				}
 			} else {
 				log.Printf("✅ SSR 主题 %s 自动启动成功", themeName)
+				return
 			}
 		}
+
+		log.Printf("❌ SSR 主题 %s 自动启动失败，已达到最大重试次数", themeName)
 	}()
 
 	// --- Phase 6: 初始化表现层 (Handlers) ---
