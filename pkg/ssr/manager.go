@@ -296,6 +296,18 @@ func (m *Manager) Stop(themeName string) error {
 	return nil
 }
 
+// GetPort 获取运行中主题的端口号
+// 如果主题未运行，返回 0
+func (m *Manager) GetPort(themeName string) int {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	if rt, exists := m.processes[themeName]; exists && rt.cmd.Process != nil {
+		return rt.port
+	}
+	return 0
+}
+
 // GetStatus 获取主题状态
 func (m *Manager) GetStatus(themeName string) ThemeInfo {
 	m.mu.RLock()
@@ -418,7 +430,7 @@ func (m *Manager) GetRunningTheme() *ThemeInfo {
 }
 
 // StopAll 停止所有运行中的 SSR 主题
-func (m *Manager) StopAll() {
+func (m *Manager) StopAll() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -430,4 +442,28 @@ func (m *Manager) StopAll() {
 		}
 	}
 	m.processes = make(map[string]*runningTheme)
+	return nil
+}
+
+// IsRunning 检查主题是否正在运行
+func (m *Manager) IsRunning(themeName string) bool {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	rt, exists := m.processes[themeName]
+	return exists && rt.cmd.Process != nil
+}
+
+// ListRunning 列出所有正在运行的主题
+func (m *Manager) ListRunning() []string {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	var running []string
+	for name, rt := range m.processes {
+		if rt.cmd.Process != nil {
+			running = append(running, name)
+		}
+	}
+	return running
 }
