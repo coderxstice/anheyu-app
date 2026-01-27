@@ -271,10 +271,18 @@ func (m *Manager) Start(themeName string, port int) error {
 // waitForReady 等待 SSR 主题 HTTP 服务就绪
 func (m *Manager) waitForReady(themeName string, port int) {
 	healthURL := fmt.Sprintf("http://localhost:%d/", port)
-	maxAttempts := 30 // 最多等待 30 秒
-	interval := time.Second
+	maxTimeout := 30 * time.Second // 最大等待时间 30 秒
+	checkInterval := time.Second   // 每次检查间隔 1 秒
+	httpTimeout := 2 * time.Second // HTTP 请求超时 2 秒
+	startTime := time.Now()
 
-	for i := 0; i < maxAttempts; i++ {
+	for {
+		elapsed := time.Since(startTime)
+		if elapsed >= maxTimeout {
+			log.Printf("[SSR] ⚠️ 主题健康检查超时: %s（已等待 %.1f 秒）", themeName, elapsed.Seconds())
+			return
+		}
+
 		// 检查进程是否还在运行
 		m.mu.RLock()
 		rt, exists := m.processes[themeName]
@@ -286,18 +294,16 @@ func (m *Manager) waitForReady(themeName string, port int) {
 		m.mu.RUnlock()
 
 		// 尝试连接
-		client := &http.Client{Timeout: 2 * time.Second}
+		client := &http.Client{Timeout: httpTimeout}
 		resp, err := client.Get(healthURL)
 		if err == nil {
 			resp.Body.Close()
-			log.Printf("[SSR] 主题 HTTP 服务已就绪: %s (等待了 %d 秒)", themeName, i+1)
+			log.Printf("[SSR] 主题 HTTP 服务已就绪: %s (等待了 %.1f 秒)", themeName, time.Since(startTime).Seconds())
 			return
 		}
 
-		time.Sleep(interval)
+		time.Sleep(checkInterval)
 	}
-
-	log.Printf("[SSR] ⚠️ 主题健康检查超时: %s（已等待 %d 秒）", themeName, maxAttempts)
 }
 
 // Stop 停止 SSR 主题
