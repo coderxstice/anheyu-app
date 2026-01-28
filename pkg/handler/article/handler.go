@@ -416,6 +416,7 @@ func (h *Handler) Delete(c *gin.Context) {
 // @Param        query query string false "搜索关键词 (标题或摘要)"
 // @Param        status query string false "文章状态 (DRAFT, PUBLISHED, ARCHIVED)" Enums(DRAFT, PUBLISHED, ARCHIVED)
 // @Param        author_id query string false "作者ID（多人共创功能：普通用户只能查看自己的文章）"
+// @Param        category query string false "分类名称"
 // @Success      200 {object} response.Response{data=model.ArticleListResponse} "成功响应"
 // @Failure      403 {object} response.Response "权限不足"
 // @Failure      500 {object} response.Response "服务器内部错误"
@@ -467,11 +468,12 @@ func (h *Handler) List(c *gin.Context) {
 	}
 
 	options := &model.ListArticlesOptions{
-		Page:     page,
-		PageSize: pageSize,
-		Query:    c.Query("query"),
-		Status:   c.Query("status"),
-		AuthorID: authorID,
+		Page:         page,
+		PageSize:     pageSize,
+		Query:        c.Query("query"),
+		Status:       c.Query("status"),
+		AuthorID:     authorID,
+		CategoryName: c.Query("category"),
 	}
 
 	result, err := h.svc.List(c.Request.Context(), options)
