@@ -155,11 +155,17 @@ func getPageSEOData(ctx context.Context, path string, settingSvc setting.Setting
 	siteName := settingSvc.Get(constant.KeyAppName.String())
 	siteDescription := settingSvc.Get(constant.KeySiteDescription.String())
 
+	// 规范化路径：移除尾随斜杠（根路径除外），确保内置页面配置能正确匹配
+	normalizedPath := path
+	if len(path) > 1 && strings.HasSuffix(path, "/") {
+		normalizedPath = strings.TrimSuffix(path, "/")
+	}
+
 	// 1. 检查是否是归档页面 /archives/2025/ 或 /archives/2025/01/
 	archiveYearPattern := regexp.MustCompile(`^/archives/(\d{4})/?$`)
 	archiveMonthPattern := regexp.MustCompile(`^/archives/(\d{4})/(\d{1,2})/?$`)
 
-	if matches := archiveMonthPattern.FindStringSubmatch(path); len(matches) == 3 {
+	if matches := archiveMonthPattern.FindStringSubmatch(normalizedPath); len(matches) == 3 {
 		year, month := matches[1], matches[2]
 		return &PageSEOData{
 			Title:       fmt.Sprintf("%s年%s月归档", year, month),
@@ -167,7 +173,7 @@ func getPageSEOData(ctx context.Context, path string, settingSvc setting.Setting
 			OgType:      "website",
 		}
 	}
-	if matches := archiveYearPattern.FindStringSubmatch(path); len(matches) == 2 {
+	if matches := archiveYearPattern.FindStringSubmatch(normalizedPath); len(matches) == 2 {
 		year := matches[1]
 		return &PageSEOData{
 			Title:       fmt.Sprintf("%s年归档", year),
@@ -177,9 +183,8 @@ func getPageSEOData(ctx context.Context, path string, settingSvc setting.Setting
 	}
 
 	// 2. 检查是否是分类详情页 /categories/{slug}
-	if strings.HasPrefix(path, "/categories/") && !strings.Contains(path, "/page/") {
-		slug := strings.TrimPrefix(path, "/categories/")
-		slug = strings.TrimSuffix(slug, "/")
+	if strings.HasPrefix(normalizedPath, "/categories/") && !strings.Contains(normalizedPath, "/page/") {
+		slug := strings.TrimPrefix(normalizedPath, "/categories/")
 		// URL 解码处理中文等特殊字符
 		decodedSlug, err := decodeURLPath(slug)
 		if err != nil {
@@ -193,9 +198,8 @@ func getPageSEOData(ctx context.Context, path string, settingSvc setting.Setting
 	}
 
 	// 3. 检查是否是标签详情页 /tags/{slug}
-	if strings.HasPrefix(path, "/tags/") && !strings.Contains(path, "/page/") {
-		slug := strings.TrimPrefix(path, "/tags/")
-		slug = strings.TrimSuffix(slug, "/")
+	if strings.HasPrefix(normalizedPath, "/tags/") && !strings.Contains(normalizedPath, "/page/") {
+		slug := strings.TrimPrefix(normalizedPath, "/tags/")
 		// URL 解码处理中文等特殊字符
 		decodedSlug, err := decodeURLPath(slug)
 		if err != nil {
@@ -209,9 +213,9 @@ func getPageSEOData(ctx context.Context, path string, settingSvc setting.Setting
 	}
 
 	// 4. 检查内置页面配置
-	if seoData, exists := builtInPageSEO[path]; exists {
+	if seoData, exists := builtInPageSEO[normalizedPath]; exists {
 		// 尝试从导航菜单获取自定义标题
-		menuTitle := getMenuTitleByPath(path, settingSvc)
+		menuTitle := getMenuTitleByPath(normalizedPath, settingSvc)
 		if menuTitle != "" {
 			seoData.Title = menuTitle
 		}
@@ -251,7 +255,7 @@ func getPageSEOData(ctx context.Context, path string, settingSvc setting.Setting
 	}
 
 	// 6. 尝试从导航菜单获取标题
-	menuTitle := getMenuTitleByPath(path, settingSvc)
+	menuTitle := getMenuTitleByPath(normalizedPath, settingSvc)
 	if menuTitle != "" {
 		return &PageSEOData{
 			Title:       menuTitle,
@@ -432,18 +436,36 @@ func getRequestScheme(c *gin.Context) string {
 // getCanonicalURL 获取用于 SEO 的规范 URL
 // 优先使用系统配置的 SITE_URL，确保 og:url、canonical 等标签使用正确的域名
 // 而不是从请求中获取的可能是内部地址（如 127.0.0.1）的 Host
+// SEO 最佳实践：统一移除尾随斜杠（除根路径外），确保 canonical URL 一致性
 func getCanonicalURL(c *gin.Context, settingSvc setting.SettingService) string {
+	// 获取请求路径并规范化（移除尾随斜杠，根路径除外）
+	requestURI := c.Request.URL.RequestURI()
+	if len(requestURI) > 1 && strings.HasSuffix(requestURI, "/") {
+		// 检查是否有查询参数
+		if idx := strings.Index(requestURI, "?"); idx > 0 {
+			// 有查询参数：移除路径部分的尾随斜杠
+			path := requestURI[:idx]
+			query := requestURI[idx:]
+			if len(path) > 1 && strings.HasSuffix(path, "/") {
+				requestURI = strings.TrimSuffix(path, "/") + query
+			}
+		} else {
+			// 无查询参数：直接移除尾随斜杠
+			requestURI = strings.TrimSuffix(requestURI, "/")
+		}
+	}
+
 	// 优先使用系统配置的 SITE_URL
 	siteURL := settingSvc.Get(constant.KeySiteURL.String())
 	if siteURL != "" {
 		// 移除末尾斜杠，避免重复
 		siteURL = strings.TrimSuffix(siteURL, "/")
 		// 拼接请求路径
-		return siteURL + c.Request.URL.RequestURI()
+		return siteURL + requestURI
 	}
 
 	// 回退：从请求中构建 URL（可能不准确，但保持向后兼容）
-	return fmt.Sprintf("%s://%s%s", getRequestScheme(c), c.Request.Host, c.Request.URL.RequestURI())
+	return fmt.Sprintf("%s://%s%s", getRequestScheme(c), c.Request.Host, requestURI)
 }
 
 // generateFileETag 为文件生成基于内容的ETag
