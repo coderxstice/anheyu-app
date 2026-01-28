@@ -8,6 +8,17 @@ body:
       value: |
         重要：请依照该模板来提交 
         Please follow the template to create a new issue
+  - type: dropdown
+    id: edition
+    attributes:
+      label: 使用的版本类型？ | Which edition are you using?
+      description: 请选择你使用的是社区版还是 PRO 版本 | Please select whether you are using Community or PRO edition
+      options:
+        - 社区版 (Community Edition)
+        - PRO 版本 (PRO Edition)
+    validations:
+      required: true
+
   - type: input
     id: anzhiyu-ver
     attributes:

@@ -881,6 +881,10 @@ func (r *articleRepo) List(ctx context.Context, options *model.ListArticlesOptio
 	if options.AuthorID != nil {
 		query = query.Where(article.OwnerIDEQ(*options.AuthorID))
 	}
+	// 按分类名称过滤
+	if options.CategoryName != "" {
+		query = query.Where(article.HasPostCategoriesWith(postcategory.NameEQ(options.CategoryName)))
+	}
 	total, err := query.Clone().Count(ctx)
 	if err != nil {
 		return nil, 0, err

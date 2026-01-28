@@ -3,6 +3,18 @@ description: Suggest an idea for this project
 title: "[Feature]: "
 
 body:
+  - type: dropdown
+    id: edition
+    attributes:
+      label: 针对的版本类型？ | Which edition is this feature for?
+      description: 请选择此功能建议针对社区版还是 PRO 版本 | Please select whether this feature is for Community or PRO edition
+      options:
+        - 社区版 (Community Edition)
+        - PRO 版本 (PRO Edition)
+        - 两者都适用 (Both)
+    validations:
+      required: true
+
   - type: textarea
     id: feature-request
     attributes:
@@ -11,4 +23,4 @@ body:
       placeholder:
       value:
     validations:
-      require: true
+      required: true
