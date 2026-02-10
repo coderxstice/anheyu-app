@@ -985,7 +985,13 @@ func (s *Service) toResponseDTO(ctx context.Context, c *model.Comment, parent *m
 	// 获取用户自定义头像URL（如果有关联用户且用户上传了头像）
 	var avatarURL *string
 	if c.User != nil && c.User.Avatar != "" {
-		avatarURL = &c.User.Avatar
+		avatar := c.User.Avatar
+		// 处理头像URL：如果是相对路径则拼接gravatar URL，与 user handler 保持一致
+		if !strings.HasPrefix(avatar, "http://") && !strings.HasPrefix(avatar, "https://") {
+			gravatarBaseURL := strings.TrimSuffix(s.settingSvc.Get(constant.KeyGravatarURL.String()), "/")
+			avatar = gravatarBaseURL + "/" + strings.TrimPrefix(avatar, "/")
+		}
+		avatarURL = &avatar
 	}
 
 	resp := &dto.Response{
