@@ -164,8 +164,20 @@ func (a *App) PrintBanner() {
 	log.Println("--------------------------------------------------------")
 }
 
+// AppOptions 提供 NewApp 的可选配置项
+type AppOptions struct {
+	// SkipFrontend 为 true 时跳过内嵌 Vue 前端路由注册，
+	// 适用于 Pro 版等使用独立前端服务（如 Next.js）的场景。
+	SkipFrontend bool
+}
+
 // NewApp 是应用的构造函数，它执行所有的初始化和依赖注入工作
 func NewApp(content embed.FS) (*App, func(), error) {
+	return NewAppWithOptions(content, AppOptions{})
+}
+
+// NewAppWithOptions 与 NewApp 相同，但接受额外的配置选项
+func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) {
 	// 在初始化早期获取版本信息
 	appVersion := version.GetVersion()
 
@@ -606,7 +618,11 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	engine.Use(middleware.SSRProxyMiddleware(ssrManager))
 	log.Println("✅ SSR 代理中间件已注册（基于数据库状态判断）")
 
-	router.SetupFrontend(engine, settingSvc, articleSvc, cacheSvc, content, cfg, pageRepo)
+	if opts.SkipFrontend {
+		log.Println("⏭️  SkipFrontend=true，跳过内嵌前端路由注册（由外部前端服务处理）")
+	} else {
+		router.SetupFrontend(engine, settingSvc, articleSvc, cacheSvc, content, cfg, pageRepo)
+	}
 	appRouter.Setup(engine)
 
 	// --- 微信分享路由 ---

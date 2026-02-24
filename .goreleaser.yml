@@ -169,6 +169,7 @@ dockers:
       - LICENSE
       - entrypoint.sh
       - default_files/
+      - frontend/
 
   # AMD64 镜像 - latest 标签（仅正式版本）
   - id: anheyu-app-docker-amd64-latest
@@ -197,6 +198,7 @@ dockers:
       - LICENSE
       - entrypoint.sh
       - default_files/
+      - frontend/
 
   # ARM64 镜像 - 版本标签
   - id: anheyu-app-docker-arm64-versioned
@@ -224,6 +226,7 @@ dockers:
       - LICENSE
       - entrypoint.sh
       - default_files/
+      - frontend/
 
   # ARM64 镜像 - latest 标签（仅正式版本）
   - id: anheyu-app-docker-arm64-latest
@@ -252,6 +255,7 @@ dockers:
       - LICENSE
       - entrypoint.sh
       - default_files/
+      - frontend/
 
   # AMD64 镜像 - Beta标签（仅在beta版本时构建）
   - id: anheyu-app-docker-amd64-beta
@@ -277,6 +281,7 @@ dockers:
       - LICENSE
       - entrypoint.sh
       - default_files/
+      - frontend/
 
   # ARM64 镜像 - Beta标签（仅在beta版本时构建）
   - id: anheyu-app-docker-arm64-beta
@@ -302,6 +307,7 @@ dockers:
       - LICENSE
       - entrypoint.sh
       - default_files/
+      - frontend/
 
   # AMD64 镜像 - Alpha标签（仅在alpha版本时构建）
   - id: anheyu-app-docker-amd64-alpha
@@ -327,6 +333,7 @@ dockers:
       - LICENSE
       - entrypoint.sh
       - default_files/
+      - frontend/
 
   # ARM64 镜像 - Alpha标签（仅在alpha版本时构建）
   - id: anheyu-app-docker-arm64-alpha
@@ -352,6 +359,7 @@ dockers:
       - LICENSE
       - entrypoint.sh
       - default_files/
+      - frontend/
 
   # AMD64 镜像 - RC标签（仅在rc版本时构建）
   - id: anheyu-app-docker-amd64-rc
@@ -377,6 +385,7 @@ dockers:
       - LICENSE
       - entrypoint.sh
       - default_files/
+      - frontend/
 
   # ARM64 镜像 - RC标签（仅在rc版本时构建）
   - id: anheyu-app-docker-arm64-rc
@@ -402,6 +411,7 @@ dockers:
       - LICENSE
       - entrypoint.sh
       - default_files/
+      - frontend/
 
 # Docker Manifest 配置 - 多架构镜像聚合
 docker_manifests:
