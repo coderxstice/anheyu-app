@@ -809,10 +809,20 @@ func (r *articleRepo) ListPublic(ctx context.Context, options *model.ListPublicA
 	}
 
 	if options.CategoryName != "" {
-		baseQuery = baseQuery.Where(article.HasPostCategoriesWith(postcategory.NameEQ(options.CategoryName)))
+		baseQuery = baseQuery.Where(article.HasPostCategoriesWith(
+			postcategory.Or(
+				postcategory.SlugEQ(options.CategoryName),
+				postcategory.NameEQ(options.CategoryName),
+			),
+		))
 	}
 	if options.TagName != "" {
-		baseQuery = baseQuery.Where(article.HasPostTagsWith(posttag.NameEQ(options.TagName)))
+		baseQuery = baseQuery.Where(article.HasPostTagsWith(
+			posttag.Or(
+				posttag.SlugEQ(options.TagName),
+				posttag.NameEQ(options.TagName),
+			),
+		))
 	}
 
 	applyDateFilter := func(s *sql.Selector) {
