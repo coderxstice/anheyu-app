@@ -697,18 +697,22 @@ func init() {
 	postcategoryDescName := postcategoryFields[3].Descriptor()
 	// postcategory.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	postcategory.NameValidator = postcategoryDescName.Validators[0].(func(string) error)
+	// postcategoryDescSlug is the schema descriptor for slug field.
+	postcategoryDescSlug := postcategoryFields[4].Descriptor()
+	// postcategory.SlugValidator is a validator for the "slug" field. It is called by the builders before save.
+	postcategory.SlugValidator = postcategoryDescSlug.Validators[0].(func(string) error)
 	// postcategoryDescCount is the schema descriptor for count field.
-	postcategoryDescCount := postcategoryFields[5].Descriptor()
+	postcategoryDescCount := postcategoryFields[6].Descriptor()
 	// postcategory.DefaultCount holds the default value on creation for the count field.
 	postcategory.DefaultCount = postcategoryDescCount.Default.(int)
 	// postcategory.CountValidator is a validator for the "count" field. It is called by the builders before save.
 	postcategory.CountValidator = postcategoryDescCount.Validators[0].(func(int) error)
 	// postcategoryDescIsSeries is the schema descriptor for is_series field.
-	postcategoryDescIsSeries := postcategoryFields[6].Descriptor()
+	postcategoryDescIsSeries := postcategoryFields[7].Descriptor()
 	// postcategory.DefaultIsSeries holds the default value on creation for the is_series field.
 	postcategory.DefaultIsSeries = postcategoryDescIsSeries.Default.(bool)
 	// postcategoryDescSortOrder is the schema descriptor for sort_order field.
-	postcategoryDescSortOrder := postcategoryFields[7].Descriptor()
+	postcategoryDescSortOrder := postcategoryFields[8].Descriptor()
 	// postcategory.DefaultSortOrder holds the default value on creation for the sort_order field.
 	postcategory.DefaultSortOrder = postcategoryDescSortOrder.Default.(int)
 	// postcategory.SortOrderValidator is a validator for the "sort_order" field. It is called by the builders before save.
@@ -732,8 +736,12 @@ func init() {
 	posttagDescName := posttagFields[3].Descriptor()
 	// posttag.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	posttag.NameValidator = posttagDescName.Validators[0].(func(string) error)
+	// posttagDescSlug is the schema descriptor for slug field.
+	posttagDescSlug := posttagFields[4].Descriptor()
+	// posttag.SlugValidator is a validator for the "slug" field. It is called by the builders before save.
+	posttag.SlugValidator = posttagDescSlug.Validators[0].(func(string) error)
 	// posttagDescCount is the schema descriptor for count field.
-	posttagDescCount := posttagFields[4].Descriptor()
+	posttagDescCount := posttagFields[5].Descriptor()
 	// posttag.DefaultCount holds the default value on creation for the count field.
 	posttag.DefaultCount = posttagDescCount.Default.(int)
 	// posttag.CountValidator is a validator for the "count" field. It is called by the builders before save.

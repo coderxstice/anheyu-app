@@ -71,6 +71,20 @@ func (_c *PostCategoryCreate) SetName(v string) *PostCategoryCreate {
 	return _c
 }
 
+// SetSlug sets the "slug" field.
+func (_c *PostCategoryCreate) SetSlug(v string) *PostCategoryCreate {
+	_c.mutation.SetSlug(v)
+	return _c
+}
+
+// SetNillableSlug sets the "slug" field if the given value is not nil.
+func (_c *PostCategoryCreate) SetNillableSlug(v *string) *PostCategoryCreate {
+	if v != nil {
+		_c.SetSlug(*v)
+	}
+	return _c
+}
+
 // SetDescription sets the "description" field.
 func (_c *PostCategoryCreate) SetDescription(v string) *PostCategoryCreate {
 	_c.mutation.SetDescription(v)
@@ -230,6 +244,11 @@ func (_c *PostCategoryCreate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "PostCategory.name": %w`, err)}
 		}
 	}
+	if v, ok := _c.mutation.Slug(); ok {
+		if err := postcategory.SlugValidator(v); err != nil {
+			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "PostCategory.slug": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.Count(); !ok {
 		return &ValidationError{Name: "count", err: errors.New(`ent: missing required field "PostCategory.count"`)}
 	}
@@ -297,6 +316,10 @@ func (_c *PostCategoryCreate) createSpec() (*PostCategory, *sqlgraph.CreateSpec)
 	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(postcategory.FieldName, field.TypeString, value)
 		_node.Name = value
+	}
+	if value, ok := _c.mutation.Slug(); ok {
+		_spec.SetField(postcategory.FieldSlug, field.TypeString, value)
+		_node.Slug = &value
 	}
 	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(postcategory.FieldDescription, field.TypeString, value)
@@ -421,6 +444,24 @@ func (u *PostCategoryUpsert) SetName(v string) *PostCategoryUpsert {
 // UpdateName sets the "name" field to the value that was provided on create.
 func (u *PostCategoryUpsert) UpdateName() *PostCategoryUpsert {
 	u.SetExcluded(postcategory.FieldName)
+	return u
+}
+
+// SetSlug sets the "slug" field.
+func (u *PostCategoryUpsert) SetSlug(v string) *PostCategoryUpsert {
+	u.Set(postcategory.FieldSlug, v)
+	return u
+}
+
+// UpdateSlug sets the "slug" field to the value that was provided on create.
+func (u *PostCategoryUpsert) UpdateSlug() *PostCategoryUpsert {
+	u.SetExcluded(postcategory.FieldSlug)
+	return u
+}
+
+// ClearSlug clears the value of the "slug" field.
+func (u *PostCategoryUpsert) ClearSlug() *PostCategoryUpsert {
+	u.SetNull(postcategory.FieldSlug)
 	return u
 }
 
@@ -587,6 +628,27 @@ func (u *PostCategoryUpsertOne) SetName(v string) *PostCategoryUpsertOne {
 func (u *PostCategoryUpsertOne) UpdateName() *PostCategoryUpsertOne {
 	return u.Update(func(s *PostCategoryUpsert) {
 		s.UpdateName()
+	})
+}
+
+// SetSlug sets the "slug" field.
+func (u *PostCategoryUpsertOne) SetSlug(v string) *PostCategoryUpsertOne {
+	return u.Update(func(s *PostCategoryUpsert) {
+		s.SetSlug(v)
+	})
+}
+
+// UpdateSlug sets the "slug" field to the value that was provided on create.
+func (u *PostCategoryUpsertOne) UpdateSlug() *PostCategoryUpsertOne {
+	return u.Update(func(s *PostCategoryUpsert) {
+		s.UpdateSlug()
+	})
+}
+
+// ClearSlug clears the value of the "slug" field.
+func (u *PostCategoryUpsertOne) ClearSlug() *PostCategoryUpsertOne {
+	return u.Update(func(s *PostCategoryUpsert) {
+		s.ClearSlug()
 	})
 }
 
@@ -930,6 +992,27 @@ func (u *PostCategoryUpsertBulk) SetName(v string) *PostCategoryUpsertBulk {
 func (u *PostCategoryUpsertBulk) UpdateName() *PostCategoryUpsertBulk {
 	return u.Update(func(s *PostCategoryUpsert) {
 		s.UpdateName()
+	})
+}
+
+// SetSlug sets the "slug" field.
+func (u *PostCategoryUpsertBulk) SetSlug(v string) *PostCategoryUpsertBulk {
+	return u.Update(func(s *PostCategoryUpsert) {
+		s.SetSlug(v)
+	})
+}
+
+// UpdateSlug sets the "slug" field to the value that was provided on create.
+func (u *PostCategoryUpsertBulk) UpdateSlug() *PostCategoryUpsertBulk {
+	return u.Update(func(s *PostCategoryUpsert) {
+		s.UpdateSlug()
+	})
+}
+
+// ClearSlug clears the value of the "slug" field.
+func (u *PostCategoryUpsertBulk) ClearSlug() *PostCategoryUpsertBulk {
+	return u.Update(func(s *PostCategoryUpsert) {
+		s.ClearSlug()
 	})
 }
 

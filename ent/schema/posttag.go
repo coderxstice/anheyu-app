@@ -58,6 +58,13 @@ func (PostTag) Fields() []ent.Field {
 			Unique().
 			NotEmpty(),
 
+		field.String("slug").
+			Comment("URL 友好的标识符，用于静态化路由").
+			Optional().
+			Nillable().
+			Unique().
+			MaxLen(255),
+
 		field.Int("count").
 			Comment("引用该标签的文章数量").
 			Default(0).

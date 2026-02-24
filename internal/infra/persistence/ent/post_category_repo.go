@@ -75,11 +75,16 @@ func (r *postCategoryRepo) toModel(c *ent.PostCategory) *model.PostCategory {
 		return nil
 	}
 	publicID, _ := idgen.GeneratePublicID(c.ID, idgen.EntityTypePostCategory)
+	slug := ""
+	if c.Slug != nil {
+		slug = *c.Slug
+	}
 	return &model.PostCategory{
 		ID:          publicID,
 		CreatedAt:   c.CreatedAt,
 		UpdatedAt:   c.UpdatedAt,
 		Name:        c.Name,
+		Slug:        slug,
 		Description: c.Description,
 		Count:       c.Count,
 		IsSeries:    c.IsSeries,
@@ -88,12 +93,15 @@ func (r *postCategoryRepo) toModel(c *ent.PostCategory) *model.PostCategory {
 }
 
 func (r *postCategoryRepo) Create(ctx context.Context, req *model.CreatePostCategoryRequest) (*model.PostCategory, error) {
-	newCategory, err := r.db.PostCategory.Create().
+	creator := r.db.PostCategory.Create().
 		SetName(req.Name).
 		SetNillableDescription(&req.Description).
 		SetIsSeries(req.IsSeries).
-		SetSortOrder(req.SortOrder).
-		Save(ctx)
+		SetSortOrder(req.SortOrder)
+	if req.Slug != "" {
+		creator.SetSlug(req.Slug)
+	}
+	newCategory, err := creator.Save(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -119,6 +127,13 @@ func (r *postCategoryRepo) Update(ctx context.Context, publicID string, req *mod
 	updater := r.db.PostCategory.UpdateOneID(dbID)
 	if req.Name != nil {
 		updater.SetName(*req.Name)
+	}
+	if req.Slug != nil {
+		if *req.Slug == "" {
+			updater.ClearSlug()
+		} else {
+			updater.SetSlug(*req.Slug)
+		}
 	}
 	if req.Description != nil {
 		updater.SetDescription(*req.Description)

@@ -20184,6 +20184,7 @@ type PostCategoryMutation struct {
 	created_at      *time.Time
 	updated_at      *time.Time
 	name            *string
+	slug            *string
 	description     *string
 	count           *int
 	addcount        *int
@@ -20458,6 +20459,55 @@ func (m *PostCategoryMutation) OldName(ctx context.Context) (v string, err error
 // ResetName resets all changes to the "name" field.
 func (m *PostCategoryMutation) ResetName() {
 	m.name = nil
+}
+
+// SetSlug sets the "slug" field.
+func (m *PostCategoryMutation) SetSlug(s string) {
+	m.slug = &s
+}
+
+// Slug returns the value of the "slug" field in the mutation.
+func (m *PostCategoryMutation) Slug() (r string, exists bool) {
+	v := m.slug
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSlug returns the old "slug" field's value of the PostCategory entity.
+// If the PostCategory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PostCategoryMutation) OldSlug(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSlug is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSlug requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSlug: %w", err)
+	}
+	return oldValue.Slug, nil
+}
+
+// ClearSlug clears the value of the "slug" field.
+func (m *PostCategoryMutation) ClearSlug() {
+	m.slug = nil
+	m.clearedFields[postcategory.FieldSlug] = struct{}{}
+}
+
+// SlugCleared returns if the "slug" field was cleared in this mutation.
+func (m *PostCategoryMutation) SlugCleared() bool {
+	_, ok := m.clearedFields[postcategory.FieldSlug]
+	return ok
+}
+
+// ResetSlug resets all changes to the "slug" field.
+func (m *PostCategoryMutation) ResetSlug() {
+	m.slug = nil
+	delete(m.clearedFields, postcategory.FieldSlug)
 }
 
 // SetDescription sets the "description" field.
@@ -20745,7 +20795,7 @@ func (m *PostCategoryMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PostCategoryMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 9)
 	if m.deleted_at != nil {
 		fields = append(fields, postcategory.FieldDeletedAt)
 	}
@@ -20757,6 +20807,9 @@ func (m *PostCategoryMutation) Fields() []string {
 	}
 	if m.name != nil {
 		fields = append(fields, postcategory.FieldName)
+	}
+	if m.slug != nil {
+		fields = append(fields, postcategory.FieldSlug)
 	}
 	if m.description != nil {
 		fields = append(fields, postcategory.FieldDescription)
@@ -20786,6 +20839,8 @@ func (m *PostCategoryMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case postcategory.FieldName:
 		return m.Name()
+	case postcategory.FieldSlug:
+		return m.Slug()
 	case postcategory.FieldDescription:
 		return m.Description()
 	case postcategory.FieldCount:
@@ -20811,6 +20866,8 @@ func (m *PostCategoryMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldUpdatedAt(ctx)
 	case postcategory.FieldName:
 		return m.OldName(ctx)
+	case postcategory.FieldSlug:
+		return m.OldSlug(ctx)
 	case postcategory.FieldDescription:
 		return m.OldDescription(ctx)
 	case postcategory.FieldCount:
@@ -20855,6 +20912,13 @@ func (m *PostCategoryMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetName(v)
+		return nil
+	case postcategory.FieldSlug:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSlug(v)
 		return nil
 	case postcategory.FieldDescription:
 		v, ok := value.(string)
@@ -20944,6 +21008,9 @@ func (m *PostCategoryMutation) ClearedFields() []string {
 	if m.FieldCleared(postcategory.FieldDeletedAt) {
 		fields = append(fields, postcategory.FieldDeletedAt)
 	}
+	if m.FieldCleared(postcategory.FieldSlug) {
+		fields = append(fields, postcategory.FieldSlug)
+	}
 	if m.FieldCleared(postcategory.FieldDescription) {
 		fields = append(fields, postcategory.FieldDescription)
 	}
@@ -20963,6 +21030,9 @@ func (m *PostCategoryMutation) ClearField(name string) error {
 	switch name {
 	case postcategory.FieldDeletedAt:
 		m.ClearDeletedAt()
+		return nil
+	case postcategory.FieldSlug:
+		m.ClearSlug()
 		return nil
 	case postcategory.FieldDescription:
 		m.ClearDescription()
@@ -20986,6 +21056,9 @@ func (m *PostCategoryMutation) ResetField(name string) error {
 		return nil
 	case postcategory.FieldName:
 		m.ResetName()
+		return nil
+	case postcategory.FieldSlug:
+		m.ResetSlug()
 		return nil
 	case postcategory.FieldDescription:
 		m.ResetDescription()
@@ -21097,6 +21170,7 @@ type PostTagMutation struct {
 	created_at      *time.Time
 	updated_at      *time.Time
 	name            *string
+	slug            *string
 	count           *int
 	addcount        *int
 	clearedFields   map[string]struct{}
@@ -21369,6 +21443,55 @@ func (m *PostTagMutation) ResetName() {
 	m.name = nil
 }
 
+// SetSlug sets the "slug" field.
+func (m *PostTagMutation) SetSlug(s string) {
+	m.slug = &s
+}
+
+// Slug returns the value of the "slug" field in the mutation.
+func (m *PostTagMutation) Slug() (r string, exists bool) {
+	v := m.slug
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSlug returns the old "slug" field's value of the PostTag entity.
+// If the PostTag object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PostTagMutation) OldSlug(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSlug is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSlug requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSlug: %w", err)
+	}
+	return oldValue.Slug, nil
+}
+
+// ClearSlug clears the value of the "slug" field.
+func (m *PostTagMutation) ClearSlug() {
+	m.slug = nil
+	m.clearedFields[posttag.FieldSlug] = struct{}{}
+}
+
+// SlugCleared returns if the "slug" field was cleared in this mutation.
+func (m *PostTagMutation) SlugCleared() bool {
+	_, ok := m.clearedFields[posttag.FieldSlug]
+	return ok
+}
+
+// ResetSlug resets all changes to the "slug" field.
+func (m *PostTagMutation) ResetSlug() {
+	m.slug = nil
+	delete(m.clearedFields, posttag.FieldSlug)
+}
+
 // SetCount sets the "count" field.
 func (m *PostTagMutation) SetCount(i int) {
 	m.count = &i
@@ -21513,7 +21636,7 @@ func (m *PostTagMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PostTagMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.deleted_at != nil {
 		fields = append(fields, posttag.FieldDeletedAt)
 	}
@@ -21525,6 +21648,9 @@ func (m *PostTagMutation) Fields() []string {
 	}
 	if m.name != nil {
 		fields = append(fields, posttag.FieldName)
+	}
+	if m.slug != nil {
+		fields = append(fields, posttag.FieldSlug)
 	}
 	if m.count != nil {
 		fields = append(fields, posttag.FieldCount)
@@ -21545,6 +21671,8 @@ func (m *PostTagMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case posttag.FieldName:
 		return m.Name()
+	case posttag.FieldSlug:
+		return m.Slug()
 	case posttag.FieldCount:
 		return m.Count()
 	}
@@ -21564,6 +21692,8 @@ func (m *PostTagMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldUpdatedAt(ctx)
 	case posttag.FieldName:
 		return m.OldName(ctx)
+	case posttag.FieldSlug:
+		return m.OldSlug(ctx)
 	case posttag.FieldCount:
 		return m.OldCount(ctx)
 	}
@@ -21602,6 +21732,13 @@ func (m *PostTagMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetName(v)
+		return nil
+	case posttag.FieldSlug:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSlug(v)
 		return nil
 	case posttag.FieldCount:
 		v, ok := value.(int)
@@ -21658,6 +21795,9 @@ func (m *PostTagMutation) ClearedFields() []string {
 	if m.FieldCleared(posttag.FieldDeletedAt) {
 		fields = append(fields, posttag.FieldDeletedAt)
 	}
+	if m.FieldCleared(posttag.FieldSlug) {
+		fields = append(fields, posttag.FieldSlug)
+	}
 	return fields
 }
 
@@ -21674,6 +21814,9 @@ func (m *PostTagMutation) ClearField(name string) error {
 	switch name {
 	case posttag.FieldDeletedAt:
 		m.ClearDeletedAt()
+		return nil
+	case posttag.FieldSlug:
+		m.ClearSlug()
 		return nil
 	}
 	return fmt.Errorf("unknown PostTag nullable field %s", name)
@@ -21694,6 +21837,9 @@ func (m *PostTagMutation) ResetField(name string) error {
 		return nil
 	case posttag.FieldName:
 		m.ResetName()
+		return nil
+	case posttag.FieldSlug:
+		m.ResetSlug()
 		return nil
 	case posttag.FieldCount:
 		m.ResetCount()

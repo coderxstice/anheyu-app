@@ -70,6 +70,26 @@ func (_u *PostCategoryUpdate) SetNillableName(v *string) *PostCategoryUpdate {
 	return _u
 }
 
+// SetSlug sets the "slug" field.
+func (_u *PostCategoryUpdate) SetSlug(v string) *PostCategoryUpdate {
+	_u.mutation.SetSlug(v)
+	return _u
+}
+
+// SetNillableSlug sets the "slug" field if the given value is not nil.
+func (_u *PostCategoryUpdate) SetNillableSlug(v *string) *PostCategoryUpdate {
+	if v != nil {
+		_u.SetSlug(*v)
+	}
+	return _u
+}
+
+// ClearSlug clears the value of the "slug" field.
+func (_u *PostCategoryUpdate) ClearSlug() *PostCategoryUpdate {
+	_u.mutation.ClearSlug()
+	return _u
+}
+
 // SetDescription sets the "description" field.
 func (_u *PostCategoryUpdate) SetDescription(v string) *PostCategoryUpdate {
 	_u.mutation.SetDescription(v)
@@ -236,6 +256,11 @@ func (_u *PostCategoryUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "PostCategory.name": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Slug(); ok {
+		if err := postcategory.SlugValidator(v); err != nil {
+			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "PostCategory.slug": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Count(); ok {
 		if err := postcategory.CountValidator(v); err != nil {
 			return &ValidationError{Name: "count", err: fmt.Errorf(`ent: validator failed for field "PostCategory.count": %w`, err)}
@@ -278,6 +303,12 @@ func (_u *PostCategoryUpdate) sqlSave(ctx context.Context) (_node int, err error
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(postcategory.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Slug(); ok {
+		_spec.SetField(postcategory.FieldSlug, field.TypeString, value)
+	}
+	if _u.mutation.SlugCleared() {
+		_spec.ClearField(postcategory.FieldSlug, field.TypeString)
 	}
 	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(postcategory.FieldDescription, field.TypeString, value)
@@ -404,6 +435,26 @@ func (_u *PostCategoryUpdateOne) SetNillableName(v *string) *PostCategoryUpdateO
 	if v != nil {
 		_u.SetName(*v)
 	}
+	return _u
+}
+
+// SetSlug sets the "slug" field.
+func (_u *PostCategoryUpdateOne) SetSlug(v string) *PostCategoryUpdateOne {
+	_u.mutation.SetSlug(v)
+	return _u
+}
+
+// SetNillableSlug sets the "slug" field if the given value is not nil.
+func (_u *PostCategoryUpdateOne) SetNillableSlug(v *string) *PostCategoryUpdateOne {
+	if v != nil {
+		_u.SetSlug(*v)
+	}
+	return _u
+}
+
+// ClearSlug clears the value of the "slug" field.
+func (_u *PostCategoryUpdateOne) ClearSlug() *PostCategoryUpdateOne {
+	_u.mutation.ClearSlug()
 	return _u
 }
 
@@ -586,6 +637,11 @@ func (_u *PostCategoryUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "PostCategory.name": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Slug(); ok {
+		if err := postcategory.SlugValidator(v); err != nil {
+			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "PostCategory.slug": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Count(); ok {
 		if err := postcategory.CountValidator(v); err != nil {
 			return &ValidationError{Name: "count", err: fmt.Errorf(`ent: validator failed for field "PostCategory.count": %w`, err)}
@@ -645,6 +701,12 @@ func (_u *PostCategoryUpdateOne) sqlSave(ctx context.Context) (_node *PostCatego
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(postcategory.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Slug(); ok {
+		_spec.SetField(postcategory.FieldSlug, field.TypeString, value)
+	}
+	if _u.mutation.SlugCleared() {
+		_spec.ClearField(postcategory.FieldSlug, field.TypeString)
 	}
 	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(postcategory.FieldDescription, field.TypeString, value)

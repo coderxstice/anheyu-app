@@ -17,6 +17,7 @@ type PostCategory struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	Name        string
+	Slug        string
 	Description string
 	Count       int
 	IsSeries    bool
@@ -28,6 +29,7 @@ type PostCategory struct {
 // CreatePostCategoryRequest 定义了创建文章分类的请求体
 type CreatePostCategoryRequest struct {
 	Name        string `json:"name" binding:"required"`
+	Slug        string `json:"slug"`
 	Description string `json:"description"`
 	IsSeries    bool   `json:"is_series"`
 	SortOrder   int    `json:"sort_order"`
@@ -36,6 +38,7 @@ type CreatePostCategoryRequest struct {
 // UpdatePostCategoryRequest 定义了更新文章分类的请求体
 type UpdatePostCategoryRequest struct {
 	Name        *string `json:"name"`
+	Slug        *string `json:"slug"`
 	Description *string `json:"description"`
 	IsSeries    *bool   `json:"is_series"`
 	SortOrder   *int    `json:"sort_order"`
@@ -47,6 +50,7 @@ type PostCategoryResponse struct {
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 	Name        string    `json:"name"`
+	Slug        string    `json:"slug"`
 	Description string    `json:"description"`
 	Count       int       `json:"count"`
 	IsSeries    bool      `json:"is_series"`

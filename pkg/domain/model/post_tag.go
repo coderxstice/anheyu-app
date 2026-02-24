@@ -17,6 +17,7 @@ type PostTag struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Name      string
+	Slug      string
 	Count     int
 }
 
@@ -25,11 +26,13 @@ type PostTag struct {
 // CreatePostTagRequest 定义了创建文章标签的请求体
 type CreatePostTagRequest struct {
 	Name string `json:"name" binding:"required"`
+	Slug string `json:"slug"`
 }
 
 // UpdatePostTagRequest 定义了更新文章标签的请求体
 type UpdatePostTagRequest struct {
 	Name *string `json:"name"`
+	Slug *string `json:"slug"`
 }
 
 // PostTagResponse 定义了文章标签的标准 API 响应结构
@@ -38,6 +41,7 @@ type PostTagResponse struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	Name      string    `json:"name"`
+	Slug      string    `json:"slug"`
 	Count     int       `json:"count"`
 }
 
