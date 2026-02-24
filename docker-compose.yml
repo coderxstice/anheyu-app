@@ -1,6 +1,8 @@
 services:
   anheyu:
-    build: .
+    build:
+      context: .
+      target: full
     # image: anheyu/anheyu-backend:latest
     container_name: anheyu-backend
     depends_on:

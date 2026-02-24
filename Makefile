@@ -109,11 +109,11 @@ goreleaser-release-dry: frontend-build
 	@echo "Dry run release with GoReleaser"
 	goreleaser release --skip=publish --clean
 
-# 前端构建
+# 前端构建（Next.js）
 .PHONY: frontend-build
 frontend-build:
-	@echo "Building frontend assets"
-	cd assets && pnpm install && pnpm run build
+	@echo "Building Next.js frontend"
+	cd frontend && npm ci && npm run build
 
 # 安装 GoReleaser
 .PHONY: install-goreleaser
@@ -132,7 +132,8 @@ install-goreleaser:
 check-tools:
 	@echo "Checking required tools..."
 	@command -v go >/dev/null 2>&1 || { echo "Go is not installed"; exit 1; }
-	@command -v pnpm >/dev/null 2>&1 || { echo "pnpm is not installed"; exit 1; }
+	@command -v node >/dev/null 2>&1 || { echo "Node.js is not installed"; exit 1; }
+	@command -v npm >/dev/null 2>&1 || { echo "npm is not installed"; exit 1; }
 	@command -v goreleaser >/dev/null 2>&1 || { echo "GoReleaser is not installed, run 'make install-goreleaser'"; exit 1; }
 	@echo "✅ All tools are available"
 
