@@ -79,6 +79,7 @@ func shouldSkipProxy(path string) bool {
 
 	skipPrefixes := []string{
 		"/api/",
+		"/static/",
 		"/f/",
 		"/needcache/",
 	}
