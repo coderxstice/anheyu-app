@@ -70,6 +70,26 @@ func (_u *PostTagUpdate) SetNillableName(v *string) *PostTagUpdate {
 	return _u
 }
 
+// SetSlug sets the "slug" field.
+func (_u *PostTagUpdate) SetSlug(v string) *PostTagUpdate {
+	_u.mutation.SetSlug(v)
+	return _u
+}
+
+// SetNillableSlug sets the "slug" field if the given value is not nil.
+func (_u *PostTagUpdate) SetNillableSlug(v *string) *PostTagUpdate {
+	if v != nil {
+		_u.SetSlug(*v)
+	}
+	return _u
+}
+
+// ClearSlug clears the value of the "slug" field.
+func (_u *PostTagUpdate) ClearSlug() *PostTagUpdate {
+	_u.mutation.ClearSlug()
+	return _u
+}
+
 // SetCount sets the "count" field.
 func (_u *PostTagUpdate) SetCount(v int) *PostTagUpdate {
 	_u.mutation.ResetCount()
@@ -181,6 +201,11 @@ func (_u *PostTagUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "PostTag.name": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Slug(); ok {
+		if err := posttag.SlugValidator(v); err != nil {
+			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "PostTag.slug": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Count(); ok {
 		if err := posttag.CountValidator(v); err != nil {
 			return &ValidationError{Name: "count", err: fmt.Errorf(`ent: validator failed for field "PostTag.count": %w`, err)}
@@ -218,6 +243,12 @@ func (_u *PostTagUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(posttag.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Slug(); ok {
+		_spec.SetField(posttag.FieldSlug, field.TypeString, value)
+	}
+	if _u.mutation.SlugCleared() {
+		_spec.ClearField(posttag.FieldSlug, field.TypeString)
 	}
 	if value, ok := _u.mutation.Count(); ok {
 		_spec.SetField(posttag.FieldCount, field.TypeInt, value)
@@ -329,6 +360,26 @@ func (_u *PostTagUpdateOne) SetNillableName(v *string) *PostTagUpdateOne {
 	if v != nil {
 		_u.SetName(*v)
 	}
+	return _u
+}
+
+// SetSlug sets the "slug" field.
+func (_u *PostTagUpdateOne) SetSlug(v string) *PostTagUpdateOne {
+	_u.mutation.SetSlug(v)
+	return _u
+}
+
+// SetNillableSlug sets the "slug" field if the given value is not nil.
+func (_u *PostTagUpdateOne) SetNillableSlug(v *string) *PostTagUpdateOne {
+	if v != nil {
+		_u.SetSlug(*v)
+	}
+	return _u
+}
+
+// ClearSlug clears the value of the "slug" field.
+func (_u *PostTagUpdateOne) ClearSlug() *PostTagUpdateOne {
+	_u.mutation.ClearSlug()
 	return _u
 }
 
@@ -456,6 +507,11 @@ func (_u *PostTagUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "PostTag.name": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Slug(); ok {
+		if err := posttag.SlugValidator(v); err != nil {
+			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "PostTag.slug": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Count(); ok {
 		if err := posttag.CountValidator(v); err != nil {
 			return &ValidationError{Name: "count", err: fmt.Errorf(`ent: validator failed for field "PostTag.count": %w`, err)}
@@ -510,6 +566,12 @@ func (_u *PostTagUpdateOne) sqlSave(ctx context.Context) (_node *PostTag, err er
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(posttag.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Slug(); ok {
+		_spec.SetField(posttag.FieldSlug, field.TypeString, value)
+	}
+	if _u.mutation.SlugCleared() {
+		_spec.ClearField(posttag.FieldSlug, field.TypeString)
 	}
 	if value, ok := _u.mutation.Count(); ok {
 		_spec.SetField(posttag.FieldCount, field.TypeInt, value)

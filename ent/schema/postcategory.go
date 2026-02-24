@@ -59,6 +59,13 @@ func (PostCategory) Fields() []ent.Field {
 			Unique().
 			NotEmpty(),
 
+		field.String("slug").
+			Comment("URL 友好的标识符，用于静态化路由").
+			Optional().
+			Nillable().
+			Unique().
+			MaxLen(255),
+
 		field.String("description").
 			Comment("分类描述").
 			Optional(),

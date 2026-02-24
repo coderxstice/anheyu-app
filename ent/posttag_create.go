@@ -71,6 +71,20 @@ func (_c *PostTagCreate) SetName(v string) *PostTagCreate {
 	return _c
 }
 
+// SetSlug sets the "slug" field.
+func (_c *PostTagCreate) SetSlug(v string) *PostTagCreate {
+	_c.mutation.SetSlug(v)
+	return _c
+}
+
+// SetNillableSlug sets the "slug" field if the given value is not nil.
+func (_c *PostTagCreate) SetNillableSlug(v *string) *PostTagCreate {
+	if v != nil {
+		_c.SetSlug(*v)
+	}
+	return _c
+}
+
 // SetCount sets the "count" field.
 func (_c *PostTagCreate) SetCount(v int) *PostTagCreate {
 	_c.mutation.SetCount(v)
@@ -180,6 +194,11 @@ func (_c *PostTagCreate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "PostTag.name": %w`, err)}
 		}
 	}
+	if v, ok := _c.mutation.Slug(); ok {
+		if err := posttag.SlugValidator(v); err != nil {
+			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "PostTag.slug": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.Count(); !ok {
 		return &ValidationError{Name: "count", err: errors.New(`ent: missing required field "PostTag.count"`)}
 	}
@@ -236,6 +255,10 @@ func (_c *PostTagCreate) createSpec() (*PostTag, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(posttag.FieldName, field.TypeString, value)
 		_node.Name = value
+	}
+	if value, ok := _c.mutation.Slug(); ok {
+		_spec.SetField(posttag.FieldSlug, field.TypeString, value)
+		_node.Slug = &value
 	}
 	if value, ok := _c.mutation.Count(); ok {
 		_spec.SetField(posttag.FieldCount, field.TypeInt, value)
@@ -348,6 +371,24 @@ func (u *PostTagUpsert) SetName(v string) *PostTagUpsert {
 // UpdateName sets the "name" field to the value that was provided on create.
 func (u *PostTagUpsert) UpdateName() *PostTagUpsert {
 	u.SetExcluded(posttag.FieldName)
+	return u
+}
+
+// SetSlug sets the "slug" field.
+func (u *PostTagUpsert) SetSlug(v string) *PostTagUpsert {
+	u.Set(posttag.FieldSlug, v)
+	return u
+}
+
+// UpdateSlug sets the "slug" field to the value that was provided on create.
+func (u *PostTagUpsert) UpdateSlug() *PostTagUpsert {
+	u.SetExcluded(posttag.FieldSlug)
+	return u
+}
+
+// ClearSlug clears the value of the "slug" field.
+func (u *PostTagUpsert) ClearSlug() *PostTagUpsert {
+	u.SetNull(posttag.FieldSlug)
 	return u
 }
 
@@ -466,6 +507,27 @@ func (u *PostTagUpsertOne) SetName(v string) *PostTagUpsertOne {
 func (u *PostTagUpsertOne) UpdateName() *PostTagUpsertOne {
 	return u.Update(func(s *PostTagUpsert) {
 		s.UpdateName()
+	})
+}
+
+// SetSlug sets the "slug" field.
+func (u *PostTagUpsertOne) SetSlug(v string) *PostTagUpsertOne {
+	return u.Update(func(s *PostTagUpsert) {
+		s.SetSlug(v)
+	})
+}
+
+// UpdateSlug sets the "slug" field to the value that was provided on create.
+func (u *PostTagUpsertOne) UpdateSlug() *PostTagUpsertOne {
+	return u.Update(func(s *PostTagUpsert) {
+		s.UpdateSlug()
+	})
+}
+
+// ClearSlug clears the value of the "slug" field.
+func (u *PostTagUpsertOne) ClearSlug() *PostTagUpsertOne {
+	return u.Update(func(s *PostTagUpsert) {
+		s.ClearSlug()
 	})
 }
 
@@ -753,6 +815,27 @@ func (u *PostTagUpsertBulk) SetName(v string) *PostTagUpsertBulk {
 func (u *PostTagUpsertBulk) UpdateName() *PostTagUpsertBulk {
 	return u.Update(func(s *PostTagUpsert) {
 		s.UpdateName()
+	})
+}
+
+// SetSlug sets the "slug" field.
+func (u *PostTagUpsertBulk) SetSlug(v string) *PostTagUpsertBulk {
+	return u.Update(func(s *PostTagUpsert) {
+		s.SetSlug(v)
+	})
+}
+
+// UpdateSlug sets the "slug" field to the value that was provided on create.
+func (u *PostTagUpsertBulk) UpdateSlug() *PostTagUpsertBulk {
+	return u.Update(func(s *PostTagUpsert) {
+		s.UpdateSlug()
+	})
+}
+
+// ClearSlug clears the value of the "slug" field.
+func (u *PostTagUpsertBulk) ClearSlug() *PostTagUpsertBulk {
+	return u.Update(func(s *PostTagUpsert) {
+		s.ClearSlug()
 	})
 }
 

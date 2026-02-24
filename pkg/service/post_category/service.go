@@ -14,6 +14,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
 	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
+	"github.com/anzhiyu-c/anheyu-app/pkg/util"
 )
 
 // Service 封装了文章分类的业务逻辑。
@@ -37,6 +38,7 @@ func (s *Service) toAPIResponse(c *model.PostCategory) *model.PostCategoryRespon
 		CreatedAt:   c.CreatedAt,
 		UpdatedAt:   c.UpdatedAt,
 		Name:        c.Name,
+		Slug:        c.Slug,
 		Description: c.Description,
 		Count:       c.Count,
 		IsSeries:    c.IsSeries,
@@ -53,6 +55,10 @@ func (s *Service) Create(ctx context.Context, req *model.CreatePostCategoryReque
 	}
 	if exists {
 		return nil, fmt.Errorf("分类名称 '%s' 已存在", req.Name)
+	}
+
+	if req.Slug == "" {
+		req.Slug = util.GenerateSlug(req.Name)
 	}
 
 	newCategory, err := s.repo.Create(ctx, req)

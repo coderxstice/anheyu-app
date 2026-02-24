@@ -25,6 +25,8 @@ type PostCategory struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// 分类名称
 	Name string `json:"name,omitempty"`
+	// URL 友好的标识符，用于静态化路由
+	Slug *string `json:"slug,omitempty"`
 	// 分类描述
 	Description string `json:"description,omitempty"`
 	// 该分类下的文章数量
@@ -66,7 +68,7 @@ func (*PostCategory) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case postcategory.FieldID, postcategory.FieldCount, postcategory.FieldSortOrder:
 			values[i] = new(sql.NullInt64)
-		case postcategory.FieldName, postcategory.FieldDescription:
+		case postcategory.FieldName, postcategory.FieldSlug, postcategory.FieldDescription:
 			values[i] = new(sql.NullString)
 		case postcategory.FieldDeletedAt, postcategory.FieldCreatedAt, postcategory.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -115,6 +117,13 @@ func (_m *PostCategory) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				_m.Name = value.String
+			}
+		case postcategory.FieldSlug:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field slug", values[i])
+			} else if value.Valid {
+				_m.Slug = new(string)
+				*_m.Slug = value.String
 			}
 		case postcategory.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -194,6 +203,11 @@ func (_m *PostCategory) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(_m.Name)
+	builder.WriteString(", ")
+	if v := _m.Slug; v != nil {
+		builder.WriteString("slug=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("description=")
 	builder.WriteString(_m.Description)

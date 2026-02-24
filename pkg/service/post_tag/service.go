@@ -13,6 +13,7 @@ import (
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
+	"github.com/anzhiyu-c/anheyu-app/pkg/util"
 )
 
 // Service 封装了文章标签的业务逻辑。
@@ -35,6 +36,7 @@ func (s *Service) toAPIResponse(t *model.PostTag) *model.PostTagResponse {
 		CreatedAt: t.CreatedAt,
 		UpdatedAt: t.UpdatedAt,
 		Name:      t.Name,
+		Slug:      t.Slug,
 		Count:     t.Count,
 	}
 }
@@ -48,6 +50,10 @@ func (s *Service) Create(ctx context.Context, req *model.CreatePostTagRequest) (
 	}
 	if exists {
 		return nil, fmt.Errorf("标签名称 '%s' 已存在", req.Name)
+	}
+
+	if req.Slug == "" {
+		req.Slug = util.GenerateSlug(req.Name)
 	}
 
 	newTag, err := s.repo.Create(ctx, req)
