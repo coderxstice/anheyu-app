@@ -4,12 +4,11 @@ package subscriber
 import (
 	"context"
 	"crypto/rand"
+	"encoding/binary"
 	"encoding/hex"
 	"errors"
-	"log"
-
 	"fmt"
-	mrand "math/rand"
+	"log"
 	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/ent"
@@ -178,9 +177,11 @@ func (s *Service) SendVerificationCode(ctx context.Context, email string) error 
 		return errors.New("Redis未配置，无法使用验证码功能")
 	}
 
-	// 生成6位随机数字验证码
-	rnd := mrand.New(mrand.NewSource(time.Now().UnixNano()))
-	code := fmt.Sprintf("%06d", rnd.Intn(1000000))
+	var buf [4]byte
+	if _, err := rand.Read(buf[:]); err != nil {
+		return errors.New("生成验证码失败")
+	}
+	code := fmt.Sprintf("%06d", binary.BigEndian.Uint32(buf[:])%1000000)
 
 	// 存入 Redis，有效期 5 分钟
 	key := fmt.Sprintf("subscribe:code:%s", email)
