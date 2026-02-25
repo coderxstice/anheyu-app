@@ -278,6 +278,7 @@ const (
 	KeySidebarCustomShowInPost       SettingKey = "sidebar.custom.showInPost"
 	KeySidebarTocCollapseMode        SettingKey = "sidebar.toc.collapseMode"
 	KeySidebarSeriesPostCount        SettingKey = "sidebar.series.postCount"
+	KeySidebarRecentPostEnable       SettingKey = "sidebar.recentPost.enable"
 	KeySidebarRecentPostCount        SettingKey = "sidebar.recentPost.count"
 
 	// --- 站点敏感或内部配置 (不暴露给前端) ---
