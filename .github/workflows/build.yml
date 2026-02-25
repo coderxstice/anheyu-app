@@ -44,8 +44,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "pnpm"
-          cache-dependency-path: "assets/pnpm-lock.yaml"
+          # 未使用 cache：仓库 frontend 目录暂无 pnpm-lock.yaml，启用 cache 会报路径无法解析
 
       - name: Install and setup GoReleaser
         uses: goreleaser/goreleaser-action@v6
@@ -56,7 +55,7 @@ jobs:
 
       - name: Build Frontend
         run: |
-          cd assets
+          cd frontend
           pnpm install
           pnpm run build
 
@@ -172,8 +171,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "pnpm"
-          cache-dependency-path: "assets/pnpm-lock.yaml"
+          # 未使用 cache：仓库 frontend 目录暂无 pnpm-lock.yaml，启用 cache 会报路径无法解析
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -189,7 +187,7 @@ jobs:
 
       - name: Build Frontend
         run: |
-          cd assets
+          cd frontend
           pnpm install
           pnpm run build
 
