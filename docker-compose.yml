@@ -17,8 +17,9 @@ services:
       - ANHEYU_DATABASE_USER=anheyu
       - ANHEYU_DATABASE_NAME=anheyu
       - ANHEYU_DATABASE_PORT=5432
-      - ANHEYU_DATABASE_PASSWORD=
+      - ANHEYU_DATABASE_PASSWORD=${ANHEYU_DATABASE_PASSWORD:-changeme}
       - ANHEYU_REDIS_ADDR=anheyu_redis:6379
+      - ANHEYU_REDIS_PASSWORD=${ANHEYU_REDIS_PASSWORD:-changeme}
     volumes:
       - ./data:/anheyu/data
       - ./themes:/anheyu/themes
@@ -31,18 +32,22 @@ services:
     # backup & consult https://www.postgresql.org/docs/current/pgupgrade.html
     image: postgres:17
     container_name: anheyu_postgresql
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     environment:
       - POSTGRES_USER=anheyu
       - POSTGRES_DB=anheyu
-      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_PASSWORD=${ANHEYU_DATABASE_PASSWORD:-changeme}
     volumes:
       - database_postgres:/var/lib/postgresql/data
 
   anheyu_redis:
     image: redis:latest
     container_name: anheyu_redis
+    command: >
+      redis-server --requirepass ${ANHEYU_REDIS_PASSWORD:-changeme}
+    expose:
+      - "6379"
     volumes:
       - redis_data:/data
 
