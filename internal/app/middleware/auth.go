@@ -14,14 +14,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// min 辅助函数，返回两个整数中的较小值
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
 type Middleware struct {
 	tokenSvc service_auth.TokenService
 }
@@ -48,7 +40,6 @@ func (m *Middleware) JWTAuth() gin.HandlerFunc {
 		}
 
 		tokenString := parts[1]
-		log.Printf("[JWTAuth] 开始解析JWT token: %s", tokenString[:min(20, len(tokenString))]+"...")
 		claims, err := m.tokenSvc.ParseAccessToken(c.Request.Context(), tokenString)
 		if err != nil {
 			log.Printf("[JWTAuth] JWT token解析失败: %v", err)
@@ -57,7 +48,6 @@ func (m *Middleware) JWTAuth() gin.HandlerFunc {
 			return
 		}
 
-		log.Printf("[JWTAuth] JWT token解析成功，设置ClaimsKey: %s", auth.ClaimsKey)
 		c.Set(auth.ClaimsKey, claims)
 		c.Next()
 	}
@@ -125,17 +115,13 @@ func (m *Middleware) AdminAuth() gin.HandlerFunc {
 			return
 		}
 
-		log.Printf("[AdminAuth] 用户信息: UserID=%s, UserGroupID=%s", claims.UserID, claims.UserGroupID)
-
 		userGroupID, entityType, err := idgen.DecodePublicID(claims.UserGroupID)
 		if err != nil || entityType != idgen.EntityTypeUserGroup {
-			log.Printf("[AdminAuth] 错误: 解析用户组ID失败: %v, entityType: %v", err, entityType)
+			log.Printf("[AdminAuth] 错误: 解析用户组ID失败")
 			response.Fail(c, http.StatusForbidden, "权限信息无效：用户组ID无法解析")
 			c.Abort()
 			return
 		}
-
-		log.Printf("[AdminAuth] 解析用户组ID: %d (需要管理员组ID: 1)", userGroupID)
 
 		// 约定管理员的用户组ID为 1
 		if userGroupID != 1 {
