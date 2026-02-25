@@ -9,6 +9,7 @@ package imagecaptcha
 import (
 	"context"
 	"errors"
+	"image/color"
 	"strconv"
 	"strings"
 	"time"
@@ -53,17 +54,17 @@ func (s *imageCaptchaService) Generate(ctx context.Context) (captchaId string, i
 	length := s.getLength()
 	expire := s.getExpire()
 
-	// 创建验证码驱动 - 使用数字+字母混合
+	// 创建验证码驱动 - 透明背景 + 深色文字，前端通过 CSS 适配暗色主题
 	driver := base64Captcha.NewDriverString(
 		80,     // height
 		240,    // width
-		0,      // noiseCount - 干扰点数量
-		0,      // showLineOptions - 干扰线选项
-		length, // length - 验证码长度
-		"23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ", // source - 排除容易混淆的字符
-		nil,   // bgColor
-		nil,   // fontsStorage
-		[]string{"wqy-microhei.ttc"}, // fonts
+		2,      // noiseCount
+		2,      // showLineOptions
+		length, // length
+		"23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ",
+		&color.RGBA{R: 245, G: 245, B: 245, A: 255}, // bgColor - 浅灰背景，前端暗色模式通过 CSS invert 适配
+		nil,
+		[]string{"wqy-microhei.ttc"},
 	)
 
 	// 生成验证码
