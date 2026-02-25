@@ -603,6 +603,11 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 		return nil, nil, fmt.Errorf("设置信任代理失败: %w", err)
 	}
 	engine.ForwardedByClientIP = true
+
+	siteURL := settingSvc.Get(constant.KeySiteURL.String())
+	if siteURL != "" {
+		middleware.SetCORSAllowedOrigins([]string{siteURL})
+	}
 	engine.Use(middleware.Cors())
 
 	// 设置 SSR 主题检查器（基于数据库状态判断是否应该代理）
