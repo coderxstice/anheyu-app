@@ -118,7 +118,12 @@ func (g *LibrawCliGenerator) Generate(
 	// 这通常会生成一个 PPM 或 TIFF 格式的位图数据流。
 	// 为了简单起见，直接将这个数据流保存为 .ppm 文件。
 	// 在更高级的实现中，可以将其通过管道传递给 vips 或 imagemagick 转换为网页更友好的格式。
-	cmd := exec.CommandContext(ctx, g.dcrawPath, "-c", "-w", sourcePath)
+	safeSourcePath := sourcePath
+	if strings.HasPrefix(safeSourcePath, "-") {
+		safeSourcePath = "./" + safeSourcePath
+	}
+
+	cmd := exec.CommandContext(ctx, g.dcrawPath, "-c", "-w", "--", safeSourcePath)
 
 	var outBuf, errBuf bytes.Buffer
 	cmd.Stdout = &outBuf
