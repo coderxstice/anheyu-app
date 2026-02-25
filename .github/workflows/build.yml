@@ -35,16 +35,12 @@ jobs:
         with:
           go-version: "1.25"
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 9
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          # 未使用 cache：仓库 frontend 目录暂无 pnpm-lock.yaml，启用 cache 会报路径无法解析
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install and setup GoReleaser
         uses: goreleaser/goreleaser-action@v6
@@ -56,8 +52,8 @@ jobs:
       - name: Build Frontend
         run: |
           cd frontend
-          pnpm install
-          pnpm run build
+          npm ci
+          npm run build
 
       - name: Test GoReleaser configuration
         run: goreleaser check
@@ -162,16 +158,12 @@ jobs:
         with:
           go-version: "1.25"
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 9
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          # 未使用 cache：仓库 frontend 目录暂无 pnpm-lock.yaml，启用 cache 会报路径无法解析
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -188,8 +180,8 @@ jobs:
       - name: Build Frontend
         run: |
           cd frontend
-          pnpm install
-          pnpm run build
+          npm ci
+          npm run build
 
       - name: Prepare Go version environment
         run: |

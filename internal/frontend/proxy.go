@@ -17,7 +17,7 @@ func ProxyMiddleware(launcher *Launcher) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		path := c.Request.URL.Path
 
-		if shouldSkipProxy(path) {
+		if shouldSkipProxy(path, launcher.SkipStaticProxy()) {
 			c.Next()
 			return
 		}
@@ -63,7 +63,9 @@ func ProxyMiddleware(launcher *Launcher) gin.HandlerFunc {
 	}
 }
 
-func shouldSkipProxy(path string) bool {
+// shouldSkipProxy 决定请求是否不代理、交给 Go 处理。
+// skipStaticProxy 为 true 时 /static/ 也跳过，由 Go 提供主题目录（自定义前端在 /static 下）；默认 false，/static 代理到 Next.js。
+func shouldSkipProxy(path string, skipStaticProxy bool) bool {
 	exactPaths := []string{
 		"/robots.txt",
 		"/sitemap.xml",
@@ -79,9 +81,12 @@ func shouldSkipProxy(path string) bool {
 
 	skipPrefixes := []string{
 		"/api/",
-		"/static/",
 		"/f/",
 		"/needcache/",
+	}
+	if skipStaticProxy {
+		// 自定义主题模式：/static 由 Go 提供，不代理到 Next.js
+		skipPrefixes = append(skipPrefixes, "/static/")
 	}
 	for _, prefix := range skipPrefixes {
 		if strings.HasPrefix(path, prefix) {
