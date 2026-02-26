@@ -88,7 +88,6 @@ archives:
       # Next.js standalone 构建产物（需要 Node.js 运行）
       - src: frontend/.next/standalone/**/*
         dst: frontend/
-        strip_parent: true
       - src: frontend/.next/static/**/*
         dst: frontend/.next/static/
       - src: frontend/public/**/*
