@@ -1,7 +1,6 @@
 package frontend
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -48,14 +47,13 @@ func ProxyMiddleware(launcher *Launcher) gin.HandlerFunc {
 		proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, proxyErr error) {
 			log.Printf("[Frontend Proxy] 代理错误: %v (target: %s)", proxyErr, launcher.GetFrontendURL())
 			w.WriteHeader(http.StatusServiceUnavailable)
-			w.Write([]byte(fmt.Sprintf(`<!DOCTYPE html>
+			w.Write([]byte(`<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>前端服务暂不可用</title>
 <style>body{font-family:system-ui,sans-serif;text-align:center;padding:60px}h1{color:#333}p{color:#666}</style>
 </head><body>
 <h1>前端服务暂时不可用</h1>
-<p>Next.js 服务正在启动中或遇到问题，请稍后刷新。</p>
-<p>目标地址: %s</p>
-</body></html>`, launcher.GetFrontendURL())))
+<p>服务正在启动中或遇到问题，请稍后刷新页面重试。</p>
+</body></html>`))
 		}
 
 		proxy.ServeHTTP(c.Writer, c.Request)
@@ -97,11 +95,13 @@ func shouldSkipProxy(path string, skipStaticProxy bool) bool {
 	return false
 }
 
+// scheme 返回请求使用的协议。仅信任 TLS 状态和合法的 X-Forwarded-Proto 值，
+// 需配合 Gin 的 TrustedProxies 配置确保该头来自受信任代理。
 func scheme(c *gin.Context) string {
 	if c.Request.TLS != nil {
 		return "https"
 	}
-	if proto := c.GetHeader("X-Forwarded-Proto"); proto != "" {
+	if proto := c.GetHeader("X-Forwarded-Proto"); proto == "https" || proto == "http" {
 		return proto
 	}
 	return "http"

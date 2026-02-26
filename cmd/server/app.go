@@ -105,6 +105,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/volume/strategy"
 	wechat_service "github.com/anzhiyu-c/anheyu-app/pkg/service/wechat"
 	"github.com/anzhiyu-c/anheyu-app/pkg/ssr"
+	"github.com/anzhiyu-c/anheyu-app/pkg/util"
 
 	_ "github.com/anzhiyu-c/anheyu-app/ent/runtime"
 )
@@ -205,7 +206,13 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 		return nil, nil, fmt.Errorf("redis 初始化失败: %w", err)
 	}
 
-	// 临时cleanup函数，后面会被增强版本替换
+	if dbPass := cfg.GetString(config.KeyDBPassword); dbPass == "" || dbPass == "changeme" {
+		log.Println("⚠️  警告: 数据库密码使用默认值或为空，生产环境请务必修改！设置环境变量 ANHEYU_DATABASE_PASSWORD")
+	}
+	if redisPass := cfg.GetString(config.KeyRedisPassword); redisPass == "" || redisPass == "changeme" {
+		log.Println("⚠️  警告: Redis 密码使用默认值或为空，生产环境请务必修改！设置环境变量 ANHEYU_REDIS_PASSWORD")
+	}
+
 	tempCleanup := func() {
 		log.Println("执行清理操作：关闭数据库连接...")
 		sqlDB.Close()
@@ -598,7 +605,7 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	}
 
 	engine := gin.Default()
-	err = engine.SetTrustedProxies([]string{"127.0.0.1", "::1", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"})
+	err = engine.SetTrustedProxies(util.TrustedProxyCIDRs)
 	if err != nil {
 		return nil, nil, fmt.Errorf("设置信任代理失败: %w", err)
 	}
@@ -607,6 +614,8 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	siteURL := settingSvc.Get(constant.KeySiteURL.String())
 	if siteURL != "" {
 		middleware.SetCORSAllowedOrigins([]string{siteURL})
+	} else {
+		log.Println("⚠️  警告: 站点URL(SiteURL)未配置，跨域请求将被拒绝。请在后台设置中配置站点URL。")
 	}
 	engine.Use(middleware.Cors())
 

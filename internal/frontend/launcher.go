@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -49,6 +50,12 @@ func NewLauncher(cfg Config) *Launcher {
 	}
 	if cfg.Port == 0 {
 		cfg.Port = DefaultPort
+	}
+	if cfg.ExternalURL != "" {
+		if u, err := url.Parse(cfg.ExternalURL); err != nil || (u.Scheme != "http" && u.Scheme != "https") {
+			log.Printf("[Frontend] 警告: ANHEYU_FRONTEND_URL 格式无效（仅允许 http/https），忽略: %s", cfg.ExternalURL)
+			cfg.ExternalURL = ""
+		}
 	}
 	return &Launcher{
 		frontendDir:     cfg.FrontendDir,

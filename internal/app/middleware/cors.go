@@ -47,24 +47,30 @@ func isOriginAllowed(origin string) bool {
 
 func Cors() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		path := c.Request.URL.Path
+		if !strings.HasPrefix(c.Request.URL.Path, "/api/") {
+			c.Next()
+			return
+		}
 
-		if strings.HasPrefix(path, "/api/") {
-			origin := c.Request.Header.Get("Origin")
-
-			if origin != "" && isOriginAllowed(origin) {
-				c.Header("Access-Control-Allow-Origin", origin)
-				c.Header("Access-Control-Allow-Credentials", "true")
-			}
-
-			c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-			c.Header("Access-Control-Allow-Headers", "Authorization, Content-Type, X-CSRF-Token, X-Requested-With, Range, Accept-Ranges, Content-Range, Content-Length, Content-Disposition")
-			c.Header("Access-Control-Expose-Headers", "Authorization, Content-Range, Content-Length, Content-Disposition")
-
+		origin := c.Request.Header.Get("Origin")
+		if origin == "" || !isOriginAllowed(origin) {
 			if c.Request.Method == http.MethodOptions {
-				c.AbortWithStatus(http.StatusNoContent)
+				c.AbortWithStatus(http.StatusForbidden)
 				return
 			}
+			c.Next()
+			return
+		}
+
+		c.Header("Access-Control-Allow-Origin", origin)
+		c.Header("Access-Control-Allow-Credentials", "true")
+		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		c.Header("Access-Control-Allow-Headers", "Authorization, Content-Type, X-CSRF-Token, X-Requested-With, Range, Accept-Ranges, Content-Range, Content-Length, Content-Disposition")
+		c.Header("Access-Control-Expose-Headers", "Authorization, Content-Range, Content-Length, Content-Disposition")
+
+		if c.Request.Method == http.MethodOptions {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
 		}
 
 		c.Next()

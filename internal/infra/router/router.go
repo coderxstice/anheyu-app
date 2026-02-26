@@ -189,8 +189,8 @@ func (r *Router) Setup(engine *gin.Engine) {
 		downloadGroup.GET("/download/:public_id", r.fileHandler.HandleUniversalSignedDownload)
 	}
 
-	// 代理路由
-	apiGroup.GET("/proxy/download", r.proxyHandler.HandleDownload)
+	// 代理路由（每个IP每分钟30次请求，突发允许10次）
+	apiGroup.GET("/proxy/download", middleware.CustomRateLimit(30, 10), r.proxyHandler.HandleDownload)
 
 	// 注册各个模块的路由
 	r.registerAuthRoutes(apiGroup)

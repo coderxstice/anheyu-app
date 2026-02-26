@@ -88,20 +88,8 @@ func (m *Middleware) JWTAuthOptional() gin.HandlerFunc {
 // AdminAuth 是一个管理员权限验证中间件
 func (m *Middleware) AdminAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		log.Printf("[AdminAuth] 开始验证管理员权限: %s %s", c.Request.Method, c.Request.URL.Path)
-
 		claimsValue, exists := c.Get(auth.ClaimsKey)
 		if !exists {
-			log.Printf("[AdminAuth] 错误: 上下文中没有找到认证信息 ClaimsKey")
-			log.Printf("[AdminAuth] 可用的上下文键: %v", func() []string {
-				keys := make([]string, 0, len(c.Keys))
-				for k := range c.Keys {
-					if key, ok := k.(string); ok {
-						keys = append(keys, key)
-					}
-				}
-				return keys
-			}())
 			response.Fail(c, http.StatusForbidden, "权限信息获取失败")
 			c.Abort()
 			return
@@ -109,7 +97,6 @@ func (m *Middleware) AdminAuth() gin.HandlerFunc {
 
 		claims, ok := claimsValue.(*auth.CustomClaims)
 		if !ok {
-			log.Printf("[AdminAuth] 错误: 权限信息格式不正确")
 			response.Fail(c, http.StatusForbidden, "权限信息格式不正确")
 			c.Abort()
 			return
@@ -117,21 +104,17 @@ func (m *Middleware) AdminAuth() gin.HandlerFunc {
 
 		userGroupID, entityType, err := idgen.DecodePublicID(claims.UserGroupID)
 		if err != nil || entityType != idgen.EntityTypeUserGroup {
-			log.Printf("[AdminAuth] 错误: 解析用户组ID失败")
 			response.Fail(c, http.StatusForbidden, "权限信息无效：用户组ID无法解析")
 			c.Abort()
 			return
 		}
 
-		// 约定管理员的用户组ID为 1
 		if userGroupID != 1 {
-			log.Printf("[AdminAuth] 权限不足: 用户组ID %d 不是管理员组 (需要 1)", userGroupID)
 			response.Fail(c, http.StatusForbidden, "权限不足：此操作需要管理员权限")
 			c.Abort()
 			return
 		}
 
-		log.Printf("[AdminAuth] 管理员权限验证通过")
 		c.Next()
 	}
 }

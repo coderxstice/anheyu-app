@@ -2,14 +2,53 @@
 package util
 
 import (
+	"fmt"
 	"net"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-// isTrustedProxy checks whether the remote address belongs to a trusted proxy network.
-// Only when the direct connection comes from a trusted proxy should we inspect forwarding headers.
+// TrustedProxyCIDRs 是可信代理的 CIDR 列表，供 Gin 和本包共同使用。
+var TrustedProxyCIDRs = []string{
+	"127.0.0.0/8",
+	"::1/128",
+	"10.0.0.0/8",
+	"172.16.0.0/12",
+	"192.168.0.0/16",
+}
+
+var trustedProxyNets []*net.IPNet
+var privateOrReservedNets []*net.IPNet
+
+func init() {
+	for _, cidr := range TrustedProxyCIDRs {
+		_, ipNet, err := net.ParseCIDR(cidr)
+		if err != nil {
+			panic(fmt.Sprintf("invalid CIDR in TrustedProxyCIDRs: %s", cidr))
+		}
+		trustedProxyNets = append(trustedProxyNets, ipNet)
+	}
+
+	reservedCIDRs := []string{
+		"10.0.0.0/8",
+		"172.16.0.0/12",
+		"192.168.0.0/16",
+		"127.0.0.0/8",
+		"169.254.0.0/16",
+		"::1/128",
+		"fc00::/7",
+		"fe80::/10",
+	}
+	for _, cidr := range reservedCIDRs {
+		_, ipNet, err := net.ParseCIDR(cidr)
+		if err != nil {
+			panic(fmt.Sprintf("invalid CIDR in privateOrReservedNets: %s", cidr))
+		}
+		privateOrReservedNets = append(privateOrReservedNets, ipNet)
+	}
+}
+
 func isTrustedProxy(remoteAddr string) bool {
 	host, _, err := net.SplitHostPort(remoteAddr)
 	if err != nil {
@@ -20,18 +59,7 @@ func isTrustedProxy(remoteAddr string) bool {
 		return false
 	}
 
-	trustedRanges := []string{
-		"127.0.0.0/8",
-		"::1/128",
-		"10.0.0.0/8",
-		"172.16.0.0/12",
-		"192.168.0.0/16",
-	}
-	for _, cidr := range trustedRanges {
-		_, ipNet, err := net.ParseCIDR(cidr)
-		if err != nil {
-			continue
-		}
+	for _, ipNet := range trustedProxyNets {
 		if ipNet.Contains(ip) {
 			return true
 		}
@@ -39,7 +67,6 @@ func isTrustedProxy(remoteAddr string) bool {
 	return false
 }
 
-// extractIPFromHeader extracts and validates the first IP from a potentially comma-separated header value.
 func extractIPFromHeader(value string) string {
 	if value == "" {
 		return ""
@@ -82,30 +109,18 @@ func IsValidIP(ip string) bool {
 	return net.ParseIP(ip) != nil
 }
 
-// IsPrivateIP 检查是否为私有IP地址
+// IsPrivateIP 检查是否为私有或保留IP地址（含 IPv6、链路本地、云元数据地址段）
 func IsPrivateIP(ip string) bool {
 	parsedIP := net.ParseIP(ip)
 	if parsedIP == nil {
 		return false
 	}
 
-	// IPv4私有地址范围
-	privateIPRanges := []string{
-		"10.0.0.0/8",     // 10.0.0.0 - 10.255.255.255
-		"172.16.0.0/12",  // 172.16.0.0 - 172.31.255.255
-		"192.168.0.0/16", // 192.168.0.0 - 192.168.255.255
-		"127.0.0.0/8",    // 本地回环
-	}
-
-	for _, cidr := range privateIPRanges {
-		_, ipNet, err := net.ParseCIDR(cidr)
-		if err != nil {
-			continue
-		}
+	for _, ipNet := range privateOrReservedNets {
 		if ipNet.Contains(parsedIP) {
 			return true
 		}
 	}
 
-	return false
+	return parsedIP.IsLoopback() || parsedIP.IsLinkLocalUnicast() || parsedIP.IsLinkLocalMulticast() || parsedIP.IsUnspecified()
 }

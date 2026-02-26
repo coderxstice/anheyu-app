@@ -42,12 +42,18 @@ ENV AN_SETTING_DEFAULT_ENABLE_FFMPEG_GENERATOR=true \
 
 ARG TARGETPLATFORM
 
+RUN addgroup --system --gid 1001 anheyu && \
+    adduser --system --uid 1001 anheyu
+
 COPY anheyu-app ./anheyu-app
 COPY default_files ./default-data
 COPY entrypoint.sh ./entrypoint.sh
 
 RUN chmod +x ./anheyu-app \
-    && chmod +x ./entrypoint.sh
+    && chmod +x ./entrypoint.sh \
+    && chown -R anheyu:anheyu /anheyu
+
+USER anheyu
 
 # ==================================================================
 # Target: full (default) - Go backend + built-in Next.js frontend

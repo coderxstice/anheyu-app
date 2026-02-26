@@ -118,7 +118,7 @@ func (g *FfmpegCliGenerator) Generate(
 		"-vframes", "1",
 		"-vf", fmt.Sprintf("scale=-1:%s", targetHeight),
 		"-f", "mjpeg",
-		"-",
+		"--", "-",
 	)
 
 	var outBuf, errBuf bytes.Buffer

@@ -8,6 +8,7 @@
 package proxy
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log"
@@ -21,7 +22,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handler 代理处理器
+const maxProxyResponseBytes = 100 << 20 // 100MB
+
+// ProxyHandler 代理处理器
 type ProxyHandler struct{}
 
 // NewHandler 创建代理处理器
@@ -29,10 +32,10 @@ func NewHandler() *ProxyHandler {
 	return &ProxyHandler{}
 }
 
-// isPrivateOrReservedIP checks whether the given IP is private, loopback,
-// link-local, or otherwise non-routable (e.g. cloud metadata 169.254.x.x).
-func isPrivateOrReservedIP(ip net.IP) bool {
-	privateRanges := []string{
+var privateIPNets []*net.IPNet
+
+func init() {
+	cidrs := []string{
 		"10.0.0.0/8",
 		"172.16.0.0/12",
 		"192.168.0.0/16",
@@ -42,11 +45,17 @@ func isPrivateOrReservedIP(ip net.IP) bool {
 		"fc00::/7",
 		"fe80::/10",
 	}
-	for _, cidr := range privateRanges {
+	for _, cidr := range cidrs {
 		_, ipNet, err := net.ParseCIDR(cidr)
 		if err != nil {
-			continue
+			panic(fmt.Sprintf("invalid CIDR in privateIPNets: %s", cidr))
 		}
+		privateIPNets = append(privateIPNets, ipNet)
+	}
+}
+
+func isPrivateOrReservedIP(ip net.IP) bool {
+	for _, ipNet := range privateIPNets {
 		if ipNet.Contains(ip) {
 			return true
 		}
@@ -54,21 +63,33 @@ func isPrivateOrReservedIP(ip net.IP) bool {
 	return ip.IsLoopback() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() || ip.IsUnspecified()
 }
 
-// validateTargetHost resolves the hostname and rejects private/reserved IPs to prevent SSRF.
-func validateTargetHost(hostname string) error {
-	ips, err := net.LookupIP(hostname)
+// safeDialContext resolves DNS and connects to the target, rejecting private/reserved IPs
+// at the connection level to prevent DNS rebinding (TOCTOU) attacks.
+func safeDialContext(ctx context.Context, network, addr string) (net.Conn, error) {
+	host, port, err := net.SplitHostPort(addr)
 	if err != nil {
-		return fmt.Errorf("无法解析目标主机: %w", err)
+		return nil, err
 	}
-	for _, ip := range ips {
-		if isPrivateOrReservedIP(ip) {
-			return fmt.Errorf("目标地址不允许访问内网或保留地址")
+
+	ips, err := net.DefaultResolver.LookupIPAddr(ctx, host)
+	if err != nil {
+		return nil, fmt.Errorf("DNS解析失败: %w", err)
+	}
+	if len(ips) == 0 {
+		return nil, fmt.Errorf("DNS解析无结果: %s", host)
+	}
+
+	for _, ipAddr := range ips {
+		if isPrivateOrReservedIP(ipAddr.IP) {
+			return nil, fmt.Errorf("目标地址不允许访问")
 		}
 	}
-	return nil
+
+	// 直接连接到已解析的 IP，防止 DNS rebinding
+	dialer := &net.Dialer{Timeout: 10 * time.Second}
+	return dialer.DialContext(ctx, network, net.JoinHostPort(ips[0].IP.String(), port))
 }
 
-// sanitizeFilenameForHeader removes characters unsafe for Content-Disposition header values.
 func sanitizeFilenameForHeader(filename string) string {
 	replacer := strings.NewReplacer(
 		`"`, "",
@@ -108,19 +129,15 @@ func (h *ProxyHandler) HandleDownload(c *gin.Context) {
 		return
 	}
 
-	if err := validateTargetHost(parsedURL.Hostname()); err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"error": "目标地址被拒绝"})
-		return
+	transport := &http.Transport{
+		DialContext: safeDialContext,
 	}
-
 	client := &http.Client{
-		Timeout: 60 * time.Second,
+		Timeout:   60 * time.Second,
+		Transport: transport,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			if len(via) >= 10 {
 				return fmt.Errorf("重定向次数过多")
-			}
-			if err := validateTargetHost(req.URL.Hostname()); err != nil {
-				return fmt.Errorf("重定向目标被拒绝")
 			}
 			return nil
 		},
@@ -175,11 +192,12 @@ func (h *ProxyHandler) HandleDownload(c *gin.Context) {
 	c.Header("Content-Encoding", "identity")
 	c.Header("X-Content-Type-Options", "nosniff")
 
+	limitedBody := io.LimitReader(resp.Body, maxProxyResponseBytes)
 	buffer := make([]byte, 32*1024)
 	flusher, ok := c.Writer.(http.Flusher)
 
 	for {
-		n, err := resp.Body.Read(buffer)
+		n, err := limitedBody.Read(buffer)
 		if n > 0 {
 			if _, writeErr := c.Writer.Write(buffer[:n]); writeErr != nil {
 				log.Printf("写入数据到客户端时发生错误: %v", writeErr)

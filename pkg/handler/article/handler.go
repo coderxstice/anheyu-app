@@ -664,8 +664,13 @@ func (h *Handler) BatchDelete(c *gin.Context) {
 		return
 	}
 
+	const maxBatchDeleteSize = 100
 	if len(req.IDs) == 0 {
 		response.Fail(c, http.StatusBadRequest, "文章ID列表不能为空")
+		return
+	}
+	if len(req.IDs) > maxBatchDeleteSize {
+		response.Fail(c, http.StatusBadRequest, fmt.Sprintf("单次最多删除 %d 篇文章", maxBatchDeleteSize))
 		return
 	}
 
