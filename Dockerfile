@@ -30,7 +30,7 @@ LABEL org.opencontainers.image.title="Anheyu App" \
 WORKDIR /anheyu
 
 RUN apk update \
-    && apk add --no-cache tzdata vips-tools ffmpeg libheif libraw-tools nodejs npm \
+    && apk add --no-cache tzdata vips-tools ffmpeg libheif libraw-tools nodejs npm su-exec \
     && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
     && echo "Asia/Shanghai" > /etc/timezone
 
@@ -52,8 +52,6 @@ COPY entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./anheyu-app \
     && chmod +x ./entrypoint.sh \
     && chown -R anheyu:anheyu /anheyu
-
-USER anheyu
 
 # ==================================================================
 # Target: full (default) - Go backend + built-in Next.js frontend
