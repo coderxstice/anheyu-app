@@ -8,11 +8,13 @@
 package proxy
 
 import (
+	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
-	"path" // <-- 优化：导入 path 包
+	"path"
 	"strings"
 	"time"
 
@@ -27,6 +29,56 @@ func NewHandler() *ProxyHandler {
 	return &ProxyHandler{}
 }
 
+// isPrivateOrReservedIP checks whether the given IP is private, loopback,
+// link-local, or otherwise non-routable (e.g. cloud metadata 169.254.x.x).
+func isPrivateOrReservedIP(ip net.IP) bool {
+	privateRanges := []string{
+		"10.0.0.0/8",
+		"172.16.0.0/12",
+		"192.168.0.0/16",
+		"127.0.0.0/8",
+		"169.254.0.0/16",
+		"::1/128",
+		"fc00::/7",
+		"fe80::/10",
+	}
+	for _, cidr := range privateRanges {
+		_, ipNet, err := net.ParseCIDR(cidr)
+		if err != nil {
+			continue
+		}
+		if ipNet.Contains(ip) {
+			return true
+		}
+	}
+	return ip.IsLoopback() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() || ip.IsUnspecified()
+}
+
+// validateTargetHost resolves the hostname and rejects private/reserved IPs to prevent SSRF.
+func validateTargetHost(hostname string) error {
+	ips, err := net.LookupIP(hostname)
+	if err != nil {
+		return fmt.Errorf("无法解析目标主机: %w", err)
+	}
+	for _, ip := range ips {
+		if isPrivateOrReservedIP(ip) {
+			return fmt.Errorf("目标地址不允许访问内网或保留地址")
+		}
+	}
+	return nil
+}
+
+// sanitizeFilenameForHeader removes characters unsafe for Content-Disposition header values.
+func sanitizeFilenameForHeader(filename string) string {
+	replacer := strings.NewReplacer(
+		`"`, "",
+		`\`, "",
+		"\r", "",
+		"\n", "",
+	)
+	return replacer.Replace(filename)
+}
+
 // HandleDownload 处理外部文件下载代理
 // @Summary      代理下载
 // @Description  代理下载外部资源（主要用于图片）
@@ -39,108 +91,101 @@ func NewHandler() *ProxyHandler {
 // @Failure      500  {object}  object{error=string}  "代理失败"
 // @Router       /proxy/download [get]
 func (h *ProxyHandler) HandleDownload(c *gin.Context) {
-	// 获取要下载的URL
 	targetURL := c.Query("url")
 	if targetURL == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "缺少url参数"})
 		return
 	}
 
-	// 验证URL格式
 	parsedURL, err := url.Parse(targetURL)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的URL格式"})
 		return
 	}
 
-	// 只允许http和https协议
 	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "只支持http和https协议"})
 		return
 	}
 
-	// 创建HTTP客户端
-	client := &http.Client{
-		Timeout: 60 * time.Second,
+	if err := validateTargetHost(parsedURL.Hostname()); err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": "目标地址被拒绝"})
+		return
 	}
 
-	// 创建请求
+	client := &http.Client{
+		Timeout: 60 * time.Second,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			if len(via) >= 10 {
+				return fmt.Errorf("重定向次数过多")
+			}
+			if err := validateTargetHost(req.URL.Hostname()); err != nil {
+				return fmt.Errorf("重定向目标被拒绝")
+			}
+			return nil
+		},
+	}
+
 	req, err := http.NewRequest("GET", targetURL, nil)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "创建请求失败"})
 		return
 	}
 
-	// 设置请求头，模拟真实浏览器
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 	req.Header.Set("Accept", "image/webp,image/apng,image/*,*/*;q=0.8")
 	req.Header.Set("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8")
 	req.Header.Set("Cache-Control", "no-cache")
 	req.Header.Set("Pragma", "no-cache")
 
-	// ★★★★★ 关键修复点 ★★★★★
-	// 不要请求压缩数据，因为我们不在代理中处理解压。
-	// req.Header.Set("Accept-Encoding", "gzip, deflate, br")
-
-	// 执行请求
 	resp, err := client.Do(req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "请求失败: " + err.Error()})
+		log.Printf("代理请求失败: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "请求目标资源失败"})
 		return
 	}
 	defer resp.Body.Close()
 
-	// 检查响应状态
 	if resp.StatusCode != http.StatusOK {
-		c.JSON(http.StatusBadGateway, gin.H{"error": "目标服务器返回错误: " + resp.Status})
+		c.JSON(http.StatusBadGateway, gin.H{"error": "目标服务器返回错误"})
 		return
 	}
 
-	// 检查Content-Type，如果服务器未提供，则尝试设为通用二进制流
 	contentType := resp.Header.Get("Content-Type")
 	if contentType == "" {
-		contentType = "application/octet-stream" // 提供一个默认值
+		contentType = "application/octet-stream"
 	}
 
-	// 为了安全，仍然可以检查是否是预期的图片类型
 	if !strings.HasPrefix(contentType, "image/") && contentType != "application/octet-stream" {
-		c.JSON(http.StatusBadGateway, gin.H{"error": "目标不是图片文件: " + contentType})
+		c.JSON(http.StatusBadGateway, gin.H{"error": "目标不是图片文件"})
 		return
 	}
 
-	// 从原始响应中复制必要的头信息到我们的响应中
 	c.Header("Content-Type", contentType)
 
-	// 设置 Content-Length 以支持进度显示
 	contentLength := resp.Header.Get("Content-Length")
 	if contentLength != "" {
 		c.Header("Content-Length", contentLength)
 	}
 
-	// 设置我们自己的头信息
-	c.Header("Content-Disposition", "attachment; filename="+getFileName(targetURL))
+	filename := sanitizeFilenameForHeader(getFileName(targetURL))
+	c.Header("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
 	c.Header("Cache-Control", "no-cache")
-	c.Header("Access-Control-Allow-Origin", "*")
 
-	// 禁用压缩和缓冲，确保流式传输
 	c.Header("Content-Encoding", "identity")
 	c.Header("X-Content-Type-Options", "nosniff")
 
-	// 流式传输文件内容，支持进度显示
-	// 使用缓冲区分块传输，每次传输后刷新，让浏览器能实时获取进度
-	buffer := make([]byte, 32*1024) // 32KB 缓冲区
+	buffer := make([]byte, 32*1024)
 	flusher, ok := c.Writer.(http.Flusher)
 
 	for {
 		n, err := resp.Body.Read(buffer)
 		if n > 0 {
-			// 写入数据
 			if _, writeErr := c.Writer.Write(buffer[:n]); writeErr != nil {
 				log.Printf("写入数据到客户端时发生错误: %v", writeErr)
 				return
 			}
 
-			// 立即刷新缓冲区，让客户端能接收到数据并更新进度
 			if ok {
 				flusher.Flush()
 			}
