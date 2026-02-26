@@ -177,11 +177,22 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
+          df -h /
+
       - name: Build Frontend
         run: |
           cd frontend
           npm ci
           npm run build
+
+      - name: Clean frontend node_modules before GoReleaser
+        run: |
+          rm -rf frontend/node_modules
+          echo "✅ Cleaned frontend/node_modules to save disk space for Docker builds"
 
       - name: Prepare Go version environment
         run: |

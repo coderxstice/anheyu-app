@@ -1,18 +1,7 @@
 ARG DOCKER_IMAGE_REGISTRY=docker.io
 
-# ==================== Stage: Build Next.js frontend ====================
-FROM ${DOCKER_IMAGE_REGISTRY}/library/node:20-alpine AS frontend-builder
-
-WORKDIR /build
-
-COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci --prefer-offline
-
-COPY frontend/ ./
-ENV NEXT_TELEMETRY_DISABLED=1
-RUN npm run build
-
 # ==================== Stage: Go backend runtime base ====================
+# Frontend is pre-built by CI (.next/standalone), no in-Docker build needed
 FROM ${DOCKER_IMAGE_REGISTRY}/library/alpine:latest AS backend-base
 
 ARG VERSION=unknown
@@ -55,14 +44,13 @@ RUN chmod +x ./anheyu-app \
 
 # ==================================================================
 # Target: full (default) - Go backend + built-in Next.js frontend
-#   Build: docker build .
-#   Or:    docker build --target full .
+#   Build: docker build --target full .
 # ==================================================================
 FROM backend-base AS full
 
-COPY --from=frontend-builder /build/.next/standalone ./frontend/
-COPY --from=frontend-builder /build/.next/static ./frontend/.next/static
-COPY --from=frontend-builder /build/public ./frontend/public
+COPY frontend/.next/standalone ./frontend/
+COPY frontend/.next/static ./frontend/.next/static
+COPY frontend/public ./frontend/public
 
 EXPOSE 8091 3000
 
@@ -91,9 +79,9 @@ WORKDIR /app
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-COPY --from=frontend-builder --chown=nextjs:nodejs /build/.next/standalone ./
-COPY --from=frontend-builder --chown=nextjs:nodejs /build/.next/static ./.next/static
-COPY --from=frontend-builder --chown=nextjs:nodejs /build/public ./public
+COPY --chown=nextjs:nodejs frontend/.next/standalone ./
+COPY --chown=nextjs:nodejs frontend/.next/static ./.next/static
+COPY --chown=nextjs:nodejs frontend/public ./public
 
 USER nextjs
 
