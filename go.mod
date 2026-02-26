@@ -26,6 +26,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/mojocn/base64Captcha v1.3.8
+	github.com/mozillazg/go-pinyin v0.21.0
 	github.com/ncruces/go-sqlite3 v0.24.0
 	github.com/qiniu/go-sdk/v7 v7.25.5
 	github.com/redis/go-redis/v9 v9.10.0

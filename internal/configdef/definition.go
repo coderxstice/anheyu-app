@@ -262,6 +262,8 @@ var AllSettings = []Definition{
 	{Key: constant.KeySidebarCustomShowInPost, Value: "false", Comment: "自定义侧边栏是否在文章页显示", IsPublic: true},
 	{Key: constant.KeySidebarTocCollapseMode, Value: "false", Comment: "目录折叠模式 (true/false)，开启后目录会根据当前阅读位置自动折叠展开子标题", IsPublic: true},
 	{Key: constant.KeySidebarSeriesPostCount, Value: "5", Comment: "侧边栏系列文章显示数量", IsPublic: true},
+	{Key: constant.KeySidebarRecentPostEnable, Value: "true", Comment: "是否在文章详情页侧边栏显示最近发布文章 (true/false)", IsPublic: true},
+	{Key: constant.KeySidebarRecentPostCount, Value: "5", Comment: "侧边栏最近文章显示数量", IsPublic: true},
 
 	{Key: constant.KeyFriendLinkApplyCondition, Value: `["我已添加 <b>安知鱼</b> 博客的友情链接","我的链接主体为 <b>个人</b>，网站类型为<b>博客</b>","我的网站现在可以在中国大陆区域正常访问","网站内容符合中国大陆法律法规","我的网站可以在1分钟内加载完成首屏"]`, Comment: "申请友链条件 (JSON数组格式，用于动态生成勾选框)", IsPublic: true},
 	{Key: constant.KeyFriendLinkApplyCustomCode, Value: `::: folding

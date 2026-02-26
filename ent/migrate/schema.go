@@ -556,6 +556,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "name", Type: field.TypeString, Unique: true, Comment: "分类名称"},
+		{Name: "slug", Type: field.TypeString, Unique: true, Nullable: true, Size: 255, Comment: "URL 友好的标识符，用于静态化路由"},
 		{Name: "description", Type: field.TypeString, Nullable: true, Comment: "分类描述"},
 		{Name: "count", Type: field.TypeInt, Comment: "该分类下的文章数量", Default: 0},
 		{Name: "is_series", Type: field.TypeBool, Comment: "是否为系列", Default: false},
@@ -575,6 +576,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "name", Type: field.TypeString, Unique: true, Comment: "标签名称"},
+		{Name: "slug", Type: field.TypeString, Unique: true, Nullable: true, Size: 255, Comment: "URL 友好的标识符，用于静态化路由"},
 		{Name: "count", Type: field.TypeInt, Comment: "引用该标签的文章数量", Default: 0},
 	}
 	// PostTagsTable holds the schema information for the "post_tags" table.

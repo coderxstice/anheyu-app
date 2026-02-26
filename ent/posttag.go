@@ -25,6 +25,8 @@ type PostTag struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// 标签名称
 	Name string `json:"name,omitempty"`
+	// URL 友好的标识符，用于静态化路由
+	Slug *string `json:"slug,omitempty"`
 	// 引用该标签的文章数量
 	Count int `json:"count,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -58,7 +60,7 @@ func (*PostTag) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case posttag.FieldID, posttag.FieldCount:
 			values[i] = new(sql.NullInt64)
-		case posttag.FieldName:
+		case posttag.FieldName, posttag.FieldSlug:
 			values[i] = new(sql.NullString)
 		case posttag.FieldDeletedAt, posttag.FieldCreatedAt, posttag.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -107,6 +109,13 @@ func (_m *PostTag) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				_m.Name = value.String
+			}
+		case posttag.FieldSlug:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field slug", values[i])
+			} else if value.Valid {
+				_m.Slug = new(string)
+				*_m.Slug = value.String
 			}
 		case posttag.FieldCount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -168,6 +177,11 @@ func (_m *PostTag) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(_m.Name)
+	builder.WriteString(", ")
+	if v := _m.Slug; v != nil {
+		builder.WriteString("slug=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("count=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Count))

@@ -33,19 +33,27 @@ func (r *postTagRepo) toModel(t *ent.PostTag) *model.PostTag {
 		return nil
 	}
 	publicID, _ := idgen.GeneratePublicID(t.ID, idgen.EntityTypePostTag)
+	slug := ""
+	if t.Slug != nil {
+		slug = *t.Slug
+	}
 	return &model.PostTag{
 		ID:        publicID,
 		CreatedAt: t.CreatedAt,
 		UpdatedAt: t.UpdatedAt,
 		Name:      t.Name,
+		Slug:      slug,
 		Count:     t.Count,
 	}
 }
 
 func (r *postTagRepo) Create(ctx context.Context, req *model.CreatePostTagRequest) (*model.PostTag, error) {
-	newTag, err := r.db.PostTag.Create().
-		SetName(req.Name).
-		Save(ctx)
+	creator := r.db.PostTag.Create().
+		SetName(req.Name)
+	if req.Slug != "" {
+		creator.SetSlug(req.Slug)
+	}
+	newTag, err := creator.Save(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -60,6 +68,13 @@ func (r *postTagRepo) Update(ctx context.Context, publicID string, req *model.Up
 	updater := r.db.PostTag.UpdateOneID(dbID)
 	if req.Name != nil {
 		updater.SetName(*req.Name)
+	}
+	if req.Slug != nil {
+		if *req.Slug == "" {
+			updater.ClearSlug()
+		} else {
+			updater.SetSlug(*req.Slug)
+		}
 	}
 	updatedTag, err := updater.Save(ctx)
 	if err != nil {
