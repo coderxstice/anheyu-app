@@ -888,6 +888,7 @@ func (s *serviceImpl) GetPublicBySlugOrID(ctx context.Context, slugOrID string) 
 	// - "下一篇"应该带用户往更早的文章走 → chronoPrev（创建时间更早）
 	finalPrevArticle := chronoNext // 上一篇 = 创建时间更晚的文章
 	finalNextArticle := chronoPrev // 下一篇 = 创建时间更早的文章
+	// 边界：最旧文章仅返回 PrevArticle（指向更新的一篇），不返回 NextArticle；最新文章仅返回 NextArticle，不返回 PrevArticle。
 
 	if chronoPrev == nil {
 		log.Printf("[信息] GetPublicBySlugOrID: 当前是最早文章 (ID: %s)，没有更早的文章（没有下一篇）。", article.ID)
