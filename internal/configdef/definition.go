@@ -145,6 +145,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyPostDefaultCover, Value: ``, Comment: "文章默认封面", IsPublic: true},
 	{Key: constant.KeyPostDefaultDoubleColumn, Value: "true", Comment: "文章默认双栏", IsPublic: true},
 	{Key: constant.KeyPostDefaultPageSize, Value: "12", Comment: "文章默认分页大小", IsPublic: true},
+	{Key: constant.KeyPostDefaultEnablePrimaryColorTag, Value: "false", Comment: "文章列表封面启用主色调标签", IsPublic: true},
 	{Key: constant.KeyPostExpirationTime, Value: "365", Comment: "文章过期时间(单位天)", IsPublic: true},
 	{Key: constant.Key404PageDefaultImage, Value: "/static/img/background-effect.gif", Comment: "404页面默认图片", IsPublic: true},
 	{Key: constant.KeyPostRewardEnable, Value: "true", Comment: "文章打赏功能是否启用", IsPublic: true},
