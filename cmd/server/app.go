@@ -296,7 +296,7 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	if err != nil {
 		log.Printf("警告: GeoIP 服务初始化失败: %v。IP属地将显示为'未知'", err)
 	}
-	albumSvc := album.NewAlbumService(albumRepo, tagRepo, settingSvc)
+	albumSvc := album.NewAlbumService(albumRepo, tagRepo, albumCategoryRepo, settingSvc)
 	albumCategorySvc := album_category_service.NewService(albumCategoryRepo)
 	storageProviders := make(map[constant.StoragePolicyType]storage.IStorageProvider)
 	localSigningSecret := settingSvc.Get(constant.KeyLocalFileSigningSecret.String())

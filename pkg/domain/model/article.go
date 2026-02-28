@@ -14,7 +14,8 @@ import "time"
 // ArticleExtraConfig 文章扩展配置结构体
 // 用于存储各种可选功能配置，支持未来扩展
 type ArticleExtraConfig struct {
-	EnableAIPodcast bool `json:"enable_ai_podcast,omitempty"` // AI播客开关，默认 false
+	EnableAIPodcast *bool   `json:"enable_ai_podcast,omitempty"` // AI播客开关
+	CustomJS        *string `json:"custom_js,omitempty"`         // 单文章自定义 JS（仅管理员）
 	// 未来可扩展更多配置...
 }
 

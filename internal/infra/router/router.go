@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-15 11:30:55
- * @LastEditTime: 2026-01-26 17:47:40
+ * @LastEditTime: 2026-02-27 18:26:36
  * @LastEditors: 安知鱼
  */
 // anheyu-app/pkg/router/router.go
@@ -682,8 +682,8 @@ func (r *Router) registerPageRoutes(api *gin.RouterGroup) {
 	// --- 前台公开接口 ---
 	pagesPublic := api.Group("/public/pages")
 	{
-		// 根据路径获取页面: GET /api/public/pages/:path
-		pagesPublic.GET("/:path", r.pageHandler.GetByPath)
+		// 根据路径获取页面: GET /api/public/pages/*path（支持多级路径如 /docs/guide）
+		pagesPublic.GET("/*path", r.pageHandler.GetByPath)
 	}
 
 	// --- 后台管理接口 ---

@@ -68,6 +68,34 @@ func (_c *PageCreate) SetNillableMarkdownContent(v *string) *PageCreate {
 	return _c
 }
 
+// SetCustomJs sets the "custom_js" field.
+func (_c *PageCreate) SetCustomJs(v string) *PageCreate {
+	_c.mutation.SetCustomJs(v)
+	return _c
+}
+
+// SetNillableCustomJs sets the "custom_js" field if the given value is not nil.
+func (_c *PageCreate) SetNillableCustomJs(v *string) *PageCreate {
+	if v != nil {
+		_c.SetCustomJs(*v)
+	}
+	return _c
+}
+
+// SetCustomCSS sets the "custom_css" field.
+func (_c *PageCreate) SetCustomCSS(v string) *PageCreate {
+	_c.mutation.SetCustomCSS(v)
+	return _c
+}
+
+// SetNillableCustomCSS sets the "custom_css" field if the given value is not nil.
+func (_c *PageCreate) SetNillableCustomCSS(v *string) *PageCreate {
+	if v != nil {
+		_c.SetCustomCSS(*v)
+	}
+	return _c
+}
+
 // SetDescription sets the "description" field.
 func (_c *PageCreate) SetDescription(v string) *PageCreate {
 	_c.mutation.SetDescription(v)
@@ -199,6 +227,14 @@ func (_c *PageCreate) defaults() error {
 		v := page.DefaultMarkdownContent
 		_c.mutation.SetMarkdownContent(v)
 	}
+	if _, ok := _c.mutation.CustomJs(); !ok {
+		v := page.DefaultCustomJs
+		_c.mutation.SetCustomJs(v)
+	}
+	if _, ok := _c.mutation.CustomCSS(); !ok {
+		v := page.DefaultCustomCSS
+		_c.mutation.SetCustomCSS(v)
+	}
 	if _, ok := _c.mutation.IsPublished(); !ok {
 		v := page.DefaultIsPublished
 		_c.mutation.SetIsPublished(v)
@@ -251,6 +287,12 @@ func (_c *PageCreate) check() error {
 	}
 	if _, ok := _c.mutation.MarkdownContent(); !ok {
 		return &ValidationError{Name: "markdown_content", err: errors.New(`ent: missing required field "Page.markdown_content"`)}
+	}
+	if _, ok := _c.mutation.CustomJs(); !ok {
+		return &ValidationError{Name: "custom_js", err: errors.New(`ent: missing required field "Page.custom_js"`)}
+	}
+	if _, ok := _c.mutation.CustomCSS(); !ok {
+		return &ValidationError{Name: "custom_css", err: errors.New(`ent: missing required field "Page.custom_css"`)}
 	}
 	if v, ok := _c.mutation.Description(); ok {
 		if err := page.DescriptionValidator(v); err != nil {
@@ -324,6 +366,14 @@ func (_c *PageCreate) createSpec() (*Page, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.MarkdownContent(); ok {
 		_spec.SetField(page.FieldMarkdownContent, field.TypeString, value)
 		_node.MarkdownContent = value
+	}
+	if value, ok := _c.mutation.CustomJs(); ok {
+		_spec.SetField(page.FieldCustomJs, field.TypeString, value)
+		_node.CustomJs = value
+	}
+	if value, ok := _c.mutation.CustomCSS(); ok {
+		_spec.SetField(page.FieldCustomCSS, field.TypeString, value)
+		_node.CustomCSS = value
 	}
 	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(page.FieldDescription, field.TypeString, value)
@@ -464,6 +514,30 @@ func (u *PageUpsert) SetMarkdownContent(v string) *PageUpsert {
 // UpdateMarkdownContent sets the "markdown_content" field to the value that was provided on create.
 func (u *PageUpsert) UpdateMarkdownContent() *PageUpsert {
 	u.SetExcluded(page.FieldMarkdownContent)
+	return u
+}
+
+// SetCustomJs sets the "custom_js" field.
+func (u *PageUpsert) SetCustomJs(v string) *PageUpsert {
+	u.Set(page.FieldCustomJs, v)
+	return u
+}
+
+// UpdateCustomJs sets the "custom_js" field to the value that was provided on create.
+func (u *PageUpsert) UpdateCustomJs() *PageUpsert {
+	u.SetExcluded(page.FieldCustomJs)
+	return u
+}
+
+// SetCustomCSS sets the "custom_css" field.
+func (u *PageUpsert) SetCustomCSS(v string) *PageUpsert {
+	u.Set(page.FieldCustomCSS, v)
+	return u
+}
+
+// UpdateCustomCSS sets the "custom_css" field to the value that was provided on create.
+func (u *PageUpsert) UpdateCustomCSS() *PageUpsert {
+	u.SetExcluded(page.FieldCustomCSS)
 	return u
 }
 
@@ -664,6 +738,34 @@ func (u *PageUpsertOne) SetMarkdownContent(v string) *PageUpsertOne {
 func (u *PageUpsertOne) UpdateMarkdownContent() *PageUpsertOne {
 	return u.Update(func(s *PageUpsert) {
 		s.UpdateMarkdownContent()
+	})
+}
+
+// SetCustomJs sets the "custom_js" field.
+func (u *PageUpsertOne) SetCustomJs(v string) *PageUpsertOne {
+	return u.Update(func(s *PageUpsert) {
+		s.SetCustomJs(v)
+	})
+}
+
+// UpdateCustomJs sets the "custom_js" field to the value that was provided on create.
+func (u *PageUpsertOne) UpdateCustomJs() *PageUpsertOne {
+	return u.Update(func(s *PageUpsert) {
+		s.UpdateCustomJs()
+	})
+}
+
+// SetCustomCSS sets the "custom_css" field.
+func (u *PageUpsertOne) SetCustomCSS(v string) *PageUpsertOne {
+	return u.Update(func(s *PageUpsert) {
+		s.SetCustomCSS(v)
+	})
+}
+
+// UpdateCustomCSS sets the "custom_css" field to the value that was provided on create.
+func (u *PageUpsertOne) UpdateCustomCSS() *PageUpsertOne {
+	return u.Update(func(s *PageUpsert) {
+		s.UpdateCustomCSS()
 	})
 }
 
@@ -1042,6 +1144,34 @@ func (u *PageUpsertBulk) SetMarkdownContent(v string) *PageUpsertBulk {
 func (u *PageUpsertBulk) UpdateMarkdownContent() *PageUpsertBulk {
 	return u.Update(func(s *PageUpsert) {
 		s.UpdateMarkdownContent()
+	})
+}
+
+// SetCustomJs sets the "custom_js" field.
+func (u *PageUpsertBulk) SetCustomJs(v string) *PageUpsertBulk {
+	return u.Update(func(s *PageUpsert) {
+		s.SetCustomJs(v)
+	})
+}
+
+// UpdateCustomJs sets the "custom_js" field to the value that was provided on create.
+func (u *PageUpsertBulk) UpdateCustomJs() *PageUpsertBulk {
+	return u.Update(func(s *PageUpsert) {
+		s.UpdateCustomJs()
+	})
+}
+
+// SetCustomCSS sets the "custom_css" field.
+func (u *PageUpsertBulk) SetCustomCSS(v string) *PageUpsertBulk {
+	return u.Update(func(s *PageUpsert) {
+		s.SetCustomCSS(v)
+	})
+}
+
+// UpdateCustomCSS sets the "custom_css" field to the value that was provided on create.
+func (u *PageUpsertBulk) UpdateCustomCSS() *PageUpsertBulk {
+	return u.Update(func(s *PageUpsert) {
+		s.UpdateCustomCSS()
 	})
 }
 

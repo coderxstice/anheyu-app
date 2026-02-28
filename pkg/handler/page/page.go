@@ -42,6 +42,8 @@ func (h *Handler) Create(c *gin.Context) {
 		Path            string `json:"path" binding:"required"`
 		Content         string `json:"content" binding:"required"`
 		MarkdownContent string `json:"markdown_content"`
+		CustomJS        string `json:"custom_js"`
+		CustomCSS       string `json:"custom_css"`
 		Description     string `json:"description"`
 		IsPublished     bool   `json:"is_published"`
 		ShowComment     bool   `json:"show_comment"`
@@ -58,6 +60,8 @@ func (h *Handler) Create(c *gin.Context) {
 		Path:            req.Path,
 		Content:         req.Content,
 		MarkdownContent: req.MarkdownContent,
+		CustomJS:        req.CustomJS,
+		CustomCSS:       req.CustomCSS,
 		Description:     req.Description,
 		IsPublished:     req.IsPublished,
 		ShowComment:     req.ShowComment,
@@ -126,6 +130,12 @@ func (h *Handler) GetByPath(c *gin.Context) {
 			return
 		}
 		response.Fail(c, http.StatusInternalServerError, "获取页面失败")
+		return
+	}
+
+	// 公开接口仅允许访问已发布页面
+	if !page.IsPublished {
+		response.Fail(c, http.StatusNotFound, "页面不存在")
 		return
 	}
 
@@ -215,6 +225,8 @@ func (h *Handler) Update(c *gin.Context) {
 		Path            *string `json:"path"`
 		Content         *string `json:"content"`
 		MarkdownContent *string `json:"markdown_content"`
+		CustomJS        *string `json:"custom_js"`
+		CustomCSS       *string `json:"custom_css"`
 		Description     *string `json:"description"`
 		IsPublished     *bool   `json:"is_published"`
 		ShowComment     *bool   `json:"show_comment"`
@@ -231,6 +243,8 @@ func (h *Handler) Update(c *gin.Context) {
 		Path:            req.Path,
 		Content:         req.Content,
 		MarkdownContent: req.MarkdownContent,
+		CustomJS:        req.CustomJS,
+		CustomCSS:       req.CustomCSS,
 		Description:     req.Description,
 		IsPublished:     req.IsPublished,
 		ShowComment:     req.ShowComment,

@@ -59,6 +59,14 @@ func (Page) Fields() []ent.Field {
 			Default("").
 			Comment("Markdown原始内容"),
 
+		field.Text("custom_js").
+			Default("").
+			Comment("页面自定义JavaScript"),
+
+		field.Text("custom_css").
+			Default("").
+			Comment("页面自定义CSS"),
+
 		field.String("description").
 			MaxLen(500).
 			Optional().

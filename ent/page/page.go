@@ -24,6 +24,10 @@ const (
 	FieldContent = "content"
 	// FieldMarkdownContent holds the string denoting the markdown_content field in the database.
 	FieldMarkdownContent = "markdown_content"
+	// FieldCustomJs holds the string denoting the custom_js field in the database.
+	FieldCustomJs = "custom_js"
+	// FieldCustomCSS holds the string denoting the custom_css field in the database.
+	FieldCustomCSS = "custom_css"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
 	// FieldIsPublished holds the string denoting the is_published field in the database.
@@ -48,6 +52,8 @@ var Columns = []string{
 	FieldPath,
 	FieldContent,
 	FieldMarkdownContent,
+	FieldCustomJs,
+	FieldCustomCSS,
 	FieldDescription,
 	FieldIsPublished,
 	FieldShowComment,
@@ -79,6 +85,10 @@ var (
 	PathValidator func(string) error
 	// DefaultMarkdownContent holds the default value on creation for the "markdown_content" field.
 	DefaultMarkdownContent string
+	// DefaultCustomJs holds the default value on creation for the "custom_js" field.
+	DefaultCustomJs string
+	// DefaultCustomCSS holds the default value on creation for the "custom_css" field.
+	DefaultCustomCSS string
 	// DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
 	DescriptionValidator func(string) error
 	// DefaultIsPublished holds the default value on creation for the "is_published" field.
@@ -126,6 +136,16 @@ func ByContent(opts ...sql.OrderTermOption) OrderOption {
 // ByMarkdownContent orders the results by the markdown_content field.
 func ByMarkdownContent(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMarkdownContent, opts...).ToFunc()
+}
+
+// ByCustomJs orders the results by the custom_js field.
+func ByCustomJs(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCustomJs, opts...).ToFunc()
+}
+
+// ByCustomCSS orders the results by the custom_css field.
+func ByCustomCSS(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCustomCSS, opts...).ToFunc()
 }
 
 // ByDescription orders the results by the description field.

@@ -79,6 +79,16 @@ func MarkdownContent(v string) predicate.Page {
 	return predicate.Page(sql.FieldEQ(FieldMarkdownContent, v))
 }
 
+// CustomJs applies equality check predicate on the "custom_js" field. It's identical to CustomJsEQ.
+func CustomJs(v string) predicate.Page {
+	return predicate.Page(sql.FieldEQ(FieldCustomJs, v))
+}
+
+// CustomCSS applies equality check predicate on the "custom_css" field. It's identical to CustomCSSEQ.
+func CustomCSS(v string) predicate.Page {
+	return predicate.Page(sql.FieldEQ(FieldCustomCSS, v))
+}
+
 // Description applies equality check predicate on the "description" field. It's identical to DescriptionEQ.
 func Description(v string) predicate.Page {
 	return predicate.Page(sql.FieldEQ(FieldDescription, v))
@@ -417,6 +427,136 @@ func MarkdownContentEqualFold(v string) predicate.Page {
 // MarkdownContentContainsFold applies the ContainsFold predicate on the "markdown_content" field.
 func MarkdownContentContainsFold(v string) predicate.Page {
 	return predicate.Page(sql.FieldContainsFold(FieldMarkdownContent, v))
+}
+
+// CustomJsEQ applies the EQ predicate on the "custom_js" field.
+func CustomJsEQ(v string) predicate.Page {
+	return predicate.Page(sql.FieldEQ(FieldCustomJs, v))
+}
+
+// CustomJsNEQ applies the NEQ predicate on the "custom_js" field.
+func CustomJsNEQ(v string) predicate.Page {
+	return predicate.Page(sql.FieldNEQ(FieldCustomJs, v))
+}
+
+// CustomJsIn applies the In predicate on the "custom_js" field.
+func CustomJsIn(vs ...string) predicate.Page {
+	return predicate.Page(sql.FieldIn(FieldCustomJs, vs...))
+}
+
+// CustomJsNotIn applies the NotIn predicate on the "custom_js" field.
+func CustomJsNotIn(vs ...string) predicate.Page {
+	return predicate.Page(sql.FieldNotIn(FieldCustomJs, vs...))
+}
+
+// CustomJsGT applies the GT predicate on the "custom_js" field.
+func CustomJsGT(v string) predicate.Page {
+	return predicate.Page(sql.FieldGT(FieldCustomJs, v))
+}
+
+// CustomJsGTE applies the GTE predicate on the "custom_js" field.
+func CustomJsGTE(v string) predicate.Page {
+	return predicate.Page(sql.FieldGTE(FieldCustomJs, v))
+}
+
+// CustomJsLT applies the LT predicate on the "custom_js" field.
+func CustomJsLT(v string) predicate.Page {
+	return predicate.Page(sql.FieldLT(FieldCustomJs, v))
+}
+
+// CustomJsLTE applies the LTE predicate on the "custom_js" field.
+func CustomJsLTE(v string) predicate.Page {
+	return predicate.Page(sql.FieldLTE(FieldCustomJs, v))
+}
+
+// CustomJsContains applies the Contains predicate on the "custom_js" field.
+func CustomJsContains(v string) predicate.Page {
+	return predicate.Page(sql.FieldContains(FieldCustomJs, v))
+}
+
+// CustomJsHasPrefix applies the HasPrefix predicate on the "custom_js" field.
+func CustomJsHasPrefix(v string) predicate.Page {
+	return predicate.Page(sql.FieldHasPrefix(FieldCustomJs, v))
+}
+
+// CustomJsHasSuffix applies the HasSuffix predicate on the "custom_js" field.
+func CustomJsHasSuffix(v string) predicate.Page {
+	return predicate.Page(sql.FieldHasSuffix(FieldCustomJs, v))
+}
+
+// CustomJsEqualFold applies the EqualFold predicate on the "custom_js" field.
+func CustomJsEqualFold(v string) predicate.Page {
+	return predicate.Page(sql.FieldEqualFold(FieldCustomJs, v))
+}
+
+// CustomJsContainsFold applies the ContainsFold predicate on the "custom_js" field.
+func CustomJsContainsFold(v string) predicate.Page {
+	return predicate.Page(sql.FieldContainsFold(FieldCustomJs, v))
+}
+
+// CustomCSSEQ applies the EQ predicate on the "custom_css" field.
+func CustomCSSEQ(v string) predicate.Page {
+	return predicate.Page(sql.FieldEQ(FieldCustomCSS, v))
+}
+
+// CustomCSSNEQ applies the NEQ predicate on the "custom_css" field.
+func CustomCSSNEQ(v string) predicate.Page {
+	return predicate.Page(sql.FieldNEQ(FieldCustomCSS, v))
+}
+
+// CustomCSSIn applies the In predicate on the "custom_css" field.
+func CustomCSSIn(vs ...string) predicate.Page {
+	return predicate.Page(sql.FieldIn(FieldCustomCSS, vs...))
+}
+
+// CustomCSSNotIn applies the NotIn predicate on the "custom_css" field.
+func CustomCSSNotIn(vs ...string) predicate.Page {
+	return predicate.Page(sql.FieldNotIn(FieldCustomCSS, vs...))
+}
+
+// CustomCSSGT applies the GT predicate on the "custom_css" field.
+func CustomCSSGT(v string) predicate.Page {
+	return predicate.Page(sql.FieldGT(FieldCustomCSS, v))
+}
+
+// CustomCSSGTE applies the GTE predicate on the "custom_css" field.
+func CustomCSSGTE(v string) predicate.Page {
+	return predicate.Page(sql.FieldGTE(FieldCustomCSS, v))
+}
+
+// CustomCSSLT applies the LT predicate on the "custom_css" field.
+func CustomCSSLT(v string) predicate.Page {
+	return predicate.Page(sql.FieldLT(FieldCustomCSS, v))
+}
+
+// CustomCSSLTE applies the LTE predicate on the "custom_css" field.
+func CustomCSSLTE(v string) predicate.Page {
+	return predicate.Page(sql.FieldLTE(FieldCustomCSS, v))
+}
+
+// CustomCSSContains applies the Contains predicate on the "custom_css" field.
+func CustomCSSContains(v string) predicate.Page {
+	return predicate.Page(sql.FieldContains(FieldCustomCSS, v))
+}
+
+// CustomCSSHasPrefix applies the HasPrefix predicate on the "custom_css" field.
+func CustomCSSHasPrefix(v string) predicate.Page {
+	return predicate.Page(sql.FieldHasPrefix(FieldCustomCSS, v))
+}
+
+// CustomCSSHasSuffix applies the HasSuffix predicate on the "custom_css" field.
+func CustomCSSHasSuffix(v string) predicate.Page {
+	return predicate.Page(sql.FieldHasSuffix(FieldCustomCSS, v))
+}
+
+// CustomCSSEqualFold applies the EqualFold predicate on the "custom_css" field.
+func CustomCSSEqualFold(v string) predicate.Page {
+	return predicate.Page(sql.FieldEqualFold(FieldCustomCSS, v))
+}
+
+// CustomCSSContainsFold applies the ContainsFold predicate on the "custom_css" field.
+func CustomCSSContainsFold(v string) predicate.Page {
+	return predicate.Page(sql.FieldContainsFold(FieldCustomCSS, v))
 }
 
 // DescriptionEQ applies the EQ predicate on the "description" field.

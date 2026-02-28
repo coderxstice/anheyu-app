@@ -165,17 +165,24 @@ type AlbumService interface {
 
 // albumService 是 AlbumService 接口的实现
 type albumService struct {
-	albumRepo  repository.AlbumRepository
-	tagRepo    repository.TagRepository
-	settingSvc setting.SettingService
+	albumRepo         repository.AlbumRepository
+	tagRepo           repository.TagRepository
+	albumCategoryRepo repository.AlbumCategoryRepository
+	settingSvc        setting.SettingService
 }
 
 // NewAlbumService 是 albumService 的构造函数
-func NewAlbumService(albumRepo repository.AlbumRepository, tagRepo repository.TagRepository, settingSvc setting.SettingService) AlbumService {
+func NewAlbumService(
+	albumRepo repository.AlbumRepository,
+	tagRepo repository.TagRepository,
+	albumCategoryRepo repository.AlbumCategoryRepository,
+	settingSvc setting.SettingService,
+) AlbumService {
 	return &albumService{
-		albumRepo:  albumRepo,
-		tagRepo:    tagRepo,
-		settingSvc: settingSvc,
+		albumRepo:         albumRepo,
+		tagRepo:           tagRepo,
+		albumCategoryRepo: albumCategoryRepo,
+		settingSvc:        settingSvc,
 	}
 }
 
@@ -657,6 +664,28 @@ func (s *albumService) ImportAlbums(ctx context.Context, req *ImportAlbumRequest
 		CreatedIDs: make([]uint, 0),
 	}
 
+	// 预加载当前站点可用的分类，避免导入数据中的旧分类ID导致外键报错
+	categorySet := make(map[uint]struct{})
+	categories, err := s.albumCategoryRepo.FindAll(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("获取相册分类失败: %w", err)
+	}
+	for _, category := range categories {
+		if category == nil {
+			continue
+		}
+		categorySet[category.ID] = struct{}{}
+	}
+
+	var fallbackCategoryID *uint
+	if req.DefaultCategoryID != nil {
+		if _, exists := categorySet[*req.DefaultCategoryID]; exists {
+			fallbackCategoryID = req.DefaultCategoryID
+		} else {
+			log.Printf("[导入相册] 默认分类ID=%d 不存在，已忽略默认分类", *req.DefaultCategoryID)
+		}
+	}
+
 	// 获取现有的所有相册哈希，用于去重
 	existingHashesMap := make(map[string]uint)
 	if req.SkipExisting {
@@ -691,8 +720,16 @@ func (s *albumService) ImportAlbums(ctx context.Context, req *ImportAlbumRequest
 
 		// 确定分类ID
 		categoryID := albumData.CategoryID
-		if categoryID == nil && req.DefaultCategoryID != nil {
-			categoryID = req.DefaultCategoryID
+		if categoryID == nil {
+			categoryID = fallbackCategoryID
+		} else if _, exists := categorySet[*categoryID]; !exists {
+			if fallbackCategoryID != nil {
+				log.Printf("[导入相册] 分类ID=%d 不存在，回退到默认分类ID=%d", *categoryID, *fallbackCategoryID)
+				categoryID = fallbackCategoryID
+			} else {
+				log.Printf("[导入相册] 分类ID=%d 不存在，回退为未分类导入", *categoryID)
+				categoryID = nil
+			}
 		}
 
 		// 解析标签

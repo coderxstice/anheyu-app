@@ -535,6 +535,8 @@ var (
 		{Name: "path", Type: field.TypeString, Unique: true, Size: 255, Comment: "页面路径"},
 		{Name: "content", Type: field.TypeString, Size: 2147483647, Comment: "HTML内容"},
 		{Name: "markdown_content", Type: field.TypeString, Size: 2147483647, Comment: "Markdown原始内容", Default: ""},
+		{Name: "custom_js", Type: field.TypeString, Size: 2147483647, Comment: "页面自定义JavaScript", Default: ""},
+		{Name: "custom_css", Type: field.TypeString, Size: 2147483647, Comment: "页面自定义CSS", Default: ""},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 500, Comment: "页面描述"},
 		{Name: "is_published", Type: field.TypeBool, Comment: "是否发布", Default: true},
 		{Name: "show_comment", Type: field.TypeBool, Comment: "是否显示评论", Default: false},

@@ -3,11 +3,15 @@ package page
 import (
 	"context"
 	"fmt"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
 )
+
+var scriptTagPattern = regexp.MustCompile(`(?is)<script[^>]*>(.*?)</script>`)
 
 // Service 页面服务接口
 type Service interface {
@@ -47,6 +51,8 @@ func NewService(pageRepo repository.PageRepository) Service {
 
 // Create 创建页面
 func (s *service) Create(ctx context.Context, options *model.CreatePageOptions) (*model.Page, error) {
+	options.Path = normalizePath(options.Path)
+
 	// 验证路径格式
 	if err := s.validatePath(options.Path); err != nil {
 		return nil, err
@@ -81,11 +87,27 @@ func (s *service) GetByID(ctx context.Context, id string) (*model.Page, error) {
 
 // GetByPath 根据路径获取页面
 func (s *service) GetByPath(ctx context.Context, path string) (*model.Page, error) {
-	page, err := s.pageRepo.GetByPath(ctx, path)
-	if err != nil {
+	normalizedPath := normalizePath(path)
+
+	page, err := s.pageRepo.GetByPath(ctx, normalizedPath)
+	if err == nil {
+		return page, nil
+	}
+
+	// 仅在未找到时尝试兼容历史数据（例如早期保存了尾斜杠路径）
+	if !strings.Contains(err.Error(), "页面不存在") {
 		return nil, fmt.Errorf("获取页面失败: %w", err)
 	}
-	return page, nil
+
+	if normalizedPath != "/" {
+		legacyPath := normalizedPath + "/"
+		legacyPage, legacyErr := s.pageRepo.GetByPath(ctx, legacyPath)
+		if legacyErr == nil {
+			return legacyPage, nil
+		}
+	}
+
+	return nil, fmt.Errorf("获取页面失败: %w", err)
 }
 
 // List 列出页面
@@ -103,6 +125,11 @@ func (s *service) Update(ctx context.Context, id string, options *model.UpdatePa
 	currentPage, err := s.pageRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("获取页面失败: %w", err)
+	}
+
+	if options.Path != nil {
+		normalizedPath := normalizePath(*options.Path)
+		options.Path = &normalizedPath
 	}
 
 	// 如果修改了路径，检查新路径是否已存在
@@ -224,8 +251,12 @@ func (s *service) InitializeDefaultPages(ctx context.Context) error {
       <td colspan="2"><b>设备信息</b></td>
     </tr>
     <tr>
-      <td>设备</td>
-      <td><div id="userAgentDevice">加载中...</div></td>
+      <td>操作系统</td>
+      <td><div id="userAgentOS">加载中...</div></td>
+    </tr>
+    <tr>
+      <td>浏览器</td>
+      <td><div id="userAgentBrowser">加载中...</div></td>
     </tr>
   </tbody>
 </table>
@@ -235,70 +266,17 @@ func (s *service) InitializeDefaultPages(ctx context.Context) error {
     </div>
 
 <script>
-// 获取IP信息
-function getIpInfo() {
-  console.log('开始获取IP信息...');
-  
-  // 设置设备信息
-  var deviceElement = document.getElementById('userAgentDevice');
-  if (deviceElement) {
-    deviceElement.innerHTML = navigator.userAgent;
-  }
-  
-  // 请求IP地理位置信息 - 使用 NSUUU ipip API（全球IPv4/IPv6信息查询）
-  // 请将下面的 YOUR_API_KEY 替换为您在 https://v1.nsuuu.com 获取的 API Key
-  // 如果未配置有效的 Key，IP 信息将无法正常获取
-  // 使用 Bearer Token 方式传递 API Key（推荐方式，更安全）
-  var fetchUrl = 'https://v1.nsuuu.com/api/ipip';
-  
-  fetch(fetchUrl, {
-    method: 'GET',
-    headers: {
-      'Authorization': 'Bearer YOUR_API_KEY'
-    }
-  })
-    .then(function(res) {
-      console.log('收到响应，状态:', res.status);
-      return res.json();
-    })
-    .then(function(json) {
-      console.log('API返回数据:', json);
-      
-      if (json.code === 200 && json.data) {
-        // 根据 ipip API 返回格式填充数据
-        document.getElementById('userAgentIp').innerHTML = json.data.ip || '未知';
-        document.getElementById('userAgentCountry').innerHTML = json.data.country || '未知';
-        document.getElementById('userAgentRegion').innerHTML = json.data.province || '未知';
-        document.getElementById('userAgentCity').innerHTML = json.data.city || '未知';
-        document.getElementById('userAgentIsp').innerHTML = json.data.isp || '未知';
-        
-        console.log('所有信息已填充完成');
-      } else {
-        console.error('API返回错误:', json.message || '未知错误');
-        showError('获取失败: ' + (json.message || '未知错误'));
-      }
-    })
-    .catch(function(error) {
-      console.error('请求失败:', error);
-      showError('请求失败: ' + error.message);
-    });
-}
-
-// 显示错误信息
-function showError(msg) {
-  var ids = ['userAgentIp', 'userAgentCountry', 'userAgentRegion', 
-             'userAgentCity', 'userAgentIsp'];
-  ids.forEach(function(id) {
-    var element = document.getElementById(id);
-    if (element) {
-      element.innerHTML = msg;
-      element.style.color = 'var(--anzhiyu-red)';
-    }
-  });
-}
-
-// 执行获取信息
-getIpInfo();
+(function(){
+  'use strict';
+  var API_URL='https://v1.nsuuu.com/api/ipip';
+  var API_KEY='YOUR_API_KEY';
+  var EL={ip:'userAgentIp',country:'userAgentCountry',province:'userAgentRegion',city:'userAgentCity',isp:'userAgentIsp',os:'userAgentOS',browser:'userAgentBrowser'};
+  function set(id,t){var e=document.getElementById(id);if(e)e.textContent=t||'无法获取';}
+  function getOS(){var u=navigator.userAgent;var m;if((m=u.match(/Mac OS X (\d+)[_.](\d+)/)))return'macOS '+m[1]+'.'+m[2];if(u.indexOf('Windows NT 10.0')!==-1)return'Windows 10';if(u.indexOf('Windows')!==-1)return'Windows';if((m=u.match(/Android (\d+\.?\d*)/)))return'Android '+m[1];if((m=u.match(/OS (\d+)[_.](\d+)/))&&/iPhone|iPad/.test(u))return'iOS '+m[1]+'.'+m[2];if(u.indexOf('Linux')!==-1)return'Linux';return'未知';}
+  function getBrowser(){var u=navigator.userAgent;var m;if((m=u.match(/Edg[e]?\/(\d+\.?\d*)/)))return'Edge '+m[1];if((m=u.match(/Chrome\/(\d+\.?\d*)/)))return'Chrome '+m[1];if((m=u.match(/Version\/(\d+\.?\d*)/))&&u.indexOf('Safari')!==-1)return'Safari '+m[1];if((m=u.match(/Firefox\/(\d+\.?\d*)/)))return'Firefox '+m[1];return'未知';}
+  function init(){if(!document.getElementById(EL.ip))return;set(EL.os,getOS());set(EL.browser,getBrowser());fetch(API_URL,{headers:{'Authorization':'Bearer '+API_KEY}}).then(function(r){return r.json();}).then(function(j){if(j.code===200&&j.data){set(EL.ip,j.data.ip);set(EL.country,j.data.country);set(EL.province,j.data.province);set(EL.city,j.data.city);set(EL.isp,j.data.isp);}else{throw new Error(j.message||'failed');}}).catch(function(){['ip','country','province','city','isp'].forEach(function(k){set(EL[k],'获取失败');});});}
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{init();}
+})();
 </script>
 
 ## 二、在评论时如何收集和使用你的个人信息
@@ -350,7 +328,7 @@ getIpInfo();
 当监测到存在恶意访问、恶意请求、恶意攻击、恶意评论的行为时，为了防止增大受害范围，可能会临时将你的 ip 地址及访问信息短期内添加到黑名单，短期内禁止访问。
 
 此黑名单可能被公开，并共享给其他站点（主体并非本人）使用，包括但不限于：IP 地址、设备信息、地理位置。`,
-			Content:     `<h1 data-line="0" id="隐私政策">隐私政策</h1> <p data-line="2">本站非常重视用户的隐私和个人信息保护。你在使用网站时，可能会收集和使用你的相关信息。通过《隐私政策》向你说明在你访问 <code>blog.anheyu.com</code> 网站时，如何收集、使用、保存、共享和转让这些信息。</p> <h2 data-line="4" id="最新更新时间">最新更新时间</h2> <p data-line="6">协议最新更新时间为：2025-10-04</p> <h2 data-line="8" id="一、在访问时如何收集和使用你的个人信息">一、在访问时如何收集和使用你的个人信息</h2> <h3 data-line="10" id="在访问时，收集访问信息的服务会收集不限于以下信息：">在访问时，收集访问信息的服务会收集不限于以下信息：</h3> <p data-line="12"><strong>网络身份标识信息</strong>（浏览器 UA、IP 地址）</p> <p data-line="14"><strong>设备信息</strong></p> <p data-line="16"><strong>浏览过程</strong>（操作方式、浏览方式与时长、性能与网络加载情况）。</p> <h3 data-line="18" id="在访问时，本站内置的第三方服务会通过以下或更多途径，来获取你的以下或更多信息：">在访问时，本站内置的第三方服务会通过以下或更多途径，来获取你的以下或更多信息：</h3> <ul data-line="20"> <li data-line="20"><strong>腾讯云</strong> 会收集你的访问信息 <a href="https://www.tencentcloud.com/zh/document/product/301/17345" target="_blank" rel="noopener noreferrer">腾讯云隐私政策</a></li> <li data-line="21"><strong>阿里 cdn（iconfont）</strong> 会收集你的访问信息 <a href="https://terms.alicdn.com/legal-agreement/terms/suit_bu1_ali_mama_division/suit_bu1_ali_mama_division202108270850_24757.html?spm=a313x.home_2025.i7.2.58a33a81yB9jAv" target="_blank" rel="noopener noreferrer">阿里iconfont隐私政策</a></li> <li data-line="22"><strong>网易云 音乐</strong> 会收集你的访问信息 <a href="https://terms.alicdn.com/legal-agreement/terms/suit_bu1_ali_mama_division/suit_bu1_ali_mama_division202108270850_24757.html?spm=a313x.home_2025.i7.2.58a33a81yB9jAv" target="_blank" rel="noopener noreferrer">网易云音乐隐私政策</a></li> </ul> <h3 data-line="24" id="在访问时，本人仅会处于以下目的，使用你的个人信息：">在访问时，本人仅会处于以下目的，使用你的个人信息：</h3> <ul data-line="26"> <li data-line="26">用于网站的优化与文章分类，用户优化文章</li> <li data-line="27">恶意访问识别，用于维护网站</li> <li data-line="28">恶意攻击排查，用于维护网站</li> <li data-line="29">网站点击情况监测，用于优化网站页面</li> <li data-line="30">网站加载情况监测，用于优化网站性能</li> <li data-line="31">用于网站搜索结果优化</li> <li data-line="32">浏览数据的展示</li> </ul> <h3 data-line="34" id="第三方信息获取方将您的数据用于以下用途：">第三方信息获取方将您的数据用于以下用途：</h3> <p data-line="36">第三方可能会用于其他目的，详情请访问对应第三方服务提供的隐私协议。</p> <h3 data-line="38" id="你应该知道在你访问的时候不限于以下信息会被第三方获取并使用：">你应该知道在你访问的时候不限于以下信息会被第三方获取并使用：</h3> <p data-line="40">此页面获取地址信息展示使用的是 <a href="https://v1.nsuuu.com/" target="_blank" rel="noopener noreferrer">NSUUU</a> 提供的API。</p> <p data-line="42">第三方部分为了抵抗攻击、使用不同节点 cdn 加速等需求会收集不限于以下信息</p> <div class="table-container"><table> <thead> <tr> <th>类型<div style="width:100px"></div></th> <th>信息</th> </tr> </thead> <tbody> <tr> <td colspan="2"><b>网络信息</b></td> </tr> <tr> <td>IP地址</td> <td><div id="userAgentIp">加载中...</div></td> </tr> <tr> <td>国家</td> <td><div id="userAgentCountry">加载中...</div></td> </tr> <tr> <td>省份</td> <td><div id="userAgentRegion">加载中...</div></td> </tr> <tr> <td>城市</td> <td><div id="userAgentCity">加载中...</div></td> </tr> <tr> <td>运营商</td> <td><div id="userAgentIsp">加载中...</div></td> </tr> <tr> <td colspan="2"><b>设备信息</b></td> </tr> <tr> <td>设备</td> <td><div id="userAgentDevice">加载中...</div></td> </tr> </tbody> </table></div> <div style="color: var(--anzhiyu-gray);font-size: 14px;"> 此页面如果未能获取到信息并不代表无法读取上述信息，以实际情况为准。 </div> <script> // 获取IP信息 function getIpInfo() { console.log('开始获取IP信息...'); // 设置设备信息 var deviceElement = document.getElementById('userAgentDevice'); if (deviceElement) { deviceElement.innerHTML = navigator.userAgent; } // 请求IP地理位置信息 - 使用 NSUUU API // 请将 YOUR_API_KEY 替换为您在 https://api.nsuuu.com 获取的 API Key // 使用 Bearer Token 方式传递 API Key（推荐方式，更安全） var fetchUrl = 'https://v1.nsuuu.com/api/ipip'; fetch(fetchUrl, { method: 'GET', headers: { 'Authorization': 'Bearer YOUR_API_KEY' } }) .then(function(res) { console.log('收到响应，状态:', res.status); return res.json(); }) .then(function(json) { console.log('API返回数据:', json); if (json.code === 200 && json.data) { // 根据 ipip API 返回格式填充数据 document.getElementById('userAgentIp').innerHTML = json.data.ip || '未知'; document.getElementById('userAgentCountry').innerHTML = json.data.country || '未知'; document.getElementById('userAgentRegion').innerHTML = json.data.province || '未知'; document.getElementById('userAgentCity').innerHTML = json.data.city || '未知'; document.getElementById('userAgentIsp').innerHTML = json.data.isp || '未知'; console.log('所有信息已填充完成'); } else { console.error('API返回错误:', json.message || '未知错误'); showError('获取失败: ' + (json.message || '未知错误')); } }) .catch(function(error) { console.error('请求失败:', error); showError('请求失败: ' + error.message); }); } // 显示错误信息 function showError(msg) { var ids = ['userAgentIp', 'userAgentCountry', 'userAgentRegion', 'userAgentCity', 'userAgentIsp']; ids.forEach(function(id) { var element = document.getElementById(id); if (element) { element.innerHTML = msg; element.style.color = 'var(--anzhiyu-red)'; } }); } // 执行获取信息 getIpInfo(); </script> <h2 data-line="148" id="二、在评论时如何收集和使用你的个人信息">二、在评论时如何收集和使用你的个人信息</h2> <p data-line="150">评论使用的是无登陆系统的匿名评论系统，你可以自愿填写真实的、或者虚假的信息作为你评论的展示信息。</p> <p data-line="152"><code>鼓励你使用不易被人恶意识别的昵称进行评论</code>，但是建议你填写<code>真实的邮箱</code>以便收到回复（邮箱信息不会被公开）。</p> <p data-line="154">在你评论时，会额外收集你的个人信息。</p> <h3 data-line="156" id="在评论时，本站内置的第三方服务会通过以下或更多途径，来获取你的相关信息：">在评论时，本站内置的第三方服务会通过以下或更多途径，来获取你的相关信息：</h3> <ul data-line="158"> <li data-line="158"><code>cravatar</code> 会收集你的访问信息、评论填写的个人信息用于展示头像</li> </ul> <h3 data-line="160" id="在访问时，本人仅会处于以下目的，收集并使用以下信息：">在访问时，本人仅会处于以下目的，收集并使用以下信息：</h3> <ul data-line="162"> <li data-line="162">评论时会记录你的 QQ 帐号（如果在邮箱位置填写 QQ 邮箱或 QQ 号），方便获取你的 QQ 头像。如果使用 QQ 邮箱但不想展示 QQ 头像，可以填写不含 QQ 号的 QQ 邮箱。（主动，存储）</li> <li data-line="163">评论时会记录你的邮箱，当我回复后会通过邮件通知你（主动，存储，不会公开邮箱）</li> <li data-line="164">评论时会记录你的网址，用于点击头像时快速进入你的网站（主动，存储）</li> <li data-line="165">评论时会记录你的 IP 地址，作为反垃圾的用户判别依据（被动，存储，不会公开 IP，会公开 IP 所在城市）</li> <li data-line="166">评论会记录你的浏览器代理，用作展示系统版本、浏览器版本方便展示你使用的设备，快速定位问题（被动，存储）</li> </ul> <h2 data-line="168" id="三、如何使用 Cookies 和本地 LocalStorage 存储">三、如何使用 Cookies 和本地 LocalStorage 存储</h2> <p data-line="170">本站为实现无账号评论、深色模式切换，不蒜子的 uv 统计等功能，会在你的浏览器中进行本地存储，你可以随时清除浏览器中保存的所有 Cookies 以及 LocalStorage，不影响你的正常使用。</p> <p data-line="172">本博客中的以下业务会在你的计算机上主动存储数据：</p> <p data-line="174"><code>内置服务</code></p> <ul data-line="176"> <li data-line="176">评论系统</li> <li data-line="177">中控台</li> <li data-line="178">胶囊音乐</li> </ul> <p data-line="180">关于如何使用你的 Cookies，请访问 <a href="/cookies/">Cookies 政策</a>。</p> <p data-line="182">关于如何<a target="_blank" rel="noopener external nofollow" href="https://support.google.com/chrome/answer/95647?co=GENIE.Platform=Desktop&amp;hl=zh-Hans">在 Chrome 中清除、启用和管理 Cookie</a>。</p> <h2 data-line="184" id="四、如何共享、转让你的个人信息">四、如何共享、转让你的个人信息</h2> <p data-line="186">本人不会与任何公司、组织和个人共享你的隐私信息</p> <p data-line="188">本人不会将你的个人信息转让给任何公司、组织和个人</p> <p data-line="190">第三方服务的共享、转让情况详见对应服务的隐私协议</p> <h2 data-line="192" id="五、附属协议">五、附属协议</h2> <p data-line="194">当监测到存在恶意访问、恶意请求、恶意攻击、恶意评论的行为时，为了防止增大受害范围，可能会临时将你的 ip 地址及访问信息短期内添加到黑名单，短期内禁止访问。</p> <p data-line="196">此黑名单可能被公开，并共享给其他站点（主体并非本人）使用，包括但不限于：IP 地址、设备信息、地理位置。</p>`,
+			Content:     `<h1 data-line="0" id="隐私政策">隐私政策</h1> <p data-line="2">本站非常重视用户的隐私和个人信息保护。你在使用网站时，可能会收集和使用你的相关信息。通过《隐私政策》向你说明在你访问 <code>blog.anheyu.com</code> 网站时，如何收集、使用、保存、共享和转让这些信息。</p> <h2 data-line="4" id="最新更新时间">最新更新时间</h2> <p data-line="6">协议最新更新时间为：2025-10-04</p> <h2 data-line="8" id="一、在访问时如何收集和使用你的个人信息">一、在访问时如何收集和使用你的个人信息</h2> <h3 data-line="10" id="在访问时，收集访问信息的服务会收集不限于以下信息：">在访问时，收集访问信息的服务会收集不限于以下信息：</h3> <p data-line="12"><strong>网络身份标识信息</strong>（浏览器 UA、IP 地址）</p> <p data-line="14"><strong>设备信息</strong></p> <p data-line="16"><strong>浏览过程</strong>（操作方式、浏览方式与时长、性能与网络加载情况）。</p> <h3 data-line="18" id="在访问时，本站内置的第三方服务会通过以下或更多途径，来获取你的以下或更多信息：">在访问时，本站内置的第三方服务会通过以下或更多途径，来获取你的以下或更多信息：</h3> <ul data-line="20"> <li data-line="20"><strong>腾讯云</strong> 会收集你的访问信息 <a href="https://www.tencentcloud.com/zh/document/product/301/17345" target="_blank" rel="noopener noreferrer">腾讯云隐私政策</a></li> <li data-line="21"><strong>阿里 cdn（iconfont）</strong> 会收集你的访问信息 <a href="https://terms.alicdn.com/legal-agreement/terms/suit_bu1_ali_mama_division/suit_bu1_ali_mama_division202108270850_24757.html?spm=a313x.home_2025.i7.2.58a33a81yB9jAv" target="_blank" rel="noopener noreferrer">阿里iconfont隐私政策</a></li> <li data-line="22"><strong>网易云 音乐</strong> 会收集你的访问信息 <a href="https://terms.alicdn.com/legal-agreement/terms/suit_bu1_ali_mama_division/suit_bu1_ali_mama_division202108270850_24757.html?spm=a313x.home_2025.i7.2.58a33a81yB9jAv" target="_blank" rel="noopener noreferrer">网易云音乐隐私政策</a></li> </ul> <h3 data-line="24" id="在访问时，本人仅会处于以下目的，使用你的个人信息：">在访问时，本人仅会处于以下目的，使用你的个人信息：</h3> <ul data-line="26"> <li data-line="26">用于网站的优化与文章分类，用户优化文章</li> <li data-line="27">恶意访问识别，用于维护网站</li> <li data-line="28">恶意攻击排查，用于维护网站</li> <li data-line="29">网站点击情况监测，用于优化网站页面</li> <li data-line="30">网站加载情况监测，用于优化网站性能</li> <li data-line="31">用于网站搜索结果优化</li> <li data-line="32">浏览数据的展示</li> </ul> <h3 data-line="34" id="第三方信息获取方将您的数据用于以下用途：">第三方信息获取方将您的数据用于以下用途：</h3> <p data-line="36">第三方可能会用于其他目的，详情请访问对应第三方服务提供的隐私协议。</p> <h3 data-line="38" id="你应该知道在你访问的时候不限于以下信息会被第三方获取并使用：">你应该知道在你访问的时候不限于以下信息会被第三方获取并使用：</h3> <p data-line="40">此页面获取地址信息展示使用的是 <a href="https://v1.nsuuu.com/" target="_blank" rel="noopener noreferrer">NSUUU</a> 提供的API。</p> <p data-line="42">第三方部分为了抵抗攻击、使用不同节点 cdn 加速等需求会收集不限于以下信息</p> <div class="table-container"><table> <thead> <tr> <th>类型<div style="width:100px"></div></th> <th>信息</th> </tr> </thead> <tbody> <tr> <td colspan="2"><b>网络信息</b></td> </tr> <tr> <td>IP地址</td> <td><div id="userAgentIp">加载中...</div></td> </tr> <tr> <td>国家</td> <td><div id="userAgentCountry">加载中...</div></td> </tr> <tr> <td>省份</td> <td><div id="userAgentRegion">加载中...</div></td> </tr> <tr> <td>城市</td> <td><div id="userAgentCity">加载中...</div></td> </tr> <tr> <td>运营商</td> <td><div id="userAgentIsp">加载中...</div></td> </tr> <tr> <td colspan="2"><b>设备信息</b></td> </tr> <tr> <td>操作系统</td> <td><div id="userAgentOS">加载中...</div></td> </tr> <tr> <td>浏览器</td> <td><div id="userAgentBrowser">加载中...</div></td> </tr> </tbody> </table></div> <div style="color: var(--anzhiyu-gray);font-size: 14px;"> 此页面如果未能获取到信息并不代表无法读取上述信息，以实际情况为准。 </div> <script> // 获取IP信息 function getIpInfo() { console.log('开始获取IP信息...'); // 设置设备信息 var deviceElement = document.getElementById('userAgentDevice'); if (deviceElement) { deviceElement.innerHTML = navigator.userAgent; } // 请求IP地理位置信息 - 使用 NSUUU API // 请将 YOUR_API_KEY 替换为您在 https://api.nsuuu.com 获取的 API Key // 使用 Bearer Token 方式传递 API Key（推荐方式，更安全） var fetchUrl = 'https://v1.nsuuu.com/api/ipip'; fetch(fetchUrl, { method: 'GET', headers: { 'Authorization': 'Bearer YOUR_API_KEY' } }) .then(function(res) { console.log('收到响应，状态:', res.status); return res.json(); }) .then(function(json) { console.log('API返回数据:', json); if (json.code === 200 && json.data) { // 根据 ipip API 返回格式填充数据 document.getElementById('userAgentIp').innerHTML = json.data.ip || '未知'; document.getElementById('userAgentCountry').innerHTML = json.data.country || '未知'; document.getElementById('userAgentRegion').innerHTML = json.data.province || '未知'; document.getElementById('userAgentCity').innerHTML = json.data.city || '未知'; document.getElementById('userAgentIsp').innerHTML = json.data.isp || '未知'; console.log('所有信息已填充完成'); } else { console.error('API返回错误:', json.message || '未知错误'); showError('获取失败: ' + (json.message || '未知错误')); } }) .catch(function(error) { console.error('请求失败:', error); showError('请求失败: ' + error.message); }); } // 显示错误信息 function showError(msg) { var ids = ['userAgentIp', 'userAgentCountry', 'userAgentRegion', 'userAgentCity', 'userAgentIsp']; ids.forEach(function(id) { var element = document.getElementById(id); if (element) { element.innerHTML = msg; element.style.color = 'var(--anzhiyu-red)'; } }); } // 执行获取信息 getIpInfo(); </script> <h2 data-line="148" id="二、在评论时如何收集和使用你的个人信息">二、在评论时如何收集和使用你的个人信息</h2> <p data-line="150">评论使用的是无登陆系统的匿名评论系统，你可以自愿填写真实的、或者虚假的信息作为你评论的展示信息。</p> <p data-line="152"><code>鼓励你使用不易被人恶意识别的昵称进行评论</code>，但是建议你填写<code>真实的邮箱</code>以便收到回复（邮箱信息不会被公开）。</p> <p data-line="154">在你评论时，会额外收集你的个人信息。</p> <h3 data-line="156" id="在评论时，本站内置的第三方服务会通过以下或更多途径，来获取你的相关信息：">在评论时，本站内置的第三方服务会通过以下或更多途径，来获取你的相关信息：</h3> <ul data-line="158"> <li data-line="158"><code>cravatar</code> 会收集你的访问信息、评论填写的个人信息用于展示头像</li> </ul> <h3 data-line="160" id="在访问时，本人仅会处于以下目的，收集并使用以下信息：">在访问时，本人仅会处于以下目的，收集并使用以下信息：</h3> <ul data-line="162"> <li data-line="162">评论时会记录你的 QQ 帐号（如果在邮箱位置填写 QQ 邮箱或 QQ 号），方便获取你的 QQ 头像。如果使用 QQ 邮箱但不想展示 QQ 头像，可以填写不含 QQ 号的 QQ 邮箱。（主动，存储）</li> <li data-line="163">评论时会记录你的邮箱，当我回复后会通过邮件通知你（主动，存储，不会公开邮箱）</li> <li data-line="164">评论时会记录你的网址，用于点击头像时快速进入你的网站（主动，存储）</li> <li data-line="165">评论时会记录你的 IP 地址，作为反垃圾的用户判别依据（被动，存储，不会公开 IP，会公开 IP 所在城市）</li> <li data-line="166">评论会记录你的浏览器代理，用作展示系统版本、浏览器版本方便展示你使用的设备，快速定位问题（被动，存储）</li> </ul> <h2 data-line="168" id="三、如何使用 Cookies 和本地 LocalStorage 存储">三、如何使用 Cookies 和本地 LocalStorage 存储</h2> <p data-line="170">本站为实现无账号评论、深色模式切换，不蒜子的 uv 统计等功能，会在你的浏览器中进行本地存储，你可以随时清除浏览器中保存的所有 Cookies 以及 LocalStorage，不影响你的正常使用。</p> <p data-line="172">本博客中的以下业务会在你的计算机上主动存储数据：</p> <p data-line="174"><code>内置服务</code></p> <ul data-line="176"> <li data-line="176">评论系统</li> <li data-line="177">中控台</li> <li data-line="178">胶囊音乐</li> </ul> <p data-line="180">关于如何使用你的 Cookies，请访问 <a href="/cookies/">Cookies 政策</a>。</p> <p data-line="182">关于如何<a target="_blank" rel="noopener external nofollow" href="https://support.google.com/chrome/answer/95647?co=GENIE.Platform=Desktop&amp;hl=zh-Hans">在 Chrome 中清除、启用和管理 Cookie</a>。</p> <h2 data-line="184" id="四、如何共享、转让你的个人信息">四、如何共享、转让你的个人信息</h2> <p data-line="186">本人不会与任何公司、组织和个人共享你的隐私信息</p> <p data-line="188">本人不会将你的个人信息转让给任何公司、组织和个人</p> <p data-line="190">第三方服务的共享、转让情况详见对应服务的隐私协议</p> <h2 data-line="192" id="五、附属协议">五、附属协议</h2> <p data-line="194">当监测到存在恶意访问、恶意请求、恶意攻击、恶意评论的行为时，为了防止增大受害范围，可能会临时将你的 ip 地址及访问信息短期内添加到黑名单，短期内禁止访问。</p> <p data-line="196">此黑名单可能被公开，并共享给其他站点（主体并非本人）使用，包括但不限于：IP 地址、设备信息、地理位置。</p>`,
 			Description: "本站的隐私政策说明",
 			IsPublished: true,
 			Sort:        1,
@@ -503,10 +481,61 @@ Cookies 提供许多功能。例如，他们可以帮助我记住你喜欢深色
 	}
 
 	for _, pageOptions := range defaultPages {
+		if pageOptions.Path != "/privacy" {
+			continue
+		}
+
+		// 隐私政策页将内嵌脚本拆分到 custom_js，避免脚本混入内容字段。
+		pageOptions.MarkdownContent, pageOptions.CustomJS = splitContentAndCustomJS(pageOptions.MarkdownContent)
+		content, contentScript := splitContentAndCustomJS(pageOptions.Content)
+		pageOptions.Content = content
+		if pageOptions.CustomJS == "" {
+			pageOptions.CustomJS = contentScript
+		}
+	}
+
+	for _, pageOptions := range defaultPages {
 		// 检查页面是否已存在
 		existingPage, err := s.pageRepo.GetByPath(ctx, pageOptions.Path)
 		if err == nil && existingPage != nil {
-			// 页面已存在，跳过
+			// 兼容历史数据：隐私政策页旧版本将脚本写在 content/markdown_content 中
+			// 这里自动迁移到 custom_js，避免升级后脚本失效。
+			if pageOptions.Path == "/privacy" && strings.TrimSpace(existingPage.CustomJS) == "" {
+				markdownWithoutScript, markdownScript := splitContentAndCustomJS(existingPage.MarkdownContent)
+				contentWithoutScript, contentScript := splitContentAndCustomJS(existingPage.Content)
+
+				extractedScript := strings.TrimSpace(markdownScript)
+				if extractedScript == "" {
+					extractedScript = strings.TrimSpace(contentScript)
+				}
+
+				if extractedScript != "" {
+					updateOptions := &model.UpdatePageOptions{}
+					needsUpdate := false
+
+					if markdownWithoutScript != existingPage.MarkdownContent {
+						updateOptions.MarkdownContent = &markdownWithoutScript
+						needsUpdate = true
+					}
+
+					if contentWithoutScript != existingPage.Content {
+						updateOptions.Content = &contentWithoutScript
+						needsUpdate = true
+					}
+
+					updateOptions.CustomJS = &extractedScript
+					needsUpdate = true
+
+					if needsUpdate {
+						pageID := strconv.FormatUint(uint64(existingPage.ID), 10)
+						if _, updateErr := s.pageRepo.Update(ctx, pageID, updateOptions); updateErr != nil {
+							return fmt.Errorf("迁移隐私政策页面自定义脚本失败: %w", updateErr)
+						}
+					}
+				}
+			}
+
+			// 页面已存在，跳过创建
 			continue
 		}
 
@@ -542,4 +571,42 @@ func (s *service) validatePath(path string) error {
 	}
 
 	return nil
+}
+
+func normalizePath(path string) string {
+	normalized := strings.TrimSpace(path)
+	if normalized == "" {
+		return normalized
+	}
+
+	if !strings.HasPrefix(normalized, "/") {
+		normalized = "/" + normalized
+	}
+
+	if len(normalized) > 1 && strings.HasSuffix(normalized, "/") {
+		normalized = strings.TrimSuffix(normalized, "/")
+	}
+
+	return normalized
+}
+
+func splitContentAndCustomJS(content string) (string, string) {
+	matches := scriptTagPattern.FindAllStringSubmatch(content, -1)
+	if len(matches) == 0 {
+		return content, ""
+	}
+
+	scripts := make([]string, 0, len(matches))
+	for _, match := range matches {
+		if len(match) < 2 {
+			continue
+		}
+		script := strings.TrimSpace(match[1])
+		if script != "" {
+			scripts = append(scripts, script)
+		}
+	}
+
+	cleanContent := strings.TrimSpace(scriptTagPattern.ReplaceAllString(content, ""))
+	return cleanContent, strings.Join(scripts, "\n\n")
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"strings"
 	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/ent"
@@ -128,7 +129,14 @@ func convertExtraConfig(config map[string]interface{}) *model.ArticleExtraConfig
 	}
 	result := &model.ArticleExtraConfig{}
 	if enableAIPodcast, ok := config["enable_ai_podcast"].(bool); ok {
-		result.EnableAIPodcast = enableAIPodcast
+		result.EnableAIPodcast = &enableAIPodcast
+	}
+	if customJS, ok := config["custom_js"].(string); ok {
+		customJSCopy := customJS
+		result.CustomJS = &customJSCopy
+	}
+	if result.EnableAIPodcast == nil && result.CustomJS == nil {
+		return nil
 	}
 	return result
 }
@@ -545,10 +553,18 @@ func (r *articleRepo) Create(ctx context.Context, params *model.CreateArticlePar
 
 	// 设置扩展配置
 	if params.ExtraConfig != nil {
-		extraConfigMap := map[string]interface{}{
-			"enable_ai_podcast": params.ExtraConfig.EnableAIPodcast,
+		extraConfigMap := map[string]interface{}{}
+		if params.ExtraConfig.EnableAIPodcast != nil {
+			extraConfigMap["enable_ai_podcast"] = *params.ExtraConfig.EnableAIPodcast
 		}
-		creator.SetExtraConfig(extraConfigMap)
+		if params.ExtraConfig.CustomJS != nil {
+			if strings.TrimSpace(*params.ExtraConfig.CustomJS) != "" {
+				extraConfigMap["custom_js"] = *params.ExtraConfig.CustomJS
+			}
+		}
+		if len(extraConfigMap) > 0 {
+			creator.SetExtraConfig(extraConfigMap)
+		}
 	}
 
 	// 设置文档模式相关字段
@@ -691,8 +707,23 @@ func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.Up
 	}
 	// 更新扩展配置
 	if req.ExtraConfig != nil {
-		extraConfigMap := map[string]interface{}{
-			"enable_ai_podcast": req.ExtraConfig.EnableAIPodcast,
+		currentEntity, getErr := r.db.Article.Get(ctx, dbID)
+		if getErr != nil {
+			return nil, getErr
+		}
+		extraConfigMap := make(map[string]interface{}, len(currentEntity.ExtraConfig))
+		for k, v := range currentEntity.ExtraConfig {
+			extraConfigMap[k] = v
+		}
+		if req.ExtraConfig.EnableAIPodcast != nil {
+			extraConfigMap["enable_ai_podcast"] = *req.ExtraConfig.EnableAIPodcast
+		}
+		if req.ExtraConfig.CustomJS != nil {
+			if strings.TrimSpace(*req.ExtraConfig.CustomJS) == "" {
+				delete(extraConfigMap, "custom_js")
+			} else {
+				extraConfigMap["custom_js"] = *req.ExtraConfig.CustomJS
+			}
 		}
 		updater.SetExtraConfig(extraConfigMap)
 	}
