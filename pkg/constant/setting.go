@@ -220,6 +220,7 @@ const (
 
 	// 评论配置
 	KeyCommentEnable            SettingKey = "comment.enable"
+	KeyCommentBarrageEnable     SettingKey = "comment.barrage_enable"
 	KeyCommentLoginRequired     SettingKey = "comment.login_required"
 	KeyCommentPageSize          SettingKey = "comment.page_size"
 	KeyCommentMasterTag         SettingKey = "comment.master_tag"
