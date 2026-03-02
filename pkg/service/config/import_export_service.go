@@ -24,81 +24,172 @@ type ImportExportService interface {
 	ImportConfig(ctx context.Context, content io.Reader) error
 }
 
+// exportPayload 扩展导出格式：系统设置 + 支付配置（由 Pro 实现扩展时使用）
+type exportPayload struct {
+	Settings       map[string]string             `json:"settings,omitempty"`
+	PaymentConfigs []PaymentConfigExportItem    `json:"payment_configs,omitempty"`
+}
+
 // importExportService 是 ImportExportService 接口的实现
 type importExportService struct {
-	settingRepo    repository.SettingRepository // 配置仓库
-	settingService setting.SettingService       // 配置服务，用于刷新缓存
+	settingRepo    repository.SettingRepository
+	settingService setting.SettingService
+	extension      *ConfigExportImportExtension // 可选，Pro 可在 App 创建后通过 SetConfigExtension 注入
 }
 
 // NewImportExportService 创建一个新的配置导入导出服务实例
-func NewImportExportService(settingRepo repository.SettingRepository, settingService setting.SettingService) ImportExportService {
+// extension 为指向扩展的指针，便于 Pro 在 App 创建后再注入；为 nil 或 *nil 时仅处理系统设置
+func NewImportExportService(settingRepo repository.SettingRepository, settingService setting.SettingService, extension *ConfigExportImportExtension) ImportExportService {
 	return &importExportService{
 		settingRepo:    settingRepo,
 		settingService: settingService,
+		extension:      extension,
 	}
 }
 
-// ExportConfig 导出数据库配置表数据
+// ExportConfig 导出数据库配置表数据；若注入了扩展（如 Pro 支付配置），则一并导出
 func (s *importExportService) ExportConfig(ctx context.Context) ([]byte, error) {
-	// 从数据库读取所有配置
 	settings, err := s.settingRepo.FindAll(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("从数据库读取配置失败: %w", err)
 	}
 
-	// 转换为 map 格式，便于导出和导入
 	configMap := make(map[string]string)
 	for _, setting := range settings {
 		configMap[setting.ConfigKey] = setting.Value
 	}
 
-	// 序列化为 JSON
+	if s.extension != nil && *s.extension != nil {
+		paymentConfigs, err := (*s.extension).ExportPayment(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("导出支付配置失败: %w", err)
+		}
+		payload := exportPayload{
+			Settings:       configMap,
+			PaymentConfigs: paymentConfigs,
+		}
+		data, err := json.MarshalIndent(payload, "", "  ")
+		if err != nil {
+			return nil, fmt.Errorf("序列化配置数据失败: %w", err)
+		}
+		log.Printf("✅ 配置数据导出成功，系统设置 %d 项、支付配置 %d 项，大小: %d 字节", len(configMap), len(paymentConfigs), len(data))
+		return data, nil
+	}
+
 	data, err := json.MarshalIndent(configMap, "", "  ")
 	if err != nil {
 		return nil, fmt.Errorf("序列化配置数据失败: %w", err)
 	}
-
 	log.Printf("✅ 配置数据导出成功，共 %d 项配置，大小: %d 字节", len(configMap), len(data))
 	return data, nil
 }
 
-// ImportConfig 导入配置数据到数据库
+// ImportConfig 导入配置数据到数据库；支持旧版纯 settings 与新版 settings+payment_configs 格式
 func (s *importExportService) ImportConfig(ctx context.Context, content io.Reader) error {
-	// 读取上传的内容
 	data, err := io.ReadAll(content)
 	if err != nil {
 		return fmt.Errorf("读取上传内容失败: %w", err)
 	}
-
-	// 验证内容不为空
 	if len(data) == 0 {
 		return fmt.Errorf("上传的配置文件为空")
 	}
 
-	// 解析 JSON 数据
-	var configMap map[string]string
-	if err := json.Unmarshal(data, &configMap); err != nil {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(data, &raw); err != nil {
 		return fmt.Errorf("解析配置数据失败，请确保文件格式正确: %w", err)
 	}
 
-	if len(configMap) == 0 {
+	var settingsMap map[string]string
+	var paymentItems []PaymentConfigExportItem
+
+	if settingsObj, ok := raw["settings"]; ok {
+		if m, ok := settingsObj.(map[string]interface{}); ok {
+			// 新版格式：根节点含 "settings" 对象
+			settingsMap = make(map[string]string)
+			for k, v := range m {
+				if v == nil {
+					settingsMap[k] = ""
+				} else if str, ok := v.(string); ok {
+					settingsMap[k] = str
+				} else {
+					settingsMap[k] = fmt.Sprintf("%v", v)
+				}
+			}
+			if pc, ok := raw["payment_configs"]; ok && s.extension != nil && *s.extension != nil {
+				if arr, ok := pc.([]interface{}); ok {
+					for _, item := range arr {
+						if itemMap, ok := item.(map[string]interface{}); ok {
+							pi := paymentExportItemFromMap(itemMap)
+							paymentItems = append(paymentItems, pi)
+						}
+					}
+				}
+			}
+		}
+	}
+	if settingsMap == nil {
+		// 旧版格式：根节点即为 key-value 配置
+		settingsMap = make(map[string]string)
+		for k, v := range raw {
+			if v == nil {
+				settingsMap[k] = ""
+			} else if str, ok := v.(string); ok {
+				settingsMap[k] = str
+			} else {
+				settingsMap[k] = fmt.Sprintf("%v", v)
+			}
+		}
+	}
+
+	if len(settingsMap) == 0 && len(paymentItems) == 0 {
 		return fmt.Errorf("配置文件中没有有效的配置项")
 	}
 
-	// 批量更新到数据库
-	if err := s.settingRepo.Update(ctx, configMap); err != nil {
-		return fmt.Errorf("更新配置到数据库失败: %w", err)
+	if len(settingsMap) > 0 {
+		if err := s.settingRepo.Upsert(ctx, settingsMap); err != nil {
+			return fmt.Errorf("导入配置到数据库失败: %w", err)
+		}
+		if err := s.settingService.LoadAllSettings(ctx); err != nil {
+			log.Printf("⚠️ 警告: 刷新配置缓存失败: %v", err)
+		} else {
+			log.Printf("✅ 配置缓存已刷新，新配置已立即生效")
+		}
+		log.Printf("✅ 系统设置导入成功，共 %d 项", len(settingsMap))
 	}
 
-	// 刷新内存缓存，使配置立即生效
-	if err := s.settingService.LoadAllSettings(ctx); err != nil {
-		log.Printf("⚠️ 警告: 刷新配置缓存失败: %v", err)
-		// 这里不返回错误，因为数据库已经更新成功了
-		// 只是缓存刷新失败，用户可以通过重启应用来加载新配置
-	} else {
-		log.Printf("✅ 配置缓存已刷新，新配置已立即生效")
+	if len(paymentItems) > 0 && s.extension != nil && *s.extension != nil {
+		if err := (*s.extension).ImportPayment(ctx, paymentItems); err != nil {
+			return fmt.Errorf("导入支付配置失败: %w", err)
+		}
+		log.Printf("✅ 支付配置导入成功，共 %d 项", len(paymentItems))
 	}
 
-	log.Printf("✅ 配置数据导入成功，共导入 %d 项配置", len(configMap))
 	return nil
+}
+
+func paymentExportItemFromMap(m map[string]interface{}) PaymentConfigExportItem {
+	var provider, configData, appID, description string
+	var isEnabled bool
+	if v, ok := m["provider"]; ok && v != nil {
+		provider, _ = v.(string)
+	}
+	if v, ok := m["config_data"]; ok && v != nil {
+		configData, _ = v.(string)
+	}
+	if v, ok := m["app_id"]; ok && v != nil {
+		appID, _ = v.(string)
+	}
+	if v, ok := m["description"]; ok && v != nil {
+		description, _ = v.(string)
+	}
+	if v, ok := m["is_enabled"]; ok && v != nil {
+		isEnabled, _ = v.(bool)
+	}
+	return PaymentConfigExportItem{
+		Provider:    provider,
+		IsEnabled:   isEnabled,
+		ConfigData:  configData,
+		AppID:       appID,
+		Description: description,
+	}
 }

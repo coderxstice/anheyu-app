@@ -112,32 +112,33 @@ import (
 
 // App 结构体，用于封装应用的所有核心组件
 type App struct {
-	cfg                  *config.Config
-	engine               *gin.Engine
-	taskBroker           *task.Broker
-	sqlDB                *sql.DB
-	appVersion           string
-	articleService       article_service.Service
-	directLinkService    direct_link.Service
-	storagePolicyRepo    repository.StoragePolicyRepository
-	storagePolicyService volume.IStoragePolicyService
-	fileService          file_service.FileService
-	mw                   *middleware.Middleware
-	settingRepo          repository.SettingRepository
-	settingSvc           setting.SettingService
-	tokenSvc             auth.TokenService
-	userSvc              user.UserService
-	fileRepo             repository.FileRepository
-	entityRepo           repository.EntityRepository
-	cacheSvc             utility.CacheService
-	eventBus             *event.EventBus
-	postCategorySvc      *post_category_service.Service
-	postTagSvc           *post_tag_service.Service
-	commentSvc           *comment_service.Service
-	themeSvc             theme.ThemeService
-	themeHandler         *theme_handler.Handler
-	ssrManager           *ssr.Manager
-	ssrThemeHandler      *ssrtheme_handler.Handler
+	cfg                    *config.Config
+	engine                 *gin.Engine
+	taskBroker             *task.Broker
+	sqlDB                  *sql.DB
+	appVersion             string
+	articleService         article_service.Service
+	directLinkService      direct_link.Service
+	storagePolicyRepo      repository.StoragePolicyRepository
+	storagePolicyService   volume.IStoragePolicyService
+	fileService            file_service.FileService
+	mw                     *middleware.Middleware
+	settingRepo            repository.SettingRepository
+	settingSvc             setting.SettingService
+	tokenSvc               auth.TokenService
+	userSvc                user.UserService
+	fileRepo               repository.FileRepository
+	entityRepo             repository.EntityRepository
+	cacheSvc               utility.CacheService
+	eventBus               *event.EventBus
+	postCategorySvc        *post_category_service.Service
+	postTagSvc             *post_tag_service.Service
+	commentSvc             *comment_service.Service
+	themeSvc               theme.ThemeService
+	themeHandler           *theme_handler.Handler
+	ssrManager             *ssr.Manager
+	ssrThemeHandler        *ssrtheme_handler.Handler
+	configExtensionHolder  *configExtensionHolder // Pro 可通过 SetConfigExtension 注入支付配置导出/导入
 }
 
 func (a *App) PrintBanner() {
@@ -165,11 +166,25 @@ func (a *App) PrintBanner() {
 	log.Println("--------------------------------------------------------")
 }
 
+// SetConfigExtension 设置配置导出/导入扩展（如 Pro 版支付配置），在 App 创建后由 Pro 调用
+func (a *App) SetConfigExtension(ext config_service.ConfigExportImportExtension) {
+	if a.configExtensionHolder != nil {
+		a.configExtensionHolder.Ext = ext
+	}
+}
+
+// configExtensionHolder 持有配置导出/导入扩展，便于在 App 创建后由 Pro 等注入
+type configExtensionHolder struct {
+	Ext config_service.ConfigExportImportExtension
+}
+
 // AppOptions 提供 NewApp 的可选配置项
 type AppOptions struct {
 	// SkipFrontend 为 true 时跳过内嵌 Vue 前端路由注册，
 	// 适用于 Pro 版等使用独立前端服务（如 Next.js）的场景。
 	SkipFrontend bool
+	// ConfigExtension 配置导出/导入扩展（如 Pro 版支付配置），为 nil 时仅导出/导入系统设置
+	ConfigExtension config_service.ConfigExportImportExtension
 }
 
 // NewApp 是应用的构造函数，它执行所有的初始化和依赖注入工作
@@ -444,15 +459,16 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	musicSvc := music.NewMusicService(settingSvc)
 	log.Printf("[DEBUG] MusicService 初始化完成")
 
-	// 初始化配置备份服务
-	log.Printf("[DEBUG] 正在初始化 ConfigBackupService...")
-	configBackupSvc := config_service.NewBackupService("data/conf.ini", settingRepo)
-	log.Printf("[DEBUG] ConfigBackupService 初始化完成")
-
-	// 初始化配置导入导出服务
+	// 初始化配置导入导出服务（备份服务依赖此服务导出/导入系统设置）
 	log.Printf("[DEBUG] 正在初始化 ConfigImportExportService...")
-	configImportExportSvc := config_service.NewImportExportService(settingRepo, settingSvc)
+	configExtensionHolder := &configExtensionHolder{Ext: opts.ConfigExtension}
+	configImportExportSvc := config_service.NewImportExportService(settingRepo, settingSvc, &configExtensionHolder.Ext)
 	log.Printf("[DEBUG] ConfigImportExportService 初始化完成")
+
+	// 初始化配置备份服务（备份的是系统设置/数据库配置，与「导出配置」一致）
+	log.Printf("[DEBUG] 正在初始化 ConfigBackupService...")
+	configBackupSvc := config_service.NewBackupService("data/backup", configImportExportSvc)
+	log.Printf("[DEBUG] ConfigBackupService 初始化完成")
 
 	// 初始化 Turnstile 人机验证服务
 	log.Printf("[DEBUG] 正在初始化 TurnstileService...")
@@ -668,8 +684,9 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 		commentSvc:           commentSvc,
 		themeSvc:             themeSvc,
 		themeHandler:         themeHandler,
-		ssrManager:           ssrManager,
-		ssrThemeHandler:      ssrThemeHandler,
+		ssrManager:            ssrManager,
+		ssrThemeHandler:       ssrThemeHandler,
+		configExtensionHolder: configExtensionHolder,
 	}
 
 	// 创建cleanup函数
