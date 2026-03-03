@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/anzhiyu-c/anheyu-app/ent"
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/auth"
@@ -16,17 +17,23 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/handler/comment/dto"
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/comment"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 	"github.com/anzhiyu-c/anheyu-app/pkg/util"
 
 	"github.com/gin-gonic/gin"
 )
 
+// 天气默认坐标配置键（与前端 sidebar.weather.rectangle 一致）
+const keyWeatherRectangle = "sidebar.weather.rectangle"
+
 type Handler struct {
-	svc *comment.Service
+	svc        *comment.Service
+	settingSvc setting.SettingService // 可选，用于天气 IP 定位返回 default_rectangle
 }
 
-func NewHandler(svc *comment.Service) *Handler {
-	return &Handler{svc: svc}
+// NewHandler 创建评论处理器。settingSvc 可选，传入时在天气 IP 定位（局域网/无经纬度）响应中会带 default_rectangle
+func NewHandler(svc *comment.Service, settingSvc setting.SettingService) *Handler {
+	return &Handler{svc: svc, settingSvc: settingSvc}
 }
 
 // ListChildren
@@ -569,7 +576,29 @@ func (h *Handler) GetIPLocation(c *gin.Context) {
 		return
 	}
 
+	// 局域网或无有效经纬度时，若配置了天气默认坐标则一并返回，前端用其请求天气
+	if h.settingSvc != nil && isLANOrEmptyLocation(info) {
+		if rect := strings.TrimSpace(h.settingSvc.Get(keyWeatherRectangle)); rect != "" {
+			c.JSON(http.StatusOK, gin.H{
+				"code":              http.StatusOK,
+				"message":           "获取成功",
+				"data":              info,
+				"default_rectangle": rect,
+			})
+			return
+		}
+	}
 	response.Success(c, info, "获取成功")
+}
+
+// isLANOrEmptyLocation 是否为局域网或 city/经纬度都为空（无法用于天气定位）
+func isLANOrEmptyLocation(info *comment.IPLocationResponse) bool {
+	if info == nil {
+		return true
+	}
+	isLAN := info.Country == "局域网" || info.Province == "局域网"
+	noCoords := (info.Latitude == "" || info.Longitude == "") && info.City == ""
+	return isLAN || noCoords
 }
 
 // ExportComments

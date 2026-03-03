@@ -240,6 +240,9 @@ func (r *Router) registerCommentRoutes(api *gin.RouterGroup) {
 		commentsPublic.POST("/:id/unlike", r.commentHandler.UnlikeComment)
 	}
 
+	// 天气组件专用路径（与评论 IP 定位共用实现，前端请求 /api/public/weather/ip-location）
+	api.Group("/public/weather").GET("/ip-location", r.commentHandler.GetIPLocation)
+
 	// 管理员专属的评论接口
 	commentsAdmin := api.Group("/comments").Use(r.mw.JWTAuth(), r.mw.AdminAuth())
 	{
