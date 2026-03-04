@@ -33,6 +33,7 @@ import (
 	post_tag_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_tag"
 	proxy_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/proxy"
 	public_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/public"
+	rss_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/rss"
 	search_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/search"
 	setting_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/setting"
 	sitemap_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/sitemap"
@@ -90,6 +91,7 @@ type Router struct {
 	searchHandler             *search_handler.Handler
 	proxyHandler              *proxy_handler.ProxyHandler
 	sitemapHandler            *sitemap_handler.Handler
+	rssHandler                *rss_handler.Handler
 	versionHandler            *version_handler.Handler
 	notificationHandler       *notification_handler.Handler
 	configBackupHandler       *config_handler.ConfigBackupHandler
@@ -126,6 +128,7 @@ func NewRouter(
 	searchHandler *search_handler.Handler,
 	proxyHandler *proxy_handler.ProxyHandler,
 	sitemapHandler *sitemap_handler.Handler,
+	rssHandler *rss_handler.Handler,
 	versionHandler *version_handler.Handler,
 	notificationHandler *notification_handler.Handler,
 	configBackupHandler *config_handler.ConfigBackupHandler,
@@ -160,6 +163,7 @@ func NewRouter(
 		searchHandler:             searchHandler,
 		proxyHandler:              proxyHandler,
 		sitemapHandler:            sitemapHandler,
+		rssHandler:                rssHandler,
 		versionHandler:            versionHandler,
 		notificationHandler:       notificationHandler,
 		configBackupHandler:       configBackupHandler,
@@ -218,6 +222,7 @@ func (r *Router) Setup(engine *gin.Engine) {
 	r.registerNotificationRoutes(apiGroup)
 	r.registerConfigBackupRoutes(apiGroup)
 	r.registerSitemapRoutes(engine)    // 直接注册到engine，不使用/api前缀
+	r.registerRSSRoutes(engine)       // RSS/atom/feed 始终注册，与 SkipFrontend 无关
 	r.registerSSRThemeRoutes(apiGroup) // 注册 SSR 主题管理路由
 }
 
@@ -789,6 +794,16 @@ func (r *Router) registerSitemapRoutes(engine *gin.Engine) {
 
 	// GET /robots.txt - 搜索引擎抓取规则
 	engine.GET("/robots.txt", r.sitemapHandler.GetRobots)
+}
+
+// registerRSSRoutes 注册 RSS/Atom/Feed 路由，与 SkipFrontend 无关，保证 anheyu-pro 等场景下也可用
+func (r *Router) registerRSSRoutes(engine *gin.Engine) {
+	if r.rssHandler == nil {
+		return
+	}
+	engine.GET("/rss.xml", r.rssHandler.GetRSSFeed)
+	engine.GET("/feed.xml", r.rssHandler.GetRSSFeed)
+	engine.GET("/atom.xml", r.rssHandler.GetRSSFeed)
 }
 
 // registerVersionRoutes 注册版本信息相关路由

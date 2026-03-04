@@ -23,10 +23,8 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/config"
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
-	"github.com/anzhiyu-c/anheyu-app/pkg/handler/rss"
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
 	article_service "github.com/anzhiyu-c/anheyu-app/pkg/service/article"
-	rss_service "github.com/anzhiyu-c/anheyu-app/pkg/service/rss"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/utility"
 
@@ -908,13 +906,7 @@ func SetupFrontend(engine *gin.Engine, settingSvc setting.SettingService, articl
 
 	debugLog("正在配置动态前端路由系统...")
 
-	// 配置 RSS feed
-	rssSvc := rss_service.NewService(articleSvc, settingSvc, cacheSvc)
-	rssHandler := rss.NewHandler(rssSvc, settingSvc)
-	engine.GET("/rss.xml", rssHandler.GetRSSFeed)
-	engine.GET("/feed.xml", rssHandler.GetRSSFeed)
-	engine.GET("/atom.xml", rssHandler.GetRSSFeed)
-	debugLog("RSS feed 路由已配置: /rss.xml, /feed.xml 和 /atom.xml")
+	// RSS/atom/feed 路由已移至 router.registerRSSRoutes，与 SkipFrontend 无关，保证 anheyu-pro 等场景下也可用
 
 	// 准备一个通用的模板函数映射
 	funcMap := template.FuncMap{

@@ -54,6 +54,7 @@ import (
 	post_tag_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_tag"
 	proxy_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/proxy"
 	public_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/public"
+	rss_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/rss"
 	search_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/search"
 	setting_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/setting"
 	sitemap_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/sitemap"
@@ -94,6 +95,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/search"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/sitemap"
+	rss_service "github.com/anzhiyu-c/anheyu-app/pkg/service/rss"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/statistics"
 	subscriber_service "github.com/anzhiyu-c/anheyu-app/pkg/service/subscriber"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/theme"
@@ -565,6 +567,8 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	statisticsHandler := statistics_handler.NewStatisticsHandler(statService)
 	themeHandler := theme_handler.NewHandler(themeSvc, ssrManager)
 	sitemapHandler := sitemap_handler.NewHandler(sitemapSvc)
+	rssSvc := rss_service.NewService(articleSvc, settingSvc, cacheSvc)
+	rssHandler := rss_handler.NewHandler(rssSvc, settingSvc)
 	proxyHandler := proxy_handler.NewHandler()
 	musicHandler := music_handler.NewMusicHandler(musicSvc)
 	versionHandler := version_handler.NewHandler()
@@ -602,6 +606,7 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 		searchHandler,
 		proxyHandler,
 		sitemapHandler,
+		rssHandler,
 		versionHandler,
 		notificationHandler,
 		configBackupHandler,
