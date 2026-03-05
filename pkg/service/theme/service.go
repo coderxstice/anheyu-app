@@ -29,6 +29,7 @@ import (
 
 	"github.com/anzhiyu-c/anheyu-app/ent"
 	"github.com/anzhiyu-c/anheyu-app/ent/userinstalledtheme"
+	frontend_runtime "github.com/anzhiyu-c/anheyu-app/internal/frontend"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
 )
 
@@ -978,9 +979,10 @@ func (s *themeService) SwitchToTheme(ctx context.Context, userID uint, themeName
 
 	// 3. 备份当前static目录（如果存在）
 	backupPath := ""
+	staticDir := s.staticDirPath()
 	if s.IsStaticModeActive() {
 		backupPath = filepath.Join(BackupDirName, fmt.Sprintf("static_backup_%d", time.Now().Unix()))
-		if err := s.backupDirectory(StaticDirName, backupPath); err != nil {
+		if err := s.backupDirectory(staticDir, backupPath); err != nil {
 			return fmt.Errorf("备份静态文件失败: %w", err)
 		}
 	}
@@ -989,7 +991,7 @@ func (s *themeService) SwitchToTheme(ctx context.Context, userID uint, themeName
 	if err := s.copyThemeToStatic(themeDir); err != nil {
 		// 如果失败，恢复备份
 		if backupPath != "" {
-			s.restoreFromBackup(backupPath, StaticDirName)
+			s.restoreFromBackup(backupPath, staticDir)
 		}
 		return fmt.Errorf("复制主题文件失败: %w", err)
 	}
@@ -1010,7 +1012,7 @@ func (s *themeService) SwitchToTheme(ctx context.Context, userID uint, themeName
 	if err != nil {
 		tx.Rollback()
 		if backupPath != "" {
-			s.restoreFromBackup(backupPath, StaticDirName)
+			s.restoreFromBackup(backupPath, staticDir)
 		}
 		return fmt.Errorf("更新主题状态失败: %w", err)
 	}
@@ -1024,14 +1026,14 @@ func (s *themeService) SwitchToTheme(ctx context.Context, userID uint, themeName
 	if err != nil {
 		tx.Rollback()
 		if backupPath != "" {
-			s.restoreFromBackup(backupPath, StaticDirName)
+			s.restoreFromBackup(backupPath, staticDir)
 		}
 		return fmt.Errorf("设置当前主题失败: %w", err)
 	}
 
 	if err := tx.Commit(); err != nil {
 		if backupPath != "" {
-			s.restoreFromBackup(backupPath, StaticDirName)
+			s.restoreFromBackup(backupPath, staticDir)
 		}
 		return fmt.Errorf("提交事务失败: %w", err)
 	}
@@ -1079,9 +1081,10 @@ func (s *themeService) SwitchToOfficial(ctx context.Context, userID uint, ssrMan
 
 	// 2. 备份当前static目录（如果存在）
 	backupPath := ""
+	staticDir := s.staticDirPath()
 	if s.IsStaticModeActive() {
 		backupPath = filepath.Join(BackupDirName, fmt.Sprintf("static_backup_%d", time.Now().Unix()))
-		if err := s.backupDirectory(StaticDirName, backupPath); err != nil {
+		if err := s.backupDirectory(staticDir, backupPath); err != nil {
 			log.Printf("[切换到官方主题] 警告：备份静态文件失败: %v", err)
 			// 不阻塞，继续执行
 		}
@@ -1200,50 +1203,23 @@ func (s *themeService) UninstallTheme(ctx context.Context, userID uint, themeNam
 
 // IsStaticModeActive 检查是否使用静态模式
 func (s *themeService) IsStaticModeActive() bool {
-	// 检查 static 目录是否存在
-	if _, err := os.Stat(StaticDirName); os.IsNotExist(err) {
-		return false
-	}
+	return frontend_runtime.IsStaticModeActive()
+}
 
-	// 检查 index.html 是否存在
-	indexPath := filepath.Join(StaticDirName, "index.html")
-	if _, err := os.Stat(indexPath); os.IsNotExist(err) {
-		return false
-	}
+func (s *themeService) staticDirPath() string {
+	return frontend_runtime.GetStaticDirPath()
+}
 
-	// 额外检查：确保 index.html 不是空文件
-	if fileInfo, err := os.Stat(indexPath); err == nil {
-		if fileInfo.Size() == 0 {
-			log.Printf("警告：发现空的 index.html 文件，视为非静态模式")
-			return false
-		}
-	}
-
-	// 检查是否有其他必要的静态文件（可选）
-	// 确保这是一个真正的主题目录，而不是意外创建的空目录
-	entries, err := os.ReadDir(StaticDirName)
+func (s *themeService) isStaticDirPath(dirPath string) bool {
+	staticDirAbsPath, err := filepath.Abs(s.staticDirPath())
 	if err != nil {
 		return false
 	}
-
-	// 如果目录只有 index.html 且没有其他文件，可能是意外创建的
-	if len(entries) == 1 && entries[0].Name() == "index.html" {
-		// 检查 index.html 内容是否像一个真正的 HTML 文件
-		content, err := os.ReadFile(indexPath)
-		if err != nil {
-			return false
-		}
-
-		contentStr := string(content)
-		// 简单检查是否包含基本的 HTML 结构
-		if !strings.Contains(strings.ToLower(contentStr), "<html") &&
-			!strings.Contains(strings.ToLower(contentStr), "<!doctype") {
-			log.Printf("警告：index.html 似乎不是有效的 HTML 文件，视为非静态模式")
-			return false
-		}
+	targetAbsPath, err := filepath.Abs(dirPath)
+	if err != nil {
+		return false
 	}
-
-	return true
+	return filepath.Clean(staticDirAbsPath) == filepath.Clean(targetAbsPath)
 }
 
 // downloadAndExtractTheme 下载并解压主题
@@ -1388,7 +1364,7 @@ func (s *themeService) backupDirectory(srcDir, backupDir string) error {
 // restoreFromBackup 从备份恢复
 func (s *themeService) restoreFromBackup(backupDir, destDir string) error {
 	// 如果目标是static目录，使用安全删除方法
-	if destDir == StaticDirName {
+	if s.isStaticDirPath(destDir) {
 		if err := s.safeRemoveStaticDir(); err != nil {
 			log.Printf("警告：恢复时清空static目录失败，继续尝试恢复: %v", err)
 		}
@@ -1407,6 +1383,8 @@ func (s *themeService) restoreFromBackup(backupDir, destDir string) error {
 
 // copyThemeToStatic 复制主题文件到static目录
 func (s *themeService) copyThemeToStatic(themeDir string) error {
+	staticDir := s.staticDirPath()
+
 	// 先安全清空static目录
 	if err := s.safeRemoveStaticDir(); err != nil {
 		log.Printf("警告：清空static目录失败，继续尝试复制: %v", err)
@@ -1414,12 +1392,12 @@ func (s *themeService) copyThemeToStatic(themeDir string) error {
 	}
 
 	// 确保static目录存在
-	if err := os.MkdirAll(StaticDirName, 0755); err != nil {
+	if err := os.MkdirAll(staticDir, 0755); err != nil {
 		return fmt.Errorf("创建static目录失败: %w", err)
 	}
 
 	// 复制整个主题目录内容到static
-	return s.copyDirectory(themeDir, StaticDirName)
+	return s.copyDirectory(themeDir, staticDir)
 }
 
 // copyDirectory 复制目录
@@ -2078,18 +2056,19 @@ func (s *themeService) safeRemoveStaticDir() error {
 
 // clearStaticDirContents 清空static目录的内容，但保留目录本身
 func (s *themeService) clearStaticDirContents() error {
-	if _, err := os.Stat(StaticDirName); os.IsNotExist(err) {
+	staticDir := s.staticDirPath()
+	if _, err := os.Stat(staticDir); os.IsNotExist(err) {
 		return nil // 目录不存在，认为成功
 	}
 
-	entries, err := os.ReadDir(StaticDirName)
+	entries, err := os.ReadDir(staticDir)
 	if err != nil {
 		return err
 	}
 
 	var lastError error
 	for _, entry := range entries {
-		entryPath := filepath.Join(StaticDirName, entry.Name())
+		entryPath := filepath.Join(staticDir, entry.Name())
 		if err := os.RemoveAll(entryPath); err != nil {
 			log.Printf("删除 %s 失败: %v", entryPath, err)
 			lastError = err
@@ -2101,6 +2080,8 @@ func (s *themeService) clearStaticDirContents() error {
 
 // forceCleanStaticDir 强制清理static目录（最后手段）
 func (s *themeService) forceCleanStaticDir() error {
+	staticDir := s.staticDirPath()
+
 	// 在Docker环境中，我们可能无法删除挂载的目录本身
 	// 但我们可以确保目录是空的
 	if err := s.clearStaticDirContents(); err != nil {
@@ -2109,7 +2090,7 @@ func (s *themeService) forceCleanStaticDir() error {
 	}
 
 	// 尝试删除目录本身，如果失败就忽略（Docker挂载的目录无法删除是正常的）
-	if err := os.Remove(StaticDirName); err != nil {
+	if err := os.Remove(staticDir); err != nil {
 		log.Printf("无法删除static目录本身（这在Docker环境中是正常的）: %v", err)
 		// 不返回错误，因为目录内容已经清空了
 	}
@@ -2557,6 +2538,17 @@ func (s *themeService) SwitchToSSRTheme(ctx context.Context, userID uint, themeN
 	// #region agent log
 	debugLog("找到目标主题", map[string]interface{}{"themeID": theme.ID, "currentIsCurrent": theme.IsCurrent})
 	// #endregion
+
+	// 1.5 切换到 SSR 前必须退出 static 模式，避免 static 抢占前台请求。
+	if s.IsStaticModeActive() {
+		debugLog("检测到static模式，开始清理static目录", nil)
+		if err := s.safeRemoveStaticDir(); err != nil {
+			return fmt.Errorf("切换到 SSR 主题前清理 static 目录失败: %w", err)
+		}
+		if s.IsStaticModeActive() {
+			return fmt.Errorf("切换到 SSR 主题失败：static 目录仍然有效，请检查 static 目录权限")
+		}
+	}
 
 	// 2. 停止其他运行中的 SSR 主题
 	if ssrManager != nil {

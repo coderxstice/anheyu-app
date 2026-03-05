@@ -12,6 +12,8 @@ import (
 
 // ProxyMiddleware creates a reverse proxy middleware that forwards
 // non-API requests to the Next.js frontend service.
+// When a valid static directory is detected (custom frontend mode), public-facing
+// pages are served from it; admin pages still proxy to Next.js.
 func ProxyMiddleware(launcher *Launcher) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		path := c.Request.URL.Path
@@ -19,6 +21,14 @@ func ProxyMiddleware(launcher *Launcher) gin.HandlerFunc {
 		if shouldSkipProxy(path, launcher.SkipStaticProxy()) {
 			c.Next()
 			return
+		}
+
+		// 自定义前端模式：从 static 目录提供前台页面，
+		// 管理后台路径和未找到的静态资源将穿透到 Next.js 代理。
+		if IsStaticModeActive() {
+			if handleStaticRequest(c, path) {
+				return
+			}
 		}
 
 		if !launcher.IsRunning() {

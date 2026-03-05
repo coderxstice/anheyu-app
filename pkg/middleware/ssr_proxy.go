@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"strings"
 
+	frontend_runtime "github.com/anzhiyu-c/anheyu-app/internal/frontend"
 	"github.com/anzhiyu-c/anheyu-app/pkg/ssr"
 	"github.com/gin-gonic/gin"
 )
@@ -45,6 +46,13 @@ func SSRProxyMiddlewareWithChecker(ssrManager *ssr.Manager, checker CurrentSSRTh
 
 		// 排除不需要代理的路径
 		if ShouldSkipSSRProxy(path) {
+			c.Next()
+			return
+		}
+
+		// 自定义前端模式优先级更高：检测到 static 目录时，跳过 SSR 代理。
+		// 这样可以确保外部 static 自定义前端始终生效。
+		if frontend_runtime.IsStaticModeActive() {
 			c.Next()
 			return
 		}
