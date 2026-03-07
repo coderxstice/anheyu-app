@@ -62,6 +62,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyUploadAllowedExtensions, Value: "", Comment: "允许上传的文件后缀名白名单，逗号分隔", IsPublic: true},
 	{Key: constant.KeyUploadDeniedExtensions, Value: "", Comment: "禁止上传的文件后缀名黑名单，在白名单未启用时生效", IsPublic: true},
 	{Key: constant.KeyEnableExternalLinkWarning, Value: "false", Comment: "是否开启外链跳转提示 (true/false)，开启后跳转外链会显示中间提示页面", IsPublic: true},
+	{Key: constant.KeyRespectReducedMotion, Value: "false", Comment: "是否尊重系统减弱动效偏好，开启后在用户开启了系统减弱动效时降低前台动画 (true/false)", IsPublic: true},
 	// --- 缩略图生成器配置 ---
 	{Key: constant.KeyEnableVipsGenerator, Value: "false", Comment: "是否启用 VIPS 缩略图生成器 (true/false)", IsPublic: true},
 	{Key: constant.KeyVipsPath, Value: "vips", Comment: "VIPS 命令的路径或名称 (默认 'vips'，让系统自动搜索)", IsPublic: false},
