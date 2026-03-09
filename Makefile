@@ -77,6 +77,7 @@ dev: build-linux-arm64
 COMPOSE_DEV = -f docker-compose.yml -f docker-compose.dev.yml
 
 # Docker 开发环境（快速：只编二进制 + 启动，不重建镜像）
+# 注意：若新增了前端页面（如 /user-center），需先 make frontend-build 再 make dev-docker-build
 .PHONY: dev-docker
 dev-docker:
 	@echo "🚀 Starting Docker development workflow (fast)..."
@@ -101,6 +102,15 @@ dev-docker-build:
 	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o anheyu-app
 	docker compose up -d --build
 	@echo "✅ Done. Next time use 'make dev-docker' for fast start."
+
+# 前端 + 镜像完整重建（新增/修改前端页面后使用，确保 8091 能访问新路由）
+.PHONY: dev-docker-full
+dev-docker-full: frontend-build
+	@echo "🔨 Full rebuild (frontend + image + binary)..."
+	docker compose down
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o anheyu-app
+	docker compose up -d --build
+	@echo "✅ Done. New routes (e.g. /user-center) are now available at http://localhost:8091"
 
 # GoReleaser 目标
 .PHONY: goreleaser-check
@@ -213,6 +223,7 @@ help:
 	@echo "  dev                - Start development environment (ARM64)"
 	@echo "  dev-docker         - Fast start (binary + up, no image rebuild)"
 	@echo "  dev-docker-build  - Full image rebuild (after Dockerfile/frontend change)"
+	@echo "  dev-docker-full   - Frontend build + image rebuild (after new pages e.g. /user-center)"
 	@echo ""
 	@echo "❓ Help:"
 	@echo "  help               - Show this help"
