@@ -381,8 +381,6 @@ func (s *userService) AdminDeleteUser(ctx context.Context, userID uint) error {
 	}
 
 	return nil
-
-	return nil
 }
 
 // AdminResetPassword 管理员重置用户密码

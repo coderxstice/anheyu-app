@@ -239,6 +239,17 @@ func (h *Handler) Create(c *gin.Context) {
 		log.Printf("[Handler.Create] CustomUpdatedAt 值: %s", *req.CustomUpdatedAt)
 	}
 
+	claims, err := getClaims(c)
+	if err != nil {
+		response.Fail(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+	isAdmin := isAdminByUserGroup(claims.UserGroupID)
+	if !isAdmin && hasCustomJSConfig(req.ExtraConfig) {
+		response.Fail(c, http.StatusForbidden, "仅管理员可以设置单文章自定义JS")
+		return
+	}
+
 	// 使用改进的IP获取方法，优先检查代理头部
 	clientIP := util.GetRealClientIP(c)
 	// 获取客户端 Referer，用于 NSUUU API 白名单验证
@@ -362,6 +373,17 @@ func (h *Handler) Update(c *gin.Context) {
 		log.Printf("[Handler.Update] CustomUpdatedAt 值: %s", *req.CustomUpdatedAt)
 	}
 
+	claims, err := getClaims(c)
+	if err != nil {
+		response.Fail(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+	isAdmin := isAdminByUserGroup(claims.UserGroupID)
+	if !isAdmin && hasCustomJSConfig(req.ExtraConfig) {
+		response.Fail(c, http.StatusForbidden, "仅管理员可以设置单文章自定义JS")
+		return
+	}
+
 	// 使用改进的IP获取方法，优先检查代理头部
 	clientIP := util.GetRealClientIP(c)
 	// 获取客户端 Referer，用于 NSUUU API 白名单验证
@@ -430,11 +452,7 @@ func (h *Handler) List(c *gin.Context) {
 	}
 
 	// 检查是否为管理员（通过 UserGroupID 判断，管理员组ID为 1）
-	var isAdmin bool
-	userGroupID, entityType, err := idgen.DecodePublicID(claims.UserGroupID)
-	if err == nil && entityType == idgen.EntityTypeUserGroup && userGroupID == 1 {
-		isAdmin = true
-	}
+	isAdmin := isAdminByUserGroup(claims.UserGroupID)
 
 	// 解码当前用户的数据库ID
 	currentUserDBID, _, err := idgen.DecodePublicID(claims.UserID)
@@ -496,6 +514,18 @@ func getClaims(c *gin.Context) (*auth.CustomClaims, error) {
 		return nil, errors.New("用户信息格式不正确")
 	}
 	return claims, nil
+}
+
+func isAdminByUserGroup(userGroupPublicID string) bool {
+	if userGroupPublicID == "" {
+		return false
+	}
+	userGroupID, entityType, err := idgen.DecodePublicID(userGroupPublicID)
+	return err == nil && entityType == idgen.EntityTypeUserGroup && userGroupID == 1
+}
+
+func hasCustomJSConfig(extraConfig *model.ArticleExtraConfig) bool {
+	return extraConfig != nil && extraConfig.CustomJS != nil
 }
 
 // GetPrimaryColor 处理获取图片主色调的请求。
@@ -664,8 +694,13 @@ func (h *Handler) BatchDelete(c *gin.Context) {
 		return
 	}
 
+	const maxBatchDeleteSize = 100
 	if len(req.IDs) == 0 {
 		response.Fail(c, http.StatusBadRequest, "文章ID列表不能为空")
+		return
+	}
+	if len(req.IDs) > maxBatchDeleteSize {
+		response.Fail(c, http.StatusBadRequest, fmt.Sprintf("单次最多删除 %d 篇文章", maxBatchDeleteSize))
 		return
 	}
 

@@ -19,4 +19,6 @@ type SettingRepository interface {
 	Save(ctx context.Context, setting *model.Setting) error
 	FindAll(ctx context.Context) ([]*model.Setting, error)
 	Update(ctx context.Context, settingsToUpdate map[string]string) error
+	// Upsert 将 map 中每个键值对写入数据库：已存在则更新，不存在则插入（用于配置导入全覆盖）
+	Upsert(ctx context.Context, settings map[string]string) error
 }

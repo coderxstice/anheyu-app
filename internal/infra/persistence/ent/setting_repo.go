@@ -65,6 +65,52 @@ func (r *entSettingRepository) Update(ctx context.Context, settingsToUpdate map[
 	return tx.Commit()
 }
 
+// Upsert 实现「存在则更新、不存在则插入」，保证导入的配置项能全覆盖本地（包括本地从未存在过的键）
+func (r *entSettingRepository) Upsert(ctx context.Context, settings map[string]string) error {
+	tx, err := r.client.Tx(ctx)
+	if err != nil {
+		return fmt.Errorf("开启事务失败: %w", err)
+	}
+	defer func() {
+		if v := recover(); v != nil {
+			tx.Rollback()
+			panic(v)
+		}
+	}()
+
+	for key, value := range settings {
+		n, err := tx.Setting.
+			Update().
+			Where(
+				setting.ConfigKey(key),
+				setting.DeletedAtIsNil(),
+			).
+			SetValue(value).
+			Save(ctx)
+		if err != nil {
+			if rbErr := tx.Rollback(); rbErr != nil {
+				return fmt.Errorf("更新配置失败: %v, 回滚事务也失败: %v", err, rbErr)
+			}
+			return err
+		}
+		if n == 0 {
+			_, err = tx.Setting.
+				Create().
+				SetConfigKey(key).
+				SetValue(value).
+				Save(ctx)
+			if err != nil {
+				if rbErr := tx.Rollback(); rbErr != nil {
+					return fmt.Errorf("插入配置失败: %v, 回滚事务也失败: %v", err, rbErr)
+				}
+				return err
+			}
+		}
+	}
+
+	return tx.Commit()
+}
+
 // FindByKey 实现按键查找配置的接口
 func (r *entSettingRepository) FindByKey(ctx context.Context, key string) (*model.Setting, error) {
 	entSetting, err := r.client.Setting.

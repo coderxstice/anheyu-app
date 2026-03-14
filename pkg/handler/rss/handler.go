@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
-	"github.com/anzhiyu-c/anheyu-app/pkg/response"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/rss"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 	"github.com/gin-gonic/gin"
@@ -59,15 +58,20 @@ func (h *Handler) GetRSSFeed(c *gin.Context) {
 	feed, err := h.rssService.GenerateFeed(ctx, opts)
 	if err != nil {
 		log.Printf("[RSS Handler] 生成 RSS feed 失败: %v", err)
-		response.Fail(c, http.StatusInternalServerError, "生成RSS feed失败")
+		c.Header("Content-Type", "text/plain; charset=utf-8")
+		c.String(http.StatusInternalServerError, "生成RSS feed失败")
 		return
 	}
 
 	// 生成 XML
 	xmlContent := h.rssService.GenerateXML(feed)
 
-	// 设置响应头
-	c.Header("Content-Type", "text/xml; charset=utf-8")
+	// 按路径设置标准 Content-Type，便于阅读器识别
+	contentType := "application/rss+xml; charset=utf-8"
+	if c.Request.URL.Path == "/atom.xml" {
+		contentType = "application/atom+xml; charset=utf-8"
+	}
+	c.Header("Content-Type", contentType)
 	c.Header("Cache-Control", "public, max-age=3600") // 缓存1小时
 	c.Header("X-Content-Type-Options", "nosniff")
 	c.Header("Last-Modified", time.Now().Format(http.TimeFormat))

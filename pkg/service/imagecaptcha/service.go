@@ -74,14 +74,14 @@ func (s *imageCaptchaService) Generate(ctx context.Context) (captchaId string, i
 		return "", "", errors.New("生成验证码失败")
 	}
 
-	// 使用 UUID 作为验证码 ID，避免暴露内部实现
+	// 清除内存存储中的答案，仅使用 Redis 作为唯一验证源
+	base64Captcha.DefaultMemStore.Verify(id, answer, true)
+
 	captchaId = uuid.New().String()
 
-	// 将答案存储到缓存中
 	cacheKey := captchaCachePrefix + captchaId
 	if err := s.cacheSvc.Set(ctx, cacheKey, strings.ToLower(answer), time.Duration(expire)*time.Second); err != nil {
-		// 如果 Redis 存储失败，使用内存存储的 ID
-		captchaId = id
+		return "", "", errors.New("验证码服务暂时不可用，请稍后重试")
 	}
 
 	return captchaId, b64s, nil
@@ -96,31 +96,22 @@ func (s *imageCaptchaService) Verify(ctx context.Context, captchaId, answer stri
 		return errors.New("请输入验证码")
 	}
 
-	// 尝试从缓存中获取答案
 	cacheKey := captchaCachePrefix + captchaId
 	storedAnswer, err := s.cacheSvc.Get(ctx, cacheKey)
 	if err != nil {
 		return errors.New("验证码验证失败，请重试")
 	}
 
-	// 如果缓存中没有，尝试使用 base64Captcha 的内存存储验证
 	if storedAnswer == "" {
-		if base64Captcha.DefaultMemStore.Verify(captchaId, answer, true) {
-			return nil
-		}
 		return errors.New("验证码已过期，请刷新重试")
 	}
 
-	// 验证答案（不区分大小写）
 	if strings.ToLower(answer) != storedAnswer {
-		// 验证失败，删除缓存（防止暴力破解）
 		_ = s.cacheSvc.Delete(ctx, cacheKey)
 		return errors.New("验证码错误")
 	}
 
-	// 验证成功，删除缓存（一次性验证码）
 	_ = s.cacheSvc.Delete(ctx, cacheKey)
-
 	return nil
 }
 

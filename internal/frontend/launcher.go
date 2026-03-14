@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -27,6 +28,8 @@ type Launcher struct {
 	frontendDir string
 	port        int
 	externalURL string
+	// skipStaticProxy：true 时不代理 /static，由 Go 提供（自定义主题目录）；默认 false，即 /static 代理到 Next.js
+	skipStaticProxy bool
 
 	cmd  *exec.Cmd
 	mu   sync.RWMutex
@@ -37,6 +40,8 @@ type Config struct {
 	FrontendDir string
 	Port        int
 	ExternalURL string
+	// SkipStaticProxy：true 时不代理 /static，由 Go 提供主题目录（自定义前端在 /static 时设为 true）；默认 false，即 /static 代理到 Next.js
+	SkipStaticProxy bool
 }
 
 func NewLauncher(cfg Config) *Launcher {
@@ -46,12 +51,24 @@ func NewLauncher(cfg Config) *Launcher {
 	if cfg.Port == 0 {
 		cfg.Port = DefaultPort
 	}
-	return &Launcher{
-		frontendDir: cfg.FrontendDir,
-		port:        cfg.Port,
-		externalURL: cfg.ExternalURL,
-		done:        make(chan struct{}),
+	if cfg.ExternalURL != "" {
+		if u, err := url.Parse(cfg.ExternalURL); err != nil || (u.Scheme != "http" && u.Scheme != "https") {
+			log.Printf("[Frontend] 警告: ANHEYU_FRONTEND_URL 格式无效（仅允许 http/https），忽略: %s", cfg.ExternalURL)
+			cfg.ExternalURL = ""
+		}
 	}
+	return &Launcher{
+		frontendDir:     cfg.FrontendDir,
+		port:            cfg.Port,
+		externalURL:     cfg.ExternalURL,
+		skipStaticProxy: cfg.SkipStaticProxy,
+		done:            make(chan struct{}),
+	}
+}
+
+// SkipStaticProxy 为 true 时代理不处理 /static，由 Go 提供（自定义主题目录）；默认 false，/static 代理到 Next.js。
+func (l *Launcher) SkipStaticProxy() bool {
+	return l.skipStaticProxy
 }
 
 func (l *Launcher) GetFrontendURL() string {

@@ -19236,6 +19236,8 @@ type PageMutation struct {
 	_path            *string
 	content          *string
 	markdown_content *string
+	custom_js        *string
+	custom_css       *string
 	description      *string
 	is_published     *bool
 	show_comment     *bool
@@ -19546,6 +19548,78 @@ func (m *PageMutation) ResetMarkdownContent() {
 	m.markdown_content = nil
 }
 
+// SetCustomJs sets the "custom_js" field.
+func (m *PageMutation) SetCustomJs(s string) {
+	m.custom_js = &s
+}
+
+// CustomJs returns the value of the "custom_js" field in the mutation.
+func (m *PageMutation) CustomJs() (r string, exists bool) {
+	v := m.custom_js
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCustomJs returns the old "custom_js" field's value of the Page entity.
+// If the Page object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PageMutation) OldCustomJs(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCustomJs is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCustomJs requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCustomJs: %w", err)
+	}
+	return oldValue.CustomJs, nil
+}
+
+// ResetCustomJs resets all changes to the "custom_js" field.
+func (m *PageMutation) ResetCustomJs() {
+	m.custom_js = nil
+}
+
+// SetCustomCSS sets the "custom_css" field.
+func (m *PageMutation) SetCustomCSS(s string) {
+	m.custom_css = &s
+}
+
+// CustomCSS returns the value of the "custom_css" field in the mutation.
+func (m *PageMutation) CustomCSS() (r string, exists bool) {
+	v := m.custom_css
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCustomCSS returns the old "custom_css" field's value of the Page entity.
+// If the Page object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PageMutation) OldCustomCSS(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCustomCSS is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCustomCSS requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCustomCSS: %w", err)
+	}
+	return oldValue.CustomCSS, nil
+}
+
+// ResetCustomCSS resets all changes to the "custom_css" field.
+func (m *PageMutation) ResetCustomCSS() {
+	m.custom_css = nil
+}
+
 // SetDescription sets the "description" field.
 func (m *PageMutation) SetDescription(s string) {
 	m.description = &s
@@ -19829,7 +19903,7 @@ func (m *PageMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PageMutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 13)
 	if m.deleted_at != nil {
 		fields = append(fields, page.FieldDeletedAt)
 	}
@@ -19844,6 +19918,12 @@ func (m *PageMutation) Fields() []string {
 	}
 	if m.markdown_content != nil {
 		fields = append(fields, page.FieldMarkdownContent)
+	}
+	if m.custom_js != nil {
+		fields = append(fields, page.FieldCustomJs)
+	}
+	if m.custom_css != nil {
+		fields = append(fields, page.FieldCustomCSS)
 	}
 	if m.description != nil {
 		fields = append(fields, page.FieldDescription)
@@ -19881,6 +19961,10 @@ func (m *PageMutation) Field(name string) (ent.Value, bool) {
 		return m.Content()
 	case page.FieldMarkdownContent:
 		return m.MarkdownContent()
+	case page.FieldCustomJs:
+		return m.CustomJs()
+	case page.FieldCustomCSS:
+		return m.CustomCSS()
 	case page.FieldDescription:
 		return m.Description()
 	case page.FieldIsPublished:
@@ -19912,6 +19996,10 @@ func (m *PageMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldContent(ctx)
 	case page.FieldMarkdownContent:
 		return m.OldMarkdownContent(ctx)
+	case page.FieldCustomJs:
+		return m.OldCustomJs(ctx)
+	case page.FieldCustomCSS:
+		return m.OldCustomCSS(ctx)
 	case page.FieldDescription:
 		return m.OldDescription(ctx)
 	case page.FieldIsPublished:
@@ -19967,6 +20055,20 @@ func (m *PageMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetMarkdownContent(v)
+		return nil
+	case page.FieldCustomJs:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCustomJs(v)
+		return nil
+	case page.FieldCustomCSS:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCustomCSS(v)
 		return nil
 	case page.FieldDescription:
 		v, ok := value.(string)
@@ -20103,6 +20205,12 @@ func (m *PageMutation) ResetField(name string) error {
 		return nil
 	case page.FieldMarkdownContent:
 		m.ResetMarkdownContent()
+		return nil
+	case page.FieldCustomJs:
+		m.ResetCustomJs()
+		return nil
+	case page.FieldCustomCSS:
+		m.ResetCustomCSS()
 		return nil
 	case page.FieldDescription:
 		m.ResetDescription()

@@ -31,6 +31,8 @@ func (r *EntPageRepository) Create(ctx context.Context, options *model.CreatePag
 		SetPath(options.Path).
 		SetContent(options.Content).
 		SetMarkdownContent(options.MarkdownContent).
+		SetCustomJs(options.CustomJS).
+		SetCustomCSS(options.CustomCSS).
 		SetNillableDescription(&options.Description).
 		SetIsPublished(options.IsPublished).
 		SetShowComment(options.ShowComment).
@@ -157,6 +159,14 @@ func (r *EntPageRepository) Update(ctx context.Context, id string, options *mode
 		update.SetMarkdownContent(*options.MarkdownContent)
 	}
 
+	if options.CustomJS != nil {
+		update.SetCustomJs(*options.CustomJS)
+	}
+
+	if options.CustomCSS != nil {
+		update.SetCustomCSS(*options.CustomCSS)
+	}
+
 	if options.Description != nil {
 		update.SetNillableDescription(options.Description)
 	}
@@ -226,6 +236,8 @@ func (r *EntPageRepository) entToModel(entPage *ent.Page) *model.Page {
 		Path:            entPage.Path,
 		Content:         entPage.Content,
 		MarkdownContent: entPage.MarkdownContent,
+		CustomJS:        entPage.CustomJs,
+		CustomCSS:       entPage.CustomCSS,
 		Description:     entPage.Description,
 		IsPublished:     entPage.IsPublished,
 		ShowComment:     entPage.ShowComment,

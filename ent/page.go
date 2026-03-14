@@ -27,6 +27,10 @@ type Page struct {
 	Content string `json:"content,omitempty"`
 	// Markdown原始内容
 	MarkdownContent string `json:"markdown_content,omitempty"`
+	// 页面自定义JavaScript
+	CustomJs string `json:"custom_js,omitempty"`
+	// 页面自定义CSS
+	CustomCSS string `json:"custom_css,omitempty"`
 	// 页面描述
 	Description string `json:"description,omitempty"`
 	// 是否发布
@@ -51,7 +55,7 @@ func (*Page) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case page.FieldID, page.FieldSort:
 			values[i] = new(sql.NullInt64)
-		case page.FieldTitle, page.FieldPath, page.FieldContent, page.FieldMarkdownContent, page.FieldDescription:
+		case page.FieldTitle, page.FieldPath, page.FieldContent, page.FieldMarkdownContent, page.FieldCustomJs, page.FieldCustomCSS, page.FieldDescription:
 			values[i] = new(sql.NullString)
 		case page.FieldDeletedAt, page.FieldCreatedAt, page.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -106,6 +110,18 @@ func (_m *Page) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field markdown_content", values[i])
 			} else if value.Valid {
 				_m.MarkdownContent = value.String
+			}
+		case page.FieldCustomJs:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field custom_js", values[i])
+			} else if value.Valid {
+				_m.CustomJs = value.String
+			}
+		case page.FieldCustomCSS:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field custom_css", values[i])
+			} else if value.Valid {
+				_m.CustomCSS = value.String
 			}
 		case page.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -195,6 +211,12 @@ func (_m *Page) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("markdown_content=")
 	builder.WriteString(_m.MarkdownContent)
+	builder.WriteString(", ")
+	builder.WriteString("custom_js=")
+	builder.WriteString(_m.CustomJs)
+	builder.WriteString(", ")
+	builder.WriteString("custom_css=")
+	builder.WriteString(_m.CustomCSS)
 	builder.WriteString(", ")
 	builder.WriteString("description=")
 	builder.WriteString(_m.Description)

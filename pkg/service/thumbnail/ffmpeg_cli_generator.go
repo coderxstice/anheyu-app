@@ -107,13 +107,18 @@ func (g *FfmpegCliGenerator) Generate(
 	// -vf "scale=-1:[height]": 视频滤镜，将高度缩放到指定值，宽度按比例自动调整
 	// -f mjpeg: 输出为mjpeg格式（单个jpeg帧）
 	// -: 输出到 stdout (标准输出)
+	safeSourcePath := sourcePath
+	if strings.HasPrefix(safeSourcePath, "-") {
+		safeSourcePath = "./" + safeSourcePath
+	}
+
 	cmd := exec.CommandContext(ctx, g.ffmpegPath,
 		"-ss", g.captureTime,
-		"-i", sourcePath,
+		"-i", safeSourcePath,
 		"-vframes", "1",
 		"-vf", fmt.Sprintf("scale=-1:%s", targetHeight),
 		"-f", "mjpeg",
-		"-",
+		"--", "-",
 	)
 
 	var outBuf, errBuf bytes.Buffer

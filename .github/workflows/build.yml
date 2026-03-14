@@ -35,17 +35,12 @@ jobs:
         with:
           go-version: "1.25"
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 9
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "pnpm"
-          cache-dependency-path: "assets/pnpm-lock.yaml"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install and setup GoReleaser
         uses: goreleaser/goreleaser-action@v6
@@ -56,9 +51,9 @@ jobs:
 
       - name: Build Frontend
         run: |
-          cd assets
-          pnpm install
-          pnpm run build
+          cd frontend
+          npm ci
+          npm run build
 
       - name: Test GoReleaser configuration
         run: goreleaser check
@@ -163,17 +158,12 @@ jobs:
         with:
           go-version: "1.25"
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 9
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "pnpm"
-          cache-dependency-path: "assets/pnpm-lock.yaml"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -187,11 +177,22 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
+          df -h /
+
       - name: Build Frontend
         run: |
-          cd assets
-          pnpm install
-          pnpm run build
+          cd frontend
+          npm ci
+          npm run build
+
+      - name: Clean frontend node_modules before GoReleaser
+        run: |
+          rm -rf frontend/node_modules
+          echo "✅ Cleaned frontend/node_modules to save disk space for Docker builds"
 
       - name: Prepare Go version environment
         run: |

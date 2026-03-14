@@ -73,20 +73,44 @@ dev: build-linux-arm64
 	docker compose down
 	docker compose up -d --build
 
-# Docker 开发环境（等效于用户的开发流程）
+# 开发用 compose 文件（挂载本地二进制，避免每次重建镜像）
+COMPOSE_DEV = -f docker-compose.yml -f docker-compose.dev.yml
+
+# Docker 开发环境（快速：只编二进制 + 启动，不重建镜像）
+# 注意：若新增了前端页面（如 /user-center），需先 make frontend-build 再 make dev-docker-build
 .PHONY: dev-docker
 dev-docker:
-	@echo "🚀 Starting Docker development workflow..."
+	@echo "🚀 Starting Docker development workflow (fast)..."
 	@echo "📦 Stopping existing services..."
-	docker compose down
-	@echo "🔨 Building ARM64 binary for Docker..."
+	docker compose $(COMPOSE_DEV) down
+	@echo "🔨 Building ARM64 binary..."
 	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o anheyu-app
-	@echo "🐳 Building and starting Docker services..."
-	docker compose up -d --build
+	@echo "🐳 Starting containers (no image rebuild)..."
+	@docker compose $(COMPOSE_DEV) up -d --no-build || \
+		(echo "📦 First run or image missing, building image once..."; \
+		 docker compose $(COMPOSE_DEV) build && docker compose $(COMPOSE_DEV) up -d --no-build)
 	@echo "✅ Development environment ready!"
 	@echo "🌐 Application: http://localhost:8091"
 	@echo "📊 Version API: http://localhost:8091/api/version"
 	@echo "📝 View logs: docker logs anheyu-backend -f"
+
+# 完整重建镜像（Dockerfile 或依赖变更后使用）
+.PHONY: dev-docker-build
+dev-docker-build:
+	@echo "🔨 Full rebuild (image + binary)..."
+	docker compose down
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o anheyu-app
+	docker compose up -d --build
+	@echo "✅ Done. Next time use 'make dev-docker' for fast start."
+
+# 前端 + 镜像完整重建（新增/修改前端页面后使用，确保 8091 能访问新路由）
+.PHONY: dev-docker-full
+dev-docker-full: frontend-build
+	@echo "🔨 Full rebuild (frontend + image + binary)..."
+	docker compose down
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o anheyu-app
+	docker compose up -d --build
+	@echo "✅ Done. New routes (e.g. /user-center) are now available at http://localhost:8091"
 
 # GoReleaser 目标
 .PHONY: goreleaser-check
@@ -197,7 +221,9 @@ help:
 	@echo "🐳 Docker:"
 	@echo "  docker             - Build Docker image"
 	@echo "  dev                - Start development environment (ARM64)"
-	@echo "  dev-docker         - Docker development workflow (ARM64 build + compose)"
+	@echo "  dev-docker         - Fast start (binary + up, no image rebuild)"
+	@echo "  dev-docker-build  - Full image rebuild (after Dockerfile/frontend change)"
+	@echo "  dev-docker-full   - Frontend build + image rebuild (after new pages e.g. /user-center)"
 	@echo ""
 	@echo "❓ Help:"
 	@echo "  help               - Show this help"

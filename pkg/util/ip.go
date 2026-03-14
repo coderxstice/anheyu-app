@@ -2,98 +2,105 @@
 package util
 
 import (
+	"fmt"
 	"net"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
+// TrustedProxyCIDRs 是可信代理的 CIDR 列表，供 Gin 和本包共同使用。
+var TrustedProxyCIDRs = []string{
+	"127.0.0.0/8",
+	"::1/128",
+	"10.0.0.0/8",
+	"172.16.0.0/12",
+	"192.168.0.0/16",
+}
+
+var trustedProxyNets []*net.IPNet
+var privateOrReservedNets []*net.IPNet
+
+func init() {
+	for _, cidr := range TrustedProxyCIDRs {
+		_, ipNet, err := net.ParseCIDR(cidr)
+		if err != nil {
+			panic(fmt.Sprintf("invalid CIDR in TrustedProxyCIDRs: %s", cidr))
+		}
+		trustedProxyNets = append(trustedProxyNets, ipNet)
+	}
+
+	reservedCIDRs := []string{
+		"10.0.0.0/8",
+		"172.16.0.0/12",
+		"192.168.0.0/16",
+		"127.0.0.0/8",
+		"169.254.0.0/16",
+		"::1/128",
+		"fc00::/7",
+		"fe80::/10",
+	}
+	for _, cidr := range reservedCIDRs {
+		_, ipNet, err := net.ParseCIDR(cidr)
+		if err != nil {
+			panic(fmt.Sprintf("invalid CIDR in privateOrReservedNets: %s", cidr))
+		}
+		privateOrReservedNets = append(privateOrReservedNets, ipNet)
+	}
+}
+
+func isTrustedProxy(remoteAddr string) bool {
+	host, _, err := net.SplitHostPort(remoteAddr)
+	if err != nil {
+		host = remoteAddr
+	}
+	ip := net.ParseIP(host)
+	if ip == nil {
+		return false
+	}
+
+	for _, ipNet := range trustedProxyNets {
+		if ipNet.Contains(ip) {
+			return true
+		}
+	}
+	return false
+}
+
+func extractIPFromHeader(value string) string {
+	if value == "" {
+		return ""
+	}
+	parts := strings.Split(value, ",")
+	candidate := strings.TrimSpace(parts[0])
+	if net.ParseIP(candidate) != nil {
+		return candidate
+	}
+	return ""
+}
+
 // GetRealClientIP 获取客户端真实IP地址
-// 优先级：X-Forwarded-For > X-Real-IP > X-Original-Forwarded-For > CF-Connecting-IP > EO-Connecting-IP > Ali-CDN-Real-IP > 其他 > RemoteAddr
-// 支持的 CDN: Cloudflare, 腾讯云 EdgeOne, 阿里云 CDN/ESA 等
+// 仅当直连来源是可信代理时，才检查转发头部，防止客户端直接伪造代理头部。
 func GetRealClientIP(c *gin.Context) string {
-	// 1. 检查 X-Forwarded-For 头部（最常用的代理头部）
-	if xff := c.GetHeader("X-Forwarded-For"); xff != "" {
-		// X-Forwarded-For 可能包含多个IP，格式：client, proxy1, proxy2
-		// 取第一个IP（客户端真实IP）
-		if ips := strings.Split(xff, ","); len(ips) > 0 {
-			clientIP := strings.TrimSpace(ips[0])
-			// 验证IP格式
-			if ip := net.ParseIP(clientIP); ip != nil {
-				return clientIP
-			}
-		}
+	if !isTrustedProxy(c.Request.RemoteAddr) {
+		return c.ClientIP()
 	}
 
-	// 2. 检查 X-Real-IP 头部（Nginx常用）
-	if realIP := c.GetHeader("X-Real-IP"); realIP != "" {
-		realIP = strings.TrimSpace(realIP)
-		// 验证IP格式
-		if ip := net.ParseIP(realIP); ip != nil {
-			return realIP
-		}
-	}
-
-	// 3. 检查 X-Original-Forwarded-For 头部（某些代理使用）
-	if originalIP := c.GetHeader("X-Original-Forwarded-For"); originalIP != "" {
-		originalIP = strings.TrimSpace(originalIP)
-		// 验证IP格式
-		if ip := net.ParseIP(originalIP); ip != nil {
-			return originalIP
-		}
-	}
-
-	// 4. 检查 CF-Connecting-IP 头部（Cloudflare使用）
-	if cfIP := c.GetHeader("CF-Connecting-IP"); cfIP != "" {
-		cfIP = strings.TrimSpace(cfIP)
-		// 验证IP格式
-		if ip := net.ParseIP(cfIP); ip != nil {
-			return cfIP
-		}
-	}
-
-	// 5. 检查 EO-Connecting-IP 头部（腾讯云 EdgeOne 使用）
-	if eoIP := c.GetHeader("EO-Connecting-IP"); eoIP != "" {
-		eoIP = strings.TrimSpace(eoIP)
-		// 验证IP格式
-		if ip := net.ParseIP(eoIP); ip != nil {
-			return eoIP
-		}
-	}
-
-	// 6. 检查 Ali-CDN-Real-IP 头部（阿里云 CDN/ESA 使用）
-	if aliIP := c.GetHeader("Ali-CDN-Real-IP"); aliIP != "" {
-		aliIP = strings.TrimSpace(aliIP)
-		// 验证IP格式
-		if ip := net.ParseIP(aliIP); ip != nil {
-			return aliIP
-		}
-	}
-
-	// 7. 检查所有可能的头部（包括非标准的）
-	possibleHeaders := []string{
+	headers := []string{
+		"X-Forwarded-For",
+		"X-Real-IP",
+		"CF-Connecting-IP",
+		"EO-Connecting-IP",
+		"Ali-CDN-Real-IP",
 		"True-Client-IP",
-		"X-Client-IP",
-		"X-Cluster-Client-IP",
-		"X-Forwarded",
-		"Forwarded-For",
-		"Forwarded",
 	}
 
-	for _, header := range possibleHeaders {
-		if ip := c.GetHeader(header); ip != "" {
-			ip = strings.TrimSpace(ip)
-			// 处理可能的多IP情况
-			if ips := strings.Split(ip, ","); len(ips) > 0 {
-				firstIP := strings.TrimSpace(ips[0])
-				if parsedIP := net.ParseIP(firstIP); parsedIP != nil {
-					return firstIP
-				}
-			}
+	for _, header := range headers {
+		if ip := extractIPFromHeader(c.GetHeader(header)); ip != "" {
+			return ip
 		}
 	}
 
-	// 8. 最后使用Gin内置的ClientIP方法（会检查RemoteAddr）
 	return c.ClientIP()
 }
 
@@ -102,30 +109,18 @@ func IsValidIP(ip string) bool {
 	return net.ParseIP(ip) != nil
 }
 
-// IsPrivateIP 检查是否为私有IP地址
+// IsPrivateIP 检查是否为私有或保留IP地址（含 IPv6、链路本地、云元数据地址段）
 func IsPrivateIP(ip string) bool {
 	parsedIP := net.ParseIP(ip)
 	if parsedIP == nil {
 		return false
 	}
 
-	// IPv4私有地址范围
-	privateIPRanges := []string{
-		"10.0.0.0/8",     // 10.0.0.0 - 10.255.255.255
-		"172.16.0.0/12",  // 172.16.0.0 - 172.31.255.255
-		"192.168.0.0/16", // 192.168.0.0 - 192.168.255.255
-		"127.0.0.0/8",    // 本地回环
-	}
-
-	for _, cidr := range privateIPRanges {
-		_, ipNet, err := net.ParseCIDR(cidr)
-		if err != nil {
-			continue
-		}
+	for _, ipNet := range privateOrReservedNets {
 		if ipNet.Contains(parsedIP) {
 			return true
 		}
 	}
 
-	return false
+	return parsedIP.IsLoopback() || parsedIP.IsLinkLocalUnicast() || parsedIP.IsLinkLocalMulticast() || parsedIP.IsUnspecified()
 }

@@ -72,14 +72,30 @@ func main() {
 
 	engine := app.Engine()
 	engine.Use(frontend.ProxyMiddleware(frontendLauncher))
-	log.Println("✅ Next.js 前端反向代理中间件已注册")
+	if frontend.IsStaticModeActive() {
+		log.Println("✅ 检测到 static 目录，前台将使用自定义前端")
+		log.Println("   管理后台（/admin）仍由 Next.js 提供服务")
+		log.Printf("   static 目录路径: %s", frontend.GetStaticDirPath())
+	} else {
+		log.Println("✅ Next.js 前端反向代理中间件已注册")
+	}
 
+	// 即使在自定义前端模式下也启动 Next.js，因为管理后台仍需要它
 	if err := frontendLauncher.Start(); err != nil {
-		log.Printf("⚠️ 内置前端启动失败: %v", err)
-		log.Println("   提示: 请确保已执行 'make frontend-build'，或设置 ANHEYU_FRONTEND_URL 使用外部前端服务")
+		if frontend.IsStaticModeActive() {
+			log.Printf("⚠️ Next.js 启动失败（管理后台可能不可用）: %v", err)
+			log.Println("   前台自定义前端不受影响，将从 static 目录提供服务")
+		} else {
+			log.Printf("⚠️ 内置前端启动失败: %v", err)
+			log.Println("   提示: 请确保已执行 'make frontend-build'，或设置 ANHEYU_FRONTEND_URL 使用外部前端服务")
+		}
 	} else {
 		defer frontendLauncher.Stop()
-		log.Printf("✅ 前端服务地址: %s", frontendLauncher.GetFrontendURL())
+		if frontend.IsStaticModeActive() {
+			log.Printf("✅ 前台: 自定义前端（static 目录）  后台: %s", frontendLauncher.GetFrontendURL())
+		} else {
+			log.Printf("✅ 前端服务地址: %s", frontendLauncher.GetFrontendURL())
+		}
 	}
 
 	if err := app.Run(); err != nil {

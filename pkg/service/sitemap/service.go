@@ -51,18 +51,26 @@ func NewService(
 	}
 }
 
+// defaultBaseURL 当 SITE_URL 未配置时使用的 fallback，与 GenerateRobots 保持一致
+const defaultBaseURL = "https://blog.anheyu.com"
+
+// getBaseURL 返回站点 URL，未配置时使用 defaultBaseURL 并打日志
+func (s *service) getBaseURL() string {
+	baseURL := strings.TrimSpace(s.settingSvc.Get(constant.KeySiteURL.String()))
+	if baseURL == "" {
+		log.Printf("[sitemap] 站点URL未配置，使用默认值: %s", defaultBaseURL)
+		baseURL = defaultBaseURL
+	}
+	if len(baseURL) > 0 && baseURL[len(baseURL)-1] == '/' {
+		baseURL = baseURL[:len(baseURL)-1]
+	}
+	return baseURL
+}
+
 // GenerateSitemap 生成站点地图
 // 支持智能缓存：频繁访问时使用缓存，内容更新时自动失效
 func (s *service) GenerateSitemap(ctx context.Context) (*URLSet, error) {
-	baseURL := s.settingSvc.Get(constant.KeySiteURL.String())
-	if baseURL == "" {
-		return nil, fmt.Errorf("站点URL未配置")
-	}
-
-	// 确保baseURL不以斜杠结尾
-	if baseURL[len(baseURL)-1] == '/' {
-		baseURL = baseURL[:len(baseURL)-1]
-	}
+	baseURL := s.getBaseURL()
 
 	var items []SitemapItem
 
@@ -219,15 +227,7 @@ func (s *service) addLinkPages(ctx context.Context, baseURL string, items *[]Sit
 
 // GenerateRobots 生成robots.txt
 func (s *service) GenerateRobots(ctx context.Context) (string, error) {
-	baseURL := s.settingSvc.Get(constant.KeySiteURL.String())
-	if baseURL == "" {
-		baseURL = "https://blog.anheyu.com"
-	}
-
-	// 确保baseURL不以斜杠结尾
-	if baseURL[len(baseURL)-1] == '/' {
-		baseURL = baseURL[:len(baseURL)-1]
-	}
+	baseURL := s.getBaseURL()
 
 	robotsContent := fmt.Sprintf(`User-agent: *
 Allow: /
@@ -241,9 +241,6 @@ Disallow: /api/
 
 # 站点地图
 Sitemap: %s/sitemap.xml
-
-# 爬取延迟（可选）
-Crawl-delay: 1
 `, baseURL)
 
 	return robotsContent, nil

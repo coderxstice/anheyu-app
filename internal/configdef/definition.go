@@ -62,6 +62,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyUploadAllowedExtensions, Value: "", Comment: "允许上传的文件后缀名白名单，逗号分隔", IsPublic: true},
 	{Key: constant.KeyUploadDeniedExtensions, Value: "", Comment: "禁止上传的文件后缀名黑名单，在白名单未启用时生效", IsPublic: true},
 	{Key: constant.KeyEnableExternalLinkWarning, Value: "false", Comment: "是否开启外链跳转提示 (true/false)，开启后跳转外链会显示中间提示页面", IsPublic: true},
+	{Key: constant.KeyRespectReducedMotion, Value: "false", Comment: "是否尊重系统减弱动效偏好，开启后在用户开启了系统减弱动效时降低前台动画 (true/false)", IsPublic: true},
 	// --- 缩略图生成器配置 ---
 	{Key: constant.KeyEnableVipsGenerator, Value: "false", Comment: "是否启用 VIPS 缩略图生成器 (true/false)", IsPublic: true},
 	{Key: constant.KeyVipsPath, Value: "vips", Comment: "VIPS 命令的路径或名称 (默认 'vips'，让系统自动搜索)", IsPublic: false},
@@ -133,7 +134,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyFooterBadgeList, Value: `[{"link":"https://blog.anheyu.com/","shields":"https://npm.elemecdn.com/anzhiyu-theme-static@1.0.9/img/Theme-AnZhiYu-2E67D3.svg","message":"本站使用AnHeYu框架"},{"link":"https://www.dogecloud.com/","shields":"https://npm.elemecdn.com/anzhiyu-blog@2.2.0/img/badge/CDN-多吉云-3693F3.svg","message":"本站使用多吉云为静态资源提供CDN加速"},{"link":"http://creativecommons.org/licenses/by-nc-sa/4.0/","shields":"https://npm.elemecdn.com/anzhiyu-blog@2.2.0/img/badge/Copyright-BY-NC-SA.svg","message":"本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"}]`, Comment: "徽标列表 (JSON格式)", IsPublic: true},
 	{Key: constant.KeyFooterSocialBarLeft, Value: `[{"title":"email","link":"http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=VDU6Ljw9LSF5NxQlJXo3Ozk","icon":"fa6-solid:envelope"},{"title":"微博","link":"https://weibo.com/u/6378063631","icon":"fa6-brands:weibo"},{"title":"facebook","link":"https://www.facebook.com/profile.php?id=100092208016287&sk=about","icon":"fa6-brands:facebook"},{"title":"RSS","link":"atom.xml","icon":"fa6-solid:rss"}]`, Comment: "社交链接栏左侧列表 (JSON格式)", IsPublic: true},
 	{Key: constant.KeyFooterSocialBarRight, Value: `[{"title":"Github","link":"https://github.com/anzhiyu-c","icon":"fa6-brands:github"},{"title":"Bilibili","link":"https://space.bilibili.com/372204786","icon":"fa6-brands:bilibili"},{"title":"抖音","link":"https://v.douyin.com/DwCpMEy/","icon":"fa6-brands:tiktok"},{"title":"CC","link":"/copyright","icon":"fa6-regular:copyright"}]`, Comment: "社交链接栏右侧列表 (JSON格式)", IsPublic: true},
-	{Key: constant.KeyFooterProjectList, Value: `[{"title":"服务","links":[{"title":"站点地图","link":"https://blog.anheyu.com/atom.xml"},{"title":"十年之约","link":"https://foreverblog.cn/go.html"},{"title":"开往","link":"https://www.travellings.cn/go.html"}]},{"title":"框架","links":[{"title":"文档","link":"https://dev.anheyu.com"},{"title":"源码","link":"https://github.com/anzhiyu-c/anheyu-app"},{"title":"更新日志","link":"/update"}]},{"title":"导航","links":[{"title":"小空调","link":"/air-conditioner"},{"title":"相册集","link":"/album"},{"title":"音乐馆","link":"/music"}]},{"title":"协议","links":[{"title":"隐私协议","link":"/privacy"},{"title":"Cookies","link":"/cookies"},{"title":"版权协议","link":"/copyright"}]}]`, Comment: "页脚链接列表 (JSON格式)", IsPublic: true},
+	{Key: constant.KeyFooterProjectList, Value: `[{"title":"服务","links":[{"title":"站点地图","link":"/sitemap.xml"},{"title":"十年之约","link":"https://foreverblog.cn/go.html"},{"title":"开往","link":"https://www.travellings.cn/go.html"}]},{"title":"框架","links":[{"title":"文档","link":"https://dev.anheyu.com"},{"title":"源码","link":"https://github.com/anzhiyu-c/anheyu-app"},{"title":"更新日志","link":"/update"}]},{"title":"导航","links":[{"title":"小空调","link":"/air-conditioner"},{"title":"相册集","link":"/album"},{"title":"音乐馆","link":"/music"}]},{"title":"协议","links":[{"title":"隐私协议","link":"/privacy"},{"title":"Cookies","link":"/cookies"},{"title":"版权协议","link":"/copyright"}]}]`, Comment: "页脚链接列表 (JSON格式)", IsPublic: true},
 	{Key: constant.KeyFooterBarLinkList, Value: `[{"link":"/about#post-comment","text":"留言"},{"link":"https://github.com/anzhiyu-c/anheyu-app","text":"框架"},{"link":"https://index.anheyu.com","text":"主页"}]`, Comment: "底部栏链接列表 (JSON格式)", IsPublic: true},
 
 	// --- Uptime Kuma 状态监控配置 ---
@@ -145,6 +146,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyPostDefaultCover, Value: ``, Comment: "文章默认封面", IsPublic: true},
 	{Key: constant.KeyPostDefaultDoubleColumn, Value: "true", Comment: "文章默认双栏", IsPublic: true},
 	{Key: constant.KeyPostDefaultPageSize, Value: "12", Comment: "文章默认分页大小", IsPublic: true},
+	{Key: constant.KeyPostDefaultEnablePrimaryColorTag, Value: "false", Comment: "文章列表封面启用主色调标签", IsPublic: true},
 	{Key: constant.KeyPostExpirationTime, Value: "365", Comment: "文章过期时间(单位天)", IsPublic: true},
 	{Key: constant.Key404PageDefaultImage, Value: "/static/img/background-effect.gif", Comment: "404页面默认图片", IsPublic: true},
 	{Key: constant.KeyPostRewardEnable, Value: "true", Comment: "文章打赏功能是否启用", IsPublic: true},
@@ -203,6 +205,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyRecentCommentsBannerDescription, Value: "最近评论", Comment: "最近评论页面横幅描述", IsPublic: true},
 	{Key: constant.KeyRecentCommentsBannerTip, Value: "发表你的观点和看法，让更多人看到", Comment: "最近评论页面横幅提示", IsPublic: true},
 	{Key: constant.KeyCommentEnable, Value: "true", Comment: "是否启用评论功能", IsPublic: true},
+	{Key: constant.KeyCommentBarrageEnable, Value: "true", Comment: "是否启用文章详情页评论弹幕（热评）", IsPublic: true},
 	{Key: constant.KeyCommentLoginRequired, Value: "false", Comment: "是否开启登录后评论", IsPublic: true},
 	{Key: constant.KeyCommentPageSize, Value: "10", Comment: "评论每页数量", IsPublic: true},
 	{Key: constant.KeyCommentMasterTag, Value: "博主", Comment: "管理员评论专属标签文字", IsPublic: true},
@@ -262,6 +265,8 @@ var AllSettings = []Definition{
 	{Key: constant.KeySidebarCustomShowInPost, Value: "false", Comment: "自定义侧边栏是否在文章页显示", IsPublic: true},
 	{Key: constant.KeySidebarTocCollapseMode, Value: "false", Comment: "目录折叠模式 (true/false)，开启后目录会根据当前阅读位置自动折叠展开子标题", IsPublic: true},
 	{Key: constant.KeySidebarSeriesPostCount, Value: "5", Comment: "侧边栏系列文章显示数量", IsPublic: true},
+	{Key: constant.KeySidebarRecentPostEnable, Value: "true", Comment: "是否在文章详情页侧边栏显示最近发布文章 (true/false)", IsPublic: true},
+	{Key: constant.KeySidebarRecentPostCount, Value: "5", Comment: "侧边栏最近文章显示数量", IsPublic: true},
 
 	{Key: constant.KeyFriendLinkApplyCondition, Value: `["我已添加 <b>安知鱼</b> 博客的友情链接","我的链接主体为 <b>个人</b>，网站类型为<b>博客</b>","我的网站现在可以在中国大陆区域正常访问","网站内容符合中国大陆法律法规","我的网站可以在1分钟内加载完成首屏"]`, Comment: "申请友链条件 (JSON数组格式，用于动态生成勾选框)", IsPublic: true},
 	{Key: constant.KeyFriendLinkApplyCustomCode, Value: `::: folding

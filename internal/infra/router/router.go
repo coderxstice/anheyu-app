@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-06-15 11:30:55
- * @LastEditTime: 2026-01-26 17:47:40
+ * @LastEditTime: 2026-02-27 18:26:36
  * @LastEditors: 安知鱼
  */
 // anheyu-app/pkg/router/router.go
@@ -33,6 +33,7 @@ import (
 	post_tag_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_tag"
 	proxy_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/proxy"
 	public_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/public"
+	rss_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/rss"
 	search_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/search"
 	setting_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/setting"
 	sitemap_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/sitemap"
@@ -90,6 +91,7 @@ type Router struct {
 	searchHandler             *search_handler.Handler
 	proxyHandler              *proxy_handler.ProxyHandler
 	sitemapHandler            *sitemap_handler.Handler
+	rssHandler                *rss_handler.Handler
 	versionHandler            *version_handler.Handler
 	notificationHandler       *notification_handler.Handler
 	configBackupHandler       *config_handler.ConfigBackupHandler
@@ -126,6 +128,7 @@ func NewRouter(
 	searchHandler *search_handler.Handler,
 	proxyHandler *proxy_handler.ProxyHandler,
 	sitemapHandler *sitemap_handler.Handler,
+	rssHandler *rss_handler.Handler,
 	versionHandler *version_handler.Handler,
 	notificationHandler *notification_handler.Handler,
 	configBackupHandler *config_handler.ConfigBackupHandler,
@@ -160,6 +163,7 @@ func NewRouter(
 		searchHandler:             searchHandler,
 		proxyHandler:              proxyHandler,
 		sitemapHandler:            sitemapHandler,
+		rssHandler:                rssHandler,
 		versionHandler:            versionHandler,
 		notificationHandler:       notificationHandler,
 		configBackupHandler:       configBackupHandler,
@@ -189,8 +193,8 @@ func (r *Router) Setup(engine *gin.Engine) {
 		downloadGroup.GET("/download/:public_id", r.fileHandler.HandleUniversalSignedDownload)
 	}
 
-	// 代理路由
-	apiGroup.GET("/proxy/download", r.proxyHandler.HandleDownload)
+	// 代理路由（每个IP每分钟30次请求，突发允许10次）
+	apiGroup.GET("/proxy/download", middleware.CustomRateLimit(30, 10), r.proxyHandler.HandleDownload)
 
 	// 注册各个模块的路由
 	r.registerAuthRoutes(apiGroup)
@@ -218,6 +222,7 @@ func (r *Router) Setup(engine *gin.Engine) {
 	r.registerNotificationRoutes(apiGroup)
 	r.registerConfigBackupRoutes(apiGroup)
 	r.registerSitemapRoutes(engine)    // 直接注册到engine，不使用/api前缀
+	r.registerRSSRoutes(engine)       // RSS/atom/feed 始终注册，与 SkipFrontend 无关
 	r.registerSSRThemeRoutes(apiGroup) // 注册 SSR 主题管理路由
 }
 
@@ -239,6 +244,9 @@ func (r *Router) registerCommentRoutes(api *gin.RouterGroup) {
 		commentsPublic.POST("/:id/like", r.commentHandler.LikeComment)
 		commentsPublic.POST("/:id/unlike", r.commentHandler.UnlikeComment)
 	}
+
+	// 天气组件专用路径（与评论 IP 定位共用实现，前端请求 /api/public/weather/ip-location）
+	api.Group("/public/weather").GET("/ip-location", r.commentHandler.GetIPLocation)
 
 	// 管理员专属的评论接口
 	commentsAdmin := api.Group("/comments").Use(r.mw.JWTAuth(), r.mw.AdminAuth())
@@ -682,8 +690,8 @@ func (r *Router) registerPageRoutes(api *gin.RouterGroup) {
 	// --- 前台公开接口 ---
 	pagesPublic := api.Group("/public/pages")
 	{
-		// 根据路径获取页面: GET /api/public/pages/:path
-		pagesPublic.GET("/:path", r.pageHandler.GetByPath)
+		// 根据路径获取页面: GET /api/public/pages/*path（支持多级路径如 /docs/guide）
+		pagesPublic.GET("/*path", r.pageHandler.GetByPath)
 	}
 
 	// --- 后台管理接口 ---
@@ -786,6 +794,16 @@ func (r *Router) registerSitemapRoutes(engine *gin.Engine) {
 
 	// GET /robots.txt - 搜索引擎抓取规则
 	engine.GET("/robots.txt", r.sitemapHandler.GetRobots)
+}
+
+// registerRSSRoutes 注册 RSS/Atom/Feed 路由，与 SkipFrontend 无关，保证 anheyu-pro 等场景下也可用
+func (r *Router) registerRSSRoutes(engine *gin.Engine) {
+	if r.rssHandler == nil {
+		return
+	}
+	engine.GET("/rss.xml", r.rssHandler.GetRSSFeed)
+	engine.GET("/feed.xml", r.rssHandler.GetRSSFeed)
+	engine.GET("/atom.xml", r.rssHandler.GetRSSFeed)
 }
 
 // registerVersionRoutes 注册版本信息相关路由

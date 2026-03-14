@@ -79,12 +79,19 @@ archives:
         formats:
           - zip
 
-    # 包含的文件 (现在可以使用简单glob，因为有.gitkeep文件)
+    # 包含的文件
     files:
       - README.md
       - LICENSE
       - entrypoint.sh
       - default_files/**/*
+      # Next.js standalone 构建产物（需要 Node.js 运行）
+      - src: frontend/.next/standalone/**/*
+        dst: frontend/
+      - src: frontend/.next/static/**/*
+        dst: frontend/.next/static/
+      - src: frontend/public/**/*
+        dst: frontend/public/
 
 # Checksum 配置
 checksum:
@@ -156,6 +163,7 @@ dockers:
 
     build_flag_templates:
       - "--platform=linux/amd64"
+      - "--target=full"
       - "--pull"
       - "--build-arg=VERSION={{ .Version }}"
       - "--build-arg=COMMIT={{ .ShortCommit }}"
@@ -185,6 +193,7 @@ dockers:
 
     build_flag_templates:
       - "--platform=linux/amd64"
+      - "--target=full"
       - "--pull"
       - "--build-arg=VERSION={{ .Version }}"
       - "--build-arg=COMMIT={{ .ShortCommit }}"
@@ -213,6 +222,7 @@ dockers:
 
     build_flag_templates:
       - "--platform=linux/arm64"
+      - "--target=full"
       - "--pull"
       - "--build-arg=VERSION={{ .Version }}"
       - "--build-arg=COMMIT={{ .ShortCommit }}"
@@ -242,6 +252,7 @@ dockers:
 
     build_flag_templates:
       - "--platform=linux/arm64"
+      - "--target=full"
       - "--pull"
       - "--build-arg=VERSION={{ .Version }}"
       - "--build-arg=COMMIT={{ .ShortCommit }}"
@@ -271,6 +282,7 @@ dockers:
 
     build_flag_templates:
       - "--platform=linux/amd64"
+      - "--target=full"
       - "--pull"
       - "--build-arg=VERSION={{ .Version }}"
       - "--build-arg=COMMIT={{ .ShortCommit }}"
@@ -297,6 +309,7 @@ dockers:
 
     build_flag_templates:
       - "--platform=linux/arm64"
+      - "--target=full"
       - "--pull"
       - "--build-arg=VERSION={{ .Version }}"
       - "--build-arg=COMMIT={{ .ShortCommit }}"
@@ -323,6 +336,7 @@ dockers:
 
     build_flag_templates:
       - "--platform=linux/amd64"
+      - "--target=full"
       - "--pull"
       - "--build-arg=VERSION={{ .Version }}"
       - "--build-arg=COMMIT={{ .ShortCommit }}"
@@ -349,6 +363,7 @@ dockers:
 
     build_flag_templates:
       - "--platform=linux/arm64"
+      - "--target=full"
       - "--pull"
       - "--build-arg=VERSION={{ .Version }}"
       - "--build-arg=COMMIT={{ .ShortCommit }}"
@@ -375,6 +390,7 @@ dockers:
 
     build_flag_templates:
       - "--platform=linux/amd64"
+      - "--target=full"
       - "--pull"
       - "--build-arg=VERSION={{ .Version }}"
       - "--build-arg=COMMIT={{ .ShortCommit }}"
@@ -401,6 +417,7 @@ dockers:
 
     build_flag_templates:
       - "--platform=linux/arm64"
+      - "--target=full"
       - "--pull"
       - "--build-arg=VERSION={{ .Version }}"
       - "--build-arg=COMMIT={{ .ShortCommit }}"

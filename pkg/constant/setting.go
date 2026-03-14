@@ -55,6 +55,7 @@ const (
 	KeyUploadAllowedExtensions   SettingKey = "UPLOAD_ALLOWED_EXTENSIONS"
 	KeyUploadDeniedExtensions    SettingKey = "UPLOAD_DENIED_EXTENSIONS"
 	KeyEnableExternalLinkWarning SettingKey = "ENABLE_EXTERNAL_LINK_WARNING"
+	KeyRespectReducedMotion     SettingKey = "RESPECT_REDUCED_MOTION"
 	KeyEnableVipsGenerator       SettingKey = "ENABLE_VIPS_GENERATOR"
 	KeyVipsPath                  SettingKey = "VIPS_PATH"
 	KeyVipsSupportedExts         SettingKey = "VIPS_SUPPORTED_EXTS"
@@ -158,24 +159,25 @@ const (
 	KeyTypingSpeed        SettingKey = "page.one_image.typing_speed"
 
 	// 文章相关配置
-	KeyPostDefaultCover          SettingKey = "post.default.cover"
-	KeyPostDefaultDoubleColumn   SettingKey = "post.default.double_column"
-	KeyPostDefaultPageSize       SettingKey = "post.default.page_size"
-	KeyPostExpirationTime        SettingKey = "post.expiration_time"
-	Key404PageDefaultImage       SettingKey = "post.page404.default_image"
-	KeyPostRewardEnable          SettingKey = "post.reward.enable"
-	KeyPostRewardWeChatQR        SettingKey = "post.reward.wechat_qr"
-	KeyPostRewardAlipayQR        SettingKey = "post.reward.alipay_qr"
-	KeyPostRewardWeChatEnable    SettingKey = "post.reward.wechat_enable"
-	KeyPostRewardAlipayEnable    SettingKey = "post.reward.alipay_enable"
-	KeyPostRewardButtonText      SettingKey = "post.reward.button_text"
-	KeyPostRewardTitle           SettingKey = "post.reward.title"
-	KeyPostRewardWeChatLabel     SettingKey = "post.reward.wechat_label"
-	KeyPostRewardAlipayLabel     SettingKey = "post.reward.alipay_label"
-	KeyPostRewardListButtonText  SettingKey = "post.reward.list_button_text"
-	KeyPostRewardListButtonDesc  SettingKey = "post.reward.list_button_desc"
-	KeyPostCodeBlockCodeMaxLines SettingKey = "post.code_block.code_max_lines"
-	KeyPostCodeBlockMacStyle     SettingKey = "post.code_block.mac_style"
+	KeyPostDefaultCover                 SettingKey = "post.default.cover"
+	KeyPostDefaultDoubleColumn          SettingKey = "post.default.double_column"
+	KeyPostDefaultPageSize              SettingKey = "post.default.page_size"
+	KeyPostDefaultEnablePrimaryColorTag SettingKey = "post.default.enable_primary_color_tag"
+	KeyPostExpirationTime               SettingKey = "post.expiration_time"
+	Key404PageDefaultImage              SettingKey = "post.page404.default_image"
+	KeyPostRewardEnable                 SettingKey = "post.reward.enable"
+	KeyPostRewardWeChatQR               SettingKey = "post.reward.wechat_qr"
+	KeyPostRewardAlipayQR               SettingKey = "post.reward.alipay_qr"
+	KeyPostRewardWeChatEnable           SettingKey = "post.reward.wechat_enable"
+	KeyPostRewardAlipayEnable           SettingKey = "post.reward.alipay_enable"
+	KeyPostRewardButtonText             SettingKey = "post.reward.button_text"
+	KeyPostRewardTitle                  SettingKey = "post.reward.title"
+	KeyPostRewardWeChatLabel            SettingKey = "post.reward.wechat_label"
+	KeyPostRewardAlipayLabel            SettingKey = "post.reward.alipay_label"
+	KeyPostRewardListButtonText         SettingKey = "post.reward.list_button_text"
+	KeyPostRewardListButtonDesc         SettingKey = "post.reward.list_button_desc"
+	KeyPostCodeBlockCodeMaxLines        SettingKey = "post.code_block.code_max_lines"
+	KeyPostCodeBlockMacStyle            SettingKey = "post.code_block.mac_style"
 
 	// 文章复制版权配置
 	KeyPostCopyEnable            SettingKey = "post.copy.enable"             // 是否允许复制文章内容
@@ -220,6 +222,7 @@ const (
 
 	// 评论配置
 	KeyCommentEnable            SettingKey = "comment.enable"
+	KeyCommentBarrageEnable     SettingKey = "comment.barrage_enable"
 	KeyCommentLoginRequired     SettingKey = "comment.login_required"
 	KeyCommentPageSize          SettingKey = "comment.page_size"
 	KeyCommentMasterTag         SettingKey = "comment.master_tag"
@@ -278,6 +281,8 @@ const (
 	KeySidebarCustomShowInPost       SettingKey = "sidebar.custom.showInPost"
 	KeySidebarTocCollapseMode        SettingKey = "sidebar.toc.collapseMode"
 	KeySidebarSeriesPostCount        SettingKey = "sidebar.series.postCount"
+	KeySidebarRecentPostEnable       SettingKey = "sidebar.recentPost.enable"
+	KeySidebarRecentPostCount        SettingKey = "sidebar.recentPost.count"
 
 	// --- 站点敏感或内部配置 (不暴露给前端) ---
 	KeyJWTSecret               SettingKey = "JWT_SECRET"

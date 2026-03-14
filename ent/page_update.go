@@ -105,6 +105,34 @@ func (_u *PageUpdate) SetNillableMarkdownContent(v *string) *PageUpdate {
 	return _u
 }
 
+// SetCustomJs sets the "custom_js" field.
+func (_u *PageUpdate) SetCustomJs(v string) *PageUpdate {
+	_u.mutation.SetCustomJs(v)
+	return _u
+}
+
+// SetNillableCustomJs sets the "custom_js" field if the given value is not nil.
+func (_u *PageUpdate) SetNillableCustomJs(v *string) *PageUpdate {
+	if v != nil {
+		_u.SetCustomJs(*v)
+	}
+	return _u
+}
+
+// SetCustomCSS sets the "custom_css" field.
+func (_u *PageUpdate) SetCustomCSS(v string) *PageUpdate {
+	_u.mutation.SetCustomCSS(v)
+	return _u
+}
+
+// SetNillableCustomCSS sets the "custom_css" field if the given value is not nil.
+func (_u *PageUpdate) SetNillableCustomCSS(v *string) *PageUpdate {
+	if v != nil {
+		_u.SetCustomCSS(*v)
+	}
+	return _u
+}
+
 // SetDescription sets the "description" field.
 func (_u *PageUpdate) SetDescription(v string) *PageUpdate {
 	_u.mutation.SetDescription(v)
@@ -283,6 +311,12 @@ func (_u *PageUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.MarkdownContent(); ok {
 		_spec.SetField(page.FieldMarkdownContent, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.CustomJs(); ok {
+		_spec.SetField(page.FieldCustomJs, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.CustomCSS(); ok {
+		_spec.SetField(page.FieldCustomCSS, field.TypeString, value)
+	}
 	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(page.FieldDescription, field.TypeString, value)
 	}
@@ -398,6 +432,34 @@ func (_u *PageUpdateOne) SetMarkdownContent(v string) *PageUpdateOne {
 func (_u *PageUpdateOne) SetNillableMarkdownContent(v *string) *PageUpdateOne {
 	if v != nil {
 		_u.SetMarkdownContent(*v)
+	}
+	return _u
+}
+
+// SetCustomJs sets the "custom_js" field.
+func (_u *PageUpdateOne) SetCustomJs(v string) *PageUpdateOne {
+	_u.mutation.SetCustomJs(v)
+	return _u
+}
+
+// SetNillableCustomJs sets the "custom_js" field if the given value is not nil.
+func (_u *PageUpdateOne) SetNillableCustomJs(v *string) *PageUpdateOne {
+	if v != nil {
+		_u.SetCustomJs(*v)
+	}
+	return _u
+}
+
+// SetCustomCSS sets the "custom_css" field.
+func (_u *PageUpdateOne) SetCustomCSS(v string) *PageUpdateOne {
+	_u.mutation.SetCustomCSS(v)
+	return _u
+}
+
+// SetNillableCustomCSS sets the "custom_css" field if the given value is not nil.
+func (_u *PageUpdateOne) SetNillableCustomCSS(v *string) *PageUpdateOne {
+	if v != nil {
+		_u.SetCustomCSS(*v)
 	}
 	return _u
 }
@@ -609,6 +671,12 @@ func (_u *PageUpdateOne) sqlSave(ctx context.Context) (_node *Page, err error) {
 	}
 	if value, ok := _u.mutation.MarkdownContent(); ok {
 		_spec.SetField(page.FieldMarkdownContent, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.CustomJs(); ok {
+		_spec.SetField(page.FieldCustomJs, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.CustomCSS(); ok {
+		_spec.SetField(page.FieldCustomCSS, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(page.FieldDescription, field.TypeString, value)
