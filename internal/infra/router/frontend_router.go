@@ -1651,8 +1651,8 @@ func renderHTMLPage(c *gin.Context, settingSvc setting.SettingService, articleSv
 				articleTags[i] = tag.Name
 			}
 
-			// 🖼️ 关键修复：在服务端渲染时将图片转换为懒加载格式，避免浏览器解析HTML时自动加载
-			articleResponse.ContentHTML = convertImagesToLazyLoad(articleResponse.ContentHTML)
+			// 不再转为懒加载：直接返回真实 src，与旧前台一致，避免内嵌前端(8091)还原失败导致占位符不消失
+			// articleResponse.ContentHTML = convertImagesToLazyLoad(articleResponse.ContentHTML)
 
 			// 处理自定义HTML，确保script标签正确闭合
 			customHeaderHTML := ensureScriptTagsClosed(settingSvc.Get(constant.KeyCustomHeaderHTML.String()))
@@ -1941,8 +1941,8 @@ func serveStaticHTMLFile(c *gin.Context, filePath string, settingSvc setting.Set
 					articleTags[i] = tag.Name
 				}
 
-				// 转换图片为懒加载
-				articleResponse.ContentHTML = convertImagesToLazyLoad(articleResponse.ContentHTML)
+				// 不再转为懒加载：直接返回真实 src，与旧前台一致，避免内嵌前端(8091)还原失败
+				// articleResponse.ContentHTML = convertImagesToLazyLoad(articleResponse.ContentHTML)
 
 				// 创建包含时间戳的初始数据
 				initialDataWithTimestamp := map[string]interface{}{
