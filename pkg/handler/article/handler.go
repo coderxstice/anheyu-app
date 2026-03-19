@@ -314,6 +314,73 @@ func (h *Handler) GetPublic(c *gin.Context) {
 	response.Success(c, articleResponse, "获取成功")
 }
 
+// GetByURL
+// @Summary      根据页面URL获取文章信息
+// @Description  传入文章的页面URL路径（如 /posts/abc123），解析出文章标识并返回文章详情。
+// @Tags         公开文章
+// @Produce      json
+// @Param        url query string true "文章页面URL路径，例如 /posts/abc123 或完整URL"
+// @Success      200 {object} response.Response{data=model.ArticleDetailResponse} "成功响应"
+// @Failure      400 {object} response.Response "URL参数缺失或格式无效"
+// @Failure      404 {object} response.Response "文章未找到"
+// @Router       /public/articles/by-url [get]
+func (h *Handler) GetByURL(c *gin.Context) {
+	rawURL := c.Query("url")
+	if rawURL == "" {
+		response.Fail(c, http.StatusBadRequest, "缺少 url 参数")
+		return
+	}
+
+	slug := extractSlugFromURL(rawURL)
+	if slug == "" {
+		response.Fail(c, http.StatusBadRequest, "无法从URL中解析出文章标识")
+		return
+	}
+
+	articleResponse, err := h.svc.GetPublicBySlugOrID(c.Request.Context(), slug)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			response.Fail(c, http.StatusNotFound, "文章未找到")
+		} else {
+			response.Fail(c, http.StatusInternalServerError, "获取文章失败: "+err.Error())
+		}
+		return
+	}
+
+	response.Success(c, articleResponse, "获取成功")
+}
+
+// extractSlugFromURL 从页面 URL 中提取文章标识（ID 或 abbrlink）。
+// 支持格式：/posts/abc123、https://example.com/posts/abc123
+func extractSlugFromURL(rawURL string) string {
+	path := rawURL
+	if idx := strings.Index(rawURL, "://"); idx >= 0 {
+		afterScheme := rawURL[idx+3:]
+		if slashIdx := strings.Index(afterScheme, "/"); slashIdx >= 0 {
+			path = afterScheme[slashIdx:]
+		} else {
+			return ""
+		}
+	}
+
+	path = strings.TrimRight(path, "/")
+
+	const postsPrefix = "/posts/"
+	if idx := strings.Index(path, postsPrefix); idx >= 0 {
+		slug := path[idx+len(postsPrefix):]
+		if nextSlash := strings.Index(slug, "/"); nextSlash >= 0 {
+			slug = slug[:nextSlash]
+		}
+		return slug
+	}
+
+	parts := strings.Split(path, "/")
+	if len(parts) > 0 {
+		return parts[len(parts)-1]
+	}
+	return ""
+}
+
 // Get
 // @Summary      获取单篇文章
 // @Description  根据文章的公共ID获取详细信息

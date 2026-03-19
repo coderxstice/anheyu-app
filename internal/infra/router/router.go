@@ -359,6 +359,7 @@ func (r *Router) registerArticleRoutes(api *gin.RouterGroup) {
 		articlesPublic.GET("/random", r.articleHandler.GetRandom)
 		articlesPublic.GET("/archives", r.articleHandler.ListArchives)
 		articlesPublic.GET("/statistics", r.articleHandler.GetArticleStatistics)
+		articlesPublic.GET("/by-url", r.articleHandler.GetByURL)
 		// 注意：把带参数的路由放在最后，避免路由冲突
 		articlesPublic.GET("/:id", r.articleHandler.GetPublic)
 	}
