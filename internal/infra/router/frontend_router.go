@@ -799,8 +799,9 @@ func shouldReturnIndexHTML(path string) bool {
 // 后台路径始终使用官方内嵌资源，不受外部主题影响
 func isAdminPath(path string) bool {
 	adminPrefixes := []string{
-		"/admin", // 后台管理页面
-		"/login", // 登录页面（后台入口）
+		"/admin",    // 后台管理页面
+		"/login",    // 登录页面（后台入口）
+		"/activate", // 账号激活页面（注册邮件链接）
 	}
 
 	for _, prefix := range adminPrefixes {
