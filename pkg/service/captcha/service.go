@@ -99,20 +99,12 @@ func NewCaptchaService(
 func (s *captchaService) GetProvider() CaptchaProvider {
 	provider := s.settingSvc.Get(constant.KeyCaptchaProvider.String())
 
-	// 如果配置了新的 provider，使用新配置
 	switch CaptchaProvider(provider) {
 	case ProviderTurnstile, ProviderGeetest, ProviderImage:
 		return CaptchaProvider(provider)
-	case ProviderNone:
+	default:
 		return ProviderNone
 	}
-
-	// 兼容旧配置：如果 captcha.provider 为空或无效，检查旧的 turnstile.enable 配置
-	if s.turnstileSvc.IsEnabled() {
-		return ProviderTurnstile
-	}
-
-	return ProviderNone
 }
 
 // IsEnabled 检查验证是否启用

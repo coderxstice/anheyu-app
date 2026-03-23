@@ -70,14 +70,8 @@ func (s *turnstileService) IsEnabled() bool {
 	return enabled == "true"
 }
 
-// Verify 验证 Turnstile token
+// Verify 验证 Turnstile token（由 CaptchaService 统一调度，不再自行检查 turnstile.enable）
 func (s *turnstileService) Verify(ctx context.Context, token string, remoteIP string) error {
-	// 如果未启用 Turnstile，直接返回成功
-	if !s.IsEnabled() {
-		return nil
-	}
-
-	// 检查 token 是否为空
 	if token == "" {
 		return errors.New("请完成人机验证")
 	}
