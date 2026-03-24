@@ -32,6 +32,7 @@ var (
 		{Name: "title", Type: field.TypeString, Nullable: true, Size: 255, Comment: "图片标题"},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 1000, Comment: "图片描述"},
 		{Name: "location", Type: field.TypeString, Nullable: true, Size: 200, Comment: "拍摄地点"},
+		{Name: "published_at", Type: field.TypeTime, Nullable: true, Comment: "发布时间，不设置则使用创建时间"},
 		{Name: "category_id", Type: field.TypeUint, Nullable: true, Comment: "分类ID"},
 	}
 	// AlbumsTable holds the schema information for the "albums" table.
@@ -43,7 +44,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "albums_album_categories_albums",
-				Columns:    []*schema.Column{AlbumsColumns[22]},
+				Columns:    []*schema.Column{AlbumsColumns[23]},
 				RefColumns: []*schema.Column{AlbumCategoriesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

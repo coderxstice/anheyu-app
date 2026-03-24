@@ -45,9 +45,16 @@ func (r *entAlbumRepository) Create(ctx context.Context, domainAlbum *model.Albu
 		SetDescription(domainAlbum.Description).
 		SetLocation(domainAlbum.Location)
 
-	// 如果传入了自定义的创建时间，则使用它
+	if domainAlbum.CategoryID != nil {
+		create = create.SetCategoryID(*domainAlbum.CategoryID)
+	}
+
 	if !domainAlbum.CreatedAt.IsZero() {
 		create = create.SetCreatedAt(domainAlbum.CreatedAt)
+	}
+
+	if domainAlbum.PublishedAt != nil {
+		create = create.SetNillablePublishedAt(domainAlbum.PublishedAt)
 	}
 
 	created, err := create.Save(ctx)
@@ -124,6 +131,10 @@ func (r *entAlbumRepository) CreateOrRestore(ctx context.Context, domainAlbum *m
 			create = create.SetCreatedAt(domainAlbum.CreatedAt)
 		}
 
+		if domainAlbum.PublishedAt != nil {
+			create = create.SetNillablePublishedAt(domainAlbum.PublishedAt)
+		}
+
 		newAlbumPO, createErr := create.Save(ctx)
 		if createErr != nil {
 			err = createErr
@@ -136,11 +147,38 @@ func (r *entAlbumRepository) CreateOrRestore(ctx context.Context, domainAlbum *m
 
 	// 已存在
 	if existingPO.DeletedAt != nil {
-		// 被软删除了，恢复并更新
-		updatedPO, updateErr := tx.Album.UpdateOne(existingPO).
+		// 被软删除了，恢复并用最新数据覆盖
+		restore := tx.Album.UpdateOne(existingPO).
 			ClearDeletedAt().
+			SetImageURL(domainAlbum.ImageUrl).
+			SetBigImageURL(domainAlbum.BigImageUrl).
+			SetDownloadURL(domainAlbum.DownloadUrl).
+			SetThumbParam(domainAlbum.ThumbParam).
+			SetBigParam(domainAlbum.BigParam).
 			SetTags(domainAlbum.Tags).
-			Save(ctx)
+			SetWidth(domainAlbum.Width).
+			SetHeight(domainAlbum.Height).
+			SetFileSize(domainAlbum.FileSize).
+			SetFormat(domainAlbum.Format).
+			SetAspectRatio(domainAlbum.AspectRatio).
+			SetDisplayOrder(domainAlbum.DisplayOrder).
+			SetTitle(domainAlbum.Title).
+			SetDescription(domainAlbum.Description).
+			SetLocation(domainAlbum.Location)
+
+		if domainAlbum.CategoryID != nil {
+			restore = restore.SetCategoryID(*domainAlbum.CategoryID)
+		} else {
+			restore = restore.ClearCategoryID()
+		}
+
+		if domainAlbum.PublishedAt != nil {
+			restore = restore.SetNillablePublishedAt(domainAlbum.PublishedAt)
+		} else {
+			restore = restore.ClearPublishedAt()
+		}
+
+		updatedPO, updateErr := restore.Save(ctx)
 		if updateErr != nil {
 			err = updateErr
 			return nil, repository.StatusError, err
@@ -183,6 +221,13 @@ func (r *entAlbumRepository) Update(ctx context.Context, domainAlbum *model.Albu
 		update = update.SetCategoryID(*domainAlbum.CategoryID)
 	} else {
 		update = update.ClearCategoryID()
+	}
+
+	// 处理可选的 PublishedAt
+	if domainAlbum.PublishedAt != nil {
+		update = update.SetNillablePublishedAt(domainAlbum.PublishedAt)
+	} else {
+		update = update.ClearPublishedAt()
 	}
 
 	_, err := update.Save(ctx)
@@ -324,5 +369,6 @@ func toDomainAlbum(po *ent.Album) *model.Album {
 		Title:         po.Title,
 		Description:   po.Description,
 		Location:      po.Location,
+		PublishedAt:   po.PublishedAt,
 	}
 }

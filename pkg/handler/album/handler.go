@@ -90,28 +90,29 @@ func (h *AlbumHandler) GetAlbums(c *gin.Context) {
 
 	// 3. 准备响应 DTO (Data Transfer Object)
 	type AlbumResponse struct {
-		ID             uint      `json:"id"`
-		CategoryID     *uint     `json:"categoryId"`
-		ImageUrl       string    `json:"imageUrl"`
-		BigImageUrl    string    `json:"bigImageUrl"`
-		DownloadUrl    string    `json:"downloadUrl"`
-		ThumbParam     string    `json:"thumbParam"`
-		BigParam       string    `json:"bigParam"`
-		Tags           string    `json:"tags"`
-		ViewCount      int       `json:"viewCount"`
-		DownloadCount  int       `json:"downloadCount"`
-		FileSize       int64     `json:"fileSize"`
-		Format         string    `json:"format"`
-		AspectRatio    string    `json:"aspectRatio"`
-		CreatedAt      time.Time `json:"created_at"`
-		UpdatedAt      time.Time `json:"updated_at"`
-		Width          int       `json:"width"`
-		Height         int       `json:"height"`
-		WidthAndHeight string    `json:"widthAndHeight"`
-		DisplayOrder   int       `json:"displayOrder"`
-		Title          string    `json:"title"`
-		Description    string    `json:"description"`
-		Location       string    `json:"location"`
+		ID             uint       `json:"id"`
+		CategoryID     *uint      `json:"categoryId"`
+		ImageUrl       string     `json:"imageUrl"`
+		BigImageUrl    string     `json:"bigImageUrl"`
+		DownloadUrl    string     `json:"downloadUrl"`
+		ThumbParam     string     `json:"thumbParam"`
+		BigParam       string     `json:"bigParam"`
+		Tags           string     `json:"tags"`
+		ViewCount      int        `json:"viewCount"`
+		DownloadCount  int        `json:"downloadCount"`
+		FileSize       int64      `json:"fileSize"`
+		Format         string     `json:"format"`
+		AspectRatio    string     `json:"aspectRatio"`
+		CreatedAt      time.Time  `json:"created_at"`
+		UpdatedAt      time.Time  `json:"updated_at"`
+		PublishedAt    *time.Time `json:"published_at"`
+		Width          int        `json:"width"`
+		Height         int        `json:"height"`
+		WidthAndHeight string     `json:"widthAndHeight"`
+		DisplayOrder   int        `json:"displayOrder"`
+		Title          string     `json:"title"`
+		Description    string     `json:"description"`
+		Location       string     `json:"location"`
 	}
 
 	// 从 PageResult 中获取 Items
@@ -130,6 +131,7 @@ func (h *AlbumHandler) GetAlbums(c *gin.Context) {
 			DownloadCount:  album.DownloadCount,
 			CreatedAt:      album.CreatedAt,
 			UpdatedAt:      album.UpdatedAt,
+			PublishedAt:    album.PublishedAt,
 			FileSize:       album.FileSize,
 			Format:         album.Format,
 			AspectRatio:    album.AspectRatio,
@@ -182,6 +184,7 @@ func (h *AlbumHandler) AddAlbum(c *gin.Context) {
 		Description  string     `json:"description"`
 		Location     string     `json:"location"`
 		CreatedAt    *time.Time `json:"created_at"`
+		PublishedAt  *time.Time `json:"published_at"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -207,6 +210,7 @@ func (h *AlbumHandler) AddAlbum(c *gin.Context) {
 		Description:  req.Description,
 		Location:     req.Location,
 		CreatedAt:    req.CreatedAt,
+		PublishedAt:  req.PublishedAt,
 	})
 
 	if err != nil {
@@ -297,17 +301,18 @@ func (h *AlbumHandler) UpdateAlbum(c *gin.Context) {
 	}
 
 	var req struct {
-		CategoryID   *uint    `json:"categoryId"`
-		ImageUrl     string   `json:"imageUrl" binding:"required"`
-		BigImageUrl  string   `json:"bigImageUrl"`
-		DownloadUrl  string   `json:"downloadUrl"`
-		ThumbParam   string   `json:"thumbParam"`
-		BigParam     string   `json:"bigParam"`
-		Tags         []string `json:"tags"`
-		DisplayOrder *int     `json:"displayOrder"`
-		Title        string   `json:"title"`
-		Description  string   `json:"description"`
-		Location     string   `json:"location"`
+		CategoryID   *uint      `json:"categoryId"`
+		ImageUrl     string     `json:"imageUrl" binding:"required"`
+		BigImageUrl  string     `json:"bigImageUrl"`
+		DownloadUrl  string     `json:"downloadUrl"`
+		ThumbParam   string     `json:"thumbParam"`
+		BigParam     string     `json:"bigParam"`
+		Tags         []string   `json:"tags"`
+		DisplayOrder *int       `json:"displayOrder"`
+		Title        string     `json:"title"`
+		Description  string     `json:"description"`
+		Location     string     `json:"location"`
+		PublishedAt  *time.Time `json:"published_at"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.Fail(c, http.StatusBadRequest, "参数错误: "+err.Error())
@@ -326,6 +331,7 @@ func (h *AlbumHandler) UpdateAlbum(c *gin.Context) {
 		Title:        req.Title,
 		Description:  req.Description,
 		Location:     req.Location,
+		PublishedAt:  req.PublishedAt,
 	})
 
 	if err != nil {

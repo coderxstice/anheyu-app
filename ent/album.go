@@ -62,6 +62,8 @@ type Album struct {
 	Description string `json:"description,omitempty"`
 	// 拍摄地点
 	Location string `json:"location,omitempty"`
+	// 发布时间，不设置则使用创建时间
+	PublishedAt *time.Time `json:"published_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AlbumQuery when eager-loading is set.
 	Edges        AlbumEdges `json:"edges"`
@@ -97,7 +99,7 @@ func (*Album) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case album.FieldImageURL, album.FieldBigImageURL, album.FieldDownloadURL, album.FieldThumbParam, album.FieldBigParam, album.FieldTags, album.FieldFormat, album.FieldAspectRatio, album.FieldFileHash, album.FieldTitle, album.FieldDescription, album.FieldLocation:
 			values[i] = new(sql.NullString)
-		case album.FieldDeletedAt, album.FieldCreatedAt, album.FieldUpdatedAt:
+		case album.FieldDeletedAt, album.FieldCreatedAt, album.FieldUpdatedAt, album.FieldPublishedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -253,6 +255,13 @@ func (_m *Album) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Location = value.String
 			}
+		case album.FieldPublishedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field published_at", values[i])
+			} else if value.Valid {
+				_m.PublishedAt = new(time.Time)
+				*_m.PublishedAt = value.Time
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -361,6 +370,11 @@ func (_m *Album) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("location=")
 	builder.WriteString(_m.Location)
+	builder.WriteString(", ")
+	if v := _m.PublishedAt; v != nil {
+		builder.WriteString("published_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

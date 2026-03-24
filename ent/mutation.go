@@ -117,6 +117,7 @@ type AlbumMutation struct {
 	title             *string
 	description       *string
 	location          *string
+	published_at      *time.Time
 	clearedFields     map[string]struct{}
 	category          *uint
 	clearedcategory   bool
@@ -1339,6 +1340,55 @@ func (m *AlbumMutation) ResetLocation() {
 	delete(m.clearedFields, album.FieldLocation)
 }
 
+// SetPublishedAt sets the "published_at" field.
+func (m *AlbumMutation) SetPublishedAt(t time.Time) {
+	m.published_at = &t
+}
+
+// PublishedAt returns the value of the "published_at" field in the mutation.
+func (m *AlbumMutation) PublishedAt() (r time.Time, exists bool) {
+	v := m.published_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPublishedAt returns the old "published_at" field's value of the Album entity.
+// If the Album object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AlbumMutation) OldPublishedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPublishedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPublishedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPublishedAt: %w", err)
+	}
+	return oldValue.PublishedAt, nil
+}
+
+// ClearPublishedAt clears the value of the "published_at" field.
+func (m *AlbumMutation) ClearPublishedAt() {
+	m.published_at = nil
+	m.clearedFields[album.FieldPublishedAt] = struct{}{}
+}
+
+// PublishedAtCleared returns if the "published_at" field was cleared in this mutation.
+func (m *AlbumMutation) PublishedAtCleared() bool {
+	_, ok := m.clearedFields[album.FieldPublishedAt]
+	return ok
+}
+
+// ResetPublishedAt resets all changes to the "published_at" field.
+func (m *AlbumMutation) ResetPublishedAt() {
+	m.published_at = nil
+	delete(m.clearedFields, album.FieldPublishedAt)
+}
+
 // ClearCategory clears the "category" edge to the AlbumCategory entity.
 func (m *AlbumMutation) ClearCategory() {
 	m.clearedcategory = true
@@ -1400,7 +1450,7 @@ func (m *AlbumMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AlbumMutation) Fields() []string {
-	fields := make([]string, 0, 22)
+	fields := make([]string, 0, 23)
 	if m.deleted_at != nil {
 		fields = append(fields, album.FieldDeletedAt)
 	}
@@ -1467,6 +1517,9 @@ func (m *AlbumMutation) Fields() []string {
 	if m.location != nil {
 		fields = append(fields, album.FieldLocation)
 	}
+	if m.published_at != nil {
+		fields = append(fields, album.FieldPublishedAt)
+	}
 	return fields
 }
 
@@ -1519,6 +1572,8 @@ func (m *AlbumMutation) Field(name string) (ent.Value, bool) {
 		return m.Description()
 	case album.FieldLocation:
 		return m.Location()
+	case album.FieldPublishedAt:
+		return m.PublishedAt()
 	}
 	return nil, false
 }
@@ -1572,6 +1627,8 @@ func (m *AlbumMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldDescription(ctx)
 	case album.FieldLocation:
 		return m.OldLocation(ctx)
+	case album.FieldPublishedAt:
+		return m.OldPublishedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown Album field %s", name)
 }
@@ -1735,6 +1792,13 @@ func (m *AlbumMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetLocation(v)
 		return nil
+	case album.FieldPublishedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPublishedAt(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Album field %s", name)
 }
@@ -1885,6 +1949,9 @@ func (m *AlbumMutation) ClearedFields() []string {
 	if m.FieldCleared(album.FieldLocation) {
 		fields = append(fields, album.FieldLocation)
 	}
+	if m.FieldCleared(album.FieldPublishedAt) {
+		fields = append(fields, album.FieldPublishedAt)
+	}
 	return fields
 }
 
@@ -1943,6 +2010,9 @@ func (m *AlbumMutation) ClearField(name string) error {
 		return nil
 	case album.FieldLocation:
 		m.ClearLocation()
+		return nil
+	case album.FieldPublishedAt:
+		m.ClearPublishedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Album nullable field %s", name)
@@ -2017,6 +2087,9 @@ func (m *AlbumMutation) ResetField(name string) error {
 		return nil
 	case album.FieldLocation:
 		m.ResetLocation()
+		return nil
+	case album.FieldPublishedAt:
+		m.ResetPublishedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Album field %s", name)

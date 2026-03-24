@@ -59,6 +59,8 @@ const (
 	FieldDescription = "description"
 	// FieldLocation holds the string denoting the location field in the database.
 	FieldLocation = "location"
+	// FieldPublishedAt holds the string denoting the published_at field in the database.
+	FieldPublishedAt = "published_at"
 	// EdgeCategory holds the string denoting the category edge name in mutations.
 	EdgeCategory = "category"
 	// Table holds the table name of the album in the database.
@@ -97,6 +99,7 @@ var Columns = []string{
 	FieldTitle,
 	FieldDescription,
 	FieldLocation,
+	FieldPublishedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -270,6 +273,11 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 // ByLocation orders the results by the location field.
 func ByLocation(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLocation, opts...).ToFunc()
+}
+
+// ByPublishedAt orders the results by the published_at field.
+func ByPublishedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPublishedAt, opts...).ToFunc()
 }
 
 // ByCategoryField orders the results by category field.

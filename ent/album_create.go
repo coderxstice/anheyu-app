@@ -315,6 +315,20 @@ func (_c *AlbumCreate) SetNillableLocation(v *string) *AlbumCreate {
 	return _c
 }
 
+// SetPublishedAt sets the "published_at" field.
+func (_c *AlbumCreate) SetPublishedAt(v time.Time) *AlbumCreate {
+	_c.mutation.SetPublishedAt(v)
+	return _c
+}
+
+// SetNillablePublishedAt sets the "published_at" field if the given value is not nil.
+func (_c *AlbumCreate) SetNillablePublishedAt(v *time.Time) *AlbumCreate {
+	if v != nil {
+		_c.SetPublishedAt(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *AlbumCreate) SetID(v uint) *AlbumCreate {
 	_c.mutation.SetID(v)
@@ -591,6 +605,10 @@ func (_c *AlbumCreate) createSpec() (*Album, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Location(); ok {
 		_spec.SetField(album.FieldLocation, field.TypeString, value)
 		_node.Location = value
+	}
+	if value, ok := _c.mutation.PublishedAt(); ok {
+		_spec.SetField(album.FieldPublishedAt, field.TypeTime, value)
+		_node.PublishedAt = &value
 	}
 	if nodes := _c.mutation.CategoryIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -1036,6 +1054,24 @@ func (u *AlbumUpsert) UpdateLocation() *AlbumUpsert {
 // ClearLocation clears the value of the "location" field.
 func (u *AlbumUpsert) ClearLocation() *AlbumUpsert {
 	u.SetNull(album.FieldLocation)
+	return u
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (u *AlbumUpsert) SetPublishedAt(v time.Time) *AlbumUpsert {
+	u.Set(album.FieldPublishedAt, v)
+	return u
+}
+
+// UpdatePublishedAt sets the "published_at" field to the value that was provided on create.
+func (u *AlbumUpsert) UpdatePublishedAt() *AlbumUpsert {
+	u.SetExcluded(album.FieldPublishedAt)
+	return u
+}
+
+// ClearPublishedAt clears the value of the "published_at" field.
+func (u *AlbumUpsert) ClearPublishedAt() *AlbumUpsert {
+	u.SetNull(album.FieldPublishedAt)
 	return u
 }
 
@@ -1528,6 +1564,27 @@ func (u *AlbumUpsertOne) UpdateLocation() *AlbumUpsertOne {
 func (u *AlbumUpsertOne) ClearLocation() *AlbumUpsertOne {
 	return u.Update(func(s *AlbumUpsert) {
 		s.ClearLocation()
+	})
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (u *AlbumUpsertOne) SetPublishedAt(v time.Time) *AlbumUpsertOne {
+	return u.Update(func(s *AlbumUpsert) {
+		s.SetPublishedAt(v)
+	})
+}
+
+// UpdatePublishedAt sets the "published_at" field to the value that was provided on create.
+func (u *AlbumUpsertOne) UpdatePublishedAt() *AlbumUpsertOne {
+	return u.Update(func(s *AlbumUpsert) {
+		s.UpdatePublishedAt()
+	})
+}
+
+// ClearPublishedAt clears the value of the "published_at" field.
+func (u *AlbumUpsertOne) ClearPublishedAt() *AlbumUpsertOne {
+	return u.Update(func(s *AlbumUpsert) {
+		s.ClearPublishedAt()
 	})
 }
 
@@ -2186,6 +2243,27 @@ func (u *AlbumUpsertBulk) UpdateLocation() *AlbumUpsertBulk {
 func (u *AlbumUpsertBulk) ClearLocation() *AlbumUpsertBulk {
 	return u.Update(func(s *AlbumUpsert) {
 		s.ClearLocation()
+	})
+}
+
+// SetPublishedAt sets the "published_at" field.
+func (u *AlbumUpsertBulk) SetPublishedAt(v time.Time) *AlbumUpsertBulk {
+	return u.Update(func(s *AlbumUpsert) {
+		s.SetPublishedAt(v)
+	})
+}
+
+// UpdatePublishedAt sets the "published_at" field to the value that was provided on create.
+func (u *AlbumUpsertBulk) UpdatePublishedAt() *AlbumUpsertBulk {
+	return u.Update(func(s *AlbumUpsert) {
+		s.UpdatePublishedAt()
+	})
+}
+
+// ClearPublishedAt clears the value of the "published_at" field.
+func (u *AlbumUpsertBulk) ClearPublishedAt() *AlbumUpsertBulk {
+	return u.Update(func(s *AlbumUpsert) {
+		s.ClearPublishedAt()
 	})
 }
 
