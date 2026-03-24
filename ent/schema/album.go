@@ -2,7 +2,7 @@
  * @Description:
  * @Author: 安知鱼
  * @Date: 2025-07-12 18:40:05
- * @LastEditTime: 2026-01-14 13:26:11
+ * @LastEditTime: 2026-03-24 11:49:47
  * @LastEditors: 安知鱼
  */
 package schema
@@ -118,6 +118,10 @@ func (Album) Fields() []ent.Field {
 			MaxLen(200).
 			Optional().
 			Comment("拍摄地点"),
+		field.Time("published_at").
+			Optional().
+			Nillable().
+			Comment("发布时间，不设置则使用创建时间"),
 	}
 }
 

@@ -45,6 +45,7 @@ type CreateAlbumParams struct {
 	Description  string
 	Location     string
 	CreatedAt    *time.Time
+	PublishedAt  *time.Time
 }
 
 // UpdateAlbumParams 定义了更新相册时需要的参数
@@ -60,6 +61,7 @@ type UpdateAlbumParams struct {
 	Title        string
 	Description  string
 	Location     string
+	PublishedAt  *time.Time
 }
 
 // FindAlbumsParams 定义了查询相册时需要的参数
@@ -108,25 +110,26 @@ type ExportAlbumData struct {
 
 // ExportAlbumItem 单个相册的导出数据
 type ExportAlbumItem struct {
-	CategoryID   *uint     `json:"category_id"`
-	ImageUrl     string    `json:"image_url"`
-	BigImageUrl  string    `json:"big_image_url"`
-	DownloadUrl  string    `json:"download_url"`
-	ThumbParam   string    `json:"thumb_param"`
-	BigParam     string    `json:"big_param"`
-	Tags         string    `json:"tags"`
-	Width        int       `json:"width"`
-	Height       int       `json:"height"`
-	FileSize     int64     `json:"file_size"`
-	Format       string    `json:"format"`
-	AspectRatio  string    `json:"aspect_ratio"`
-	FileHash     string    `json:"file_hash"`
-	DisplayOrder int       `json:"display_order"`
-	Title        string    `json:"title"`
-	Description  string    `json:"description"`
-	Location     string    `json:"location"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	CategoryID   *uint      `json:"category_id"`
+	ImageUrl     string     `json:"image_url"`
+	BigImageUrl  string     `json:"big_image_url"`
+	DownloadUrl  string     `json:"download_url"`
+	ThumbParam   string     `json:"thumb_param"`
+	BigParam     string     `json:"big_param"`
+	Tags         string     `json:"tags"`
+	Width        int        `json:"width"`
+	Height       int        `json:"height"`
+	FileSize     int64      `json:"file_size"`
+	Format       string     `json:"format"`
+	AspectRatio  string     `json:"aspect_ratio"`
+	FileHash     string     `json:"file_hash"`
+	DisplayOrder int        `json:"display_order"`
+	Title        string     `json:"title"`
+	Description  string     `json:"description"`
+	Location     string     `json:"location"`
+	CreatedAt    time.Time  `json:"created_at"`
+	UpdatedAt    time.Time  `json:"updated_at"`
+	PublishedAt  *time.Time `json:"published_at"`
 }
 
 // ImportAlbumRequest 导入相册的请求
@@ -206,6 +209,7 @@ func (s *albumService) CreateAlbum(ctx context.Context, params CreateAlbumParams
 		Title:        params.Title,
 		Description:  params.Description,
 		Location:     params.Location,
+		PublishedAt:  params.PublishedAt,
 	}
 
 	// 如果提供了自定义的创建时间，则使用它
@@ -282,6 +286,7 @@ func (s *albumService) UpdateAlbum(ctx context.Context, id uint, params UpdateAl
 	album.Title = params.Title
 	album.Description = params.Description
 	album.Location = params.Location
+	album.PublishedAt = params.PublishedAt
 
 	if params.DisplayOrder != nil {
 		album.DisplayOrder = *params.DisplayOrder
@@ -587,6 +592,7 @@ func (s *albumService) ExportAlbums(ctx context.Context, albumIDs []uint) (*Expo
 			Location:     album.Location,
 			CreatedAt:    album.CreatedAt,
 			UpdatedAt:    album.UpdatedAt,
+			PublishedAt:  album.PublishedAt,
 		}
 
 		exportData.Albums = append(exportData.Albums, exportItem)
@@ -755,6 +761,7 @@ func (s *albumService) ImportAlbums(ctx context.Context, req *ImportAlbumRequest
 			DisplayOrder: albumData.DisplayOrder,
 			Title:        albumData.Title,
 			Description:  albumData.Description,
+			PublishedAt:  albumData.PublishedAt,
 		})
 
 		if err != nil {

@@ -448,6 +448,26 @@ func (_u *AlbumUpdate) ClearLocation() *AlbumUpdate {
 	return _u
 }
 
+// SetPublishedAt sets the "published_at" field.
+func (_u *AlbumUpdate) SetPublishedAt(v time.Time) *AlbumUpdate {
+	_u.mutation.SetPublishedAt(v)
+	return _u
+}
+
+// SetNillablePublishedAt sets the "published_at" field if the given value is not nil.
+func (_u *AlbumUpdate) SetNillablePublishedAt(v *time.Time) *AlbumUpdate {
+	if v != nil {
+		_u.SetPublishedAt(*v)
+	}
+	return _u
+}
+
+// ClearPublishedAt clears the value of the "published_at" field.
+func (_u *AlbumUpdate) ClearPublishedAt() *AlbumUpdate {
+	_u.mutation.ClearPublishedAt()
+	return _u
+}
+
 // SetCategory sets the "category" edge to the AlbumCategory entity.
 func (_u *AlbumUpdate) SetCategory(v *AlbumCategory) *AlbumUpdate {
 	return _u.SetCategoryID(v.ID)
@@ -708,6 +728,12 @@ func (_u *AlbumUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.LocationCleared() {
 		_spec.ClearField(album.FieldLocation, field.TypeString)
+	}
+	if value, ok := _u.mutation.PublishedAt(); ok {
+		_spec.SetField(album.FieldPublishedAt, field.TypeTime, value)
+	}
+	if _u.mutation.PublishedAtCleared() {
+		_spec.ClearField(album.FieldPublishedAt, field.TypeTime)
 	}
 	if _u.mutation.CategoryCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1178,6 +1204,26 @@ func (_u *AlbumUpdateOne) ClearLocation() *AlbumUpdateOne {
 	return _u
 }
 
+// SetPublishedAt sets the "published_at" field.
+func (_u *AlbumUpdateOne) SetPublishedAt(v time.Time) *AlbumUpdateOne {
+	_u.mutation.SetPublishedAt(v)
+	return _u
+}
+
+// SetNillablePublishedAt sets the "published_at" field if the given value is not nil.
+func (_u *AlbumUpdateOne) SetNillablePublishedAt(v *time.Time) *AlbumUpdateOne {
+	if v != nil {
+		_u.SetPublishedAt(*v)
+	}
+	return _u
+}
+
+// ClearPublishedAt clears the value of the "published_at" field.
+func (_u *AlbumUpdateOne) ClearPublishedAt() *AlbumUpdateOne {
+	_u.mutation.ClearPublishedAt()
+	return _u
+}
+
 // SetCategory sets the "category" edge to the AlbumCategory entity.
 func (_u *AlbumUpdateOne) SetCategory(v *AlbumCategory) *AlbumUpdateOne {
 	return _u.SetCategoryID(v.ID)
@@ -1468,6 +1514,12 @@ func (_u *AlbumUpdateOne) sqlSave(ctx context.Context) (_node *Album, err error)
 	}
 	if _u.mutation.LocationCleared() {
 		_spec.ClearField(album.FieldLocation, field.TypeString)
+	}
+	if value, ok := _u.mutation.PublishedAt(); ok {
+		_spec.SetField(album.FieldPublishedAt, field.TypeTime, value)
+	}
+	if _u.mutation.PublishedAtCleared() {
+		_spec.ClearField(album.FieldPublishedAt, field.TypeTime)
 	}
 	if _u.mutation.CategoryCleared() {
 		edge := &sqlgraph.EdgeSpec{
