@@ -485,6 +485,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyAlbumPageApiURL, Value: "", Comment: "相册API地址", IsPublic: true},
 	{Key: constant.KeyAlbumPageDefaultThumbParam, Value: "", Comment: "相册缩略图处理参数", IsPublic: true},
 	{Key: constant.KeyAlbumPageDefaultBigParam, Value: "", Comment: "相册大图处理参数", IsPublic: true},
+	{Key: constant.KeyAlbumPageAboutLink, Value: "", Comment: "相册页面关于按钮链接，留空则使用全局关于链接", IsPublic: true},
 
 	// --- 人机验证配置 ---
 	{Key: constant.KeyCaptchaProvider, Value: "none", Comment: "人机验证方式: none(不启用) / turnstile(Cloudflare Turnstile) / geetest(极验4.0) / image(系统图形验证码)", IsPublic: true},
