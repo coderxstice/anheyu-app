@@ -762,9 +762,12 @@ func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.Up
 		}
 	}
 	if computed != nil {
-		if computed.WordCount > 0 || (req.ContentMd != nil && *req.ContentMd == "") {
+		// 字数与 HTML 解耦：纯公式等内容可能导致字数为 0，但仍必须持久化 content_html（例如历史版本恢复）
+		if req.ContentMd != nil {
 			updater.SetWordCount(computed.WordCount)
 			updater.SetReadingTime(computed.ReadingTime)
+		}
+		if req.ContentHTML != nil {
 			updater.SetContentHTML(computed.ContentHTML)
 		}
 		if computed.PrimaryColor != nil {
