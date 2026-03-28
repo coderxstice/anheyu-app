@@ -92,7 +92,7 @@ func NewService(settingSvc setting.SettingService, bus *event.EventBus) *Service
 	policy.AllowAttrs("color").OnElements("font")
 	policy.AllowAttrs("align").OnElements("div")
 	policy.AllowAttrs("xmlns").OnElements("annotation", "div")
-	policy.AllowAttrs("encoding").OnElements("input")
+	policy.AllowAttrs("encoding").OnElements("input", "annotation")
 	policy.AllowAttrs("type").OnElements("input")
 	policy.AllowAttrs("checked").OnElements("input")
 	policy.AllowAttrs("size").OnElements("font")
@@ -144,6 +144,10 @@ func NewService(settingSvc setting.SettingService, bus *event.EventBus) *Service
 	policy.AllowAttrs("cx", "cy", "rx", "ry", "stroke", "fill", "stroke-width").OnElements("ellipse")
 	policy.AllowAttrs("points", "stroke", "fill", "stroke-width").OnElements("polygon")
 	policy.AllowAttrs("data-processed").OnElements("span")
+
+	// TipTap 数学公式（KaTeX）：保留 LaTeX 源与节点类型，供编辑器解析与 Turndown 还原
+	policy.AllowAttrs("data-latex").OnElements("div", "span")
+	policy.AllowAttrs("data-type").Matching(regexp.MustCompile(`^(math-block|math-inline)$`)).OnElements("div", "span")
 
 	// 视频画廊相关属性
 	policy.AllowAttrs("src", "poster", "controls", "preload", "playsinline", "type").OnElements("video")
