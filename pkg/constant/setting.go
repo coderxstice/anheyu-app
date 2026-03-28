@@ -379,6 +379,7 @@ const (
 	KeyAlbumPageApiURL               SettingKey = "album.api_url"
 	KeyAlbumPageDefaultThumbParam    SettingKey = "album.default_thumb_param"
 	KeyAlbumPageDefaultBigParam      SettingKey = "album.default_big_param"
+	KeyAlbumPageAboutLink            SettingKey = "album.about_link"
 
 	// --- 人机验证配置 ---
 	KeyCaptchaProvider SettingKey = "captcha.provider" // 人机验证方式：turnstile / geetest / image / none
