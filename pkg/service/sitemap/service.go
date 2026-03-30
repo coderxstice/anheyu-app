@@ -234,7 +234,6 @@ Allow: /
 
 # 禁止访问管理后台
 Disallow: /admin/
-Disallow: /api/
 
 # 禁止访问静态文件目录（如果不希望索引）
 # Disallow: /static/
