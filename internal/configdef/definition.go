@@ -46,7 +46,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeySiteKeywords, Value: "安和鱼,博客,blog,搭建博客,服务器,搭建网站,建站,相册,图片管理", Comment: "站点关键词", IsPublic: true},
 	{Key: constant.KeySiteDescription, Value: "新一代博客，就这么搭，Vue渲染颜值，Go守护性能，SSR打破加载瓶颈。", Comment: "站点描述", IsPublic: true},
 	{Key: constant.KeyThemeColor, Value: "#163bf2", Comment: "应用主题颜色", IsPublic: true},
-	{Key: constant.KeySiteAnnouncement, Value: "", Comment: "站点公告，用于在特定页面展示", IsPublic: true},
+	{Key: constant.KeySiteAnnouncement, Value: "", Comment: "站点公告（HTML 片段），展示在导航栏下方；留空不显示", IsPublic: true},
 	{Key: constant.KeyCustomHeaderHTML, Value: "", Comment: "自定义头部HTML代码，将插入到 <head> 标签内", IsPublic: true},
 	{Key: constant.KeyCustomFooterHTML, Value: "", Comment: "自定义底部HTML代码，将插入到 </body> 标签前", IsPublic: true},
 	{Key: constant.KeyCustomCSS, Value: "", Comment: "自定义CSS样式，无需填写 <style> 标签", IsPublic: true},
