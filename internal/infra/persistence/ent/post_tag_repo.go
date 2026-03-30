@@ -85,9 +85,17 @@ func (r *postTagRepo) Update(ctx context.Context, publicID string, req *model.Up
 
 // List 列出所有标签，支持排序
 func (r *postTagRepo) List(ctx context.Context, options *model.ListPostTagsOptions) ([]*model.PostTag, error) {
-	query := r.db.PostTag.Query().Where(posttag.DeletedAtIsNil())
+	var opts model.ListPostTagsOptions
+	if options != nil {
+		opts = *options
+	}
 
-	switch options.SortBy {
+	query := r.db.PostTag.Query().Where(posttag.DeletedAtIsNil())
+	if opts.ExcludeZeroCount {
+		query = query.Where(posttag.CountGT(0))
+	}
+
+	switch opts.SortBy {
 	case model.SortByName:
 		switch r.dbType {
 		case "postgres":

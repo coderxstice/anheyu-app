@@ -52,4 +52,6 @@ const (
 
 type ListPostTagsOptions struct {
 	SortBy string
+	// ExcludeZeroCount 为 true 时不返回引用数为 0 的标签（用于前台标签云；后台列表需包含空标签以便管理）
+	ExcludeZeroCount bool
 }

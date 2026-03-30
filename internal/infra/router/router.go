@@ -263,8 +263,8 @@ func (r *Router) registerCommentRoutes(api *gin.RouterGroup) {
 }
 
 func (r *Router) registerPostTagRoutes(api *gin.RouterGroup) {
-	// 列表查询通常是公开的，或只需登录
-	postTagsPublic := api.Group("/post-tags")
+	// 列表公开访问；携带管理员 Token 时返回全部标签（含引用数为 0），供后台管理
+	postTagsPublic := api.Group("/post-tags").Use(r.mw.JWTAuthOptional())
 	{
 		postTagsPublic.GET("", r.postTagHandler.List)
 		// postTagsPublic.GET("/:id", r.postTagHandler.Get)
