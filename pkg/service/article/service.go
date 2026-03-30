@@ -1029,12 +1029,16 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 			showOnHome = *req.ShowOnHome
 		}
 
-		// 过滤空的摘要字符串
+		// 过滤空的摘要字符串；社区版仅保留最多 1 条摘要
 		filteredSummaries := make([]string, 0, len(req.Summaries))
 		for _, summary := range req.Summaries {
 			if strings.TrimSpace(summary) != "" {
-				filteredSummaries = append(filteredSummaries, summary)
+				filteredSummaries = append(filteredSummaries, strings.TrimSpace(summary))
 			}
+		}
+		if len(filteredSummaries) > 1 {
+			log.Printf("[Article] Create: summaries truncated to 1 for community edition (non-empty count was %d)", len(filteredSummaries))
+			filteredSummaries = filteredSummaries[:1]
 		}
 
 		// 解析自定义发布时间
@@ -1364,13 +1368,17 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 			}
 		}
 
-		// 如果更新了Summaries，过滤空的摘要字符串
+		// 如果更新了Summaries，过滤空的摘要字符串；社区版仅保留最多 1 条
 		if req.Summaries != nil {
 			filteredSummaries := make([]string, 0, len(req.Summaries))
 			for _, summary := range req.Summaries {
 				if strings.TrimSpace(summary) != "" {
-					filteredSummaries = append(filteredSummaries, summary)
+					filteredSummaries = append(filteredSummaries, strings.TrimSpace(summary))
 				}
+			}
+			if len(filteredSummaries) > 1 {
+				log.Printf("[Article] Update: summaries truncated to 1 for community edition (non-empty count was %d)", len(filteredSummaries))
+				filteredSummaries = filteredSummaries[:1]
 			}
 			req.Summaries = filteredSummaries
 		}
