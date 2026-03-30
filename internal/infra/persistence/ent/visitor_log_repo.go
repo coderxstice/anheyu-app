@@ -9,6 +9,8 @@ package ent
 
 import (
 	"context"
+	"net/url"
+	"sort"
 	"strings"
 	"time"
 
@@ -28,6 +30,28 @@ func NewVisitorLogRepository(client *ent.Client) repository.VisitorLogRepository
 	return &entVisitorLogRepository{
 		client: client,
 	}
+}
+
+// normalizeRefererAnalyticsKey 将同一站点不同路径的 Referer 合并为同一统计维度（小写 hostname），
+// 与后台「访问来源」图表按域名展示一致，避免多条记录显示相同标签。
+func normalizeRefererAnalyticsKey(raw string) string {
+	s := strings.TrimSpace(raw)
+	if s == "" {
+		return ""
+	}
+	u, err := url.Parse(s)
+	if err != nil {
+		return s
+	}
+	scheme := strings.ToLower(u.Scheme)
+	// 含主机的绝对 URL（含 //host 形式 scheme 为空）
+	if u.Host != "" && (scheme == "http" || scheme == "https" || scheme == "") {
+		host := strings.ToLower(u.Hostname())
+		if host != "" {
+			return host
+		}
+	}
+	return s
 }
 
 func (r *entVisitorLogRepository) Create(ctx context.Context, log *ent.VisitorLog) error {
@@ -179,8 +203,9 @@ func (r *entVisitorLogRepository) GetVisitorAnalytics(ctx context.Context, start
 		if log.Referer != nil {
 			ref = strings.TrimSpace(*log.Referer)
 		}
-		// 空 Referer 记为「直接访问」，否则饼图总访问为 0
-		refererMap[ref]++
+		// 空 Referer 记为「直接访问」；http(s) 按 hostname 合并，与前台展示一致
+		key := normalizeRefererAnalyticsKey(ref)
+		refererMap[key]++
 	}
 
 	// 转换为排序后的切片（这里简化处理，实际应该排序）
@@ -219,10 +244,24 @@ func (r *entVisitorLogRepository) GetVisitorAnalytics(ctx context.Context, start
 		})
 	}
 
+	type refAgg struct {
+		key   string
+		count int64
+	}
+	refList := make([]refAgg, 0, len(refererMap))
 	for referer, count := range refererMap {
+		refList = append(refList, refAgg{key: referer, count: count})
+	}
+	sort.Slice(refList, func(i, j int) bool {
+		if refList[i].count != refList[j].count {
+			return refList[i].count > refList[j].count
+		}
+		return refList[i].key < refList[j].key
+	})
+	for _, e := range refList {
 		analytics.TopReferers = append(analytics.TopReferers, model.RefererStats{
-			Referer: referer,
-			Count:   count,
+			Referer: e.key,
+			Count:   e.count,
 		})
 	}
 
