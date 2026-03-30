@@ -588,27 +588,39 @@ func (s *visitorStatService) GetTopPages(ctx context.Context, limit int) ([]*mod
 }
 
 func (s *visitorStatService) GetVisitorTrend(ctx context.Context, period string, days int) (*model.VisitorTrendData, error) {
-	endDate := utils.NowInChina()
-	startDate := endDate.AddDate(0, 0, -days)
-
-	stats, err := s.visitorStatRepo.GetByDateRange(ctx, startDate, endDate)
-	if err != nil {
-		return nil, err
+	if days <= 0 {
+		days = 30
 	}
+	if s.visitorLogRepo == nil {
+		return nil, fmt.Errorf("visitor log repository is not configured")
+	}
+
+	// 按中国时区自然日、从 visitor_log 汇总，避免仅依赖 visitor_stats 日表（未跑定时聚合时趋势全为 0）
+	now := utils.NowInChina()
+	endDay := utils.StartOfDayInChina(now)
+	startDay := utils.StartOfDayInChina(now.AddDate(0, 0, -days))
 
 	trendData := &model.VisitorTrendData{
-		Daily: make([]model.DateRangeStats, 0),
+		Daily: make([]model.DateRangeStats, 0, days+1),
 	}
 
-	// 转换为趋势数据格式
-	for _, stat := range stats {
+	for d := startDay; !d.After(endDay); d = d.AddDate(0, 0, 1) {
+		views, err := s.visitorLogRepo.CountTotalViews(ctx, d)
+		if err != nil {
+			return nil, err
+		}
+		visitors, err := s.visitorLogRepo.CountUniqueVisitors(ctx, d)
+		if err != nil {
+			return nil, err
+		}
 		trendData.Daily = append(trendData.Daily, model.DateRangeStats{
-			Date:     stat.Date,
-			Visitors: stat.UniqueVisitors,
-			Views:    stat.TotalViews,
+			Date:     d,
+			Visitors: visitors,
+			Views:    views,
 		})
 	}
 
+	_ = period // 预留 weekly/monthly，当前与历史实现一致仅返回 daily 序列
 	return trendData, nil
 }
 

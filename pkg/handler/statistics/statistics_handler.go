@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/utils"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/statistics"
@@ -95,25 +96,29 @@ func (h *StatisticsHandler) GetVisitorAnalytics(c *gin.Context) {
 	startDateStr := c.Query("start_date")
 	endDateStr := c.Query("end_date")
 
-	// 默认查询最近7天
-	endDate := time.Now()
-	startDate := endDate.AddDate(0, 0, -7)
+	// 默认查询最近 7 个自然日（含今天），按中国时区闭区间
+	nowCN := utils.NowInChina()
+	endDate := utils.EndOfDayInChina(nowCN)
+	startDate := utils.StartOfDayInChina(nowCN.AddDate(0, 0, -6))
 
 	var err error
 	if startDateStr != "" {
-		startDate, err = time.Parse("2006-01-02", startDateStr)
+		startDate, err = utils.ParseInChina("2006-01-02", startDateStr)
 		if err != nil {
 			response.Fail(c, http.StatusBadRequest, "开始日期格式错误")
 			return
 		}
+		startDate = utils.StartOfDayInChina(startDate)
 	}
 
 	if endDateStr != "" {
-		endDate, err = time.Parse("2006-01-02", endDateStr)
+		var endDay time.Time
+		endDay, err = utils.ParseInChina("2006-01-02", endDateStr)
 		if err != nil {
 			response.Fail(c, http.StatusBadRequest, "结束日期格式错误")
 			return
 		}
+		endDate = utils.EndOfDayInChina(endDay)
 	}
 
 	analytics, err := h.statService.GetVisitorAnalytics(c.Request.Context(), startDate, endDate)
@@ -214,9 +219,10 @@ func (h *StatisticsHandler) GetStatisticsSummary(c *gin.Context) {
 		return
 	}
 
-	// 获取最近7天的访客分析
-	endDate := time.Now()
-	startDate := endDate.AddDate(0, 0, -7)
+	// 最近 7 个自然日（含今天），中国时区，与概览「访问来源」一致
+	nowCN := utils.NowInChina()
+	endDate := utils.EndOfDayInChina(nowCN)
+	startDate := utils.StartOfDayInChina(nowCN.AddDate(0, 0, -6))
 	analytics, err := h.statService.GetVisitorAnalytics(ctx, startDate, endDate)
 	if err != nil {
 		response.Fail(c, http.StatusInternalServerError, "获取访客分析数据失败")
