@@ -16,6 +16,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"path"
 	"strings"
 	"sync"
@@ -270,10 +271,9 @@ func (p *OneDriveProvider) Upload(ctx context.Context, file io.Reader, policy *m
 	fileSize := int64(len(data))
 	fileReader := bytes.NewReader(data)
 	if fileSize < resumableUploadThreshold {
-		return p.simpleUpload(ctx, fileReader, policy, virtualPath)
-	} else {
-		return p.resumableUpload(ctx, fileReader, fileSize, policy, virtualPath)
+		return p.simpleUpload(ctx, fileReader, policy, virtualPath, fileSize)
 	}
+	return p.resumableUpload(ctx, fileReader, fileSize, policy, virtualPath)
 }
 
 // CreateDirectory 在存储中创建一个目录。
@@ -455,15 +455,17 @@ func (p *OneDriveProvider) List(ctx context.Context, policy *model.StoragePolicy
 	// 1. 获取要列出内容的目录的 API 路径
 	apiPath := p.buildAPIPath(policy, virtualPath)
 
-	// 2. 构建获取其子项的 URL
-	//    正确的语法是：对目标项目执行 'children' 操作。
+	// 2. 构建获取其子项的 URL（显式 $select 确保返回 size，避免部分租户默认字段不全导致列表大小为 0）
 	//    - 对根目录: .../root/children
 	//    - 对子目录: .../root:/path/to/folder:/children
+	q := url.Values{}
+	q.Set("$select", "id,name,size,folder,file,lastModifiedDateTime")
+	sel := q.Encode()
 	var listURL string
 	if apiPath == "/root" {
-		listURL = fmt.Sprintf("%s/root/children", driveBaseURL)
+		listURL = fmt.Sprintf("%s/root/children?%s", driveBaseURL, sel)
 	} else {
-		listURL = fmt.Sprintf("%s%s:/children", driveBaseURL, apiPath)
+		listURL = fmt.Sprintf("%s%s:/children?%s", driveBaseURL, apiPath, sel)
 	}
 
 	resp, err := client.Get(listURL)
@@ -713,7 +715,9 @@ func (p *OneDriveProvider) getItemInfo(ctx context.Context, policy *model.Storag
 		return nil, err
 	}
 	apiPath := p.buildAPIPath(policy, virtualPath)
-	itemURL := fmt.Sprintf("%s%s", driveBaseURL, apiPath)
+	q := url.Values{}
+	q.Set("$select", "id,name,size,folder,file,lastModifiedDateTime")
+	itemURL := fmt.Sprintf("%s%s?%s", driveBaseURL, apiPath, q.Encode())
 
 	resp, err := client.Get(itemURL)
 	if err != nil {
@@ -842,7 +846,7 @@ func (p *OneDriveProvider) buildAPIPath(policy *model.StoragePolicy, virtualPath
 }
 
 // simpleUpload 处理小文件上传 (< 4MB)。
-func (p *OneDriveProvider) simpleUpload(ctx context.Context, file io.Reader, policy *model.StoragePolicy, virtualPath string) (*UploadResult, error) {
+func (p *OneDriveProvider) simpleUpload(ctx context.Context, file io.Reader, policy *model.StoragePolicy, virtualPath string, knownSize int64) (*UploadResult, error) {
 	client, err := p.getClient(ctx, policy)
 	if err != nil {
 		return nil, err
@@ -871,7 +875,7 @@ func (p *OneDriveProvider) simpleUpload(ctx context.Context, file io.Reader, pol
 		json.Unmarshal(body, &errResp)
 		return nil, fmt.Errorf("OneDrive上传失败, 状态码: %d, 错误: %s", resp.StatusCode, errResp.Error.Message)
 	}
-	return p.parseUploadResponse(body, policy, virtualPath)
+	return p.parseUploadResponse(body, policy, virtualPath, knownSize)
 }
 
 // resumableUpload 处理大文件上传 (>= 4MB)。
@@ -899,7 +903,7 @@ func (p *OneDriveProvider) resumableUpload(ctx context.Context, file io.Reader, 
 		json.Unmarshal(body, &errResp)
 		return nil, fmt.Errorf("OneDrive分片上传失败, 状态码: %d, 错误: %s", resp.StatusCode, errResp.Error.Message)
 	}
-	return p.parseUploadResponse(body, policy, virtualPath)
+	return p.parseUploadResponse(body, policy, virtualPath, fileSize)
 }
 
 // CreatePresignedUploadURL 为客户端直传创建一个临时的上传会话和URL。
@@ -947,11 +951,37 @@ func (p *OneDriveProvider) CreatePresignedUploadURL(ctx context.Context, policy 
 	}, nil
 }
 
+// extractSizeFromDriveItemJSON 从原始 JSON 中解析 size（兼容 number 为 float、或结构体反序列化遗漏）。
+func extractSizeFromDriveItemJSON(body []byte) int64 {
+	var raw map[string]any
+	if err := json.Unmarshal(body, &raw); err != nil {
+		return 0
+	}
+	s, ok := raw["size"]
+	if !ok || s == nil {
+		return 0
+	}
+	switch v := s.(type) {
+	case float64:
+		return int64(v)
+	case int64:
+		return v
+	default:
+		return 0
+	}
+}
+
 // parseUploadResponse 是一个辅助函数，用于解析上传成功后返回的 item 信息。
-func (p *OneDriveProvider) parseUploadResponse(body []byte, policy *model.StoragePolicy, originalVirtualPath string) (*UploadResult, error) {
+func (p *OneDriveProvider) parseUploadResponse(body []byte, policy *model.StoragePolicy, originalVirtualPath string, fallbackSize int64) (*UploadResult, error) {
 	var item graphDriveItem
 	if err := json.Unmarshal(body, &item); err != nil {
 		return nil, fmt.Errorf("解析上传响应失败: %w", err)
+	}
+	if item.Size == 0 {
+		item.Size = extractSizeFromDriveItemJSON(body)
+	}
+	if item.Size == 0 && fallbackSize > 0 {
+		item.Size = fallbackSize
 	}
 	var mimeType string
 	if item.File != nil {
