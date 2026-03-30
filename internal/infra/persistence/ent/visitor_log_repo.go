@@ -9,6 +9,7 @@ package ent
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/ent"
@@ -174,9 +175,12 @@ func (r *entVisitorLogRepository) GetVisitorAnalytics(ctx context.Context, start
 		if log.Device != nil && *log.Device != "" {
 			deviceMap[*log.Device]++
 		}
-		if log.Referer != nil && *log.Referer != "" {
-			refererMap[*log.Referer]++
+		ref := ""
+		if log.Referer != nil {
+			ref = strings.TrimSpace(*log.Referer)
 		}
+		// 空 Referer 记为「直接访问」，否则饼图总访问为 0
+		refererMap[ref]++
 	}
 
 	// 转换为排序后的切片（这里简化处理，实际应该排序）

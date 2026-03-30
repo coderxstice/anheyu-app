@@ -1433,17 +1433,15 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 		}
 		updatedArticle = articleAfterUpdate
 
-		var newTagIDs []uint
-		// 仅当请求中提供了标签时才解码，用于后续计数
+		// 未传 post_tag_ids 时表示不修改标签关联，须与仓储层行为一致，否则 diff 会把旧标签全部当作已移除并错误更新 count
+		tagIDsForDiff := oldTagIDs
 		if req.PostTagIDs != nil {
-			newTagIDs, err = idgen.DecodePublicIDBatch(req.PostTagIDs)
-			if err != nil {
-				return err
+			decodedTagIDs, decErr := idgen.DecodePublicIDBatch(req.PostTagIDs)
+			if decErr != nil {
+				return decErr
 			}
-
-			// 验证所有标签ID是否存在
-			log.Printf("[更新文章] 验证标签ID有效性: %v", newTagIDs)
-			for _, tagDBID := range newTagIDs {
+			log.Printf("[更新文章] 验证标签ID有效性: %v", decodedTagIDs)
+			for _, tagDBID := range decodedTagIDs {
 				tagPublicID, _ := idgen.GeneratePublicID(tagDBID, idgen.EntityTypePostTag)
 				_, err := repos.PostTag.GetByID(ctx, tagPublicID)
 				if err != nil {
@@ -1451,12 +1449,17 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 				}
 			}
 			log.Printf("[更新文章]所有标签ID验证通过")
+			tagIDsForDiff = decodedTagIDs
+		}
+
+		categoryIDsForDiff := oldCategoryIDs
+		if req.PostCategoryIDs != nil {
+			categoryIDsForDiff = newCategoryDBIDs
 		}
 
 		// 计算需要增加和减少计数的标签/分类
-		incTag, decTag := diffIDs(oldTagIDs, newTagIDs)
-		// 使用之前已解码的 newCategoryDBIDs，避免重复操作
-		incCat, decCat := diffIDs(oldCategoryIDs, newCategoryDBIDs)
+		incTag, decTag := diffIDs(oldTagIDs, tagIDsForDiff)
+		incCat, decCat := diffIDs(oldCategoryIDs, categoryIDsForDiff)
 
 		if err := repos.PostTag.UpdateCount(ctx, incTag, decTag); err != nil {
 			return fmt.Errorf("更新标签计数失败: %w", err)

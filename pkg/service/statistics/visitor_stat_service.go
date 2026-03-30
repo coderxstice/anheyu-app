@@ -454,6 +454,33 @@ func (s *visitorStatService) RecordVisit(ctx context.Context, c *gin.Context, re
 	return nil
 }
 
+// enrichTodayYesterdayFromVisitorLogs 用 visitor_log 按中国时区自然日统计今日、昨日。
+//
+// visitor_stats 依赖定时任务按日聚合；在尚未写入「今天/昨天」行时，仓储层 GetBasicStatistics 会得到 0，
+// 但本月/本年仍会对表内其它日期的行求和而出现非零，造成「今日昨日为 0、月年却有数据」的错觉。
+// 展示侧以原始访问日志为准，保证与真实访问一致。
+func (s *visitorStatService) enrichTodayYesterdayFromVisitorLogs(ctx context.Context, stats *model.VisitorStatistics) {
+	if s.visitorLogRepo == nil || stats == nil {
+		return
+	}
+	now := utils.NowInChina()
+	today := utils.StartOfDayInChina(now)
+	yesterday := today.AddDate(0, 0, -1)
+
+	if v, err := s.visitorLogRepo.CountTotalViews(ctx, today); err == nil {
+		stats.TodayViews = v
+	}
+	if v, err := s.visitorLogRepo.CountUniqueVisitors(ctx, today); err == nil {
+		stats.TodayVisitors = v
+	}
+	if v, err := s.visitorLogRepo.CountTotalViews(ctx, yesterday); err == nil {
+		stats.YesterdayViews = v
+	}
+	if v, err := s.visitorLogRepo.CountUniqueVisitors(ctx, yesterday); err == nil {
+		stats.YesterdayVisitors = v
+	}
+}
+
 func (s *visitorStatService) GetBasicStatistics(ctx context.Context) (*model.VisitorStatistics, error) {
 	// 尝试从缓存获取
 	if s.cacheService != nil {
@@ -461,6 +488,7 @@ func (s *visitorStatService) GetBasicStatistics(ctx context.Context) (*model.Vis
 		if err == nil && cachedData != "" {
 			var stats model.VisitorStatistics
 			if json.Unmarshal([]byte(cachedData), &stats) == nil {
+				s.enrichTodayYesterdayFromVisitorLogs(ctx, &stats)
 				return &stats, nil
 			}
 		}
@@ -496,6 +524,8 @@ func (s *visitorStatService) GetBasicStatistics(ctx context.Context) (*model.Vis
 				stats.YearViews = dbStats.YearViews
 			}
 
+			s.enrichTodayYesterdayFromVisitorLogs(ctx, stats)
+
 			// 写入缓存
 			if data, err := json.Marshal(stats); err == nil {
 				s.cacheService.Set(ctx, CacheKeyBasicStats, string(data), CacheExpireBasicStats)
@@ -510,6 +540,8 @@ func (s *visitorStatService) GetBasicStatistics(ctx context.Context) (*model.Vis
 	if err != nil {
 		return nil, err
 	}
+
+	s.enrichTodayYesterdayFromVisitorLogs(ctx, stats)
 
 	// 写入缓存
 	if s.cacheService != nil {
@@ -556,27 +588,39 @@ func (s *visitorStatService) GetTopPages(ctx context.Context, limit int) ([]*mod
 }
 
 func (s *visitorStatService) GetVisitorTrend(ctx context.Context, period string, days int) (*model.VisitorTrendData, error) {
-	endDate := utils.NowInChina()
-	startDate := endDate.AddDate(0, 0, -days)
-
-	stats, err := s.visitorStatRepo.GetByDateRange(ctx, startDate, endDate)
-	if err != nil {
-		return nil, err
+	if days <= 0 {
+		days = 30
 	}
+	if s.visitorLogRepo == nil {
+		return nil, fmt.Errorf("visitor log repository is not configured")
+	}
+
+	// 按中国时区自然日、从 visitor_log 汇总，避免仅依赖 visitor_stats 日表（未跑定时聚合时趋势全为 0）
+	now := utils.NowInChina()
+	endDay := utils.StartOfDayInChina(now)
+	startDay := utils.StartOfDayInChina(now.AddDate(0, 0, -days))
 
 	trendData := &model.VisitorTrendData{
-		Daily: make([]model.DateRangeStats, 0),
+		Daily: make([]model.DateRangeStats, 0, days+1),
 	}
 
-	// 转换为趋势数据格式
-	for _, stat := range stats {
+	for d := startDay; !d.After(endDay); d = d.AddDate(0, 0, 1) {
+		views, err := s.visitorLogRepo.CountTotalViews(ctx, d)
+		if err != nil {
+			return nil, err
+		}
+		visitors, err := s.visitorLogRepo.CountUniqueVisitors(ctx, d)
+		if err != nil {
+			return nil, err
+		}
 		trendData.Daily = append(trendData.Daily, model.DateRangeStats{
-			Date:     stat.Date,
-			Visitors: stat.UniqueVisitors,
-			Views:    stat.TotalViews,
+			Date:     d,
+			Visitors: visitors,
+			Views:    views,
 		})
 	}
 
+	_ = period // 预留 weekly/monthly，当前与历史实现一致仅返回 daily 序列
 	return trendData, nil
 }
 
@@ -953,6 +997,7 @@ func (s *visitorStatService) GetBasicStatisticsOptimized(ctx context.Context) (*
 		if err == nil && cachedData != "" {
 			var stats model.VisitorStatistics
 			if json.Unmarshal([]byte(cachedData), &stats) == nil {
+				s.enrichTodayYesterdayFromVisitorLogs(ctx, &stats)
 				return &stats, nil
 			}
 		}
@@ -987,6 +1032,8 @@ func (s *visitorStatService) GetBasicStatisticsOptimized(ctx context.Context) (*
 				}
 			}()
 
+			s.enrichTodayYesterdayFromVisitorLogs(ctx, stats)
+
 			// 写入缓存
 			if data, err := json.Marshal(stats); err == nil {
 				s.cacheService.Set(ctx, CacheKeyBasicStats, string(data), CacheExpireBasicStats)
@@ -1009,6 +1056,8 @@ func (s *visitorStatService) GetBasicStatisticsOptimized(ctx context.Context) (*
 	stats.YesterdayViews = dbStats.YesterdayViews
 	stats.MonthViews = dbStats.MonthViews
 	stats.YearViews = dbStats.YearViews
+
+	s.enrichTodayYesterdayFromVisitorLogs(ctx, stats)
 
 	// 5. 写入缓存
 	if s.cacheService != nil {

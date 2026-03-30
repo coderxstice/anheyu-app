@@ -3,13 +3,32 @@ package post_tag
 import (
 	"net/http"
 
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/auth"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
+	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
 
 	post_tag_service "github.com/anzhiyu-c/anheyu-app/pkg/service/post_tag"
 
 	"github.com/gin-gonic/gin"
 )
+
+// requesterIsAdmin 判断当前请求是否已携带有效管理员 Token（依赖 JWTAuthOptional 注入的 Claims）。
+func requesterIsAdmin(c *gin.Context) bool {
+	claimsValue, exists := c.Get(auth.ClaimsKey)
+	if !exists {
+		return false
+	}
+	claims, ok := claimsValue.(*auth.CustomClaims)
+	if !ok {
+		return false
+	}
+	userGroupID, entityType, err := idgen.DecodePublicID(claims.UserGroupID)
+	if err != nil || entityType != idgen.EntityTypeUserGroup {
+		return false
+	}
+	return userGroupID == 1
+}
 
 // Handler 封装了所有与文章标签相关的 HTTP 处理器。
 type Handler struct {
@@ -69,7 +88,8 @@ func (h *Handler) List(c *gin.Context) {
 	}
 
 	options := model.ListPostTagsOptions{
-		SortBy: sortBy,
+		SortBy:             sortBy,
+		ExcludeZeroCount:   !requesterIsAdmin(c),
 	}
 
 	tags, err := h.svc.List(c.Request.Context(), options)
