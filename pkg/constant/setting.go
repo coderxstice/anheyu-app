@@ -402,4 +402,10 @@ const (
 	// --- 系统图形验证码配置 ---
 	KeyImageCaptchaLength SettingKey = "image_captcha.length" // 图形验证码字符长度
 	KeyImageCaptchaExpire SettingKey = "image_captcha.expire" // 图形验证码过期时间（秒）
+
+	// --- 顶栏用户面板配置 ---
+	KeyUserPanelShowUserCenter     SettingKey = "userpanel.show_user_center"
+	KeyUserPanelShowNotifications  SettingKey = "userpanel.show_notifications"
+	KeyUserPanelShowPublishArticle SettingKey = "userpanel.show_publish_article"
+	KeyUserPanelShowAdminDashboard SettingKey = "userpanel.show_admin_dashboard"
 )
