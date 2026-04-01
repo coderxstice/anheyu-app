@@ -508,6 +508,12 @@ var AllSettings = []Definition{
 	// --- 系统图形验证码配置 ---
 	{Key: constant.KeyImageCaptchaLength, Value: "4", Comment: "图形验证码字符长度 (默认4位)", IsPublic: true},
 	{Key: constant.KeyImageCaptchaExpire, Value: "300", Comment: "图形验证码过期时间（秒，默认300秒/5分钟）", IsPublic: true},
+
+	// --- 顶栏用户面板配置 ---
+	{Key: constant.KeyUserPanelShowUserCenter, Value: "true", Comment: "是否显示用户中心按钮 (true/false)", IsPublic: true},
+	{Key: constant.KeyUserPanelShowNotifications, Value: "true", Comment: "是否显示通知中心按钮 (true/false)", IsPublic: true},
+	{Key: constant.KeyUserPanelShowPublishArticle, Value: "true", Comment: "是否显示发布文章按钮 (true/false)", IsPublic: true},
+	{Key: constant.KeyUserPanelShowAdminDashboard, Value: "true", Comment: "是否显示进入后台按钮 (true/false)", IsPublic: true},
 }
 
 // AllUserGroups 是所有默认用户组的"单一事实来源"
