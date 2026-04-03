@@ -1723,11 +1723,11 @@ func (s *serviceImpl) ListHome(ctx context.Context) ([]model.ArticleResponse, er
 		return nil, err
 	}
 	list := make([]model.ArticleResponse, len(articles))
-	ownerCache := make(map[uint]string)
+	ownerCache := make(map[uint]*ownerInfoCache)
 	for i, a := range articles {
 		a.ContentMd = ""
 		resp := s.ToAPIResponse(a, true, false)
-		s.fillOwnerNickname(ctx, resp, ownerCache)
+		s.fillOwnerInfo(ctx, resp, ownerCache)
 		list[i] = *resp
 	}
 	return list, nil
@@ -1740,7 +1740,7 @@ func (s *serviceImpl) ListPublic(ctx context.Context, options *model.ListPublicA
 		return nil, err
 	}
 	list := make([]model.ArticleResponse, len(articles))
-	ownerCache := make(map[uint]string)
+	ownerCache := make(map[uint]*ownerInfoCache)
 	for i, a := range articles {
 		// 只在不需要内容时清空 ContentMd（用于普通列表展示）
 		// 当 WithContent=true 时保留内容（用于知识库同步等场景）
@@ -1748,7 +1748,7 @@ func (s *serviceImpl) ListPublic(ctx context.Context, options *model.ListPublicA
 			a.ContentMd = ""
 		}
 		resp := s.ToAPIResponse(a, true, false)
-		s.fillOwnerNickname(ctx, resp, ownerCache)
+		s.fillOwnerInfo(ctx, resp, ownerCache)
 		list[i] = *resp
 	}
 

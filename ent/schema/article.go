@@ -19,6 +19,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 )
 
 // Article holds the schema definition for the Article entity.
@@ -180,6 +181,22 @@ func (Article) Fields() []ent.Field {
 		field.Bool("show_subscribe_button").
 			Comment("是否显示订阅按钮").
 			Default(true),
+	}
+}
+
+// Indexes of the Article.
+func (Article) Indexes() []ent.Index {
+	return []ent.Index{
+		// 前台列表查询：已发布+未删除+未下架+审核状态+首页显示
+		index.Fields("deleted_at", "status", "is_takedown", "review_status", "show_on_home"),
+		// 排序索引
+		index.Fields("deleted_at", "status", "pin_sort", "created_at"),
+		// 归档查询
+		index.Fields("deleted_at", "status", "created_at"),
+		// 文档模式查询
+		index.Fields("deleted_at", "is_doc", "doc_series_id", "doc_sort"),
+		// 作者查询
+		index.Fields("deleted_at", "owner_id", "status"),
 	}
 }
 

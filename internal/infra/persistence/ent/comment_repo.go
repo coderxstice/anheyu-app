@@ -121,15 +121,14 @@ func (r *commentRepo) Create(ctx context.Context, params *repository.CreateComme
 }
 
 func (r *commentRepo) FindAllPublishedByPath(ctx context.Context, path string) ([]*model.Comment, error) {
-	log.Printf("[DEBUG] Repo.FindAllPublishedByPath: 开始查询路径 '%s' 的所有已发布评论", path)
-
 	query := r.db.Comment.Query().
 		Where(
 			entcomment.TargetPath(path),
 			entcomment.StatusEQ(int(model.StatusPublished)),
 			entcomment.DeletedAtIsNil(),
 		).
-		WithUser() // 预加载关联的用户信息
+		WithUser(). // 预加载关联的用户信息
+		Limit(500)  // 安全上限，防止单路径评论过多导致内存问题
 
 	// 按置顶状态和创建时间排序：置顶的在前，然后按创建时间降序
 	entComments, err := query.Modify(func(s *sql.Selector) {
@@ -153,8 +152,6 @@ func (r *commentRepo) FindAllPublishedByPath(ctx context.Context, path string) (
 		log.Printf("[ERROR] Repo.FindAllPublishedByPath: 查询失败: %v", err)
 		return nil, err
 	}
-	log.Printf("[DEBUG] Repo.FindAllPublishedByPath: 查询成功，共找到 %d 条评论", len(entComments))
-
 	domainComments := make([]*model.Comment, len(entComments))
 	for i, c := range entComments {
 		domainComments[i] = toDomain(c)
@@ -462,6 +459,5 @@ func (r *commentRepo) CountByTargetPaths(ctx context.Context, targetPaths []stri
 		countMap[result.TargetPath] = result.Count
 	}
 
-	log.Printf("[DEBUG] CountByTargetPaths: 统计结果: %+v", countMap)
 	return countMap, nil
 }
