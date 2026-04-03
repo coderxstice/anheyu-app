@@ -129,6 +129,7 @@ type ListResponse struct {
 	TotalWithChildren int64       `json:"total_with_children"` // 包含所有子评论的总数（用于前端显示）
 	Page              int         `json:"page"`
 	PageSize          int         `json:"pageSize"`
+	HasMore           bool        `json:"has_more,omitempty"`
 }
 
 // UploadImageResponse 是评论图片上传成功后返回的数据结构。

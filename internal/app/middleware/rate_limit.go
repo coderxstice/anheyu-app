@@ -18,7 +18,9 @@ import (
 	"golang.org/x/time/rate"
 )
 
-// ipRateLimiter 用于存储每个IP地址的限流器
+// ipRateLimiter 基于进程内存的 IP 限流器。
+// 注意：每个应用实例独立计数，水平扩展时单 IP 的实际限额 = 配置限额 x 实例数。
+// 如需全局限流，请改用 Redis 令牌桶或滑动窗口方案。
 type ipRateLimiter struct {
 	limiters map[string]*limiterInfo
 	mu       sync.RWMutex

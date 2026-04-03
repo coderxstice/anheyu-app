@@ -34,35 +34,39 @@ func NewArticleRepo(db *ent.Client, dbType string) repository.ArticleRepository 
 // === 私有辅助函数 (Private Helpers) ===
 
 // toModel 负责将 ent.Article 实体转换为 model.Article 领域模型。
-func (r *articleRepo) toModel(a *ent.Article) *model.Article {
+func (r *articleRepo) toModel(a *ent.Article) (*model.Article, error) {
 	if a == nil {
-		return nil
+		return nil, nil
 	}
 	publicID, err := idgen.GeneratePublicID(a.ID, idgen.EntityTypeArticle)
 	if err != nil {
-		log.Printf("[严重错误] 生成文章公共ID失败: dbID=%d, error=%v", a.ID, err)
-		// 这是一个严重错误，应该panic或返回nil
-		panic(fmt.Sprintf("生成文章公共ID失败: dbID=%d, error=%v", a.ID, err))
+		return nil, fmt.Errorf("生成文章公共ID失败: dbID=%d, error=%w", a.ID, err)
 	}
 	if publicID == "" {
-		log.Printf("[严重错误] 生成的文章公共ID为空: dbID=%d", a.ID)
-		panic(fmt.Sprintf("生成的文章公共ID为空: dbID=%d", a.ID))
+		return nil, fmt.Errorf("生成的文章公共ID为空: dbID=%d", a.ID)
 	}
-	// log.Printf("[toModel] 成功生成公共ID: dbID=%d -> publicID=%s", a.ID, publicID)
 	var tags []*model.PostTag
 	if a.Edges.PostTags != nil {
-		tags = make([]*model.PostTag, len(a.Edges.PostTags))
-		for i, t := range a.Edges.PostTags {
-			tagPublicID, _ := idgen.GeneratePublicID(t.ID, idgen.EntityTypePostTag)
-			tags[i] = &model.PostTag{ID: tagPublicID, CreatedAt: t.CreatedAt, UpdatedAt: t.UpdatedAt, Name: t.Name, Count: t.Count}
+		tags = make([]*model.PostTag, 0, len(a.Edges.PostTags))
+		for _, t := range a.Edges.PostTags {
+			tagPublicID, idErr := idgen.GeneratePublicID(t.ID, idgen.EntityTypePostTag)
+			if idErr != nil {
+				log.Printf("[严重错误] 生成标签公共ID失败: dbID=%d, error=%v", t.ID, idErr)
+				continue
+			}
+			tags = append(tags, &model.PostTag{ID: tagPublicID, CreatedAt: t.CreatedAt, UpdatedAt: t.UpdatedAt, Name: t.Name, Count: t.Count})
 		}
 	}
 	var categories []*model.PostCategory
 	if a.Edges.PostCategories != nil {
-		categories = make([]*model.PostCategory, len(a.Edges.PostCategories))
-		for i, c := range a.Edges.PostCategories {
-			categoryPublicID, _ := idgen.GeneratePublicID(c.ID, idgen.EntityTypePostCategory)
-			categories[i] = &model.PostCategory{ID: categoryPublicID, CreatedAt: c.CreatedAt, UpdatedAt: c.UpdatedAt, Name: c.Name, Description: c.Description, Count: c.Count, IsSeries: c.IsSeries}
+		categories = make([]*model.PostCategory, 0, len(a.Edges.PostCategories))
+		for _, c := range a.Edges.PostCategories {
+			categoryPublicID, idErr := idgen.GeneratePublicID(c.ID, idgen.EntityTypePostCategory)
+			if idErr != nil {
+				log.Printf("[严重错误] 生成分类公共ID失败: dbID=%d, error=%v", c.ID, idErr)
+				continue
+			}
+			categories = append(categories, &model.PostCategory{ID: categoryPublicID, CreatedAt: c.CreatedAt, UpdatedAt: c.UpdatedAt, Name: c.Name, Description: c.Description, Count: c.Count, IsSeries: c.IsSeries})
 		}
 	}
 
@@ -119,7 +123,7 @@ func (r *articleRepo) toModel(a *ent.Article) *model.Article {
 		IsDoc:       a.IsDoc,
 		DocSeriesID: a.DocSeriesID,
 		DocSort:     a.DocSort,
-	}
+	}, nil
 }
 
 // convertExtraConfig 将数据库中的 map[string]interface{} 转换为 ArticleExtraConfig
@@ -142,12 +146,18 @@ func convertExtraConfig(config map[string]interface{}) *model.ArticleExtraConfig
 }
 
 // toModelSlice 将 ent.Article 切片转换为 model.Article 切片，减少代码重复。
-func (r *articleRepo) toModelSlice(entities []*ent.Article) []*model.Article {
-	models := make([]*model.Article, len(entities))
-	for i, entity := range entities {
-		models[i] = r.toModel(entity)
+func (r *articleRepo) toModelSlice(entities []*ent.Article) ([]*model.Article, error) {
+	models := make([]*model.Article, 0, len(entities))
+	for _, entity := range entities {
+		m, err := r.toModel(entity)
+		if err != nil {
+			return nil, err
+		}
+		if m != nil {
+			models = append(models, m)
+		}
 	}
-	return models
+	return models, nil
 }
 
 // CountByCategoryWithMultipleCategories 计算有多少文章既属于目标分类，又同时属于其他分类。
@@ -220,7 +230,7 @@ func (r *articleRepo) getAdjacentArticle(ctx context.Context, currentArticleID u
 		}
 		return nil, err
 	}
-	return r.toModel(entity), nil
+	return r.toModel(entity)
 }
 
 // === 公开方法实现 (Public Methods Implementation) ===
@@ -235,7 +245,7 @@ func (r *articleRepo) FindByID(ctx context.Context, id uint) (*model.Article, er
 	if err != nil {
 		return nil, err
 	}
-	return r.toModel(entArticle), nil
+	return r.toModel(entArticle)
 }
 
 // GetArchiveSummary 获取文章归档摘要
@@ -334,24 +344,17 @@ func (r *articleRepo) FindRelatedArticles(ctx context.Context, articleModel *mod
 	if err != nil {
 		return nil, err
 	}
-	return r.toModelSlice(entities), nil
+	return r.toModelSlice(entities)
 }
 
 // GetBySlugOrID 通过 abbrlink 或公共 ID 获取一篇文章
 func (r *articleRepo) GetBySlugOrID(ctx context.Context, slugOrID string) (*model.Article, error) {
-	log.Printf("[GetBySlugOrID] 开始查询文章: slugOrID=%s", slugOrID)
-
-	// 尝试将 slugOrID 解码为数据库 ID
 	dbID, _, err := idgen.DecodePublicID(slugOrID)
 
 	var wherePredicate predicate.Article
 	if err == nil {
-		// 如果解码成功，则查询条件为 ID 或 abbrlink 匹配
-		log.Printf("[GetBySlugOrID] 解码成功，使用ID或abbrlink查询: dbID=%d", dbID)
 		wherePredicate = article.Or(article.ID(dbID), article.AbbrlinkEQ(slugOrID))
 	} else {
-		// 如果解码失败，则查询条件仅为 abbrlink 匹配
-		log.Printf("[GetBySlugOrID] 解码失败，仅使用abbrlink查询: %v", err)
 		wherePredicate = article.AbbrlinkEQ(slugOrID)
 	}
 
@@ -360,8 +363,7 @@ func (r *articleRepo) GetBySlugOrID(ctx context.Context, slugOrID string) (*mode
 			wherePredicate,
 			article.DeletedAtIsNil(),
 			article.StatusEQ(article.StatusPUBLISHED),
-			article.IsTakedownEQ(false), // 过滤下架文章
-			// 只显示审核通过或无需审核的文章
+			article.IsTakedownEQ(false),
 			article.Or(
 				article.ReviewStatusEQ(article.ReviewStatusAPPROVED),
 				article.ReviewStatusEQ(article.ReviewStatusNONE),
@@ -376,31 +378,20 @@ func (r *articleRepo) GetBySlugOrID(ctx context.Context, slugOrID string) (*mode
 		return nil, err
 	}
 
-	log.Printf("[GetBySlugOrID] 查询成功: 数据库ID=%d, Title=%s", entity.ID, entity.Title)
-	result := r.toModel(entity)
-	log.Printf("[GetBySlugOrID] 转换后的公共ID: %s", result.ID)
-	return result, nil
+	return r.toModel(entity)
 }
 
 // GetBySlugOrIDForPreview 通过 abbrlink 或公共 ID 获取一篇文章，不过滤状态，用于预览功能
 func (r *articleRepo) GetBySlugOrIDForPreview(ctx context.Context, slugOrID string) (*model.Article, error) {
-	log.Printf("[GetBySlugOrIDForPreview] 开始查询文章(预览模式): slugOrID=%s", slugOrID)
-
-	// 尝试将 slugOrID 解码为数据库 ID
 	dbID, _, err := idgen.DecodePublicID(slugOrID)
 
 	var wherePredicate predicate.Article
 	if err == nil {
-		// 如果解码成功，则查询条件为 ID 或 abbrlink 匹配
-		log.Printf("[GetBySlugOrIDForPreview] 解码成功，使用ID或abbrlink查询: dbID=%d", dbID)
 		wherePredicate = article.Or(article.ID(dbID), article.AbbrlinkEQ(slugOrID))
 	} else {
-		// 如果解码失败，则查询条件仅为 abbrlink 匹配
-		log.Printf("[GetBySlugOrIDForPreview] 解码失败，仅使用abbrlink查询: %v", err)
 		wherePredicate = article.AbbrlinkEQ(slugOrID)
 	}
 
-	// 预览模式：不过滤文章状态，只过滤已删除的文章
 	entity, err := r.db.Article.Query().
 		Where(
 			wherePredicate,
@@ -415,11 +406,7 @@ func (r *articleRepo) GetBySlugOrIDForPreview(ctx context.Context, slugOrID stri
 		return nil, err
 	}
 
-	log.Printf("[GetBySlugOrIDForPreview] 查询成功: 数据库ID=%d, Title=%s, Status=%s, ReviewStatus=%s",
-		entity.ID, entity.Title, entity.Status, entity.ReviewStatus)
-	result := r.toModel(entity)
-	log.Printf("[GetBySlugOrIDForPreview] 转换后的公共ID: %s", result.ID)
-	return result, nil
+	return r.toModel(entity)
 }
 
 // GetSiteStats 高效地获取站点范围内的统计数据
@@ -494,11 +481,6 @@ func (r *articleRepo) IncrementViewCount(ctx context.Context, publicID string) e
 
 // Create 创建新文章
 func (r *articleRepo) Create(ctx context.Context, params *model.CreateArticleParams) (*model.Article, error) {
-	log.Printf("[Repository.Create] ========== 开始创建文章 ==========")
-	log.Printf("[Repository.Create] 标题: %s", params.Title)
-	log.Printf("[Repository.Create] 自定义发布时间 CustomPublishedAt: %v", params.CustomPublishedAt)
-	log.Printf("[Repository.Create] 自定义更新时间 CustomUpdatedAt: %v", params.CustomUpdatedAt)
-
 	topImgURL := params.TopImgURL
 	if topImgURL == "" {
 		topImgURL = params.CoverURL
@@ -574,38 +556,23 @@ func (r *articleRepo) Create(ctx context.Context, params *model.CreateArticlePar
 		creator.SetDocSeriesID(*params.DocSeriesID)
 	}
 
-	// 设置定时发布时间
 	if params.ScheduledAt != nil {
-		log.Printf("[Repository.Create] 设置定时发布时间: %v", *params.ScheduledAt)
 		creator.SetScheduledAt(*params.ScheduledAt)
 	}
 
-	// 支持自定义发布时间
 	if params.CustomPublishedAt != nil {
-		log.Printf("[Repository.Create]设置自定义发布时间: %v", *params.CustomPublishedAt)
 		creator.SetCreatedAt(*params.CustomPublishedAt)
-	} else {
-		log.Printf("[Repository.Create] ⚠️ 未提供自定义发布时间，将使用默认值")
 	}
 
-	// 支持自定义更新时间
 	if params.CustomUpdatedAt != nil {
-		log.Printf("[Repository.Create]设置自定义更新时间: %v", *params.CustomUpdatedAt)
 		creator.SetUpdatedAt(*params.CustomUpdatedAt)
-	} else {
-		log.Printf("[Repository.Create] ⚠️ 未提供自定义更新时间，将使用默认值")
 	}
 
-	log.Printf("[Repository.Create] 准备调用 Save() 保存到数据库...")
 	newEntity, err := creator.Save(ctx)
 	if err != nil {
-		log.Printf("[Repository.Create] ❌ 保存失败: %v", err)
+		log.Printf("[Repository.Create] 保存失败: %v", err)
 		return nil, err
 	}
-
-	log.Printf("[Repository.Create]保存成功，数据库ID: %d", newEntity.ID)
-	log.Printf("[Repository.Create] 数据库中的 CreatedAt: %v", newEntity.CreatedAt)
-	log.Printf("[Repository.Create] 数据库中的 UpdatedAt: %v", newEntity.UpdatedAt)
 
 	publicID, _ := idgen.GeneratePublicID(newEntity.ID, idgen.EntityTypeArticle)
 	return r.GetByID(ctx, publicID)
@@ -613,22 +580,10 @@ func (r *articleRepo) Create(ctx context.Context, params *model.CreateArticlePar
 
 // Update 更新文章
 func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.UpdateArticleRequest, computed *model.UpdateArticleComputedParams) (*model.Article, error) {
-	log.Printf("[Repository.Update] ========== 开始更新文章 ==========")
-	log.Printf("[Repository.Update] 公共ID: %s", publicID)
-	log.Printf("[Repository.Update] 自定义发布时间 CustomPublishedAt: %v", req.CustomPublishedAt)
-	if req.CustomPublishedAt != nil {
-		log.Printf("[Repository.Update] 自定义发布时间的值: %s", *req.CustomPublishedAt)
-	}
-	log.Printf("[Repository.Update] 自定义更新时间 CustomUpdatedAt: %v", req.CustomUpdatedAt)
-	if req.CustomUpdatedAt != nil {
-		log.Printf("[Repository.Update] 自定义更新时间的值: %s", *req.CustomUpdatedAt)
-	}
-
 	dbID, _, err := idgen.DecodePublicID(publicID)
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("[Repository.Update] 数据库ID: %d", dbID)
 	updater := r.db.Article.UpdateOneID(dbID)
 	if req.Title != nil {
 		updater.SetTitle(*req.Title)
@@ -745,19 +700,14 @@ func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.Up
 			}
 		}
 	}
-	// 处理定时发布时间
 	if req.ScheduledAt != nil {
 		if *req.ScheduledAt == "" {
-			// 空字符串表示取消定时发布
-			log.Printf("[Repository.Update] 清除定时发布时间")
 			updater.ClearScheduledAt()
 		} else {
-			// 解析并设置定时发布时间
 			if scheduledTime, parseErr := time.Parse(time.RFC3339, *req.ScheduledAt); parseErr == nil {
-				log.Printf("[Repository.Update] 设置定时发布时间: %v", scheduledTime)
 				updater.SetScheduledAt(scheduledTime)
 			} else {
-				log.Printf("[Repository.Update] ❌ 解析定时发布时间失败: %v", parseErr)
+				log.Printf("[Repository.Update] 解析定时发布时间失败: %v", parseErr)
 			}
 		}
 	}
@@ -777,46 +727,30 @@ func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.Up
 			updater.SetIsPrimaryColorManual(*computed.IsPrimaryColorManual)
 		}
 	}
-	// 处理发布时间（创建时间）：优先使用自定义时间
-	log.Printf("[Repository.Update] 开始处理发布时间...")
 	if req.CustomPublishedAt != nil && *req.CustomPublishedAt != "" {
-		log.Printf("[Repository.Update] 收到自定义发布时间字符串: %s", *req.CustomPublishedAt)
 		if customTime, parseErr := time.Parse(time.RFC3339, *req.CustomPublishedAt); parseErr == nil {
-			log.Printf("[Repository.Update]解析成功，设置自定义发布时间: %v", customTime)
 			updater.SetCreatedAt(customTime)
 		} else {
-			log.Printf("[Repository.Update] ❌ 解析自定义发布时间失败: %v", parseErr)
+			log.Printf("[Repository.Update] 解析自定义发布时间失败: %v", parseErr)
 		}
-	} else {
-		log.Printf("[Repository.Update] ⚠️ 未提供自定义发布时间，保持原值")
 	}
 
-	// 处理更新时间：优先使用自定义时间，否则使用当前时间
-	log.Printf("[Repository.Update] 开始处理更新时间...")
 	if req.CustomUpdatedAt != nil && *req.CustomUpdatedAt != "" {
-		log.Printf("[Repository.Update] 收到自定义更新时间字符串: %s", *req.CustomUpdatedAt)
 		if customTime, parseErr := time.Parse(time.RFC3339, *req.CustomUpdatedAt); parseErr == nil {
-			log.Printf("[Repository.Update]解析成功，设置自定义更新时间: %v", customTime)
 			updater.SetUpdatedAt(customTime)
 		} else {
-			log.Printf("[Repository.Update] ❌ 解析失败，使用当前时间。错误: %v", parseErr)
+			log.Printf("[Repository.Update] 解析自定义更新时间失败，使用当前时间: %v", parseErr)
 			updater.SetUpdatedAt(time.Now())
 		}
 	} else {
-		log.Printf("[Repository.Update] ⚠️ 未提供自定义更新时间，使用当前时间")
 		updater.SetUpdatedAt(time.Now())
 	}
 
-	log.Printf("[Repository.Update] 准备调用 Save() 保存到数据库...")
-	updatedEntity, err := updater.Save(ctx)
+	_, err = updater.Save(ctx)
 	if err != nil {
-		log.Printf("[Repository.Update] ❌ 保存失败: %v", err)
+		log.Printf("[Repository.Update] 保存失败: %v", err)
 		return nil, err
 	}
-
-	log.Printf("[Repository.Update]保存成功")
-	log.Printf("[Repository.Update] 数据库中的 CreatedAt: %v", updatedEntity.CreatedAt)
-	log.Printf("[Repository.Update] 数据库中的 UpdatedAt: %v", updatedEntity.UpdatedAt)
 
 	return r.GetByID(ctx, publicID)
 }
@@ -909,7 +843,11 @@ func (r *articleRepo) ListPublic(ctx context.Context, options *model.ListPublicA
 	if err != nil {
 		return nil, 0, err
 	}
-	return r.toModelSlice(entities), total, nil
+	models, err := r.toModelSlice(entities)
+	if err != nil {
+		return nil, 0, err
+	}
+	return models, total, nil
 }
 
 // List 获取后台管理文章列表
@@ -969,7 +907,11 @@ func (r *articleRepo) List(ctx context.Context, options *model.ListArticlesOptio
 	if err != nil {
 		return nil, 0, err
 	}
-	return r.toModelSlice(entities), total, nil
+	models, err := r.toModelSlice(entities)
+	if err != nil {
+		return nil, 0, err
+	}
+	return models, total, nil
 }
 
 // ListHome 获取首页推荐文章
@@ -995,7 +937,7 @@ func (r *articleRepo) ListHome(ctx context.Context) ([]*model.Article, error) {
 	if err != nil {
 		return nil, err
 	}
-	return r.toModelSlice(entities), nil
+	return r.toModelSlice(entities)
 }
 
 // GetByID 根据公共ID获取单个文章
@@ -1012,7 +954,7 @@ func (r *articleRepo) GetByID(ctx context.Context, publicID string) (*model.Arti
 	if err != nil {
 		return nil, err
 	}
-	return r.toModel(entity), nil
+	return r.toModel(entity)
 }
 
 // GetRandom 获取一篇随机文章
@@ -1042,7 +984,7 @@ func (r *articleRepo) GetRandom(ctx context.Context) (*model.Article, error) {
 	if err != nil {
 		return nil, err
 	}
-	return r.toModel(fullArticle), nil
+	return r.toModel(fullArticle)
 }
 
 // Delete 软删除文章
@@ -1070,7 +1012,7 @@ func (r *articleRepo) FindScheduledArticlesToPublish(ctx context.Context, now ti
 	if err != nil {
 		return nil, fmt.Errorf("查询定时发布文章失败: %w", err)
 	}
-	return r.toModelSlice(entities), nil
+	return r.toModelSlice(entities)
 }
 
 // PublishScheduledArticle 发布一篇定时文章

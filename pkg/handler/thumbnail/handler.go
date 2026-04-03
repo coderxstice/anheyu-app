@@ -195,6 +195,11 @@ func (h *ThumbnailHandler) RegenerateThumbnailsForDirectory(c *gin.Context) {
 
 	// 5. 将所有任务派发到后台队列（这一步在循环中是安全的，因为Broker是异步的）
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Printf("[Handler-ERROR] 目录 %d 批量派发缩略图任务 panic: %v", directory.ID, r)
+			}
+		}()
 		log.Printf("[Handler-INFO] 开始为目录 %d 下的 %d 个文件批量派发缩略图生成任务...", directory.ID, len(fileIDs))
 		for _, id := range fileIDs {
 			h.broker.DispatchThumbnailGeneration(id)

@@ -593,9 +593,10 @@ func (s *Service) Create(ctx context.Context, req *dto.CreateRequest, ip, ua, re
 	return s.toResponseDTO(ctx, newComment, parentComment, replyToComment, false), nil
 }
 
-// ListByPath
+// ListByPath 按路径获取评论列表（内存建树分页）。
+// 为防止大量评论导致内存问题，单路径最多加载500条评论。
 func (s *Service) ListByPath(ctx context.Context, path string, page, pageSize int) (*dto.ListResponse, error) {
-	// 1. 一次性获取该路径下的所有已发布评论
+	// 1. 一次性获取该路径下的所有已发布评论（仓储层已限制上限500条）
 	allComments, err := s.repo.FindAllPublishedByPath(ctx, path)
 	if err != nil {
 		return nil, err
@@ -664,6 +665,7 @@ func (s *Service) ListByPath(ctx context.Context, path string, page, pageSize in
 			TotalWithChildren: totalWithChildren,
 			Page:              page,
 			PageSize:          pageSize,
+			HasMore:           len(allComments) >= 500,
 		}, nil
 	}
 	if end > len(rootComments) {
@@ -763,6 +765,7 @@ func (s *Service) ListByPath(ctx context.Context, path string, page, pageSize in
 		TotalWithChildren: totalWithChildren,
 		Page:              page,
 		PageSize:          pageSize,
+		HasMore:           len(allComments) >= 500,
 	}, nil
 }
 

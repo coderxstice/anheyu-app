@@ -369,17 +369,17 @@ func (s *ThumbnailService) updateMetaOnSuccess(fileID uint, source string, isDir
 	if isDirectServe {
 		status = model.MetaValueStatusReadyDirect
 	}
-	go s.metaService.Set(ctx, fileID, model.MetaKeyThumbStatus, status)
-	go s.metaService.Set(ctx, fileID, model.MetaKeyThumbSource, source)
-	go s.metaService.Set(ctx, fileID, model.MetaKeyThumbFormat, format)
-	go s.metaService.Delete(ctx, fileID, model.MetaKeyThumbRetryCount)
-	go s.metaService.Delete(ctx, fileID, model.MetaKeyThumbError)
+	s.metaService.Set(ctx, fileID, model.MetaKeyThumbStatus, status)
+	s.metaService.Set(ctx, fileID, model.MetaKeyThumbSource, source)
+	s.metaService.Set(ctx, fileID, model.MetaKeyThumbFormat, format)
+	s.metaService.Delete(ctx, fileID, model.MetaKeyThumbRetryCount)
+	s.metaService.Delete(ctx, fileID, model.MetaKeyThumbError)
 }
 
 func (s *ThumbnailService) updateMetaOnFailure(fileID uint, errorMsg string) {
 	ctx := context.Background()
-	go s.metaService.Set(ctx, fileID, model.MetaKeyThumbStatus, model.MetaValueStatusFailed)
-	go s.metaService.Set(ctx, fileID, model.MetaKeyThumbError, errorMsg)
+	s.metaService.Set(ctx, fileID, model.MetaKeyThumbStatus, model.MetaValueStatusFailed)
+	s.metaService.Set(ctx, fileID, model.MetaKeyThumbError, errorMsg)
 }
 
 func parseCommaSeparatedString(s string) []string {
