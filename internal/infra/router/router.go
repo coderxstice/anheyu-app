@@ -482,6 +482,7 @@ func (r *Router) registerPublicRoutes(api *gin.RouterGroup) {
 		public.GET("/album-categories", r.publicHandler.GetPublicAlbumCategories)
 		public.PUT("/stat/:id", r.publicHandler.UpdateAlbumStat)
 		public.GET("/site-config", r.settingHandler.GetSiteConfig)
+		public.GET("/site-config/version", r.settingHandler.GetConfigVersion)
 
 		// 验证码相关路由
 		public.GET("/captcha/config", r.captchaHandler.GetConfig)

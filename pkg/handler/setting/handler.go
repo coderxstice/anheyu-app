@@ -86,6 +86,19 @@ func (h *SettingHandler) GetSiteConfig(c *gin.Context) {
 	response.Success(c, siteConfig, "获取站点配置成功")
 }
 
+// GetConfigVersion 返回当前配置版本号，供前端轻量级缓存校验
+// @Summary      获取配置版本号
+// @Description  返回配置版本号（毫秒时间戳），前端可据此判断本地缓存是否过期
+// @Tags         站点设置
+// @Produce      json
+// @Success      200  {object}  response.Response  "获取成功"
+// @Router       /public/site-config/version [get]
+func (h *SettingHandler) GetConfigVersion(c *gin.Context) {
+	response.Success(c, gin.H{
+		"version": h.settingSvc.GetConfigVersion(),
+	}, "获取配置版本成功")
+}
+
 // GetSettingsByKeysReq 定义了按键获取配置的请求体结构
 type GetSettingsByKeysReq struct {
 	Keys []string `json:"keys" binding:"required,min=1"`

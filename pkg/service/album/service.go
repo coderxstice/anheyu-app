@@ -189,8 +189,25 @@ func NewAlbumService(
 	}
 }
 
+// effectiveAlbumFileHash 与 CreateAlbum 入库逻辑一致：优先非空 file_hash；否则对 image_url 做 SHA256。
+// ImportAlbums 的 skip_existing 必须使用同一规则，否则库中旧数据 file_hash 为空时会与 Hexo 等导入 JSON 再次撞成重复。
+func effectiveAlbumFileHash(fileHash, imageURL string) string {
+	h := strings.TrimSpace(fileHash)
+	if h != "" {
+		return h
+	}
+	url := strings.TrimSpace(imageURL)
+	if url == "" {
+		return ""
+	}
+	sum := sha256.Sum256([]byte(url))
+	return hex.EncodeToString(sum[:])
+}
+
 // CreateAlbum 实现了创建相册的业务逻辑
 func (s *albumService) CreateAlbum(ctx context.Context, params CreateAlbumParams) (*model.Album, error) {
+	fileHash := effectiveAlbumFileHash(params.FileHash, params.ImageUrl)
+
 	album := &model.Album{
 		CategoryID:   params.CategoryID,
 		ImageUrl:     params.ImageUrl,
@@ -203,7 +220,7 @@ func (s *albumService) CreateAlbum(ctx context.Context, params CreateAlbumParams
 		Height:       params.Height,
 		FileSize:     params.FileSize,
 		Format:       params.Format,
-		FileHash:     params.FileHash,
+		FileHash:     fileHash,
 		AspectRatio:  getSimplifiedAspectRatioString(params.Width, params.Height),
 		DisplayOrder: params.DisplayOrder,
 		Title:        params.Title,
@@ -705,8 +722,11 @@ func (s *albumService) ImportAlbums(ctx context.Context, req *ImportAlbumRequest
 			log.Printf("获取现有相册列表失败: %v", err)
 		} else {
 			for _, album := range allExisting.Items {
-				if album.FileHash != "" {
-					existingHashesMap[album.FileHash] = album.ID
+				key := effectiveAlbumFileHash(album.FileHash, album.ImageUrl)
+				if key != "" {
+					if _, dup := existingHashesMap[key]; !dup {
+						existingHashesMap[key] = album.ID
+					}
 				}
 			}
 		}
@@ -715,10 +735,11 @@ func (s *albumService) ImportAlbums(ctx context.Context, req *ImportAlbumRequest
 	for idx, albumData := range req.Data.Albums {
 		log.Printf("[导入相册] 处理第 %d/%d 个相册", idx+1, result.TotalCount)
 
-		// 检查是否已存在（通过 FileHash）
-		if req.SkipExisting && albumData.FileHash != "" {
-			if existingID, exists := existingHashesMap[albumData.FileHash]; exists {
-				log.Printf("[导入相册] 跳过已存在的相册: ID=%d, FileHash=%s", existingID, albumData.FileHash)
+		// 检查是否已存在（FileHash 或与 CreateAlbum 一致的 URL 派生哈希）
+		importKey := effectiveAlbumFileHash(albumData.FileHash, albumData.ImageUrl)
+		if req.SkipExisting && importKey != "" {
+			if existingID, exists := existingHashesMap[importKey]; exists {
+				log.Printf("[导入相册] 跳过已存在的相册: ID=%d, key=%s", existingID, importKey)
 				result.SkippedCount++
 				continue
 			}
@@ -744,6 +765,12 @@ func (s *albumService) ImportAlbums(ctx context.Context, req *ImportAlbumRequest
 			tags = strings.Split(albumData.Tags, ",")
 		}
 
+		var createdAtPtr *time.Time
+		if !albumData.CreatedAt.IsZero() {
+			t := albumData.CreatedAt
+			createdAtPtr = &t
+		}
+
 		// 创建相册
 		createdAlbum, err := s.CreateAlbum(ctx, CreateAlbumParams{
 			CategoryID:   categoryID,
@@ -761,6 +788,8 @@ func (s *albumService) ImportAlbums(ctx context.Context, req *ImportAlbumRequest
 			DisplayOrder: albumData.DisplayOrder,
 			Title:        albumData.Title,
 			Description:  albumData.Description,
+			Location:     albumData.Location,
+			CreatedAt:    createdAtPtr,
 			PublishedAt:  albumData.PublishedAt,
 		})
 
@@ -782,9 +811,9 @@ func (s *albumService) ImportAlbums(ctx context.Context, req *ImportAlbumRequest
 		result.CreatedIDs = append(result.CreatedIDs, createdAlbum.ID)
 		result.SuccessCount++
 
-		// 将新添加的哈希值加入集合，防止本批次内重复
-		if albumData.FileHash != "" {
-			existingHashesMap[albumData.FileHash] = createdAlbum.ID
+		// 将新记录的有效哈希加入集合，防止本批次内重复（与 CreateAlbum 落库哈希一致）
+		if key := effectiveAlbumFileHash(createdAlbum.FileHash, createdAlbum.ImageUrl); key != "" {
+			existingHashesMap[key] = createdAlbum.ID
 		}
 	}
 
