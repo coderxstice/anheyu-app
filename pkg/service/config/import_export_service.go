@@ -171,19 +171,45 @@ func paymentExportItemFromMap(m map[string]interface{}) PaymentConfigExportItem 
 	var provider, configData, appID, description string
 	var isEnabled bool
 	if v, ok := m["provider"]; ok && v != nil {
-		provider, _ = v.(string)
+		if s, ok := v.(string); ok {
+			provider = s
+		} else {
+			log.Printf("[配置导入] provider 类型不匹配，期望 string，实际 %T，使用 fmt 转换", v)
+			provider = fmt.Sprintf("%v", v)
+		}
 	}
 	if v, ok := m["config_data"]; ok && v != nil {
-		configData, _ = v.(string)
+		if s, ok := v.(string); ok {
+			configData = s
+		} else {
+			log.Printf("[配置导入] config_data 类型不匹配，期望 string，实际 %T，使用 fmt 转换", v)
+			configData = fmt.Sprintf("%v", v)
+		}
 	}
 	if v, ok := m["app_id"]; ok && v != nil {
-		appID, _ = v.(string)
+		if s, ok := v.(string); ok {
+			appID = s
+		} else {
+			log.Printf("[配置导入] app_id 类型不匹配，期望 string，实际 %T，使用 fmt 转换", v)
+			appID = fmt.Sprintf("%v", v)
+		}
 	}
 	if v, ok := m["description"]; ok && v != nil {
-		description, _ = v.(string)
+		if s, ok := v.(string); ok {
+			description = s
+		} else {
+			log.Printf("[配置导入] description 类型不匹配，期望 string，实际 %T，使用 fmt 转换", v)
+			description = fmt.Sprintf("%v", v)
+		}
 	}
 	if v, ok := m["is_enabled"]; ok && v != nil {
-		isEnabled, _ = v.(bool)
+		if b, ok := v.(bool); ok {
+			isEnabled = b
+		} else if s, ok := v.(string); ok {
+			isEnabled = s == "true"
+		} else {
+			log.Printf("[配置导入] is_enabled 类型不匹配，期望 bool，实际 %T", v)
+		}
 	}
 	return PaymentConfigExportItem{
 		Provider:    provider,
