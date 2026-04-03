@@ -41,8 +41,8 @@ const (
 type IUploadService interface {
 	// CreateUploadSession 创建一个新的文件上传会话。
 	CreateUploadSession(ctx context.Context, ownerID uint, req *model.CreateUploadRequest) (*model.UploadSessionData, error)
-	// UploadChunk 上传文件的一个分片。
-	UploadChunk(ctx context.Context, sessionID string, index int, chunkStream io.Reader) error
+	// UploadChunk 上传文件的一个分片，ownerID 用于验证会话所有权。
+	UploadChunk(ctx context.Context, ownerID uint, sessionID string, index int, chunkStream io.Reader) error
 	// DeleteUploadSession 删除一个正在进行的上传会话。
 	DeleteUploadSession(ctx context.Context, ownerID uint, req *model.DeleteUploadRequest) error
 	// GetUploadSessionStatus 获取指定上传会话的状态。
@@ -374,7 +374,7 @@ func (s *uploadService) findOrCreatePath(ctx context.Context, ownerID uint, path
 }
 
 // UploadChunk 处理单个分片的上传，并在所有分片完成后触发最终的合并与定稿流程。
-func (s *uploadService) UploadChunk(ctx context.Context, sessionID string, index int, chunkStream io.Reader) error {
+func (s *uploadService) UploadChunk(ctx context.Context, ownerID uint, sessionID string, index int, chunkStream io.Reader) error {
 	// 从缓存中获取会话信息
 	sessionKey := uploadSessionCachePrefix + sessionID
 	sessionJSON, err := s.cacheSvc.Get(ctx, sessionKey)
@@ -384,6 +384,10 @@ func (s *uploadService) UploadChunk(ctx context.Context, sessionID string, index
 	var session model.UploadSession
 	if err := json.Unmarshal([]byte(sessionJSON), &session); err != nil {
 		return fmt.Errorf("解析上传会话失败: %w", err)
+	}
+
+	if session.OwnerID != ownerID {
+		return constant.ErrForbidden
 	}
 
 	totalChunks := (int(session.FileSize) + session.ChunkSize - 1) / session.ChunkSize
