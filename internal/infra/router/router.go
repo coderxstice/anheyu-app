@@ -385,13 +385,13 @@ func (r *Router) registerThumbnailRoutes(api *gin.RouterGroup) {
 func (r *Router) registerAuthRoutes(api *gin.RouterGroup) {
 	auth := api.Group("/auth")
 	{
-		auth.POST("/login", r.authHandler.Login)
-		auth.POST("/register", r.authHandler.Register)
+		auth.POST("/login", middleware.CustomRateLimit(10, 5), r.authHandler.Login)
+		auth.POST("/register", middleware.CustomRateLimit(5, 3), r.authHandler.Register)
 		auth.POST("/refresh-token", r.authHandler.RefreshToken)
 		auth.POST("/activate", r.authHandler.ActivateUser)
-		auth.POST("/forgot-password", r.authHandler.ForgotPasswordRequest)
-		auth.POST("/reset-password", r.authHandler.ResetPassword)
-		auth.GET("/check-email", r.authHandler.CheckEmail)
+		auth.POST("/forgot-password", middleware.CustomRateLimit(5, 3), r.authHandler.ForgotPasswordRequest)
+		auth.POST("/reset-password", middleware.CustomRateLimit(5, 3), r.authHandler.ResetPassword)
+		auth.GET("/check-email", middleware.CustomRateLimit(10, 5), r.authHandler.CheckEmail)
 	}
 }
 

@@ -14,6 +14,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -77,8 +78,37 @@ func (m *Manager) GetThemesDir() string {
 	return m.themesDir
 }
 
+// validateThemeName 验证主题名不含路径穿越字符
+func validateThemeName(name string) error {
+	if name == "" {
+		return fmt.Errorf("主题名称不能为空")
+	}
+	if strings.Contains(name, "..") || strings.Contains(name, "/") || strings.Contains(name, "\\") {
+		return fmt.Errorf("主题名称包含非法字符")
+	}
+	if filepath.Base(name) != name {
+		return fmt.Errorf("主题名称无效")
+	}
+	return nil
+}
+
 // Install 下载并安装 SSR 主题
 func (m *Manager) Install(ctx context.Context, themeName, downloadURL string) error {
+	if err := validateThemeName(themeName); err != nil {
+		return err
+	}
+
+	// 验证下载 URL 安全性，防止 SSRF
+	parsedURL, err := url.Parse(downloadURL)
+	if err != nil {
+		return fmt.Errorf("无效的下载URL: %w", err)
+	}
+	host := parsedURL.Hostname()
+	if host == "localhost" || host == "127.0.0.1" || host == "::1" ||
+		strings.HasPrefix(host, "10.") || strings.HasPrefix(host, "192.168.") || strings.HasPrefix(host, "172.") {
+		return fmt.Errorf("不允许从内网地址下载主题")
+	}
+
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -97,7 +127,8 @@ func (m *Manager) Install(ctx context.Context, themeName, downloadURL string) er
 		return fmt.Errorf("create request failed: %w", err)
 	}
 
-	resp, err := http.DefaultClient.Do(req)
+	client := &http.Client{Timeout: 60 * time.Second}
+	resp, err := client.Do(req)
 	if err != nil {
 		return fmt.Errorf("download failed: %w", err)
 	}
@@ -182,6 +213,10 @@ func (m *Manager) extractTarGz(r io.Reader, destDir string) error {
 
 // Uninstall 卸载 SSR 主题
 func (m *Manager) Uninstall(themeName string) error {
+	if err := validateThemeName(themeName); err != nil {
+		return err
+	}
+
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -203,6 +238,10 @@ func (m *Manager) Uninstall(themeName string) error {
 
 // Start 启动 SSR 主题
 func (m *Manager) Start(themeName string, port int) error {
+	if err := validateThemeName(themeName); err != nil {
+		return err
+	}
+
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -308,6 +347,10 @@ func (m *Manager) waitForReady(themeName string, port int) {
 
 // Stop 停止 SSR 主题
 func (m *Manager) Stop(themeName string) error {
+	if err := validateThemeName(themeName); err != nil {
+		return err
+	}
+
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -341,6 +384,10 @@ func (m *Manager) Stop(themeName string) error {
 // GetPort 获取运行中主题的端口号
 // 如果主题未运行，返回 0
 func (m *Manager) GetPort(themeName string) int {
+	if err := validateThemeName(themeName); err != nil {
+		return 0
+	}
+
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -352,6 +399,10 @@ func (m *Manager) GetPort(themeName string) int {
 
 // GetStatus 获取主题状态
 func (m *Manager) GetStatus(themeName string) ThemeInfo {
+	if err := validateThemeName(themeName); err != nil {
+		return ThemeInfo{Name: themeName, Status: StatusError}
+	}
+
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -489,6 +540,10 @@ func (m *Manager) StopAll() error {
 
 // IsRunning 检查主题是否正在运行
 func (m *Manager) IsRunning(themeName string) bool {
+	if err := validateThemeName(themeName); err != nil {
+		return false
+	}
+
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 

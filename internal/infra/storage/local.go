@@ -63,10 +63,23 @@ func copyFile(src, dst string) error {
 	return nil
 }
 
+// validateLocalPath 验证解析后的路径是否在基础路径内，防止路径穿越
+func validateLocalPath(basePath, resolvedPath string) error {
+	cleanBase := filepath.Clean(basePath)
+	cleanResolved := filepath.Clean(resolvedPath)
+	if !strings.HasPrefix(cleanResolved, cleanBase+string(os.PathSeparator)) && cleanResolved != cleanBase {
+		return fmt.Errorf("路径穿越检测: %s 不在 %s 内", cleanResolved, cleanBase)
+	}
+	return nil
+}
+
 // List 实现了为本地文件系统列出目录内容的功能。
 func (p *LocalProvider) List(ctx context.Context, policy *model.StoragePolicy, virtualPath string) ([]FileInfo, error) {
 	relativePath := strings.TrimPrefix(virtualPath, policy.VirtualPath)
 	physicalPath := filepath.Join(policy.BasePath, relativePath)
+	if err := validateLocalPath(policy.BasePath, physicalPath); err != nil {
+		return nil, err
+	}
 
 	log.Printf("[LocalProvider.List-DEBUG] Attempting to read directory at physical path: '%s'", physicalPath)
 
@@ -162,6 +175,9 @@ func (p *LocalProvider) Stream(ctx context.Context, policy *model.StoragePolicy,
 func (p *LocalProvider) CreateDirectory(ctx context.Context, policy *model.StoragePolicy, virtualPath string) error {
 	relativePath := strings.TrimPrefix(virtualPath, policy.VirtualPath)
 	physicalPath := filepath.Join(policy.BasePath, relativePath)
+	if err := validateLocalPath(policy.BasePath, physicalPath); err != nil {
+		return err
+	}
 	if err := os.MkdirAll(physicalPath, os.ModePerm); err != nil {
 		return fmt.Errorf("无法创建物理目录 '%s': %w", physicalPath, err)
 	}
@@ -215,6 +231,9 @@ func (p *LocalProvider) Upload(ctx context.Context, file io.Reader, policy *mode
 
 	relativePath := strings.TrimPrefix(virtualPath, policy.VirtualPath)
 	finalPath := filepath.Join(policy.BasePath, relativePath)
+	if err := validateLocalPath(policy.BasePath, finalPath); err != nil {
+		return nil, err
+	}
 	finalDir := filepath.Dir(finalPath)
 	if err := os.MkdirAll(finalDir, os.ModePerm); err != nil {
 		return nil, fmt.Errorf("无法创建挂载子目录 '%s': %w", finalDir, err)
@@ -278,6 +297,9 @@ func (p *LocalProvider) Delete(ctx context.Context, policy *model.StoragePolicy,
 func (p *LocalProvider) DeleteDirectory(ctx context.Context, policy *model.StoragePolicy, virtualPath string) error {
 	relativePath := strings.TrimPrefix(virtualPath, policy.VirtualPath)
 	physicalPath := filepath.Join(policy.BasePath, relativePath)
+	if err := validateLocalPath(policy.BasePath, physicalPath); err != nil {
+		return err
+	}
 	err := os.Remove(physicalPath)
 	if os.IsNotExist(err) {
 		return nil
@@ -291,6 +313,12 @@ func (p *LocalProvider) Rename(ctx context.Context, policy *model.StoragePolicy,
 	newRelativePath := strings.TrimPrefix(newVirtualPath, policy.VirtualPath)
 	oldAbsPath := filepath.Join(policy.BasePath, oldRelativePath)
 	newAbsPath := filepath.Join(policy.BasePath, newRelativePath)
+	if err := validateLocalPath(policy.BasePath, oldAbsPath); err != nil {
+		return err
+	}
+	if err := validateLocalPath(policy.BasePath, newAbsPath); err != nil {
+		return err
+	}
 
 	destDir := filepath.Dir(newAbsPath)
 	if err := os.MkdirAll(destDir, os.ModePerm); err != nil {

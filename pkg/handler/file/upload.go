@@ -138,8 +138,24 @@ func (h *FileHandler) UploadChunk(c *gin.Context) {
 		response.Fail(c, http.StatusBadRequest, "无效的分块索引")
 		return
 	}
-	err = h.uploadSvc.UploadChunk(c.Request.Context(), sessionID, index, c.Request.Body)
+
+	claims, err := getClaims(c)
 	if err != nil {
+		response.Fail(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+	ownerID, _, err := idgen.DecodePublicID(claims.UserID)
+	if err != nil {
+		response.Fail(c, http.StatusUnauthorized, "无效的用户凭证")
+		return
+	}
+
+	err = h.uploadSvc.UploadChunk(c.Request.Context(), ownerID, sessionID, index, c.Request.Body)
+	if err != nil {
+		if errors.Is(err, constant.ErrForbidden) {
+			response.Fail(c, http.StatusForbidden, "无权操作此上传会话")
+			return
+		}
 		response.Fail(c, http.StatusInternalServerError, "文件块上传失败: "+err.Error())
 		return
 	}

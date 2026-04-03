@@ -8,12 +8,12 @@
 package middleware
 
 import (
-	"net"
 	"net/http"
 	"sync"
 	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
+	"github.com/anzhiyu-c/anheyu-app/pkg/util"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/time/rate"
 )
@@ -124,31 +124,10 @@ func LinkApplyRateLimit() gin.HandlerFunc {
 }
 
 // getClientIP 获取客户端真实IP地址
+// 委托给 util.GetRealClientIP，仅当直连来源是可信代理时才检查转发头部，
+// 防止客户端直接伪造 X-Real-IP / X-Forwarded-For 等头部绕过限流。
 func getClientIP(c *gin.Context) string {
-	// 优先从 X-Real-IP 获取
-	clientIP := c.GetHeader("X-Real-IP")
-	if clientIP != "" {
-		return clientIP
-	}
-
-	// 其次从 X-Forwarded-For 获取（可能包含多个IP，取第一个）
-	clientIP = c.GetHeader("X-Forwarded-For")
-	if clientIP != "" {
-		// X-Forwarded-For 可能包含多个IP，格式为：client, proxy1, proxy2
-		// 取第一个IP
-		if ip, _, err := net.SplitHostPort(clientIP); err == nil {
-			return ip
-		}
-		// 如果没有端口，直接返回
-		return clientIP
-	}
-
-	// 最后从 RemoteAddr 获取
-	if ip, _, err := net.SplitHostPort(c.Request.RemoteAddr); err == nil {
-		return ip
-	}
-
-	return c.Request.RemoteAddr
+	return util.GetRealClientIP(c)
 }
 
 // CustomRateLimit 创建一个自定义的频率限制中间件
