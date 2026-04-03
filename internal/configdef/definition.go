@@ -478,7 +478,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyAlbumPageBannerTitle, Value: "相册", Comment: "相册页面横幅标题", IsPublic: true},
 	{Key: constant.KeyAlbumPageBannerDescription, Value: "记录生活的美好瞬间", Comment: "相册页面横幅描述", IsPublic: true},
 	{Key: constant.KeyAlbumPageBannerTip, Value: "分享精彩图片", Comment: "相册页面横幅提示文字", IsPublic: true},
-	{Key: constant.KeyAlbumPageLayoutMode, Value: "grid", Comment: "相册布局模式 (grid/waterfall)", IsPublic: true},
+	{Key: constant.KeyAlbumPageLayoutMode, Value: "waterfall", Comment: "相册布局模式 (grid/waterfall)", IsPublic: true},
 	{Key: constant.KeyAlbumPageWaterfallColumnCount, Value: `{"large":4,"medium":3,"small":1}`, Comment: "瀑布流列数配置 (JSON格式)", IsPublic: true},
 	{Key: constant.KeyAlbumPageWaterfallGap, Value: "16", Comment: "瀑布流间距 (像素)", IsPublic: true},
 	{Key: constant.KeyAlbumPageSize, Value: "24", Comment: "相册每页显示数量", IsPublic: true},
