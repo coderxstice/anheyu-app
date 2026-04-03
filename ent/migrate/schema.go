@@ -126,6 +126,33 @@ var (
 				OnDelete:   schema.SetNull,
 			},
 		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "article_deleted_at_status_is_takedown_review_status_show_on_home",
+				Unique:  false,
+				Columns: []*schema.Column{ArticlesColumns[1], ArticlesColumns[9], ArticlesColumns[33], ArticlesColumns[29], ArticlesColumns[16]},
+			},
+			{
+				Name:    "article_deleted_at_status_pin_sort_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{ArticlesColumns[1], ArticlesColumns[9], ArticlesColumns[18], ArticlesColumns[3]},
+			},
+			{
+				Name:    "article_deleted_at_status_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{ArticlesColumns[1], ArticlesColumns[9], ArticlesColumns[3]},
+			},
+			{
+				Name:    "article_deleted_at_is_doc_doc_series_id_doc_sort",
+				Unique:  false,
+				Columns: []*schema.Column{ArticlesColumns[1], ArticlesColumns[39], ArticlesColumns[44], ArticlesColumns[40]},
+			},
+			{
+				Name:    "article_deleted_at_owner_id_status",
+				Unique:  false,
+				Columns: []*schema.Column{ArticlesColumns[1], ArticlesColumns[2], ArticlesColumns[9]},
+			},
+		},
 	}
 	// ArticleHistoriesColumns holds the columns for the "article_histories" table.
 	ArticleHistoriesColumns = []*schema.Column{

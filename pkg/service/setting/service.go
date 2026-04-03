@@ -79,6 +79,7 @@ func (s *settingService) LoadAllSettings(ctx context.Context) error {
 	dbSettings, err := s.repo.FindAll(ctx)
 	if err != nil {
 		s.cache = newCache
+		s.configVersion = time.Now().UnixMilli()
 		log.Printf("⚠️ 警告: 从数据库加载配置失败: %v。服务将使用代码中定义的默认配置。", err)
 		return err
 	}
