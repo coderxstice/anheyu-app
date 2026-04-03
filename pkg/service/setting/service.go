@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/internal/configdef"
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/event"
@@ -30,6 +31,7 @@ type SettingService interface {
 	GetBool(key string) bool
 	GetByKeys(keys []string) map[string]interface{}
 	GetSiteConfig() map[string]interface{}
+	GetConfigVersion() int64
 	UpdateSettings(ctx context.Context, settingsToUpdate map[string]string) error
 	RegisterPublicSettings(keys []string) // 动态注册公开配置
 	IsPublicSetting(key string) bool      // 检查配置是否为公开配置
@@ -37,11 +39,12 @@ type SettingService interface {
 
 // settingService 是 SettingService 接口的实现
 type settingService struct {
-	repo          repository.SettingRepository
-	cache         map[string]string
-	mu            sync.RWMutex
-	publicSetting map[string]bool
-	eventBus      *event.EventBus // 已修正: 类型从 event.Bus 修改为 *event.EventBus
+	repo           repository.SettingRepository
+	cache          map[string]string
+	configVersion  int64 // 配置版本号（毫秒时间戳），每次更新时递增，供前端缓存校验
+	mu             sync.RWMutex
+	publicSetting  map[string]bool
+	eventBus       *event.EventBus
 }
 
 // NewSettingService 是 settingService 的构造函数
@@ -57,6 +60,7 @@ func NewSettingService(repo repository.SettingRepository, bus *event.EventBus) S
 	return &settingService{
 		repo:          repo,
 		cache:         make(map[string]string),
+		configVersion: time.Now().UnixMilli(),
 		publicSetting: publicKeys,
 		eventBus:      bus,
 	}
@@ -84,6 +88,7 @@ func (s *settingService) LoadAllSettings(ctx context.Context) error {
 	}
 
 	s.cache = newCache
+	s.configVersion = time.Now().UnixMilli()
 
 	log.Printf("所有站点配置已成功加载到缓存，共 %d 项。", len(s.cache))
 	return nil
@@ -100,14 +105,15 @@ func (s *settingService) UpdateSettings(ctx context.Context, settingsToUpdate ma
 
 	for key, value := range settingsToUpdate {
 		s.cache[key] = value
-		// 发布事件，并确保 Topic 类型正确
 		s.eventBus.Publish(event.Topic(TopicSettingUpdated), SettingUpdatedEvent{
 			Key:   key,
 			Value: value,
 		})
 	}
 
-	log.Printf("成功更新 %d 个站点配置项，并已发布变更事件。", len(settingsToUpdate))
+	s.configVersion = time.Now().UnixMilli()
+
+	log.Printf("成功更新 %d 个站点配置项，并已发布变更事件。configVersion=%d", len(settingsToUpdate), s.configVersion)
 	return nil
 }
 
@@ -140,7 +146,7 @@ func (s *settingService) GetByKeys(keys []string) map[string]interface{} {
 	return unflatten(flatResult)
 }
 
-// GetSiteConfig 返回所有公开的站点配置
+// GetSiteConfig 返回所有公开的站点配置（含 _config_version 供前端缓存校验）
 func (s *settingService) GetSiteConfig() map[string]interface{} {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -150,7 +156,16 @@ func (s *settingService) GetSiteConfig() map[string]interface{} {
 			safeFlatConfig[key] = value
 		}
 	}
-	return unflatten(safeFlatConfig)
+	result := unflatten(safeFlatConfig)
+	result["_config_version"] = s.configVersion
+	return result
+}
+
+// GetConfigVersion 返回当前配置版本号（毫秒时间戳）
+func (s *settingService) GetConfigVersion() int64 {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.configVersion
 }
 
 func (s *settingService) isPublicSetting(key string) bool {
