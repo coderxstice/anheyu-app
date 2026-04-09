@@ -11,6 +11,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
@@ -84,54 +85,70 @@ func (s *SearchService) clearAllIndexes(ctx context.Context) error {
 		return fmt.Errorf("搜索引擎未初始化")
 	}
 
-	// 检查搜索器类型
-	redisSearcher, ok := s.searcher.(*RedisSearcher)
-	if !ok {
-		// 如果不是 Redis 搜索器，跳过清理操作（Simple 搜索器不需要清理）
+	switch searcher := s.searcher.(type) {
+	case *MeiliSearchSearcher:
+		log.Println("清理 MeiliSearch 索引...")
+		_, err := searcher.index.DeleteAllDocuments(nil)
+		if err != nil {
+			return fmt.Errorf("清理 MeiliSearch 索引失败: %w", err)
+		}
+		log.Println("MeiliSearch 索引已清理")
+		return nil
+
+	case *RedisSearcher:
+		pattern := KeyNamespace + "search:*"
+		keys, err := searcher.client.Keys(ctx, pattern).Result()
+		if err != nil {
+			return fmt.Errorf("获取搜索索引键失败: %w", err)
+		}
+		if len(keys) > 0 {
+			pipe := searcher.client.Pipeline()
+			for _, key := range keys {
+				pipe.Del(ctx, key)
+			}
+			if _, err := pipe.Exec(ctx); err != nil {
+				return fmt.Errorf("删除搜索索引失败: %w", err)
+			}
+			log.Printf("已清理 %d 个搜索索引键", len(keys))
+		}
+		return nil
+
+	default:
 		log.Println("当前使用简单搜索模式，无需清理索引")
 		return nil
 	}
-
-	// 获取所有以 "anheyu:search:" 开头的键
-	pattern := KeyNamespace + "search:*"
-	keys, err := redisSearcher.client.Keys(ctx, pattern).Result()
-	if err != nil {
-		return fmt.Errorf("获取搜索索引键失败: %w", err)
-	}
-
-	if len(keys) > 0 {
-		// 批量删除所有搜索相关的键
-		pipe := redisSearcher.client.Pipeline()
-		for _, key := range keys {
-			pipe.Del(ctx, key)
-		}
-
-		if _, err := pipe.Exec(ctx); err != nil {
-			return fmt.Errorf("删除搜索索引失败: %w", err)
-		}
-
-		log.Printf("已清理 %d 个搜索索引键", len(keys))
-	}
-
-	return nil
 }
 
 // InitializeSearchEngine 初始化搜索引擎（支持自动降级）
+// 优先级: MeiliSearch > Redis > Simple（内存）
 func InitializeSearchEngine(settingSvc setting.SettingService) error {
-	// 尝试使用 Redis 搜索模式
+	// 1. 尝试使用 MeiliSearch
+	meiliHost := os.Getenv("ANHEYU_MEILISEARCH_HOST")
+	if meiliHost != "" {
+		meiliKey := os.Getenv("ANHEYU_MEILISEARCH_API_KEY")
+		meiliSearcher, err := NewMeiliSearchSearcher(meiliHost, meiliKey, settingSvc)
+		if err != nil {
+			log.Printf("⚠️  MeiliSearch 初始化失败: %v，尝试降级...", err)
+		} else {
+			AppSearcher = meiliSearcher
+			log.Println("✅ MeiliSearch 搜索模式已启用")
+			return nil
+		}
+	}
+
+	// 2. 尝试使用 Redis 搜索模式
 	redisSearcher, err := NewRedisSearcher(settingSvc)
 	if err != nil {
 		return fmt.Errorf("Redis 搜索初始化失败: %w", err)
 	}
 
 	if redisSearcher != nil {
-		// Redis 可用，使用 Redis 搜索
 		AppSearcher = redisSearcher
 		log.Println("✅ Redis 搜索模式已启用")
 		return nil
 	}
 
-	// Redis 不可用，降级到简单搜索模式
+	// 3. 降级到简单搜索模式
 	simpleSearcher := NewSimpleSearcher(settingSvc)
 	AppSearcher = simpleSearcher
 	log.Println("✅ 简单搜索模式已启用（降级方案）")

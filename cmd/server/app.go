@@ -332,9 +332,6 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	userSvc := user.NewUserService(userRepo, userGroupRepo)
 	storagePolicySvc := volume.NewStoragePolicyService(storagePolicyRepo, fileRepo, txManager, strategyManager, settingSvc, cacheSvc, storageProviders)
 	thumbnailSvc := thumbnail.NewThumbnailService(metadataSvc, fileRepo, entityRepo, storagePolicySvc, settingSvc, storageProviders)
-	if err != nil {
-		return nil, tempCleanup, fmt.Errorf("初始化缩略图服务失败: %w", err)
-	}
 	pathLocker := utility.NewPathLocker()
 	syncSvc := process.NewSyncService(txManager, fileRepo, entityRepo, fileEntityRepo, storagePolicySvc, eventBus, storageProviders, settingSvc)
 	vfsSvc := volume.NewVFSService(storagePolicySvc, cacheSvc, fileRepo, entityRepo, settingSvc, storageProviders)
@@ -372,7 +369,7 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	// 初始化文章历史版本服务（需要在taskBroker之前创建，用于定时清理任务）
 	articleHistorySvc := article_history_service.NewService(articleHistoryRepo, articleRepo, userRepo)
 
-	taskBroker := task.NewBroker(uploadSvc, thumbnailSvc, cleanupSvc, articleRepo, commentRepo, emailSvc, cacheSvc, linkCategoryRepo, linkTagRepo, linkRepo, settingSvc, statService, articleHistorySvc)
+	taskBroker := task.NewBroker(uploadSvc, thumbnailSvc, cleanupSvc, articleRepo, commentRepo, emailSvc, cacheSvc, linkCategoryRepo, linkTagRepo, linkRepo, settingSvc, statService, articleHistorySvc, nil)
 	pageSvc := page_service.NewService(pageRepo)
 
 	// 初始化搜索服务
@@ -384,37 +381,48 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	searchSvc := search.NewSearchService()
 	sitemapSvc := sitemap.NewService(articleRepo, pageRepo, linkRepo, settingSvc)
 
-	// 重建所有文章的搜索索引
+	// 重建所有文章的搜索索引（分页获取全部文章）
 	go func() {
 		log.Println("🔄 开始重建搜索索引...")
-		if err := searchSvc.RebuildAllIndexes(context.Background()); err != nil {
+		ctx := context.Background()
+		if err := searchSvc.RebuildAllIndexes(ctx); err != nil {
 			log.Printf("重建搜索索引失败: %v", err)
 			return
 		}
 
-		// 获取所有文章并建立索引
-		articles, _, err := articleRepo.List(context.Background(), &model.ListArticlesOptions{
-			WithContent: true,
-			Page:        1,
-			PageSize:    1000, // 一次性获取所有文章
-		})
-		if err != nil {
-			log.Printf("获取文章列表失败: %v", err)
-			return
-		}
-
-		log.Printf("📚 找到 %d 篇文章，开始建立搜索索引...", len(articles))
-
+		const batchSize = 200
 		successCount := 0
-		for _, article := range articles {
-			if err := searchSvc.IndexArticle(context.Background(), article); err != nil {
-				log.Printf("为文章 %s 建立索引失败: %v", article.Title, err)
-			} else {
-				successCount++
+		totalCount := 0
+
+		for page := 1; ; page++ {
+			articles, _, err := articleRepo.List(ctx, &model.ListArticlesOptions{
+				WithContent: true,
+				Page:        page,
+				PageSize:    batchSize,
+			})
+			if err != nil {
+				log.Printf("获取文章列表失败(page=%d): %v", page, err)
+				break
+			}
+			if len(articles) == 0 {
+				break
+			}
+			totalCount += len(articles)
+
+			for _, article := range articles {
+				if err := searchSvc.IndexArticle(ctx, article); err != nil {
+					log.Printf("为文章 %s 建立索引失败: %v", article.Title, err)
+				} else {
+					successCount++
+				}
+			}
+
+			if len(articles) < batchSize {
+				break
 			}
 		}
 
-		log.Printf("✅ 搜索索引重建完成！成功为 %d/%d 篇文章建立索引", successCount, len(articles))
+		log.Printf("✅ 搜索索引重建完成！成功为 %d/%d 篇文章建立索引", successCount, totalCount)
 	}()
 
 	// 初始化主色调服务
@@ -470,6 +478,7 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	// 初始化配置备份服务（备份的是系统设置/数据库配置，与「导出配置」一致）
 	log.Printf("[DEBUG] 正在初始化 ConfigBackupService...")
 	configBackupSvc := config_service.NewBackupService("data/backup", configImportExportSvc)
+	taskBroker.SetBackupService(configBackupSvc)
 	log.Printf("[DEBUG] ConfigBackupService 初始化完成")
 
 	// 初始化 Turnstile 人机验证服务

@@ -96,11 +96,12 @@ func (s *settingService) LoadAllSettings(ctx context.Context) error {
 }
 
 // UpdateSettings 更新一个或多个配置项，并发布变更事件
+// 使用 Upsert 确保键即使在数据库中不存在也能正确写入，避免静默丢失
 func (s *settingService) UpdateSettings(ctx context.Context, settingsToUpdate map[string]string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if err := s.repo.Update(ctx, settingsToUpdate); err != nil {
+	if err := s.repo.Upsert(ctx, settingsToUpdate); err != nil {
 		return err
 	}
 
