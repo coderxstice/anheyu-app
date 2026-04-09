@@ -167,7 +167,17 @@ func (s *SimpleSearcher) articleToSearchHit(article *model.Article) *model.Searc
 	return hit
 }
 
+// ClearAllDocuments 清除所有内存中的文档索引
+func (s *SimpleSearcher) ClearAllDocuments(ctx context.Context) error {
+	s.articles.Range(func(key, _ interface{}) bool {
+		s.articles.Delete(key)
+		return true
+	})
+	log.Println("简单搜索索引已清理")
+	return nil
+}
+
 // HealthCheck 健康检查
 func (s *SimpleSearcher) HealthCheck(ctx context.Context) error {
-	return nil // 内存搜索器总是健康的
+	return nil
 }

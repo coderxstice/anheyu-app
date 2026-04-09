@@ -20,6 +20,8 @@ type Searcher interface {
 	IndexArticle(ctx context.Context, article *Article) error
 	// DeleteArticle 删除一篇文章的索引
 	DeleteArticle(ctx context.Context, articleID string) error
+	// ClearAllDocuments 清除所有已索引的文档（用于重建索引前的清理）
+	ClearAllDocuments(ctx context.Context) error
 	// HealthCheck 健康检查
 	HealthCheck(ctx context.Context) error
 }

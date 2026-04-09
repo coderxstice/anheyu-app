@@ -251,6 +251,17 @@ func (s *MeiliSearchSearcher) DeleteArticle(ctx context.Context, articleID strin
 	return nil
 }
 
+// ClearAllDocuments 清除 MeiliSearch 中所有已索引的文档
+func (s *MeiliSearchSearcher) ClearAllDocuments(ctx context.Context) error {
+	log.Println("清理 MeiliSearch 索引...")
+	_, err := s.index.DeleteAllDocuments(nil)
+	if err != nil {
+		return fmt.Errorf("清理 MeiliSearch 索引失败: %w", err)
+	}
+	log.Println("MeiliSearch 索引已清理")
+	return nil
+}
+
 // HealthCheck MeiliSearch 健康检查
 func (s *MeiliSearchSearcher) HealthCheck(ctx context.Context) error {
 	health, err := s.client.Health()

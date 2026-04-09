@@ -2,7 +2,7 @@
  * @Description: 搜索服务 - 搜索架构实现
  * @Author: 安知鱼
  * @Date: 2025-01-27 10:00:00
- * @LastEditTime: 2025-08-30 15:22:34
+ * @LastEditTime: 2026-04-09
  * @LastEditors: 安知鱼
  */
 package search
@@ -11,67 +11,62 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 )
 
-// AppSearcher 全局搜索器实例
+// AppSearcher 全局搜索器实例（可由插件管理器在启动时替换）
 var AppSearcher model.Searcher
 
 // SearchService 搜索服务
-type SearchService struct {
-	searcher model.Searcher
-}
+// 始终读取全局 AppSearcher 以支持插件热更新，不缓存本地引用
+type SearchService struct{}
 
 // NewSearchService 创建搜索服务实例
 func NewSearchService() *SearchService {
-	return &SearchService{
-		searcher: AppSearcher,
-	}
+	return &SearchService{}
 }
 
 // Search 执行搜索
 func (s *SearchService) Search(ctx context.Context, query string, page int, size int) (*model.SearchResult, error) {
-	if s.searcher == nil {
+	searcher := AppSearcher
+	if searcher == nil {
 		return nil, fmt.Errorf("搜索引擎未初始化")
 	}
-	return s.searcher.Search(ctx, query, page, size)
+	return searcher.Search(ctx, query, page, size)
 }
 
 // IndexArticle 索引文章
 func (s *SearchService) IndexArticle(ctx context.Context, article *model.Article) error {
-	if s.searcher == nil {
+	searcher := AppSearcher
+	if searcher == nil {
 		log.Println("[警告] 搜索引擎未初始化，跳过索引操作")
-		return nil // 返回 nil 而不是错误，避免影响主流程
+		return nil
 	}
-	return s.searcher.IndexArticle(ctx, article)
+	return searcher.IndexArticle(ctx, article)
 }
 
 // DeleteArticle 删除文章索引
 func (s *SearchService) DeleteArticle(ctx context.Context, articleID string) error {
-	if s.searcher == nil {
+	searcher := AppSearcher
+	if searcher == nil {
 		log.Println("[警告] 搜索引擎未初始化，跳过删除索引操作")
-		return nil // 返回 nil 而不是错误，避免影响主流程
+		return nil
 	}
-	return s.searcher.DeleteArticle(ctx, articleID)
+	return searcher.DeleteArticle(ctx, articleID)
 }
 
 // RebuildAllIndexes 重建所有文章的搜索索引
 func (s *SearchService) RebuildAllIndexes(ctx context.Context) error {
-	// 这里需要调用文章服务来获取所有文章
-	// 由于存在循环依赖，我们通过全局变量来访问
-	if s.searcher == nil || AppSearcher == nil {
+	searcher := AppSearcher
+	if searcher == nil {
 		log.Println("[警告] 搜索引擎未初始化，跳过重建索引操作")
 		return fmt.Errorf("搜索引擎未初始化")
 	}
 
-	// 获取所有文章的逻辑将在应用启动时实现
 	log.Println("开始重建搜索索引...")
-
-	// 清理所有现有的搜索索引
-	if err := s.clearAllIndexes(ctx); err != nil {
+	if err := searcher.ClearAllDocuments(ctx); err != nil {
 		return fmt.Errorf("清理现有索引失败: %w", err)
 	}
 
@@ -79,64 +74,16 @@ func (s *SearchService) RebuildAllIndexes(ctx context.Context) error {
 	return nil
 }
 
-// clearAllIndexes 清理所有现有的搜索索引
-func (s *SearchService) clearAllIndexes(ctx context.Context) error {
-	if s.searcher == nil {
-		return fmt.Errorf("搜索引擎未初始化")
-	}
-
-	switch searcher := s.searcher.(type) {
-	case *MeiliSearchSearcher:
-		log.Println("清理 MeiliSearch 索引...")
-		_, err := searcher.index.DeleteAllDocuments(nil)
-		if err != nil {
-			return fmt.Errorf("清理 MeiliSearch 索引失败: %w", err)
-		}
-		log.Println("MeiliSearch 索引已清理")
-		return nil
-
-	case *RedisSearcher:
-		pattern := KeyNamespace + "search:*"
-		keys, err := searcher.client.Keys(ctx, pattern).Result()
-		if err != nil {
-			return fmt.Errorf("获取搜索索引键失败: %w", err)
-		}
-		if len(keys) > 0 {
-			pipe := searcher.client.Pipeline()
-			for _, key := range keys {
-				pipe.Del(ctx, key)
-			}
-			if _, err := pipe.Exec(ctx); err != nil {
-				return fmt.Errorf("删除搜索索引失败: %w", err)
-			}
-			log.Printf("已清理 %d 个搜索索引键", len(keys))
-		}
-		return nil
-
-	default:
-		log.Println("当前使用简单搜索模式，无需清理索引")
-		return nil
-	}
-}
-
-// InitializeSearchEngine 初始化搜索引擎（支持自动降级）
-// 优先级: MeiliSearch > Redis > Simple（内存）
+// InitializeSearchEngine 初始化搜索引擎（内置引擎降级链）
+// 如果插件已提供搜索引擎（AppSearcher 已被设置），此函数不会覆盖
+// 优先级: 插件搜索引擎 > Redis > Simple（内存）
 func InitializeSearchEngine(settingSvc setting.SettingService) error {
-	// 1. 尝试使用 MeiliSearch
-	meiliHost := os.Getenv("ANHEYU_MEILISEARCH_HOST")
-	if meiliHost != "" {
-		meiliKey := os.Getenv("ANHEYU_MEILISEARCH_API_KEY")
-		meiliSearcher, err := NewMeiliSearchSearcher(meiliHost, meiliKey, settingSvc)
-		if err != nil {
-			log.Printf("⚠️  MeiliSearch 初始化失败: %v，尝试降级...", err)
-		} else {
-			AppSearcher = meiliSearcher
-			log.Println("✅ MeiliSearch 搜索模式已启用")
-			return nil
-		}
+	if AppSearcher != nil {
+		log.Println("✅ 搜索引擎已由外部设置（可能来自插件），跳过内置引擎初始化")
+		return nil
 	}
 
-	// 2. 尝试使用 Redis 搜索模式
+	// 尝试使用 Redis 搜索模式
 	redisSearcher, err := NewRedisSearcher(settingSvc)
 	if err != nil {
 		return fmt.Errorf("Redis 搜索初始化失败: %w", err)
@@ -148,7 +95,7 @@ func InitializeSearchEngine(settingSvc setting.SettingService) error {
 		return nil
 	}
 
-	// 3. 降级到简单搜索模式
+	// 降级到简单搜索模式
 	simpleSearcher := NewSimpleSearcher(settingSvc)
 	AppSearcher = simpleSearcher
 	log.Println("✅ 简单搜索模式已启用（降级方案）")

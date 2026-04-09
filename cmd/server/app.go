@@ -16,6 +16,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -48,6 +49,7 @@ import (
 	file_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/file"
 	link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/link"
 	music_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/music"
+	plugin_admin_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/plugin_admin"
 	notification_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/notification"
 	page_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/page"
 	post_category_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_category"
@@ -107,6 +109,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/volume/strategy"
 	wechat_service "github.com/anzhiyu-c/anheyu-app/pkg/service/wechat"
 	"github.com/anzhiyu-c/anheyu-app/pkg/ssr"
+	"github.com/anzhiyu-c/anheyu-app/pkg/plugin"
 	"github.com/anzhiyu-c/anheyu-app/pkg/util"
 
 	_ "github.com/anzhiyu-c/anheyu-app/ent/runtime"
@@ -372,10 +375,9 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	taskBroker := task.NewBroker(uploadSvc, thumbnailSvc, cleanupSvc, articleRepo, commentRepo, emailSvc, cacheSvc, linkCategoryRepo, linkTagRepo, linkRepo, settingSvc, statService, articleHistorySvc, nil)
 	pageSvc := page_service.NewService(pageRepo)
 
-	// 初始化搜索服务
+	// 初始化搜索服务（稍后在插件初始化后会再次检查插件提供的搜索引擎）
 	if err := search.InitializeSearchEngine(settingSvc); err != nil {
 		log.Printf("初始化搜索引擎失败: %v", err)
-		// 不返回错误，让应用继续启动
 	}
 
 	searchSvc := search.NewSearchService()
@@ -669,6 +671,41 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	}
 	appRouter.Setup(engine)
 
+	// 初始化插件系统：扫描 data/plugins/ 目录，加载运行时插件
+	pluginDir := filepath.Join("data", "plugins")
+	pluginMgr, pluginErr := plugin.InitManager(pluginDir)
+	if pluginErr != nil {
+		log.Printf("插件发现失败: %v", pluginErr)
+	}
+
+	// 插件提供的搜索引擎优先级最高
+	if pluginMgr != nil {
+		if pluginSearcher := pluginMgr.BestSearcher(); pluginSearcher != nil {
+			search.AppSearcher = pluginSearcher
+			log.Println("✅ 搜索引擎已切换为插件提供的实现")
+		}
+	}
+
+	// 注册插件管理 API 路由
+	pluginAdminHandler := plugin_admin_handler.NewHandler(pluginMgr)
+	adminPluginGroup := engine.Group("/api/admin/plugins", mw.AdminAuth())
+	{
+		adminPluginGroup.GET("", pluginAdminHandler.List)
+		adminPluginGroup.POST("/:id/reload", pluginAdminHandler.Reload)
+		adminPluginGroup.POST("/:id/disable", pluginAdminHandler.Disable)
+		adminPluginGroup.POST("/:id/enable", pluginAdminHandler.Enable)
+	}
+
+	// 设置搜索引擎切换回调（插件热加载时自动切换搜索引擎）
+	if pluginMgr != nil {
+		pluginMgr.SetSearcherChangeCallback(func(searcher model.Searcher) {
+			if searcher != nil {
+				search.AppSearcher = searcher
+				log.Println("✅ 搜索引擎已由插件热更新")
+			}
+		})
+	}
+
 	// --- 微信分享路由 ---
 	setupWechatShareRoutes(engine, settingSvc)
 
@@ -706,6 +743,11 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	// 创建cleanup函数
 	cleanup := func() {
 		log.Println("执行清理操作...")
+
+		// 关闭插件进程
+		if pluginMgr != nil {
+			pluginMgr.Shutdown()
+		}
 
 		// 停止所有 SSR 主题
 		log.Println("停止所有 SSR 主题...")

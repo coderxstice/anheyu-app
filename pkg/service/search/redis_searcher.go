@@ -510,6 +510,26 @@ func (rs *RedisSearcher) mapDataToSearchHit(id string, data map[string]string) *
 	return hit
 }
 
+// ClearAllDocuments 清除 Redis 中所有搜索索引键
+func (rs *RedisSearcher) ClearAllDocuments(ctx context.Context) error {
+	pattern := KeyNamespace + "search:*"
+	keys, err := rs.client.Keys(ctx, pattern).Result()
+	if err != nil {
+		return fmt.Errorf("获取搜索索引键失败: %w", err)
+	}
+	if len(keys) > 0 {
+		pipe := rs.client.Pipeline()
+		for _, key := range keys {
+			pipe.Del(ctx, key)
+		}
+		if _, err := pipe.Exec(ctx); err != nil {
+			return fmt.Errorf("删除搜索索引失败: %w", err)
+		}
+		log.Printf("已清理 %d 个搜索索引键", len(keys))
+	}
+	return nil
+}
+
 // HealthCheck 健康检查
 func (rs *RedisSearcher) HealthCheck(ctx context.Context) error {
 	return rs.client.Ping(ctx).Err()
