@@ -103,10 +103,25 @@ func (m *Manager) Install(ctx context.Context, themeName, downloadURL string) er
 	if err != nil {
 		return fmt.Errorf("无效的下载URL: %w", err)
 	}
+	if parsedURL.Scheme != "https" && parsedURL.Scheme != "http" {
+		return fmt.Errorf("不支持的URL协议: %s", parsedURL.Scheme)
+	}
 	host := parsedURL.Hostname()
-	if host == "localhost" || host == "127.0.0.1" || host == "::1" ||
-		strings.HasPrefix(host, "10.") || strings.HasPrefix(host, "192.168.") || strings.HasPrefix(host, "172.") {
+	if host == "localhost" || host == "127.0.0.1" || host == "::1" || host == "0.0.0.0" ||
+		strings.HasPrefix(host, "10.") || strings.HasPrefix(host, "192.168.") ||
+		strings.HasPrefix(host, "169.254.") || strings.HasPrefix(host, "fc00:") ||
+		strings.HasPrefix(host, "fd") || strings.HasPrefix(host, "fe80:") {
 		return fmt.Errorf("不允许从内网地址下载主题")
+	}
+	// 172.16.0.0/12 私有地址段精确匹配
+	if strings.HasPrefix(host, "172.") {
+		parts := strings.SplitN(host, ".", 3)
+		if len(parts) >= 2 {
+			var second int
+			if _, err := fmt.Sscanf(parts[1], "%d", &second); err == nil && second >= 16 && second <= 31 {
+				return fmt.Errorf("不允许从内网地址下载主题")
+			}
+		}
 	}
 
 	m.mu.Lock()
@@ -194,6 +209,10 @@ func (m *Manager) extractTarGz(r io.Reader, destDir string) error {
 				return err
 			}
 		case tar.TypeReg:
+			const maxFileSize = 100 * 1024 * 1024 // 单文件最大 100MB
+			if header.Size > maxFileSize {
+				return fmt.Errorf("文件过大: %s (%d bytes > %d bytes)", name, header.Size, maxFileSize)
+			}
 			if err := os.MkdirAll(filepath.Dir(target), 0755); err != nil {
 				return err
 			}
@@ -201,7 +220,7 @@ func (m *Manager) extractTarGz(r io.Reader, destDir string) error {
 			if err != nil {
 				return err
 			}
-			if _, err := io.Copy(f, tr); err != nil {
+			if _, err := io.Copy(f, io.LimitReader(tr, maxFileSize)); err != nil {
 				f.Close()
 				return err
 			}
