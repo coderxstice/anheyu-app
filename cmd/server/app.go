@@ -188,6 +188,9 @@ type AppOptions struct {
 	// SkipFrontend 为 true 时跳过内嵌 Vue 前端路由注册，
 	// 适用于 Pro 版等使用独立前端服务（如 Next.js）的场景。
 	SkipFrontend bool
+	// SkipPluginSystem 为 true 时跳过插件扫描、搜索引擎接管与 /api/admin/plugins 路由注册，
+	// 适用于 Pro 版在自身 main 中单独调用 plugin.InitManager 并注册管理接口，避免与社区版重复注册。
+	SkipPluginSystem bool
 	// ConfigExtension 配置导出/导入扩展（如 Pro 版支付配置），为 nil 时仅导出/导入系统设置
 	ConfigExtension config_service.ConfigExportImportExtension
 }
@@ -671,39 +674,46 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	}
 	appRouter.Setup(engine)
 
-	// 初始化插件系统：扫描 data/plugins/ 目录，加载运行时插件
-	pluginDir := filepath.Join("data", "plugins")
-	pluginMgr, pluginErr := plugin.InitManager(pluginDir)
-	if pluginErr != nil {
-		log.Printf("插件发现失败: %v", pluginErr)
-	}
-
-	// 插件提供的搜索引擎优先级最高
-	if pluginMgr != nil {
-		if pluginSearcher := pluginMgr.BestSearcher(); pluginSearcher != nil {
-			search.AppSearcher = pluginSearcher
-			log.Println("✅ 搜索引擎已切换为插件提供的实现")
+	// 插件系统：社区版在此初始化；Pro 版在 main 中自行 InitManager 并注册 /api/admin/plugins，须设 SkipPluginSystem 避免重复
+	var pluginMgr *plugin.Manager
+	if opts.SkipPluginSystem {
+		log.Println("⏭️  SkipPluginSystem=true，跳过社区版插件初始化与 /api/admin/plugins（由宿主进程负责）")
+	} else {
+		// 初始化插件系统：扫描 data/plugins/ 目录，加载运行时插件
+		pluginDir := filepath.Join("data", "plugins")
+		var pluginErr error
+		pluginMgr, pluginErr = plugin.InitManager(pluginDir)
+		if pluginErr != nil {
+			log.Printf("插件发现失败: %v", pluginErr)
 		}
-	}
 
-	// 注册插件管理 API 路由
-	pluginAdminHandler := plugin_admin_handler.NewHandler(pluginMgr)
-	adminPluginGroup := engine.Group("/api/admin/plugins", mw.AdminAuth())
-	{
-		adminPluginGroup.GET("", pluginAdminHandler.List)
-		adminPluginGroup.POST("/:id/reload", pluginAdminHandler.Reload)
-		adminPluginGroup.POST("/:id/disable", pluginAdminHandler.Disable)
-		adminPluginGroup.POST("/:id/enable", pluginAdminHandler.Enable)
-	}
-
-	// 设置搜索引擎切换回调（插件热加载时自动切换搜索引擎）
-	if pluginMgr != nil {
-		pluginMgr.SetSearcherChangeCallback(func(searcher model.Searcher) {
-			if searcher != nil {
-				search.AppSearcher = searcher
-				log.Println("✅ 搜索引擎已由插件热更新")
+		// 插件提供的搜索引擎优先级最高
+		if pluginMgr != nil {
+			if pluginSearcher := pluginMgr.BestSearcher(); pluginSearcher != nil {
+				search.AppSearcher = pluginSearcher
+				log.Println("✅ 搜索引擎已切换为插件提供的实现")
 			}
-		})
+		}
+
+		// 注册插件管理 API 路由
+		pluginAdminHandler := plugin_admin_handler.NewHandler(pluginMgr)
+		adminPluginGroup := engine.Group("/api/admin/plugins", mw.AdminAuth())
+		{
+			adminPluginGroup.GET("", pluginAdminHandler.List)
+			adminPluginGroup.POST("/:id/reload", pluginAdminHandler.Reload)
+			adminPluginGroup.POST("/:id/disable", pluginAdminHandler.Disable)
+			adminPluginGroup.POST("/:id/enable", pluginAdminHandler.Enable)
+		}
+
+		// 设置搜索引擎切换回调（插件热加载时自动切换搜索引擎）
+		if pluginMgr != nil {
+			pluginMgr.SetSearcherChangeCallback(func(searcher model.Searcher) {
+				if searcher != nil {
+					search.AppSearcher = searcher
+					log.Println("✅ 搜索引擎已由插件热更新")
+				}
+			})
+		}
 	}
 
 	// --- 微信分享路由 ---
