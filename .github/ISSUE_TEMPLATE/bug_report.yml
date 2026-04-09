@@ -71,8 +71,8 @@ body:
     attributes:
       label: 是否修改自定义前端文件？ || Has the FrontEnd files been modified?
       options:
-        - 是 (Yes)
         - 不是 (No)
+        - 是 (Yes)
     validations:
       required: true
 

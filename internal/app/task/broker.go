@@ -14,6 +14,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
 	article_history_service "github.com/anzhiyu-c/anheyu-app/pkg/service/article_history"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/cleanup"
+	configsvc "github.com/anzhiyu-c/anheyu-app/pkg/service/config"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/file"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/statistics"
@@ -41,6 +42,7 @@ type Broker struct {
 	settingSvc        setting.SettingService
 	statService       statistics.VisitorStatService
 	articleHistorySvc article_history_service.Service
+	backupSvc         configsvc.BackupService
 }
 
 // NewBroker 是 Broker 的构造函数。
@@ -58,6 +60,7 @@ func NewBroker(
 	settingSvc setting.SettingService,
 	statService statistics.VisitorStatService,
 	articleHistorySvc article_history_service.Service,
+	backupSvc configsvc.BackupService,
 ) *Broker {
 
 	slogHandler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
@@ -91,6 +94,7 @@ func NewBroker(
 		settingSvc:        settingSvc,
 		statService:       statService,
 		articleHistorySvc: articleHistorySvc,
+		backupSvc:         backupSvc,
 	}
 
 	broker.startWorkerPool()
@@ -197,7 +201,24 @@ func (b *Broker) RegisterCronJobs() {
 		b.logger.Info("-> Successfully registered 'ArticleHistoryCleanupJob'", "schedule", "every day at 3:30:00 AM")
 	}
 
+	// 添加定时自动备份任务 - 每天凌晨4点执行
+	// 备份任务为非核心功能，注册失败时仅记录日志而不终止应用启动
+	if b.backupSvc != nil {
+		scheduledBackupJob := NewScheduledBackupJob(b.backupSvc, b.logger)
+		_, err = b.cron.AddJob("0 0 4 * * *", scheduledBackupJob) // 每天凌晨4点
+		if err != nil {
+			b.logger.Error("Failed to add 'ScheduledBackupJob'", slog.Any("error", err))
+		} else {
+			b.logger.Info("-> Successfully registered 'ScheduledBackupJob'", "schedule", "every day at 4:00:00 AM")
+		}
+	}
+
 	b.logger.Info("All periodic jobs registered.")
+}
+
+// SetBackupService 设置备份服务（用于延迟注入，避免初始化顺序问题）
+func (b *Broker) SetBackupService(svc configsvc.BackupService) {
+	b.backupSvc = svc
 }
 
 // Dispatch 将任务发送到队列中。

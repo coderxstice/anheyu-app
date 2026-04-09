@@ -16,6 +16,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -48,6 +49,7 @@ import (
 	file_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/file"
 	link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/link"
 	music_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/music"
+	plugin_admin_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/plugin_admin"
 	notification_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/notification"
 	page_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/page"
 	post_category_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_category"
@@ -107,6 +109,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/volume/strategy"
 	wechat_service "github.com/anzhiyu-c/anheyu-app/pkg/service/wechat"
 	"github.com/anzhiyu-c/anheyu-app/pkg/ssr"
+	"github.com/anzhiyu-c/anheyu-app/pkg/plugin"
 	"github.com/anzhiyu-c/anheyu-app/pkg/util"
 
 	_ "github.com/anzhiyu-c/anheyu-app/ent/runtime"
@@ -332,9 +335,6 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	userSvc := user.NewUserService(userRepo, userGroupRepo)
 	storagePolicySvc := volume.NewStoragePolicyService(storagePolicyRepo, fileRepo, txManager, strategyManager, settingSvc, cacheSvc, storageProviders)
 	thumbnailSvc := thumbnail.NewThumbnailService(metadataSvc, fileRepo, entityRepo, storagePolicySvc, settingSvc, storageProviders)
-	if err != nil {
-		return nil, tempCleanup, fmt.Errorf("初始化缩略图服务失败: %w", err)
-	}
 	pathLocker := utility.NewPathLocker()
 	syncSvc := process.NewSyncService(txManager, fileRepo, entityRepo, fileEntityRepo, storagePolicySvc, eventBus, storageProviders, settingSvc)
 	vfsSvc := volume.NewVFSService(storagePolicySvc, cacheSvc, fileRepo, entityRepo, settingSvc, storageProviders)
@@ -372,49 +372,59 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	// 初始化文章历史版本服务（需要在taskBroker之前创建，用于定时清理任务）
 	articleHistorySvc := article_history_service.NewService(articleHistoryRepo, articleRepo, userRepo)
 
-	taskBroker := task.NewBroker(uploadSvc, thumbnailSvc, cleanupSvc, articleRepo, commentRepo, emailSvc, cacheSvc, linkCategoryRepo, linkTagRepo, linkRepo, settingSvc, statService, articleHistorySvc)
+	taskBroker := task.NewBroker(uploadSvc, thumbnailSvc, cleanupSvc, articleRepo, commentRepo, emailSvc, cacheSvc, linkCategoryRepo, linkTagRepo, linkRepo, settingSvc, statService, articleHistorySvc, nil)
 	pageSvc := page_service.NewService(pageRepo)
 
-	// 初始化搜索服务
+	// 初始化搜索服务（稍后在插件初始化后会再次检查插件提供的搜索引擎）
 	if err := search.InitializeSearchEngine(settingSvc); err != nil {
 		log.Printf("初始化搜索引擎失败: %v", err)
-		// 不返回错误，让应用继续启动
 	}
 
 	searchSvc := search.NewSearchService()
 	sitemapSvc := sitemap.NewService(articleRepo, pageRepo, linkRepo, settingSvc)
 
-	// 重建所有文章的搜索索引
+	// 重建所有文章的搜索索引（分页获取全部文章）
 	go func() {
 		log.Println("🔄 开始重建搜索索引...")
-		if err := searchSvc.RebuildAllIndexes(context.Background()); err != nil {
+		ctx := context.Background()
+		if err := searchSvc.RebuildAllIndexes(ctx); err != nil {
 			log.Printf("重建搜索索引失败: %v", err)
 			return
 		}
 
-		// 获取所有文章并建立索引
-		articles, _, err := articleRepo.List(context.Background(), &model.ListArticlesOptions{
-			WithContent: true,
-			Page:        1,
-			PageSize:    1000, // 一次性获取所有文章
-		})
-		if err != nil {
-			log.Printf("获取文章列表失败: %v", err)
-			return
-		}
-
-		log.Printf("📚 找到 %d 篇文章，开始建立搜索索引...", len(articles))
-
+		const batchSize = 200
 		successCount := 0
-		for _, article := range articles {
-			if err := searchSvc.IndexArticle(context.Background(), article); err != nil {
-				log.Printf("为文章 %s 建立索引失败: %v", article.Title, err)
-			} else {
-				successCount++
+		totalCount := 0
+
+		for page := 1; ; page++ {
+			articles, _, err := articleRepo.List(ctx, &model.ListArticlesOptions{
+				WithContent: true,
+				Page:        page,
+				PageSize:    batchSize,
+			})
+			if err != nil {
+				log.Printf("获取文章列表失败(page=%d): %v", page, err)
+				break
+			}
+			if len(articles) == 0 {
+				break
+			}
+			totalCount += len(articles)
+
+			for _, article := range articles {
+				if err := searchSvc.IndexArticle(ctx, article); err != nil {
+					log.Printf("为文章 %s 建立索引失败: %v", article.Title, err)
+				} else {
+					successCount++
+				}
+			}
+
+			if len(articles) < batchSize {
+				break
 			}
 		}
 
-		log.Printf("✅ 搜索索引重建完成！成功为 %d/%d 篇文章建立索引", successCount, len(articles))
+		log.Printf("✅ 搜索索引重建完成！成功为 %d/%d 篇文章建立索引", successCount, totalCount)
 	}()
 
 	// 初始化主色调服务
@@ -470,6 +480,7 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	// 初始化配置备份服务（备份的是系统设置/数据库配置，与「导出配置」一致）
 	log.Printf("[DEBUG] 正在初始化 ConfigBackupService...")
 	configBackupSvc := config_service.NewBackupService("data/backup", configImportExportSvc)
+	taskBroker.SetBackupService(configBackupSvc)
 	log.Printf("[DEBUG] ConfigBackupService 初始化完成")
 
 	// 初始化 Turnstile 人机验证服务
@@ -660,6 +671,41 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	}
 	appRouter.Setup(engine)
 
+	// 初始化插件系统：扫描 data/plugins/ 目录，加载运行时插件
+	pluginDir := filepath.Join("data", "plugins")
+	pluginMgr, pluginErr := plugin.InitManager(pluginDir)
+	if pluginErr != nil {
+		log.Printf("插件发现失败: %v", pluginErr)
+	}
+
+	// 插件提供的搜索引擎优先级最高
+	if pluginMgr != nil {
+		if pluginSearcher := pluginMgr.BestSearcher(); pluginSearcher != nil {
+			search.AppSearcher = pluginSearcher
+			log.Println("✅ 搜索引擎已切换为插件提供的实现")
+		}
+	}
+
+	// 注册插件管理 API 路由
+	pluginAdminHandler := plugin_admin_handler.NewHandler(pluginMgr)
+	adminPluginGroup := engine.Group("/api/admin/plugins", mw.AdminAuth())
+	{
+		adminPluginGroup.GET("", pluginAdminHandler.List)
+		adminPluginGroup.POST("/:id/reload", pluginAdminHandler.Reload)
+		adminPluginGroup.POST("/:id/disable", pluginAdminHandler.Disable)
+		adminPluginGroup.POST("/:id/enable", pluginAdminHandler.Enable)
+	}
+
+	// 设置搜索引擎切换回调（插件热加载时自动切换搜索引擎）
+	if pluginMgr != nil {
+		pluginMgr.SetSearcherChangeCallback(func(searcher model.Searcher) {
+			if searcher != nil {
+				search.AppSearcher = searcher
+				log.Println("✅ 搜索引擎已由插件热更新")
+			}
+		})
+	}
+
 	// --- 微信分享路由 ---
 	setupWechatShareRoutes(engine, settingSvc)
 
@@ -697,6 +743,11 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	// 创建cleanup函数
 	cleanup := func() {
 		log.Println("执行清理操作...")
+
+		// 关闭插件进程
+		if pluginMgr != nil {
+			pluginMgr.Shutdown()
+		}
 
 		// 停止所有 SSR 主题
 		log.Println("停止所有 SSR 主题...")
