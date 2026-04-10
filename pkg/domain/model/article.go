@@ -243,6 +243,7 @@ type ListArticlesOptions struct {
 	WithContent  bool   // 是否在列表中包含 ContentMd
 	AuthorID     *uint  // 按作者ID过滤（多人共创功能：普通用户只能查看自己的文章）
 	CategoryName string // 按分类名称过滤
+	TagName      string // 按标签名称过滤
 }
 
 type ListPublicArticlesOptions struct {
