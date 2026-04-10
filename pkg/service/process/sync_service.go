@@ -259,12 +259,13 @@ func (s *syncService) SyncDirectory(ctx context.Context, ownerID uint, policy *m
 
 					// 根据策略类型决定 Source 字段的内容
 					if policy.Type == constant.PolicyTypeLocal {
-						// 对于本地策略，Source 必须是物理绝对路径
-						// item.Name 是文件名, policy.BasePath 是存储根目录,
-						// virtualPath 是当前同步的虚拟路径, policy.VirtualPath 是策略挂载点
-						// 需要从 virtualPath 中计算出相对路径
-						relativePath := strings.TrimPrefix(virtualPath, policy.VirtualPath)
-						sourceValue = filepath.Join(policy.BasePath, relativePath, item.Name)
+						// 与 LocalProvider.Upload 一致：用统一 helper 解析虚拟路径，避免前导 / 导致 Join 丢 BasePath，并尽量写入绝对路径
+						fullVirtual := filepath.ToSlash(filepath.Join(virtualPath, item.Name))
+						p, pathErr := storage.LocalEntitySourcePath(policy, fullVirtual)
+						if pathErr != nil {
+							return fmt.Errorf("同步构建本地物理路径失败 (%s): %w", item.Name, pathErr)
+						}
+						sourceValue = p
 					} else {
 						// 对于云存储策略，Source 是对象存储的键（与Upload方法保持一致）
 						// 计算相对路径

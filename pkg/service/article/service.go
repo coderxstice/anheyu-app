@@ -301,6 +301,15 @@ func (s *serviceImpl) determinePrimaryColor(ctx context.Context, topImgURL, cove
 	return color
 }
 
+// primaryColorForAutoMode 自动模式下持久化用主色：取色失败时回落到库默认，避免写入空串。
+func (s *serviceImpl) primaryColorForAutoMode(ctx context.Context, topImgURL, coverURL string) string {
+	c := s.determinePrimaryColor(ctx, topImgURL, coverURL)
+	if strings.TrimSpace(c) == "" {
+		return utility.DefaultFallbackPrimaryColor()
+	}
+	return c
+}
+
 // updateSiteStatsInBackground 异步更新全站的文章和字数统计配置。
 func (s *serviceImpl) updateSiteStatsInBackground() {
 	go func() {
@@ -1011,7 +1020,7 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 			isManual = true
 			primaryColor = req.PrimaryColor
 		} else {
-			primaryColor = s.determinePrimaryColor(ctx, req.TopImgURL, coverURL)
+			primaryColor = s.primaryColorForAutoMode(ctx, req.TopImgURL, coverURL)
 		}
 
 		copyright := true
@@ -1194,7 +1203,8 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 		s.createArticleHistory(ctx, newArticle, req.OwnerID, "初次发布")
 	}
 
-	resp := s.ToAPIResponse(newArticle, false, false)
+	// includeHTML=true：管理端创建后若跳转编辑页，前端需要 content_html 与列表接口（无正文）区分
+	resp := s.ToAPIResponse(newArticle, false, true)
 	s.fillOwnerNickname(ctx, resp, nil)
 	return resp, nil
 }
@@ -1205,7 +1215,8 @@ func (s *serviceImpl) Get(ctx context.Context, publicID string) (*model.ArticleR
 	if err != nil {
 		return nil, err
 	}
-	resp := s.ToAPIResponse(article, false, false)
+	// includeHTML=true：后台编辑器用 Tiptap 依赖 content_html 初始化；List 仍不带正文以减小体积
+	resp := s.ToAPIResponse(article, false, true)
 	s.fillOwnerNickname(ctx, resp, nil)
 	return resp, nil
 }
@@ -1359,11 +1370,19 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 			if newImageSource == "" {
 				newImageSource = newCoverURL
 			}
-			modeChangedToAuto := req.IsPrimaryColorManual != nil && !(*req.IsPrimaryColorManual)
+			hasImage := strings.TrimSpace(newTopImgURL) != "" || strings.TrimSpace(newCoverURL) != ""
+			// 请求体显式 is_primary_color_manual=false（管理端每次保存都会带）时重算，与历史行为一致。
+			explicitAutoInRequest := req.IsPrimaryColorManual != nil && !*req.IsPrimaryColorManual
 			imageChangedInAuto := oldImageSource != newImageSource
-			if modeChangedToAuto || imageChangedInAuto {
-				log.Printf("[信息] 文章 %s 需要重新获取主色调。原因: 模式切换=%t, 图片改变=%t", publicID, modeChangedToAuto, imageChangedInAuto)
-				newColor := s.determinePrimaryColor(ctx, newTopImgURL, newCoverURL)
+			oldPrimary := strings.TrimSpace(oldArticle.PrimaryColor)
+			fallbackHex := utility.DefaultFallbackPrimaryColor()
+			// 部分客户端不传 is_primary_color_manual：仍为自动模式且主色未写入或为库默认时补算一次。
+			staleAutoPrimary := req.IsPrimaryColorManual == nil && !oldArticle.IsPrimaryColorManual && hasImage &&
+				(oldPrimary == "" || strings.EqualFold(oldPrimary, fallbackHex))
+			if explicitAutoInRequest || imageChangedInAuto || staleAutoPrimary {
+				log.Printf("[信息] 文章 %s 重新获取主色调: 请求自动=%t, 封面/头图变更=%t, 自动模式待补算=%t",
+					publicID, explicitAutoInRequest, imageChangedInAuto, staleAutoPrimary)
+				newColor := s.primaryColorForAutoMode(ctx, newTopImgURL, newCoverURL)
 				computedParams.PrimaryColor = &newColor
 			}
 		}
@@ -1556,7 +1575,7 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 		s.createArticleHistory(ctx, updatedArticle, updatedArticle.OwnerID, changeNote)
 	}
 
-	resp := s.ToAPIResponse(updatedArticle, false, false)
+	resp := s.ToAPIResponse(updatedArticle, false, true)
 	s.fillOwnerNickname(ctx, resp, nil)
 	return resp, nil
 }

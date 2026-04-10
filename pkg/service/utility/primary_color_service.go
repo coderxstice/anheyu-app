@@ -24,6 +24,12 @@ const (
 	defaultPrimaryColor = "#b4bfe2"
 )
 
+// DefaultFallbackPrimaryColor 与 ent article.primary_color 数据库默认值一致。
+// 自动从封面取色失败时持久化该值，避免写入空字符串导致前台忽略文章主色。
+func DefaultFallbackPrimaryColor() string {
+	return defaultPrimaryColor
+}
+
 // PrimaryColorService 主色调服务，根据不同的存储策略采用不同的方法获取图片主色调
 type PrimaryColorService struct {
 	colorSvc          *ColorService
@@ -245,35 +251,76 @@ func (s *PrimaryColorService) getColorFromSystemFile(ctx context.Context, filePu
 }
 
 // getColorFromLocalFile 从本地存储的文件获取主色调
+// 与 internal/infra/storage/local.go LocalProvider.Get 一致：Source 可能已是绝对路径；若为相对路径则相对于策略 BasePath。
+// 历史数据中偶发将「含存储根片段的相对路径」写入 Source，再与 BasePath 拼接会重复路径，故依次尝试多个候选路径。
 func (s *PrimaryColorService) getColorFromLocalFile(ctx context.Context, file *model.File, policy *model.StoragePolicy) string {
 	log.Printf("[主色调服务] 使用本地文件读取方式")
 
-	// 检查Source字段
 	if !file.PrimaryEntity.Source.Valid {
 		log.Printf("[主色调服务] 文件Source字段无效，返回空字符串")
 		return ""
 	}
 
-	// 构建完整的文件路径
-	fullPath := filepath.Join(policy.BasePath, file.PrimaryEntity.Source.String)
-
-	// 打开文件
-	f, err := os.Open(fullPath)
-	if err != nil {
-		log.Printf("[主色调服务] 打开本地文件失败: %v，返回空字符串", err)
-		return ""
-	}
-	defer f.Close()
-
-	// 使用ColorService提取主色调
-	color, err := s.colorSvc.GetPrimaryColor(f)
-	if err != nil {
-		log.Printf("[主色调服务] 从本地文件提取主色调失败: %v，返回空字符串", err)
+	sourceRaw := strings.TrimSpace(file.PrimaryEntity.Source.String)
+	if sourceRaw == "" {
+		log.Printf("[主色调服务] 文件Source为空，返回空字符串")
 		return ""
 	}
 
-	log.Printf("[主色调服务] 成功从本地文件提取主色调: %s", color)
-	return color
+	basePath := policy.BasePath
+	candidates := localPrimaryColorPathCandidates(basePath, sourceRaw)
+
+	var lastErr error
+	for _, fullPath := range candidates {
+		f, err := os.Open(fullPath)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		color, err := s.colorSvc.GetPrimaryColor(f)
+		_ = f.Close()
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		log.Printf("[主色调服务] 成功从本地文件提取主色调: %s (path=%s)", color, fullPath)
+		return color
+	}
+
+	if lastErr != nil {
+		log.Printf("[主色调服务] 打开/读取本地文件失败（已尝试 %v）: %v，返回空字符串", candidates, lastErr)
+	} else {
+		log.Printf("[主色调服务] 无可用本地文件路径候选，返回空字符串")
+	}
+	return ""
+}
+
+// localPrimaryColorPathCandidates 生成本地取色可能使用的物理路径列表（去重、去空）。
+func localPrimaryColorPathCandidates(basePath, sourceRaw string) []string {
+	add := func(out *[]string, seen map[string]struct{}, p string) {
+		p = filepath.Clean(p)
+		if p == "" || p == "." {
+			return
+		}
+		if _, ok := seen[p]; ok {
+			return
+		}
+		seen[p] = struct{}{}
+		*out = append(*out, p)
+	}
+
+	seen := make(map[string]struct{})
+	out := make([]string, 0, 4)
+
+	if filepath.IsAbs(sourceRaw) {
+		add(&out, seen, sourceRaw)
+	}
+	add(&out, seen, filepath.Join(basePath, sourceRaw))
+	baseName := filepath.Base(sourceRaw)
+	if baseName != "" && baseName != "." && baseName != sourceRaw {
+		add(&out, seen, filepath.Join(basePath, baseName))
+	}
+	return out
 }
 
 // getColorFromOneDriveFile 从OneDrive存储的文件获取主色调

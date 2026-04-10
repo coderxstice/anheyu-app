@@ -73,11 +73,38 @@ func validateLocalPath(basePath, resolvedPath string) error {
 	return nil
 }
 
+// LocalPhysicalPathFromVirtual 将策略挂载点下的完整虚拟路径（可含文件名）解析为物理路径，已 Clean 且通过路径穿越校验。
+// 会去掉挂载点相对段的前导 '/'，避免 Unix 上 filepath.Join(base, "/x") 丢弃 base、误写到根目录的问题。
+func LocalPhysicalPathFromVirtual(policy *model.StoragePolicy, virtualPath string) (string, error) {
+	rel := strings.TrimPrefix(virtualPath, policy.VirtualPath)
+	rel = strings.TrimPrefix(rel, "/")
+	physical := filepath.Join(policy.BasePath, rel)
+	if err := validateLocalPath(policy.BasePath, physical); err != nil {
+		return "", err
+	}
+	return filepath.Clean(physical), nil
+}
+
+// LocalEntitySourcePath 返回本地策略下应写入 file_storage_entity.source 的路径：与 Upload 落盘一致，并尽量转为绝对路径以减少历史数据中的「相对路径 + 绝对 BasePath」混用。
+func LocalEntitySourcePath(policy *model.StoragePolicy, virtualPath string) (string, error) {
+	physical, err := LocalPhysicalPathFromVirtual(policy, virtualPath)
+	if err != nil {
+		return "", err
+	}
+	if filepath.IsAbs(physical) {
+		return physical, nil
+	}
+	abs, err := filepath.Abs(physical)
+	if err != nil {
+		return physical, nil
+	}
+	return filepath.Clean(abs), nil
+}
+
 // List 实现了为本地文件系统列出目录内容的功能。
 func (p *LocalProvider) List(ctx context.Context, policy *model.StoragePolicy, virtualPath string) ([]FileInfo, error) {
-	relativePath := strings.TrimPrefix(virtualPath, policy.VirtualPath)
-	physicalPath := filepath.Join(policy.BasePath, relativePath)
-	if err := validateLocalPath(policy.BasePath, physicalPath); err != nil {
+	physicalPath, err := LocalPhysicalPathFromVirtual(policy, virtualPath)
+	if err != nil {
 		return nil, err
 	}
 
@@ -173,9 +200,8 @@ func (p *LocalProvider) Stream(ctx context.Context, policy *model.StoragePolicy,
 
 // CreateDirectory 实现了在本机创建物理目录的逻辑。
 func (p *LocalProvider) CreateDirectory(ctx context.Context, policy *model.StoragePolicy, virtualPath string) error {
-	relativePath := strings.TrimPrefix(virtualPath, policy.VirtualPath)
-	physicalPath := filepath.Join(policy.BasePath, relativePath)
-	if err := validateLocalPath(policy.BasePath, physicalPath); err != nil {
+	physicalPath, err := LocalPhysicalPathFromVirtual(policy, virtualPath)
+	if err != nil {
 		return err
 	}
 	if err := os.MkdirAll(physicalPath, os.ModePerm); err != nil {
@@ -229,9 +255,8 @@ func (p *LocalProvider) Upload(ctx context.Context, file io.Reader, policy *mode
 		dimension = fmt.Sprintf("%dx%d", imgConfig.Width, imgConfig.Height)
 	}
 
-	relativePath := strings.TrimPrefix(virtualPath, policy.VirtualPath)
-	finalPath := filepath.Join(policy.BasePath, relativePath)
-	if err := validateLocalPath(policy.BasePath, finalPath); err != nil {
+	finalPath, err := LocalEntitySourcePath(policy, virtualPath)
+	if err != nil {
 		return nil, err
 	}
 	finalDir := filepath.Dir(finalPath)
@@ -295,12 +320,11 @@ func (p *LocalProvider) Delete(ctx context.Context, policy *model.StoragePolicy,
 
 // DeleteDirectory 实现了删除本机上一个空目录的逻辑。
 func (p *LocalProvider) DeleteDirectory(ctx context.Context, policy *model.StoragePolicy, virtualPath string) error {
-	relativePath := strings.TrimPrefix(virtualPath, policy.VirtualPath)
-	physicalPath := filepath.Join(policy.BasePath, relativePath)
-	if err := validateLocalPath(policy.BasePath, physicalPath); err != nil {
+	physicalPath, err := LocalPhysicalPathFromVirtual(policy, virtualPath)
+	if err != nil {
 		return err
 	}
-	err := os.Remove(physicalPath)
+	err = os.Remove(physicalPath)
 	if os.IsNotExist(err) {
 		return nil
 	}
@@ -309,10 +333,14 @@ func (p *LocalProvider) DeleteDirectory(ctx context.Context, policy *model.Stora
 
 // Rename 重命名本地文件系统上的文件或目录。
 func (p *LocalProvider) Rename(ctx context.Context, policy *model.StoragePolicy, oldVirtualPath, newVirtualPath string) error {
-	oldRelativePath := strings.TrimPrefix(oldVirtualPath, policy.VirtualPath)
-	newRelativePath := strings.TrimPrefix(newVirtualPath, policy.VirtualPath)
-	oldAbsPath := filepath.Join(policy.BasePath, oldRelativePath)
-	newAbsPath := filepath.Join(policy.BasePath, newRelativePath)
+	oldAbsPath, err := LocalPhysicalPathFromVirtual(policy, oldVirtualPath)
+	if err != nil {
+		return err
+	}
+	newAbsPath, err := LocalPhysicalPathFromVirtual(policy, newVirtualPath)
+	if err != nil {
+		return err
+	}
 	if err := validateLocalPath(policy.BasePath, oldAbsPath); err != nil {
 		return err
 	}
@@ -325,7 +353,7 @@ func (p *LocalProvider) Rename(ctx context.Context, policy *model.StoragePolicy,
 		return fmt.Errorf("无法创建目标目录 '%s': %w", destDir, err)
 	}
 
-	err := os.Rename(oldAbsPath, newAbsPath)
+	err = os.Rename(oldAbsPath, newAbsPath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return fmt.Errorf("%w: %s", constant.ErrNotFound, err.Error())

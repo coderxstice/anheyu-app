@@ -864,9 +864,23 @@ func (r *articleRepo) List(ctx context.Context, options *model.ListArticlesOptio
 	if options.AuthorID != nil {
 		query = query.Where(article.OwnerIDEQ(*options.AuthorID))
 	}
-	// 按分类名称过滤
+	// 按分类名称过滤（支持 slug 或 name 匹配，与 ListPublic 一致）
 	if options.CategoryName != "" {
-		query = query.Where(article.HasPostCategoriesWith(postcategory.NameEQ(options.CategoryName)))
+		query = query.Where(article.HasPostCategoriesWith(
+			postcategory.Or(
+				postcategory.SlugEQ(options.CategoryName),
+				postcategory.NameEQ(options.CategoryName),
+			),
+		))
+	}
+	// 按标签名称过滤
+	if options.TagName != "" {
+		query = query.Where(article.HasPostTagsWith(
+			posttag.Or(
+				posttag.SlugEQ(options.TagName),
+				posttag.NameEQ(options.TagName),
+			),
+		))
 	}
 	total, err := query.Clone().Count(ctx)
 	if err != nil {
