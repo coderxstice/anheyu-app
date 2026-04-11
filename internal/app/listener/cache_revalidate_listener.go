@@ -54,19 +54,13 @@ func (l *CacheRevalidateListener) RegisterHandlers(bus *event.EventBus) {
 	bus.Subscribe(event.LinkDeleted, l.onFriendLinkChange)
 }
 
-// ArticlePayload 文章事件载荷
-type ArticlePayload struct {
-	Slug string
-}
-
 // onArticleChange 文章变更时清理缓存
 func (l *CacheRevalidateListener) onArticleChange(payload interface{}) {
-	if p, ok := payload.(*ArticlePayload); ok && p.Slug != "" {
-		if err := l.revalidateService.RevalidateArticle(p.Slug); err != nil {
-			log.Printf("[CacheRevalidateListener] Failed to revalidate article %s: %v", p.Slug, err)
+	if p, ok := payload.(*event.ArticlePayload); ok && (p.Slug != "" || p.PublicID != "") {
+		if err := l.revalidateService.RevalidateArticle(p.Slug, p.PublicID); err != nil {
+			log.Printf("[CacheRevalidateListener] Failed to revalidate article slug=%s id=%s: %v", p.Slug, p.PublicID, err)
 		}
 	} else {
-		// 如果没有具体的 slug，清理所有文章缓存
 		if err := l.revalidateService.RevalidateAll(); err != nil {
 			log.Printf("[CacheRevalidateListener] Failed to revalidate all: %v", err)
 		}

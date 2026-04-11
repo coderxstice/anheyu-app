@@ -37,6 +37,12 @@ const (
 	TagUpdated      Topic = "tag:updated"
 )
 
+// ArticlePayload 文章事件载荷（用于 ArticleCreated / ArticleUpdated / ArticleDeleted）
+type ArticlePayload struct {
+	Slug     string // abbrlink（优先）
+	PublicID string // 公共 ID（备选，确保两种访问路径都能清缓存）
+}
+
 // 事件处理器函数类型
 type Handler func(payload interface{})
 

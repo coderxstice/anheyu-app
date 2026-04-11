@@ -17,6 +17,7 @@ import (
 	"unicode"
 
 	"github.com/anzhiyu-c/anheyu-app/internal/app/task"
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/event"
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
@@ -70,6 +71,9 @@ type Service interface {
 	// SetHistoryRepo 设置文章历史版本仓储（可选注入，用于文章发布时自动记录历史版本）
 	SetHistoryRepo(historyRepo repository.ArticleHistoryRepository)
 
+	// SetEventBus 设置事件总线（可选注入，用于文章变更时通知前端清缓存）
+	SetEventBus(bus *event.EventBus)
+
 	// GetArticleStatistics 获取文章统计数据（用于前台展示）
 	GetArticleStatistics(ctx context.Context) (*model.ArticleStatistics, error)
 }
@@ -97,6 +101,7 @@ type serviceImpl struct {
 
 	userRepo    repository.UserRepository
 	historyRepo repository.ArticleHistoryRepository // 文章历史版本仓储
+	eventBus    *event.EventBus
 }
 
 func NewService(
@@ -147,6 +152,18 @@ func NewService(
 // SetHistoryRepo 设置文章历史版本仓储（可选注入）
 func (s *serviceImpl) SetHistoryRepo(historyRepo repository.ArticleHistoryRepository) {
 	s.historyRepo = historyRepo
+}
+
+// SetEventBus 设置事件总线（可选注入，用于文章 CRUD 时通知前端清缓存）
+func (s *serviceImpl) SetEventBus(bus *event.EventBus) {
+	s.eventBus = bus
+}
+
+func (s *serviceImpl) publishArticleEvent(topic event.Topic, abbrlink, publicID string) {
+	if s.eventBus == nil {
+		return
+	}
+	s.eventBus.Publish(topic, &event.ArticlePayload{Slug: abbrlink, PublicID: publicID})
 }
 
 // createArticleHistory 创建文章历史版本（内部方法）
@@ -1181,6 +1198,8 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 		return nil, err
 	}
 
+	s.publishArticleEvent(event.ArticleCreated, newArticle.Abbrlink, newArticle.ID)
+
 	s.updateSiteStatsInBackground()
 
 	// 清除相关缓存（包括 RSS feed）
@@ -1544,6 +1563,8 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 		return nil, err
 	}
 
+	s.publishArticleEvent(event.ArticleUpdated, updatedArticle.Abbrlink, publicID)
+
 	// 清除特定文章的缓存
 	s.invalidateArticleCache(ctx, publicID, updatedArticle.Abbrlink)
 
@@ -1582,11 +1603,13 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 
 // Delete 处理删除文章的业务逻辑。
 func (s *serviceImpl) Delete(ctx context.Context, publicID string) error {
+	var articleSlug string // 保存 slug 用于事务后发布事件
 	err := s.txManager.Do(ctx, func(repos repository.Repositories) error {
 		article, err := repos.Article.GetByID(ctx, publicID)
 		if err != nil {
 			return err
 		}
+		articleSlug = article.Abbrlink
 		tagIDs := make([]uint, len(article.PostTags))
 		for i, t := range article.PostTags {
 			tagIDs[i], _, _ = idgen.DecodePublicID(t.ID)
@@ -1607,7 +1630,6 @@ func (s *serviceImpl) Delete(ctx context.Context, publicID string) error {
 		if decodeErr == nil {
 			if err := repos.ArticleHistory.DeleteByArticle(ctx, articleDBID); err != nil {
 				log.Printf("[警告] 删除文章历史版本记录失败: %v", err)
-				// 不中断删除流程，继续尝试删除文章
 			}
 		}
 
@@ -1646,6 +1668,8 @@ func (s *serviceImpl) Delete(ctx context.Context, publicID string) error {
 	if err != nil {
 		return err
 	}
+
+	s.publishArticleEvent(event.ArticleDeleted, articleSlug, publicID)
 
 	s.updateSiteStatsInBackground()
 

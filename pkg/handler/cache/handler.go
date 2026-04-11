@@ -67,7 +67,7 @@ func (h *Handler) Revalidate(c *gin.Context) {
 			response.Fail(c, http.StatusBadRequest, "清理文章缓存需要提供 slug")
 			return
 		}
-		err = h.revalidateSvc.RevalidateArticle(req.Slug)
+		err = h.revalidateSvc.RevalidateArticle(req.Slug, "")
 	case "config":
 		err = h.revalidateSvc.RevalidateSiteConfig()
 	case "categories":
