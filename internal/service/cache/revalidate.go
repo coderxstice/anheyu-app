@@ -44,7 +44,7 @@ func NewRevalidateService() *RevalidateService {
 
 	return &RevalidateService{
 		enabled: enabled,
-		baseURL: frontendURL + "/api/revalidate",
+		baseURL: frontendURL + "/revalidate",
 		token:   token,
 		httpClient: &http.Client{
 			Timeout: 5 * time.Second,
@@ -57,12 +57,19 @@ func (s *RevalidateService) IsEnabled() bool {
 	return s.enabled
 }
 
-// RevalidateArticle 文章变更时清理缓存
-func (s *RevalidateService) RevalidateArticle(slug string) error {
+// RevalidateArticle 文章变更时清理缓存，同时发送 abbrlink 和 publicID 以清除两种访问路径的缓存
+func (s *RevalidateService) RevalidateArticle(slug, publicID string) error {
 	if !s.enabled {
 		return nil
 	}
-	return s.doRevalidate(map[string]interface{}{"article": slug})
+	body := map[string]interface{}{}
+	if slug != "" {
+		body["article"] = slug
+	}
+	if publicID != "" {
+		body["articleID"] = publicID
+	}
+	return s.doRevalidate(body)
 }
 
 // RevalidateSiteConfig 站点配置变更时清理缓存

@@ -448,6 +448,8 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	articleSvc := article_service.NewService(articleRepo, postTagRepo, postCategoryRepo, commentRepo, docSeriesRepo, pageRepo, txManager, cacheSvc, geoSvc, taskBroker, settingSvc, parserSvc, fileSvc, directLinkSvc, searchSvc, primaryColorSvc, cdnSvc, subscriberSvc, userRepo)
 	// 注入文章历史版本仓储
 	articleSvc.SetHistoryRepo(articleHistoryRepo)
+	// 注入事件总线，用于文章 CRUD 时通知前端清缓存
+	articleSvc.SetEventBus(eventBus)
 	// articleHistorySvc 已在 taskBroker 之前创建
 	log.Printf("[DEBUG] 正在初始化 PushooService...")
 	pushooSvc := utility.NewPushooService(settingSvc)
