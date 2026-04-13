@@ -85,7 +85,13 @@ func (s *PrimaryColorService) GetPrimaryColorFromURL(ctx context.Context, imageU
 	// 判断是否是系统内的图片
 	if isSystemImage, filePublicID := s.isSystemImage(imageURL); isSystemImage {
 		log.Printf("[主色调服务] 检测到系统内图片，FileID: %s", filePublicID)
-		return s.getColorFromSystemFile(ctx, filePublicID)
+		color := s.getColorFromSystemFile(ctx, filePublicID)
+		if color != "" {
+			return color
+		}
+		// 系统内图片查找失败（如直链关联文件不存在），降级到HTTP下载方式
+		log.Printf("[主色调服务] 系统内图片查找失败，降级到HTTP下载方式获取主色调: %s", imageURL)
+		return s.getColorFromExternalURL(ctx, imageURL)
 	}
 
 	// 判断是否是米游社的图片
