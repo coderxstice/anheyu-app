@@ -210,13 +210,14 @@ type ArticleResponse struct {
 
 // 用于上一篇/下一篇/相关文章的简化信息响应
 type SimpleArticleResponse struct {
-	ID          string    `json:"id"`
-	Title       string    `json:"title"`
-	CoverURL    string    `json:"cover_url"`
-	Abbrlink    string    `json:"abbrlink"`
-	CreatedAt   time.Time `json:"created_at"`
-	IsDoc       bool      `json:"is_doc,omitempty"`
-	DocSeriesID string    `json:"doc_series_id,omitempty"`
+	ID           string    `json:"id"`
+	Title        string    `json:"title"`
+	CoverURL     string    `json:"cover_url"`
+	Abbrlink     string    `json:"abbrlink"`
+	CreatedAt    time.Time `json:"created_at"`
+	PrimaryColor string    `json:"primary_color,omitempty"`
+	IsDoc        bool      `json:"is_doc,omitempty"`
+	DocSeriesID  string    `json:"doc_series_id,omitempty"`
 }
 
 // 用于文章详情页的完整响应，包含上下文文章

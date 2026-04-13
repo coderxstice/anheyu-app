@@ -682,13 +682,14 @@ func toSimpleAPIResponse(a *model.Article) *model.SimpleArticleResponse {
 	}
 
 	return &model.SimpleArticleResponse{
-		ID:          responseID,
-		Title:       a.Title,
-		CoverURL:    a.CoverURL,
-		Abbrlink:    a.Abbrlink,
-		CreatedAt:   a.CreatedAt,
-		IsDoc:       a.IsDoc,
-		DocSeriesID: docSeriesID,
+		ID:           responseID,
+		Title:        a.Title,
+		CoverURL:     a.CoverURL,
+		Abbrlink:     a.Abbrlink,
+		CreatedAt:    a.CreatedAt,
+		PrimaryColor: a.PrimaryColor,
+		IsDoc:        a.IsDoc,
+		DocSeriesID:  docSeriesID,
 	}
 }
 
