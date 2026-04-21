@@ -48,6 +48,7 @@ import (
 	direct_link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/direct_link"
 	doc_series_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/doc_series"
 	file_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/file"
+	image_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/image"
 	link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/link"
 	music_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/music"
 	plugin_admin_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/plugin_admin"
@@ -602,6 +603,7 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	configImportExportHandler := config_handler.NewConfigImportExportHandler(configImportExportSvc)
 	subscriberHandler := subscriber_handler.NewHandler(subscriberSvc, captchaSvc)
 	captchaHandler := captcha_handler.NewHandler(captchaSvc)
+	imageHandler := image_handler.NewHandler(imageStyleSvc, fileRepo, storagePolicyRepo, directLinkSvc)
 
 	// --- Phase 7: 初始化路由 ---
 	appRouter := router.NewRouter(
@@ -638,6 +640,7 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 		configImportExportHandler,
 		subscriberHandler,
 		captchaHandler,
+		imageHandler,
 	)
 
 	// --- Phase 8: 配置 Gin 引擎 ---
