@@ -208,16 +208,17 @@ func (c *DiskCache) Get(ctx context.Context, policyID, fileID uint, styleHash st
 
 	// 原子更新访问时间与次数（time.Time 不是原子类型，这里直接加写锁，
 	// 热点路径下加锁时间很短，可接受）。
+	// entryCopy 同样在锁内完成，避免另一 goroutine 同时写入 LastAccessAt/AccessCount
+	// 与本次 `*entry` 复制竞争。
 	now := time.Now()
 	c.mu.Lock()
 	entry.LastAccessAt = now
 	entry.AccessCount++
+	entryCopy := *entry
 	c.mu.Unlock()
 
 	atomic.AddInt64(&c.hitCount, 1)
 
-	// 返回 entry 副本以避免上层调用修改内部状态。
-	entryCopy := *entry
 	return &entryCopy, f, nil
 }
 
