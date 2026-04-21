@@ -12,6 +12,7 @@ import (
 	"crypto/md5"
 	"database/sql"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -27,6 +28,13 @@ import (
 	articleSvc "github.com/anzhiyu-c/anheyu-app/pkg/service/article"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/utility"
+	"github.com/lib/pq"
+)
+
+var (
+	ErrInvalidCredentials = errors.New("账号或密码错误")
+	ErrPasswordIncorrect  = errors.New("密码错误，请核对后登录。")
+	ErrAuthServiceBusy    = errors.New("登录服务暂时不可用，请稍后重试")
 )
 
 // AuthService 定义了所有认证授权相关的业务逻辑接口
@@ -135,10 +143,13 @@ func (s *authService) Login(ctx context.Context, email, password string) (*model
 
 	user, err := s.userRepo.FindByEmail(ctx, email)
 	if err != nil {
-		return nil, fmt.Errorf("数据库查询失败: %w", err)
+		if isDatabaseTemporarilyUnavailable(err) {
+			return nil, ErrAuthServiceBusy
+		}
+		return nil, fmt.Errorf("查询用户失败: %w", err)
 	}
 	if user == nil {
-		return nil, fmt.Errorf("账号或密码错误")
+		return nil, ErrInvalidCredentials
 	}
 
 	if user.Status == model.UserStatusInactive {
@@ -149,7 +160,7 @@ func (s *authService) Login(ctx context.Context, email, password string) (*model
 	}
 
 	if !security.CheckPasswordHash(password, user.PasswordHash) {
-		return nil, fmt.Errorf("密码错误，请核对后登录。")
+		return nil, ErrPasswordIncorrect
 	}
 
 	now := time.Now()
@@ -159,6 +170,15 @@ func (s *authService) Login(ctx context.Context, email, password string) (*model
 	}
 
 	return user, nil
+}
+
+func isDatabaseTemporarilyUnavailable(err error) bool {
+	var pqErr *pq.Error
+	if errors.As(err, &pqErr) {
+		return string(pqErr.Code) == "57P03"
+	}
+
+	return false
 }
 
 // Register 实现了最终的用户注册逻辑
