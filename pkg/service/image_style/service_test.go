@@ -160,6 +160,10 @@ func TestService_Process_EndToEnd(t *testing.T) {
 	if result.StyleHash == "" {
 		t.Errorf("StyleHash 不应为空")
 	}
+	// Phase 2：RequestedFormat 必须等于样式配置中的 Format，用于 handler 写 X-Style-Fallback
+	if result.RequestedFormat != "jpg" {
+		t.Errorf("RequestedFormat 期望 jpg（样式定义），实际 %q", result.RequestedFormat)
+	}
 
 	bodyBytes, _ := io.ReadAll(result.Reader)
 	if len(bodyBytes) == 0 {
@@ -206,6 +210,10 @@ func TestService_Process_CacheHitSkipsProvider(t *testing.T) {
 	}
 	if r2.StyleHash != r1.StyleHash {
 		t.Errorf("同配置的 StyleHash 应相同")
+	}
+	// Phase 2：缓存命中路径也应正确填充 RequestedFormat，保证 handler X-Style-Fallback 行为一致
+	if r2.RequestedFormat != "jpg" {
+		t.Errorf("缓存命中路径 RequestedFormat 期望 jpg，实际 %q", r2.RequestedFormat)
 	}
 }
 

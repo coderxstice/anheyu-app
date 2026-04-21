@@ -49,6 +49,12 @@ type StyleResult struct {
 	StyleHash string
 	// LastModified 缓存文件的最后修改时间；未命中缓存时为零值。
 	LastModified time.Time
+	// RequestedFormat 是样式配置（或动态参数）中用户原始请求的输出格式，
+	// 如 "webp" / "avif" / "jpg" / "original" / ""。Handler 层会把它与实际
+	// ContentType 对比，若不一致写入 `X-Style-Fallback: requested->actual` 响应头
+	// 便于客户端与运维排查格式降级（Spec §6.3.3）。
+	// 为空或 "original" 表示"无显式格式要求"，不触发降级头。
+	RequestedFormat string
 }
 
 // ResolvedStyle 是 Matcher 经过命名样式/动态参数/默认样式合并后得到的最终处理参数。

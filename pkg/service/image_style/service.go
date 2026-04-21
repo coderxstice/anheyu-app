@@ -100,12 +100,13 @@ func (s *Service) Process(ctx context.Context, req *StyleRequest) (*StyleResult,
 	// 2. 快速路径：直接查 cache
 	if entry, rc, err := s.cache.Get(ctx, policyID, fileID, styleHash); err == nil {
 		return &StyleResult{
-			ContentType:  entry.MIME,
-			Reader:       rc,
-			Size:         entry.Size,
-			FromCache:    true,
-			StyleHash:    styleHash,
-			LastModified: entry.LastAccessAt,
+			ContentType:     entry.MIME,
+			Reader:          rc,
+			Size:            entry.Size,
+			FromCache:       true,
+			StyleHash:       styleHash,
+			LastModified:    entry.LastAccessAt,
+			RequestedFormat: resolved.Format,
 		}, nil
 	}
 
@@ -129,12 +130,13 @@ func (s *Service) Process(ctx context.Context, req *StyleRequest) (*StyleResult,
 		return nil, fmt.Errorf("%w: 处理完成但缓存查询失败: %v", ErrStyleProcessFailed, err)
 	}
 	return &StyleResult{
-		ContentType:  entry.MIME,
-		Reader:       rc,
-		Size:         entry.Size,
-		FromCache:    false,
-		StyleHash:    styleHash,
-		LastModified: entry.CreatedAt,
+		ContentType:     entry.MIME,
+		Reader:          rc,
+		Size:            entry.Size,
+		FromCache:       false,
+		StyleHash:       styleHash,
+		LastModified:    entry.CreatedAt,
+		RequestedFormat: resolved.Format,
 	}, nil
 }
 

@@ -15,6 +15,7 @@ package image
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -158,12 +159,70 @@ func (h *Handler) ServeStyled(c *gin.Context) {
 }
 
 // writeStyleHeaders 统一设置样式响应的 HTTP 头。
+// 若发生了格式降级（请求 avif/heic/webp 但因引擎限制实际输出 jpeg 等），
+// 额外写入 `X-Style-Fallback: <requested>-><actual>` 便于客户端与运维排查（Spec §6.3.3）。
 func writeStyleHeaders(c *gin.Context, mime, etag string, result *image_style.StyleResult) {
 	c.Header("Content-Type", mime)
 	c.Header("ETag", etag)
 	c.Header("Cache-Control", "public, max-age=604800")
 	if !result.LastModified.IsZero() {
 		c.Header("Last-Modified", result.LastModified.UTC().Format(http.TimeFormat))
+	}
+	if fb := styleFallbackHeader(result.RequestedFormat, mime); fb != "" {
+		c.Header("X-Style-Fallback", fb)
+	}
+}
+
+// styleFallbackHeader 根据请求的格式 requested 与实际 MIME 计算 X-Style-Fallback 头值；
+// 未发生降级或 requested 未指定格式时返回空串。
+func styleFallbackHeader(requested, mime string) string {
+	req := strings.ToLower(strings.TrimSpace(requested))
+	if req == "" || req == "original" {
+		return ""
+	}
+	applied := formatFromMIME(mime)
+	if applied == "" {
+		return ""
+	}
+	if normalizeStyleFormat(req) == normalizeStyleFormat(applied) {
+		return ""
+	}
+	return fmt.Sprintf("%s->%s", req, applied)
+}
+
+// formatFromMIME 将 HTTP Content-Type 映射为小写格式标识（jpg / png / webp 等）。
+// 未识别返回 ""，调用方按"无降级信息"处理。
+func formatFromMIME(mime string) string {
+	switch strings.ToLower(strings.TrimSpace(mime)) {
+	case "image/jpeg":
+		return "jpg"
+	case "image/png":
+		return "png"
+	case "image/webp":
+		return "webp"
+	case "image/avif":
+		return "avif"
+	case "image/heic", "image/heif":
+		return "heic"
+	case "image/gif":
+		return "gif"
+	case "image/tiff":
+		return "tiff"
+	default:
+		return ""
+	}
+}
+
+// normalizeStyleFormat 把同义别名归一（jpeg/jpg 同类；heif/heic 同类），
+// 避免把 "jpg"→"image/jpeg" 这种别名差异误报为降级。
+func normalizeStyleFormat(f string) string {
+	switch strings.ToLower(f) {
+	case "jpeg":
+		return "jpg"
+	case "heif":
+		return "heic"
+	default:
+		return strings.ToLower(f)
 	}
 }
 

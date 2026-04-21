@@ -280,6 +280,124 @@ func TestServeStyled_FileNotFound_Returns404(t *testing.T) {
 	}
 }
 
+// TestServeStyled_DegradedFormat_SetsXStyleFallback 验证：
+// 当请求 avif 但实际输出 jpeg 时，响应头应包含 X-Style-Fallback（Spec §6.3.3）。
+func TestServeStyled_DegradedFormat_SetsXStyleFallback(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	body := []byte("FAKEJPEG")
+	svc := &stubStyleService{
+		result: &image_style.StyleResult{
+			ContentType:     "image/jpeg", // 实际输出 jpeg
+			Reader:          io.NopCloser(bytes.NewReader(body)),
+			Size:            int64(len(body)),
+			StyleHash:       "deadbeef",
+			RequestedFormat: "avif", // 用户原始请求 avif
+		},
+	}
+	h := newTestHandler(svc, &stubDirectLink{})
+	router := gin.New()
+	router.GET("/api/image/*pathWithStyle", h.ServeStyled)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/image/"+encodePublicID(t, 42)+"!avif-style", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("期望 200，实际 %d body=%s", rec.Code, rec.Body.String())
+	}
+	fb := rec.Header().Get("X-Style-Fallback")
+	if fb != "avif->jpg" {
+		t.Errorf("X-Style-Fallback 期望 'avif->jpg'，实际 %q", fb)
+	}
+}
+
+// TestServeStyled_NoDegradation_NoFallbackHeader 验证：
+// 请求 webp 且实际输出 webp 时，不写 X-Style-Fallback 响应头。
+func TestServeStyled_NoDegradation_NoFallbackHeader(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	svc := &stubStyleService{
+		result: &image_style.StyleResult{
+			ContentType:     "image/webp",
+			Reader:          io.NopCloser(bytes.NewReader([]byte("W"))),
+			Size:            1,
+			StyleHash:       "cafe",
+			RequestedFormat: "webp",
+		},
+	}
+	h := newTestHandler(svc, &stubDirectLink{})
+	router := gin.New()
+	router.GET("/api/image/*pathWithStyle", h.ServeStyled)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/image/"+encodePublicID(t, 42)+"!ok", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("期望 200，实际 %d", rec.Code)
+	}
+	if fb := rec.Header().Get("X-Style-Fallback"); fb != "" {
+		t.Errorf("实际输出匹配请求格式时不应设 X-Style-Fallback，实际 %q", fb)
+	}
+}
+
+// TestServeStyled_JpegVsJpgNotTreatedAsFallback 验证：
+// "jpg" 请求与 "image/jpeg" 输出是同一种格式，不应误判为降级。
+func TestServeStyled_JpegVsJpgNotTreatedAsFallback(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	svc := &stubStyleService{
+		result: &image_style.StyleResult{
+			ContentType:     "image/jpeg",
+			Reader:          io.NopCloser(bytes.NewReader([]byte("J"))),
+			Size:            1,
+			StyleHash:       "ha",
+			RequestedFormat: "jpg",
+		},
+	}
+	h := newTestHandler(svc, &stubDirectLink{})
+	router := gin.New()
+	router.GET("/api/image/*pathWithStyle", h.ServeStyled)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/image/"+encodePublicID(t, 42)+"!jpg", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if fb := rec.Header().Get("X-Style-Fallback"); fb != "" {
+		t.Errorf("jpg vs jpeg 属同一格式；不应触发 X-Style-Fallback，实际 %q", fb)
+	}
+}
+
+// TestServeStyled_OriginalFormat_NoFallbackHeader 验证：
+// RequestedFormat 为 "original" / "" 时永远不写 X-Style-Fallback。
+func TestServeStyled_OriginalFormat_NoFallbackHeader(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	for _, req := range []string{"", "original"} {
+		svc := &stubStyleService{
+			result: &image_style.StyleResult{
+				ContentType:     "image/jpeg",
+				Reader:          io.NopCloser(bytes.NewReader([]byte("O"))),
+				Size:            1,
+				StyleHash:       "orig",
+				RequestedFormat: req,
+			},
+		}
+		h := newTestHandler(svc, &stubDirectLink{})
+		router := gin.New()
+		router.GET("/api/image/*pathWithStyle", h.ServeStyled)
+
+		httpReq := httptest.NewRequest(http.MethodGet, "/api/image/"+encodePublicID(t, 42), nil)
+		rec := httptest.NewRecorder()
+		router.ServeHTTP(rec, httpReq)
+
+		if fb := rec.Header().Get("X-Style-Fallback"); fb != "" {
+			t.Errorf("RequestedFormat=%q 时不应设 X-Style-Fallback，实际 %q", req, fb)
+		}
+	}
+}
+
 func TestSplitPublicIDAndStyle(t *testing.T) {
 	cases := []struct {
 		in, id, style string
