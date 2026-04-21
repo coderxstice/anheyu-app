@@ -223,13 +223,6 @@ func TestNewAutoEngine_DefaultsToNativeGo(t *testing.T) {
 	}
 }
 
-func TestProbe_Phase1_ReturnsUnavailable(t *testing.T) {
-	cap := Probe()
-	if cap.Available {
-		t.Errorf("Phase 1 Probe() 应返回 Available: false（vips 引擎尚未实现）；实际 %+v", cap)
-	}
-}
-
 // ---- 测试工具 ----
 
 type writerSink struct{ buf []byte }
