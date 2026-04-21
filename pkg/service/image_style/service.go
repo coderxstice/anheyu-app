@@ -28,7 +28,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"strings"
 
 	"golang.org/x/sync/singleflight"
 
@@ -177,8 +176,9 @@ func (s *Service) readOriginalBytes(ctx context.Context, policy *model.StoragePo
 	if !ok {
 		return nil, fmt.Errorf("未注册的存储类型: %s", policy.Type)
 	}
-	source := strings.TrimPrefix(file.PrimaryEntity.Source.String, "/")
-	rc, err := provider.Get(ctx, policy, source)
+	// 保留 source 的原始形态：LocalProvider 看前导 "/" 判定绝对路径 / 相对路径；
+	// 云端 provider（OSS/COS 等）也期望原始 key，不要剥 "/"。
+	rc, err := provider.Get(ctx, policy, file.PrimaryEntity.Source.String)
 	if err != nil {
 		return nil, err
 	}
