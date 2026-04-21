@@ -1,6 +1,7 @@
 package auth_handler
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -149,7 +150,14 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	// 1. 调用认证服务进行登录逻辑处理
 	user, err := h.authSvc.Login(c.Request.Context(), req.Email, req.Password)
 	if err != nil {
-		response.Fail(c, http.StatusUnauthorized, err.Error())
+		switch {
+		case errors.Is(err, auth.ErrInvalidCredentials), errors.Is(err, auth.ErrPasswordIncorrect):
+			response.Fail(c, http.StatusUnauthorized, err.Error())
+		case errors.Is(err, auth.ErrAuthServiceBusy):
+			response.Fail(c, http.StatusServiceUnavailable, err.Error())
+		default:
+			response.Fail(c, http.StatusInternalServerError, "登录失败，请稍后重试")
+		}
 		return
 	}
 
@@ -503,7 +511,7 @@ func (h *AuthHandler) CheckEmail(c *gin.Context) {
 
 	exists, err := h.authSvc.CheckEmailExists(c.Request.Context(), email)
 	if err != nil {
-		response.Fail(c, http.StatusInternalServerError, "查询邮箱时出错: "+err.Error())
+		response.Fail(c, http.StatusServiceUnavailable, "登录服务暂时不可用，请稍后重试")
 		return
 	}
 

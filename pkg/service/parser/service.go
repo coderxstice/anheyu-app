@@ -110,7 +110,7 @@ func NewService(settingSvc setting.SettingService, bus *event.EventBus) *Service
 
 	policy.AllowAttrs("orient", "markerHeight", "markerWidth", "markerUnits", "refY", "refX", "viewBox", "class", "id").OnElements("marker")
 	policy.AllowAttrs("language").OnElements("code")
-	policy.AllowAttrs("open").OnElements("details")
+	policy.AllowAttrs("open", "data-collapsed").OnElements("details")
 	policy.AllowAttrs("data-line").OnElements("details", "p", "h1", "h2", "h3", "h4", "h5", "h6", "blockquote", "ol", "ul", "li", "figure", "table", "thead", "tbody", "tr", "th", "td", "div")
 	policy.AllowAttrs("data-mermaid-theme", "data-closed", "data-processed").OnElements("p", "div")
 	policy.AllowAttrs("data-tips").OnElements("span")

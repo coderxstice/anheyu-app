@@ -105,15 +105,25 @@ func (s *settingService) UpdateSettings(ctx context.Context, settingsToUpdate ma
 		return err
 	}
 
+	siteConfigChanged := false
 	for key, value := range settingsToUpdate {
 		s.cache[key] = value
-		s.eventBus.Publish(event.Topic(TopicSettingUpdated), SettingUpdatedEvent{
-			Key:   key,
-			Value: value,
-		})
+		if s.eventBus != nil {
+			s.eventBus.Publish(event.Topic(TopicSettingUpdated), SettingUpdatedEvent{
+				Key:   key,
+				Value: value,
+			})
+		}
+		if s.isPublicSetting(key) {
+			siteConfigChanged = true
+		}
 	}
 
 	s.configVersion = time.Now().UnixMilli()
+
+	if siteConfigChanged && s.eventBus != nil {
+		s.eventBus.Publish(event.SiteConfigUpdated, s.configVersion)
+	}
 
 	log.Printf("成功更新 %d 个站点配置项，并已发布变更事件。configVersion=%d", len(settingsToUpdate), s.configVersion)
 	return nil
