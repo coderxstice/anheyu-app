@@ -6,9 +6,14 @@
  *   avif / heic / webp  →  jpg
  *   jpeg / png          →  不降级（primary 失败即最终失败）
  *
- * Phase 1：primary 和 fallback 都是 NativeGoEngine；降级仅在"请求了 vips 专属格式
- * 但当前没有 vips"时发生（例如用户配置 format=webp，Phase 1 会降级成 jpg）。
- * Phase 2 接入 VipsEngine 后，primary 改为按 capability.Available 选择。
+ * Phase 2（Task 2.3）：
+ *   - cap.Available == true  → primary = VipsEngine，fallback = NativeGoEngine
+ *   - cap.Available == false → primary = fallback = NativeGoEngine（相当于无降级通道）
+ * 这样做的语义：
+ *   - 有 vips 时优先用 vips，vips 如果因编译时没 libheif 之类导致 avif 报
+ *     ErrFormatUnsupported，AutoEngine 会把 format 降到 jpg 再走 native，保底可用。
+ *   - 无 vips 时原生就只能处理 jpg/png；用户配了 webp → native 拒绝 → AutoEngine
+ *     把 format 降到 jpg 再走自己，实现了"优雅降级"。
  */
 package engine
 
@@ -29,12 +34,23 @@ type AutoEngine struct {
 }
 
 // NewAutoEngine 按 vips 可用性构造 AutoEngine。
-// Phase 1：忽略 cap.Available，primary 固定为 NativeGoEngine。
-// Phase 2：cap.Available == true 时 primary 改为 NewVipsEngine(cap)。
+//
+// Phase 2 Task 2.3：
+//   - cap.Available == true  → primary = VipsEngine，fallback = NativeGoEngine。
+//   - cap.Available == false → primary 与 fallback 均为 NativeGoEngine（不降级）。
+//
+// 注意：cap 通常由 Probe() 提供；测试可使用 NewAutoEngineWith 精细注入。
 func NewAutoEngine(cap VipsCapability) *AutoEngine {
 	native := NewNativeGoEngine()
+	if cap.Available && cap.BinaryPath != "" {
+		return &AutoEngine{
+			primary:    NewVipsEngine(cap),
+			fallback:   native,
+			capability: cap,
+		}
+	}
 	return &AutoEngine{
-		primary:    native, // Phase 2 Task 2.3 替换为 VipsEngine
+		primary:    native,
 		fallback:   native,
 		capability: cap,
 	}

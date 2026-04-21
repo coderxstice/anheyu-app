@@ -5,9 +5,11 @@
 package engine
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"io"
+	"os/exec"
 	"testing"
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
@@ -220,6 +222,76 @@ func TestNewAutoEngine_DefaultsToNativeGo(t *testing.T) {
 	}
 	if auto.Fallback().Name() != "nativego" {
 		t.Errorf("fallback 应为 nativego，实际 %s", auto.Fallback().Name())
+	}
+}
+
+func TestNewAutoEngine_PrefersVipsWhenAvailable(t *testing.T) {
+	cap := VipsCapability{
+		Available:     true,
+		BinaryPath:    "/usr/local/bin/vips",
+		Version:       "8.18.2",
+		InputFormats:  []string{"jpeg", "png", "webp"},
+		OutputFormats: []string{"jpeg", "png", "webp"},
+	}
+	auto := NewAutoEngine(cap)
+	if auto.Primary().Name() != "vips" {
+		t.Errorf("vips 可用时 primary 应为 vips，实际 %s", auto.Primary().Name())
+	}
+	if auto.Fallback().Name() != "nativego" {
+		t.Errorf("fallback 应为 nativego 作为保底，实际 %s", auto.Fallback().Name())
+	}
+	if auto.Capability().BinaryPath != cap.BinaryPath {
+		t.Errorf("Capability().BinaryPath 未透传，实际 %s", auto.Capability().BinaryPath)
+	}
+}
+
+func TestNewAutoEngine_VipsUnavailableWithEmptyPath_FallsBackToNative(t *testing.T) {
+	// Available=true 但 BinaryPath 为空属异常探测结果，保守走 native 避免 exec 空路径崩溃。
+	auto := NewAutoEngine(VipsCapability{Available: true, BinaryPath: ""})
+	if auto.Primary().Name() != "nativego" {
+		t.Errorf("BinaryPath 为空时 primary 应退化为 nativego，实际 %s", auto.Primary().Name())
+	}
+}
+
+// TestAutoEngine_EndToEnd_RoutesToVips 验证：当 vips 可用时，AutoEngine 确实把 JPEG→WebP
+// 这种请求交给 vips 处理（若无 vips 则 skip）。
+func TestAutoEngine_EndToEnd_RoutesToVips(t *testing.T) {
+	if _, err := exec.LookPath("vips"); err != nil {
+		t.Skip("vips not available in test env")
+	}
+	ResetProbeForTest()
+	cap := Probe()
+	if !cap.Available {
+		t.Skip("vips probe unavailable in test env")
+	}
+
+	auto := NewAutoEngine(cap)
+	if auto.Primary().Name() != "vips" {
+		t.Fatalf("primary 应为 vips，实际 %s", auto.Primary().Name())
+	}
+
+	src := buildTestJPEG(t, 600, 400)
+	style := model.ImageStyleConfig{
+		Format:     "webp",
+		Quality:    70,
+		AutoRotate: true,
+		Resize:     model.ImageResizeConfig{Mode: "contain", Width: 300, Height: 300},
+	}
+	var out bytes.Buffer
+	mime, err := auto.Process(context.Background(), bytes.NewReader(src), style, &out)
+	if err != nil {
+		t.Fatalf("AutoEngine.Process: %v", err)
+	}
+	if mime != "image/webp" {
+		t.Errorf("mime = %s, want image/webp", mime)
+	}
+	cfg, format := decodeImageConfig(t, out.Bytes())
+	if format != "webp" {
+		t.Errorf("format = %s, want webp", format)
+	}
+	// contain 模式 + 600x400 缩到最长 300 → 应为 300x200
+	if cfg.Width != 300 || cfg.Height != 200 {
+		t.Errorf("contain 300x300 on 600x400 应得 300x200，实际 %dx%d", cfg.Width, cfg.Height)
 	}
 }
 
