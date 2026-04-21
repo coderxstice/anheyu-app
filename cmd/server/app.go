@@ -460,6 +460,8 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	articleSvc.SetHistoryRepo(articleHistoryRepo)
 	// 注入事件总线，用于文章 CRUD 时通知前端清缓存
 	articleSvc.SetEventBus(eventBus)
+	// 注入图片样式服务，使上传响应 URL 自动拼默认样式后缀
+	articleSvc.SetImageStyleService(imageStyleSvc)
 	// articleHistorySvc 已在 taskBroker 之前创建
 	log.Printf("[DEBUG] 正在初始化 PushooService...")
 	pushooSvc := utility.NewPushooService(settingSvc)
@@ -575,6 +577,8 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	albumHandler := album_handler.NewAlbumHandler(albumSvc)
 	albumCategoryHandler := album_category_handler.NewHandler(albumCategorySvc)
 	userHandler := user_handler.NewUserHandler(userSvc, settingSvc, fileSvc, directLinkSvc)
+	// 注入图片样式服务，使头像上传响应 URL 自动拼默认样式后缀
+	userHandler.SetImageStyleService(imageStyleSvc)
 	publicHandler := public_handler.NewPublicHandler(albumSvc, albumCategorySvc)
 	settingHandler := setting_handler.NewSettingHandler(settingSvc, emailSvc, cdnSvc, configBackupSvc)
 	storagePolicyHandler := storage_policy_handler.NewStoragePolicyHandler(storagePolicySvc)

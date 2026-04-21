@@ -23,6 +23,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/direct_link"
 	file_service "github.com/anzhiyu-c/anheyu-app/pkg/service/file"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/image_style"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/user"
 
@@ -35,6 +36,13 @@ type UserHandler struct {
 	settingSvc    setting.SettingService
 	fileSvc       file_service.FileService
 	directLinkSvc direct_link.Service
+	// styleSvc 可选；非 nil 且策略配置了 default_style 时，头像 URL 自动拼 "!style"。
+	styleSvc image_style.ImageStyleService
+}
+
+// SetImageStyleService 注入图片样式服务（可选），用于头像上传 URL 自动拼默认样式后缀。
+func (h *UserHandler) SetImageStyleService(svc image_style.ImageStyleService) {
+	h.styleSvc = svc
 }
 
 // NewUserHandler 是 UserHandler 的构造函数
@@ -813,6 +821,16 @@ func (h *UserHandler) UploadAvatar(c *gin.Context) {
 	}
 
 	avatarURL := linkResult.URL
+
+	// 若启用了图片样式处理，自动把 default_style 拼到 URL 后（如 "!avatar_128"）
+	if h.styleSvc != nil {
+		if policy, perr := h.fileSvc.GetPolicyByFlag(c.Request.Context(), constant.PolicyFlagUserAvatar); perr == nil && policy != nil {
+			if suffix := h.styleSvc.ResolveUploadURLSuffix(policy, fileHeader.Filename); suffix != "" {
+				avatarURL = avatarURL + suffix
+				log.Printf("[Handler.UploadAvatar] 自动拼默认样式: suffix=%s", suffix)
+			}
+		}
+	}
 	log.Printf("[Handler.UploadAvatar] 成功获取头像直链URL: %s", avatarURL)
 
 	// 9. 更新用户头像字段

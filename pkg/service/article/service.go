@@ -25,6 +25,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/cdn"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/direct_link"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/file"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/image_style"
 	appParser "github.com/anzhiyu-c/anheyu-app/pkg/service/parser"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/search"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
@@ -74,6 +75,9 @@ type Service interface {
 	// SetEventBus 设置事件总线（可选注入，用于文章变更时通知前端清缓存）
 	SetEventBus(bus *event.EventBus)
 
+	// SetImageStyleService 注入图片样式服务，使上传响应 URL 自动拼默认样式后缀（Plan B Phase 1）
+	SetImageStyleService(svc image_style.ImageStyleService)
+
 	// GetArticleStatistics 获取文章统计数据（用于前台展示）
 	GetArticleStatistics(ctx context.Context) (*model.ArticleStatistics, error)
 }
@@ -102,6 +106,7 @@ type serviceImpl struct {
 	userRepo    repository.UserRepository
 	historyRepo repository.ArticleHistoryRepository // 文章历史版本仓储
 	eventBus    *event.EventBus
+	styleSvc    image_style.ImageStyleService // 可选，用于上传响应 URL 自动拼默认样式后缀
 }
 
 func NewService(
@@ -157,6 +162,13 @@ func (s *serviceImpl) SetHistoryRepo(historyRepo repository.ArticleHistoryReposi
 // SetEventBus 设置事件总线（可选注入，用于文章 CRUD 时通知前端清缓存）
 func (s *serviceImpl) SetEventBus(bus *event.EventBus) {
 	s.eventBus = bus
+}
+
+// SetImageStyleService 注入图片样式服务（可选）。
+// 非 nil 且策略启用 image_process + default_style 时，UploadArticleImageWithGroup
+// 返回的 URL 会自动追加 "!styleName" 后缀。
+func (s *serviceImpl) SetImageStyleService(svc image_style.ImageStyleService) {
+	s.styleSvc = svc
 }
 
 func (s *serviceImpl) publishArticleEvent(topic event.Topic, abbrlink, publicID string) {
@@ -280,13 +292,23 @@ func (s *serviceImpl) UploadArticleImageWithGroup(ctx context.Context, ownerID, 
 	policy, err := s.fileSvc.GetPolicyByFlag(ctx, constant.PolicyFlagArticleImage)
 	if err != nil {
 		log.Printf("[文章图片上传] 获取文章图片存储策略失败: %v，使用原始URL", err)
-	} else if policy != nil && policy.Settings != nil {
-		// 从存储策略配置中获取样式分隔符
-		if styleSeparator, ok := policy.Settings[constant.StyleSeparatorSettingKey].(string); ok && styleSeparator != "" {
-			// 腾讯云COS、阿里云OSS和七牛云支持样式分隔符
-			if policy.Type == constant.PolicyTypeTencentCOS || policy.Type == constant.PolicyTypeAliOSS || policy.Type == constant.PolicyTypeQiniu {
-				finalURL = finalURL + styleSeparator
-				log.Printf("[文章图片上传] 已拼接样式分隔符: %s，最终URL: %s", styleSeparator, finalURL)
+	} else if policy != nil {
+		// 优先：若启用了 image_process.default_style，返回完整 "sep+style"（如 "!thumbnail"）
+		appendedByStyleSvc := false
+		if s.styleSvc != nil {
+			if suffix := s.styleSvc.ResolveUploadURLSuffix(policy, originalFilename); suffix != "" {
+				finalURL = finalURL + suffix
+				log.Printf("[文章图片上传] 自动拼默认样式: suffix=%s", suffix)
+				appendedByStyleSvc = true
+			}
+		}
+		// 兜底：老的云端分隔符行为（仅加 "!"），仅在新后缀未命中时执行
+		if !appendedByStyleSvc && policy.Settings != nil {
+			if styleSeparator, ok := policy.Settings[constant.StyleSeparatorSettingKey].(string); ok && styleSeparator != "" {
+				if policy.Type == constant.PolicyTypeTencentCOS || policy.Type == constant.PolicyTypeAliOSS || policy.Type == constant.PolicyTypeQiniu {
+					finalURL = finalURL + styleSeparator
+					log.Printf("[文章图片上传] 已拼接样式分隔符: %s，最终URL: %s", styleSeparator, finalURL)
+				}
 			}
 		}
 	}
