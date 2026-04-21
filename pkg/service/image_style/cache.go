@@ -194,10 +194,13 @@ func (c *DiskCache) Get(ctx context.Context, policyID, fileID uint, styleHash st
 
 	f, err := os.Open(entry.Path)
 	if err != nil {
-		// 文件已被外部删除，清理索引
+		// 文件已被外部删除或 Purge 并发清理过，需要同步清理内存索引。
+		// 做存在性 + 同一指针校验，避免 Purge 已经减过 totalSize 后再次重复扣减。
 		c.mu.Lock()
-		delete(c.entries, key)
-		c.totalSize -= entry.Size
+		if current, stillExists := c.entries[key]; stillExists && current == entry {
+			delete(c.entries, key)
+			c.totalSize -= entry.Size
+		}
 		c.mu.Unlock()
 		atomic.AddInt64(&c.missCount, 1)
 		return nil, nil, ErrCacheMiss
