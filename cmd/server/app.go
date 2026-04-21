@@ -17,6 +17,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -86,6 +87,8 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/file_info"
 	geetest_service "github.com/anzhiyu-c/anheyu-app/pkg/service/geetest"
 	imagecaptcha_service "github.com/anzhiyu-c/anheyu-app/pkg/service/imagecaptcha"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/image_style"
+	image_style_engine "github.com/anzhiyu-c/anheyu-app/pkg/service/image_style/engine"
 	link_service "github.com/anzhiyu-c/anheyu-app/pkg/service/link"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/music"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/notification"
@@ -143,6 +146,8 @@ type App struct {
 	themeHandler           *theme_handler.Handler
 	ssrManager             *ssr.Manager
 	ssrThemeHandler        *ssrtheme_handler.Handler
+	imageStyleService      image_style.ImageStyleService
+	imageStyleCache        *image_style.DiskCache
 	configExtensionHolder  *configExtensionHolder // Pro 可通过 SetConfigExtension 注入支付配置导出/导入
 }
 
@@ -345,6 +350,10 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	fileSvc := file_service.NewService(fileRepo, storagePolicyRepo, txManager, entityRepo, fileEntityRepo, userGroupRepo, metadataSvc, extractionSvc, cacheSvc, storagePolicySvc, settingSvc, syncSvc, vfsSvc, storageProviders, eventBus, pathLocker)
 	uploadSvc := file_service.NewUploadService(txManager, eventBus, entityRepo, metadataSvc, cacheSvc, storagePolicySvc, settingSvc, storageProviders)
 	directLinkSvc := direct_link.NewDirectLinkService(directLinkRepo, fileRepo, userGroupRepo, settingSvc, storagePolicyRepo)
+
+	// 初始化图片样式处理服务（Phase 1：纯 Go 引擎 + 磁盘缓存；Phase 2 会接入 vips）
+	imageStyleSvc, imageStyleCache := buildImageStyleService(settingSvc, storageProviders, storagePolicyRepo)
+
 	statService, err := statistics.NewVisitorStatService(
 		ent_impl.NewVisitorStatRepository(entClient),
 		ent_impl.NewVisitorLogRepository(entClient),
@@ -749,6 +758,8 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 		themeHandler:         themeHandler,
 		ssrManager:            ssrManager,
 		ssrThemeHandler:       ssrThemeHandler,
+		imageStyleService:     imageStyleSvc,
+		imageStyleCache:       imageStyleCache,
 		configExtensionHolder: configExtensionHolder,
 	}
 
@@ -764,6 +775,11 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 		// 停止所有 SSR 主题
 		log.Println("停止所有 SSR 主题...")
 		ssrManager.StopAll()
+
+		// 关闭图片样式缓存的后台 goroutine
+		if imageStyleCache != nil {
+			_ = imageStyleCache.Close()
+		}
 
 		// 关闭数据库连接
 		log.Println("关闭数据库连接...")
@@ -889,6 +905,55 @@ func (a *App) SSRThemeHandler() *ssrtheme_handler.Handler {
 // ThemeHandler 返回主题处理器（用于 PRO 版配置为 PRO 模式）
 func (a *App) ThemeHandler() *theme_handler.Handler {
 	return a.themeHandler
+}
+
+// ImageStyleService 返回图片样式处理服务（供 PRO 版图片 handler / 上传流程复用）。
+// 若启动时缓存初始化失败，此处可能返回 nil；调用方需做 nil-check。
+func (a *App) ImageStyleService() image_style.ImageStyleService {
+	return a.imageStyleService
+}
+
+// buildImageStyleService 从 settingSvc 读取缓存配置并装配图片样式服务。
+// Phase 1 primary/fallback 都是 NativeGoEngine；Phase 2 Task 2.3 会在 Probe 可用时改用 VipsEngine。
+// 若磁盘缓存创建失败，会记录警告并返回 (nil, nil)，服务功能对应降级。
+func buildImageStyleService(
+	settingSvc setting.SettingService,
+	providers map[constant.StoragePolicyType]storage.IStorageProvider,
+	policyRepo repository.StoragePolicyRepository,
+) (image_style.ImageStyleService, *image_style.DiskCache) {
+	cacheRoot := settingSvc.Get(constant.KeyImageStyleCachePath.String())
+	if cacheRoot == "" {
+		cacheRoot = "./data/cache/image_styles"
+	}
+	maxMB, err := strconv.Atoi(settingSvc.Get(constant.KeyImageStyleCacheMaxMB.String()))
+	if err != nil || maxMB < 0 {
+		maxMB = 1024
+	}
+	cleanupSec, err := strconv.Atoi(settingSvc.Get(constant.KeyImageStyleCacheCleanupInterval.String()))
+	if err != nil || cleanupSec < 0 {
+		cleanupSec = 600
+	}
+
+	cache, err := image_style.NewDiskCache(image_style.CacheConfig{
+		Root:            cacheRoot,
+		MaxSizeBytes:    int64(maxMB) * 1024 * 1024,
+		CleanupInterval: time.Duration(cleanupSec) * time.Second,
+	})
+	if err != nil {
+		log.Printf("⚠️  图片样式缓存初始化失败（功能暂不可用）: %v", err)
+		return nil, nil
+	}
+
+	capability := image_style_engine.Probe()
+	eng := image_style_engine.NewAutoEngine(capability)
+	svc := image_style.NewService(eng, cache, providers, policyRepo, nil)
+	if capability.Available {
+		log.Printf("✅ 图片样式引擎：vips %s @ %s", capability.Version, capability.BinaryPath)
+	} else {
+		log.Println("ℹ️  图片样式引擎：纯 Go（未检测到 vips，支持 jpg/png 输入输出）")
+	}
+	log.Printf("   缓存目录：%s；上限 %d MB；清理周期 %d 秒", cacheRoot, maxMB, cleanupSec)
+	return svc, cache
 }
 
 func (a *App) Run() error {
