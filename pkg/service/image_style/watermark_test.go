@@ -140,6 +140,11 @@ func TestNativeWatermarker_UnknownType(t *testing.T) {
 // TestNativeWatermarker_Image_FromHTTP 通过 httptest server 提供水印图片，
 // 验证：1) 图片水印正确叠加；2) 二次调用命中缓存不再请求。
 func TestNativeWatermarker_Image_FromHTTP(t *testing.T) {
+	// httptest 使用 127.0.0.1，默认的 SSRF 保护会拒绝 loopback；
+	// 此测试关注的是"水印像素 + 缓存"而非网络边界，因此临时关闭 SSRF 钩子。
+	restore := DisableSSRFGuardForTest()
+	defer restore()
+
 	// 生成一张 20x20 蓝色 PNG 作为水印源
 	wmPNG := image.NewRGBA(image.Rect(0, 0, 20, 20))
 	for y := 0; y < 20; y++ {

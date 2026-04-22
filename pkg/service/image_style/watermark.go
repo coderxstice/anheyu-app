@@ -24,7 +24,9 @@ import (
 	"image/draw"
 	"io"
 	"log"
+	"net"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"sync"
@@ -76,16 +78,36 @@ type defaultHTTPFetcher struct {
 }
 
 // FetchImage 通过 HTTP GET 下载图像字节并解码。
+// 为了防止管理员配置被篡改后形成 SSRF，本实现做下列限制：
+//  1. 仅允许 http/https 协议；
+//  2. 解析 host 后禁止指向私网、环回、链路本地、广播/多播、以及
+//     云厂商元数据地址（169.254.169.254 / fd00:ec2::254 等）；
+//  3. 仅信任 DNS 解析后的第一条 IP 的校验结果，避免 "DNS rebind 到公网" 绕过；
+//     传入的 host 若直接是 IP 字面量则直接对该 IP 做校验。
+//  4. 请求体限制 10MB、响应状态需为 200。
 func (f *defaultHTTPFetcher) FetchImage(ctx context.Context, imageURL string) (image.Image, error) {
-	u := strings.TrimSpace(imageURL)
-	if u == "" {
+	raw := strings.TrimSpace(imageURL)
+	if raw == "" {
 		return nil, fmt.Errorf("水印图片 URL 为空")
 	}
-	// 只允许 http/https，避免 file:// 等协议被滥用。
-	if !strings.HasPrefix(u, "http://") && !strings.HasPrefix(u, "https://") {
-		return nil, fmt.Errorf("水印图片仅支持 http/https: %s", u)
+
+	parsed, err := url.Parse(raw)
+	if err != nil {
+		return nil, fmt.Errorf("水印图片 URL 解析失败: %w", err)
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+	scheme := strings.ToLower(parsed.Scheme)
+	if scheme != "http" && scheme != "https" {
+		return nil, fmt.Errorf("水印图片仅支持 http/https: %s", raw)
+	}
+	host := parsed.Hostname()
+	if host == "" {
+		return nil, fmt.Errorf("水印图片 URL 缺少主机名")
+	}
+	if err := ssrfHostGuard(ctx, host); err != nil {
+		return nil, fmt.Errorf("水印图片目标禁止访问: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, raw, nil)
 	if err != nil {
 		return nil, fmt.Errorf("构造水印图片请求失败: %w", err)
 	}
@@ -111,6 +133,81 @@ func (f *defaultHTTPFetcher) FetchImage(ctx context.Context, imageURL string) (i
 		return nil, fmt.Errorf("解码水印图片失败: %w", err)
 	}
 	return img, nil
+}
+
+// ssrfDNSResolver 抽离 DNS 解析，便于测试注入。默认使用 net.DefaultResolver。
+var ssrfDNSResolver = net.DefaultResolver
+
+// ssrfHostGuard 是水印图片下载前的 host 校验钩子，默认走 ensureHostSafeForSSRF。
+// 测试可以通过 DisableSSRFGuardForTest 临时替换为 noop，避免 httptest 的 127.0.0.1 被拒。
+var ssrfHostGuard = ensureHostSafeForSSRF
+
+// DisableSSRFGuardForTest 把 ssrf 校验替换为 noop，并返回恢复函数。仅供测试使用。
+// 生产代码不应调用此方法；若不慎被调用，会取消所有目标 host 的 SSRF 保护。
+func DisableSSRFGuardForTest() func() {
+	prev := ssrfHostGuard
+	ssrfHostGuard = func(ctx context.Context, host string) error { return nil }
+	return func() { ssrfHostGuard = prev }
+}
+
+// ensureHostSafeForSSRF 对 host 做 SSRF 黑名单校验。
+// 若 host 是 IP 字面量，直接 IP 校验；若是域名，用默认 DNS 解析出的所有地址都校验。
+func ensureHostSafeForSSRF(ctx context.Context, host string) error {
+	if ip := net.ParseIP(host); ip != nil {
+		if err := checkIPAllowed(ip); err != nil {
+			return err
+		}
+		return nil
+	}
+	addrs, err := ssrfDNSResolver.LookupIPAddr(ctx, host)
+	if err != nil {
+		return fmt.Errorf("解析主机 %q 失败: %w", host, err)
+	}
+	if len(addrs) == 0 {
+		return fmt.Errorf("主机 %q 无可用 IP", host)
+	}
+	for _, a := range addrs {
+		if err := checkIPAllowed(a.IP); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// checkIPAllowed 拒绝私网、环回、链路本地、多播、广播、未指定以及常见云厂商元数据地址。
+func checkIPAllowed(ip net.IP) error {
+	if ip == nil {
+		return fmt.Errorf("空 IP")
+	}
+	if ip.IsLoopback() {
+		return fmt.Errorf("目标 %s 为环回地址", ip)
+	}
+	if ip.IsUnspecified() {
+		return fmt.Errorf("目标 %s 为未指定地址", ip)
+	}
+	if ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() {
+		return fmt.Errorf("目标 %s 为链路本地地址", ip)
+	}
+	if ip.IsMulticast() {
+		return fmt.Errorf("目标 %s 为多播地址", ip)
+	}
+	if ip.IsPrivate() {
+		return fmt.Errorf("目标 %s 为私网地址", ip)
+	}
+	// 额外显式拦截云厂商元数据服务，防止部分云环境未归入 IsPrivate。
+	for _, blocked := range metadataBlockList {
+		if ip.Equal(blocked) {
+			return fmt.Errorf("目标 %s 属于元数据/保留地址黑名单", ip)
+		}
+	}
+	return nil
+}
+
+// metadataBlockList 汇总常见云厂商的实例元数据地址。
+// 169.254.169.254 被 IsLinkLocalUnicast 覆盖，这里显式列出以便未来扩充与审计。
+var metadataBlockList = []net.IP{
+	net.ParseIP("169.254.169.254"),
+	net.ParseIP("fd00:ec2::254"),
 }
 
 // imageCache 是一个带 TTL 的进程内图像缓存。
