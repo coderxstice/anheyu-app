@@ -220,6 +220,50 @@ func TestDiskCache_Stats_ReflectsEntries(t *testing.T) {
 	}
 }
 
+// TestDiskCache_ListAllStats_GroupsByPolicy 覆盖 Phase 4 新增的 ListAllStats：
+// 多策略共存时应按 policyID 升序返回每策略的条目数与总字节，
+// HitCount/MissCount 使用进程级全局累计。
+func TestDiskCache_ListAllStats_GroupsByPolicy(t *testing.T) {
+	ctx := context.Background()
+	c := newTestCache(t, 1024*1024)
+
+	// 策略 2：两条，体积 100+150
+	_, _ = c.Put(ctx, 2, 10, "p2a", "image/jpeg", "jpg", bytes.Repeat([]byte("a"), 100))
+	_, _ = c.Put(ctx, 2, 11, "p2b", "image/jpeg", "jpg", bytes.Repeat([]byte("b"), 150))
+	// 策略 1：一条，体积 50
+	_, _ = c.Put(ctx, 1, 20, "p1a", "image/webp", "webp", bytes.Repeat([]byte("c"), 50))
+
+	got, err := c.ListAllStats(ctx)
+	if err != nil {
+		t.Fatalf("ListAllStats: %v", err)
+	}
+	if len(got) != 2 {
+		t.Fatalf("期望 2 个策略分组，实际 %d: %+v", len(got), got)
+	}
+	if got[0].PolicyID != 1 || got[0].Count != 1 || got[0].TotalSize != 50 {
+		t.Errorf("策略 1 统计不符，期望 count=1 size=50，实际 %+v", got[0])
+	}
+	if got[1].PolicyID != 2 || got[1].Count != 2 || got[1].TotalSize != 250 {
+		t.Errorf("策略 2 统计不符，期望 count=2 size=250，实际 %+v", got[1])
+	}
+}
+
+// TestDiskCache_ListAllStats_Empty 空缓存应返回空数组，不返回 nil 以便 JSON 序列化稳定。
+func TestDiskCache_ListAllStats_Empty(t *testing.T) {
+	ctx := context.Background()
+	c := newTestCache(t, 1024*1024)
+	got, err := c.ListAllStats(ctx)
+	if err != nil {
+		t.Fatalf("ListAllStats: %v", err)
+	}
+	if got == nil {
+		t.Fatalf("空缓存应返回空切片，而非 nil")
+	}
+	if len(got) != 0 {
+		t.Errorf("空缓存应返回 0 长度切片，实际 %d", len(got))
+	}
+}
+
 func TestDiskCache_AtomicPut_NoPartialFiles(t *testing.T) {
 	ctx := context.Background()
 	c := newTestCache(t, 1024*1024)

@@ -920,6 +920,18 @@ func (a *App) ImageStyleService() image_style.ImageStyleService {
 	return a.imageStyleService
 }
 
+// ConfigureImageStyleWarmLister 允许 PRO 启动时注入 WarmFileLister，
+// 开启 `/api/pro/admin/image-styles/cache/warm` 的异步预热能力。
+// 若 ImageStyleService 尚未就绪（如缓存初始化失败），本方法是 no-op。
+func (a *App) ConfigureImageStyleWarmLister(l image_style.WarmFileLister) {
+	if a.imageStyleService == nil {
+		return
+	}
+	if svc, ok := a.imageStyleService.(*image_style.Service); ok {
+		svc.SetWarmFileLister(l)
+	}
+}
+
 // buildImageStyleService 从 settingSvc 读取缓存配置并装配图片样式服务。
 // Phase 1 primary/fallback 都是 NativeGoEngine；Phase 2 Task 2.3 会在 Probe 可用时改用 VipsEngine。
 // 若磁盘缓存创建失败，会记录警告并返回 (nil, nil)，服务功能对应降级。
@@ -952,8 +964,12 @@ func buildImageStyleService(
 	}
 
 	capability := image_style_engine.Probe()
-	eng := image_style_engine.NewAutoEngine(capability)
-	svc := image_style.NewService(eng, cache, providers, policyRepo, nil)
+	// Phase 3 Task 3.4：装配纯 Go 水印实现，并让引擎内部调用。
+	watermarker := image_style.NewNativeWatermarker()
+	eng := image_style_engine.NewAutoEngine(capability,
+		image_style_engine.WithAutoWatermarker(watermarker),
+	)
+	svc := image_style.NewService(eng, cache, providers, policyRepo, watermarker)
 	if capability.Available {
 		log.Printf("✅ 图片样式引擎：vips %s @ %s", capability.Version, capability.BinaryPath)
 	} else {

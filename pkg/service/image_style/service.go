@@ -28,6 +28,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"sync"
 
 	"golang.org/x/sync/singleflight"
 
@@ -44,39 +45,114 @@ type ImageStyleService interface {
 	ResolveUploadURLSuffix(policy *model.StoragePolicy, filename string) string
 	PurgeCache(ctx context.Context, policyID uint, styleName string, fileID uint) (int, error)
 	Stats(ctx context.Context, policyID uint) (*CacheStats, error)
+
+	// Phase 4 Task 4.1 新增的管理面能力：
+
+	// ListAllStats 返回各策略的缓存统计。0 长度列表表示当前无任何缓存条目。
+	ListAllStats(ctx context.Context) ([]CacheStats, error)
+
+	// Preview 不走磁盘缓存地处理一张原图，供管理员预览样式效果。
+	// 传入完整样式配置（未经 matcher 合并）与原图字节，返回处理后字节 + MIME。
+	Preview(ctx context.Context, style model.ImageStyleConfig, src []byte) (*PreviewResult, error)
+
+	// WarmCache 异步预热指定策略 + 样式的缓存。
+	// 同策略 + 同样式若已有进行中任务，返回其 taskID 且 started=false；
+	// 否则启动新任务并返回 started=true。
+	// 预热需要调用方注入 WarmFileLister，否则立即返回错误 ErrWarmNotAvailable。
+	WarmCache(ctx context.Context, policyID uint, styleName string) (taskID string, started bool, err error)
+
+	// GetWarmProgress 查询预热任务的当前进度快照。
+	GetWarmProgress(taskID string) (*WarmProgress, error)
+}
+
+// ErrWarmNotAvailable 表示调用方未注入 WarmFileLister，无法启动预热任务。
+var ErrWarmNotAvailable = errors.New("image style warm cache not available: WarmFileLister not configured")
+
+// WarmFileLister 为预热任务抽象出文件枚举能力。
+// 社区版单独使用时可以传 nil 禁用；anheyu-pro 启动时会基于 EntityRepository
+// 与 FileRepository 适配一个实现注入进来。
+type WarmFileLister interface {
+	// ListFilesByPolicy 返回给定存储策略下全部逻辑文件（不含目录 / 已软删除记录）。
+	// 调用方（Service.WarmCache）会按策略配置的 apply_to_extensions 再次过滤。
+	ListFilesByPolicy(ctx context.Context, policyID uint) ([]*model.File, error)
+}
+
+// ServiceOption 构造 Service 的可选项，便于扩展而不破坏现有调用点。
+type ServiceOption func(*Service)
+
+// WithWarmFileLister 注入预热任务所需的文件枚举器。
+func WithWarmFileLister(l WarmFileLister) ServiceOption {
+	return func(s *Service) {
+		s.warmLister = l
+	}
+}
+
+// SetWarmFileLister 允许在构造之后注入或替换 WarmFileLister；并发安全。
+// 典型场景：社区版 App 先构造 Service，pro 启动后再把自己的 lister 设进去。
+func (s *Service) SetWarmFileLister(l WarmFileLister) {
+	s.warmMu.Lock()
+	s.warmLister = l
+	s.warmMu.Unlock()
+}
+
+// currentWarmLister 原子读取当前 lister。
+func (s *Service) currentWarmLister() WarmFileLister {
+	s.warmMu.RLock()
+	defer s.warmMu.RUnlock()
+	return s.warmLister
 }
 
 // Service 是 ImageStyleService 的唯一实现。
 // Phase 2 接入 vips 后，engine 字段会被替换为 AutoEngine(VipsEngine/NativeGoEngine)；
 // 其他字段保持不变。
 type Service struct {
-	engine      engine.Engine
-	cache       Cache
-	providers   map[constant.StoragePolicyType]storage.IStorageProvider
-	policyRepo  repository.StoragePolicyRepository
+	engine     engine.Engine
+	cache      Cache
+	providers  map[constant.StoragePolicyType]storage.IStorageProvider
+	policyRepo repository.StoragePolicyRepository
+	// watermarker：Phase 3 Task 3.4 后水印调用链已下沉到 engine 内部（见
+	// engine.WithNativeWatermarker / WithVipsWatermarker），Service 层不再直接调用。
+	// 这里保留字段仅为构造器签名兼容与未来"跨引擎共享水印能力"的语义锚点。
+	// 调用方仍应通过 DI 同时把同一个 watermarker 实例传给 engine 和此字段，保证 vips
+	// 降级为 native 时两路使用同一实现，避免行为漂移。
 	watermarker Watermarker
 
 	sfGroup singleflight.Group
+
+	// Phase 4 Task 4.5：预热子系统（可选）。
+	warmMu     sync.RWMutex
+	warmLister WarmFileLister
+	warmMgr    *warmTaskManager
 }
 
 // NewService 构造 ImageStyleService。watermarker == nil 时自动使用 NoopWatermarker。
+// 注意：自 Phase 3.4 起水印逻辑在 engine 内部完成，但签名保持兼容。
+// 推荐做法：在 DI 层创建一个 NativeWatermarker 同时注入 engine（通过 WithAutoWatermarker）
+// 和本构造器，确保两端语义一致。
+// 支持可选 ServiceOption；当前可注入 WithWarmFileLister 开启 Phase 4 预热能力。
 func NewService(
 	eng engine.Engine,
 	cache Cache,
 	providers map[constant.StoragePolicyType]storage.IStorageProvider,
 	policyRepo repository.StoragePolicyRepository,
 	watermarker Watermarker,
+	opts ...ServiceOption,
 ) *Service {
 	if watermarker == nil {
 		watermarker = NewNoopWatermarker()
 	}
-	return &Service{
+	s := &Service{
 		engine:      eng,
 		cache:       cache,
 		providers:   providers,
 		policyRepo:  policyRepo,
 		watermarker: watermarker,
+		warmMgr:     newWarmTaskManager(nil),
 	}
+	for _, opt := range opts {
+		opt(s)
+	}
+	return s
 }
 
 // 静态断言 Service 满足 ImageStyleService 接口。
@@ -238,6 +314,156 @@ func (s *Service) Stats(ctx context.Context, policyID uint) (*CacheStats, error)
 		return nil, err
 	}
 	return &stats, nil
+}
+
+// ListAllStats 返回所有已缓存策略的统计；未产生过缓存的策略不会出现。
+// 调用方（admin handler）可以合并 StoragePolicy 元信息补零未命中策略。
+func (s *Service) ListAllStats(ctx context.Context) ([]CacheStats, error) {
+	return s.cache.ListAllStats(ctx)
+}
+
+// Preview 走引擎即时处理，不读数据库、不写磁盘缓存，专用于管理员"样式试看"。
+// 输入必须是完整的 ImageStyleConfig（包含 Resize / Watermark 等），并已在
+// 调用方（handler）做过与持久化相同的 schema 校验。
+func (s *Service) Preview(ctx context.Context, style model.ImageStyleConfig, src []byte) (*PreviewResult, error) {
+	if len(src) == 0 {
+		return nil, fmt.Errorf("%w: 输入字节为空", ErrStyleProcessFailed)
+	}
+
+	var buf bytes.Buffer
+	mime, err := s.engine.Process(ctx, bytes.NewReader(src), style, &buf)
+	if err != nil {
+		return nil, fmt.Errorf("%w: Preview 引擎处理失败: %v", ErrStyleProcessFailed, err)
+	}
+
+	return &PreviewResult{
+		ContentType: mime,
+		Data:        buf.Bytes(),
+	}, nil
+}
+
+// WarmCache 异步预热指定策略 + 样式。详细契约见接口注释。
+//
+// 处理流程：
+//  1. 校验 policyRepo / warmLister 已注入
+//  2. 查策略、校验样式存在、扩展名过滤器非空
+//  3. 注册任务（同 key 去重）
+//  4. 启动独立 goroutine：
+//     a) 调 warmLister.ListFilesByPolicy 拿所有文件
+//     b) 按 apply_to_extensions 过滤
+//     c) 每个文件调 Process，记进度
+//     d) 全部完成 → finish(done)
+//
+// 注意：这里不捕获 ctx 用于后台任务——调用方的 ctx 可能在 HTTP 响应返回后被取消。
+// 后台任务使用全新 context.Background()，并由管理器自身维护生命周期。
+func (s *Service) WarmCache(ctx context.Context, policyID uint, styleName string) (string, bool, error) {
+	lister := s.currentWarmLister()
+	if lister == nil {
+		return "", false, ErrWarmNotAvailable
+	}
+	if s.policyRepo == nil {
+		return "", false, fmt.Errorf("WarmCache: 缺少 policyRepo 依赖")
+	}
+	if styleName == "" {
+		return "", false, errors.New("WarmCache: styleName 不能为空")
+	}
+
+	policy, err := s.policyRepo.FindByID(ctx, policyID)
+	if err != nil {
+		return "", false, fmt.Errorf("WarmCache: 查询策略失败: %w", err)
+	}
+	cfg := parseImageProcess(policy)
+	if !cfg.Enabled {
+		return "", false, fmt.Errorf("WarmCache: 策略 %d 未开启 image_process", policyID)
+	}
+	styleCfg, ok := findStyleByName(policy, styleName)
+	if !ok {
+		return "", false, fmt.Errorf("%w: %s", ErrStyleNotFound, styleName)
+	}
+
+	taskID, started := s.warmMgr.register(policyID, styleName)
+	if !started {
+		return taskID, false, nil
+	}
+
+	// 拷贝必要状态到 goroutine 作用域，避免闭包捕获可能过期的指针。
+	applyExt := make(map[string]struct{}, len(cfg.ApplyToExtensions))
+	for _, e := range cfg.ApplyToExtensions {
+		applyExt[e] = struct{}{}
+	}
+	policyCopy := *policy
+	styleCopyName := styleCfg.Name
+
+	go s.runWarmTask(taskID, lister, &policyCopy, styleCopyName, applyExt)
+	return taskID, true, nil
+}
+
+// runWarmTask 执行预热实际工作；仅由 WarmCache 启动，独占 taskID。
+// lister 参数显式传入，避免 goroutine 期间 warmLister 被替换造成竞争。
+func (s *Service) runWarmTask(taskID string, lister WarmFileLister, policy *model.StoragePolicy, styleName string, applyExt map[string]struct{}) {
+	ctx := context.Background()
+
+	files, err := lister.ListFilesByPolicy(ctx, policy.ID)
+	if err != nil {
+		s.warmMgr.finish(taskID, "failed", fmt.Sprintf("列出文件失败: %v", err))
+		return
+	}
+
+	// 按扩展名过滤
+	candidates := make([]*model.File, 0, len(files))
+	for _, f := range files {
+		ext := lowerExt(f.Name)
+		if _, ok := applyExt[ext]; ok {
+			candidates = append(candidates, f)
+		}
+	}
+	s.warmMgr.setTotal(taskID, len(candidates))
+
+	for _, f := range candidates {
+		req := &StyleRequest{
+			Policy:    policy,
+			File:      f,
+			Filename:  f.Name,
+			StyleName: styleName,
+		}
+		result, procErr := s.Process(ctx, req)
+		if procErr != nil {
+			s.warmMgr.inc(taskID, "failed", procErr.Error())
+			continue
+		}
+		// 读完并关闭，以便 cache.Put 的条目完整生效
+		_, _ = io.Copy(io.Discard, result.Reader)
+		_ = result.Reader.Close()
+		s.warmMgr.inc(taskID, "processed", "")
+	}
+	s.warmMgr.finish(taskID, "done", "")
+}
+
+// GetWarmProgress 查询任务进度；未知 taskID 返回 ErrWarmTaskNotFound。
+func (s *Service) GetWarmProgress(taskID string) (*WarmProgress, error) {
+	return s.warmMgr.get(taskID)
+}
+
+// lowerExt 返回文件名扩展名（不含点、小写）。空名或无扩展返回空串。
+func lowerExt(name string) string {
+	for i := len(name) - 1; i >= 0; i-- {
+		if name[i] == '.' {
+			ext := name[i+1:]
+			buf := make([]byte, len(ext))
+			for j := 0; j < len(ext); j++ {
+				b := ext[j]
+				if b >= 'A' && b <= 'Z' {
+					b = b + ('a' - 'A')
+				}
+				buf[j] = b
+			}
+			return string(buf)
+		}
+		if name[i] == '/' || name[i] == '\\' {
+			break
+		}
+	}
+	return ""
 }
 
 // extFromMIME 将 engine 返回的 MIME 映射回文件扩展名（用于缓存文件命名）。

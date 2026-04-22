@@ -46,6 +46,21 @@ func (s *stubStyleService) Stats(ctx context.Context, policyID uint) (*image_sty
 	return &image_style.CacheStats{}, nil
 }
 
+// --- Phase 4 扩展接口的空实现（handler 测试无需覆盖这些方法）---
+
+func (s *stubStyleService) ListAllStats(ctx context.Context) ([]image_style.CacheStats, error) {
+	return nil, nil
+}
+func (s *stubStyleService) Preview(ctx context.Context, style model.ImageStyleConfig, src []byte) (*image_style.PreviewResult, error) {
+	return nil, nil
+}
+func (s *stubStyleService) WarmCache(ctx context.Context, policyID uint, styleName string) (string, bool, error) {
+	return "", false, nil
+}
+func (s *stubStyleService) GetWarmProgress(taskID string) (*image_style.WarmProgress, error) {
+	return nil, nil
+}
+
 type stubFileFinder struct {
 	file *model.File
 	err  error

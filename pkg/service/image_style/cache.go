@@ -77,6 +77,10 @@ type Cache interface {
 	Put(ctx context.Context, policyID, fileID uint, styleHash, mime, ext string, data []byte) (*CacheEntry, error)
 	Purge(ctx context.Context, opts PurgeOpts) (int, error)
 	Stats(ctx context.Context, policyID uint) (CacheStats, error)
+	// ListAllStats 返回所有出现过缓存的策略的分组统计；
+	// 未产生过缓存的策略不会出现在结果中（调用方按需在 handler 层补零）。
+	// 结果按 PolicyID 升序返回，方便 UI 稳定呈现。
+	ListAllStats(ctx context.Context) ([]CacheStats, error)
 	Close() error
 }
 
@@ -321,6 +325,37 @@ func (c *DiskCache) Stats(ctx context.Context, policyID uint) (CacheStats, error
 	stats.HitCount = atomic.LoadInt64(&c.hitCount)
 	stats.MissCount = atomic.LoadInt64(&c.missCount)
 	return stats, nil
+}
+
+// ListAllStats 按 PolicyID 分组返回所有已缓存策略的统计。
+// HitCount / MissCount 为进程级全局累计，因此所有策略共享同一份全局计数；
+// 调用方若只想比较策略间的体积 / 条目数，忽略这两个字段即可。
+func (c *DiskCache) ListAllStats(ctx context.Context) ([]CacheStats, error) {
+	_ = ctx
+	c.mu.RLock()
+	grouped := make(map[uint]*CacheStats)
+	for _, e := range c.entries {
+		g, ok := grouped[e.PolicyID]
+		if !ok {
+			g = &CacheStats{PolicyID: e.PolicyID}
+			grouped[e.PolicyID] = g
+		}
+		g.Count++
+		g.TotalSize += e.Size
+	}
+	c.mu.RUnlock()
+
+	hit := atomic.LoadInt64(&c.hitCount)
+	miss := atomic.LoadInt64(&c.missCount)
+
+	out := make([]CacheStats, 0, len(grouped))
+	for _, g := range grouped {
+		g.HitCount = hit
+		g.MissCount = miss
+		out = append(out, *g)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].PolicyID < out[j].PolicyID })
+	return out, nil
 }
 
 // maybeEvict 同步触发一次 evict 判断。

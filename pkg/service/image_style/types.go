@@ -97,3 +97,32 @@ type CacheStats struct {
 	HitCount  int64 `json:"hit_count"`
 	MissCount int64 `json:"miss_count"`
 }
+
+// PreviewResult 是 ImageStyleService.Preview 的响应 DTO。
+// 仅用于管理员后台的"样式预览"功能，返回处理后字节与 MIME。
+// 不走磁盘缓存，避免污染生产缓存目录。
+type PreviewResult struct {
+	ContentType string `json:"content_type"`
+	Data        []byte `json:"-"` // handler 层直接写响应体，不走 JSON
+}
+
+// WarmProgress 描述一次异步预热任务的进度快照。
+// 字段全部可 JSON 序列化，便于前端轮询展示。
+// Status 取值：
+//   - "pending"    任务已创建，尚未开始
+//   - "running"    正在处理
+//   - "done"       已完成（Processed+Failed==Total）
+//   - "failed"     致命错误提前终止（例如样式不存在）
+//   - "cancelled"  被调用方取消
+type WarmProgress struct {
+	TaskID     string    `json:"task_id"`
+	PolicyID   uint      `json:"policy_id"`
+	StyleName  string    `json:"style_name"`
+	Status     string    `json:"status"`
+	Total      int       `json:"total"`
+	Processed  int       `json:"processed"`
+	Failed     int       `json:"failed"`
+	StartedAt  time.Time `json:"started_at"`
+	FinishedAt time.Time `json:"finished_at,omitempty"`
+	LastError  string    `json:"last_error,omitempty"`
+}
