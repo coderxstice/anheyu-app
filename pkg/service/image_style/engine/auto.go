@@ -33,18 +33,46 @@ type AutoEngine struct {
 	capability VipsCapability
 }
 
+// AutoOption 配置 AutoEngine 构造时的可选能力（如水印实现）。
+type AutoOption func(*autoConfig)
+
+type autoConfig struct {
+	watermarker Watermarker
+}
+
+// WithAutoWatermarker 将水印实现同时注入 AutoEngine 内部的 primary / fallback 引擎。
+// 为空时各引擎默认使用 NoopWatermarker。
+func WithAutoWatermarker(wm Watermarker) AutoOption {
+	return func(c *autoConfig) {
+		c.watermarker = wm
+	}
+}
+
 // NewAutoEngine 按 vips 可用性构造 AutoEngine。
 //
 // Phase 2 Task 2.3：
 //   - cap.Available == true  → primary = VipsEngine，fallback = NativeGoEngine。
 //   - cap.Available == false → primary 与 fallback 均为 NativeGoEngine（不降级）。
 //
+// Phase 3 Task 3.4：通过 AutoOption 可注入 Watermarker，传递给 primary 与 fallback。
+//
 // 注意：cap 通常由 Probe() 提供；测试可使用 NewAutoEngineWith 精细注入。
-func NewAutoEngine(cap VipsCapability) *AutoEngine {
-	native := NewNativeGoEngine()
+func NewAutoEngine(cap VipsCapability, opts ...AutoOption) *AutoEngine {
+	cfg := &autoConfig{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+	nativeOpts := []NativeOption{}
+	vipsOpts := []VipsOption{}
+	if cfg.watermarker != nil {
+		nativeOpts = append(nativeOpts, WithNativeWatermarker(cfg.watermarker))
+		vipsOpts = append(vipsOpts, WithVipsWatermarker(cfg.watermarker))
+	}
+
+	native := NewNativeGoEngine(nativeOpts...)
 	if cap.Available && cap.BinaryPath != "" {
 		return &AutoEngine{
-			primary:    NewVipsEngine(cap),
+			primary:    NewVipsEngine(cap, vipsOpts...),
 			fallback:   native,
 			capability: cap,
 		}

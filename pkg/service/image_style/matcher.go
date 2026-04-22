@@ -14,12 +14,13 @@
  *     s/scale     -> resize.scale
  *     rotate      -> auto_rotate（0/1）
  *
- * Phase 1 基础实现，Phase 3 会补全严格的合法性校验（见 Plan Task 3.1）。
+ * Phase 3（Task 3.1）：补全严格的合法性校验，非法值返回 ErrStyleProcessFailed。
  */
 package image_style
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"path/filepath"
 	"strconv"
@@ -28,6 +29,36 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 )
+
+// 动态参数合法性边界常量（§5.4 + Plan Task 3.1）。
+const (
+	dynamicMinDimension = 0
+	dynamicMaxDimension = 10000
+	dynamicMinQuality   = 0
+	dynamicMaxQuality   = 100
+	dynamicMinScale     = 0.01
+	dynamicMaxScale     = 1.0
+)
+
+// 支持的输出格式白名单。实际能否输出由引擎决定，此处只过滤明显非法值。
+var supportedDynamicFormats = map[string]struct{}{
+	"jpg":  {},
+	"jpeg": {},
+	"png":  {},
+	"webp": {},
+	"avif": {},
+	"heic": {},
+	"heif": {},
+	"gif":  {},
+}
+
+// 支持的 fit 模式白名单（规范化后）。
+var supportedFitModes = map[string]struct{}{
+	"cover":      {},
+	"contain":    {},
+	"fit-inside": {},
+	"scale":      {},
+}
 
 // Match 根据策略配置 + URL 语义产出 ResolvedStyle，错误语义见 errors.go。
 //   - filename：文件原始名（用于判定扩展名是否在处理白名单内）
@@ -55,7 +86,9 @@ func Match(policy *model.StoragePolicy, filename, styleName string, query url.Va
 			return nil, ErrStyleNotFound
 		}
 		resolved := styleToResolved(s)
-		applyQueryOverrides(&resolved, query)
+		if err := applyQueryOverrides(&resolved, query); err != nil {
+			return nil, err
+		}
 		return &resolved, nil
 	}
 
@@ -68,7 +101,9 @@ func Match(policy *model.StoragePolicy, filename, styleName string, query url.Va
 			AutoRotate: true,
 			Resize:     model.ImageResizeConfig{Mode: "cover"},
 		}
-		applyQueryOverrides(&resolved, query)
+		if err := applyQueryOverrides(&resolved, query); err != nil {
+			return nil, err
+		}
 		return &resolved, nil
 	}
 
@@ -161,49 +196,92 @@ func hasAnyDynamicOpt(query url.Values) bool {
 }
 
 // applyQueryOverrides 按 Spec §5.4 的映射表对 ResolvedStyle 做就地覆盖。
-// Phase 1 仅解析、不校验；非法值会被丢弃（保留原值）。Phase 3 再引入严格校验。
-func applyQueryOverrides(r *ResolvedStyle, query url.Values) {
+// Phase 3（Task 3.1）：对每个参数做严格合法性校验，任一非法参数返回 ErrStyleProcessFailed
+// 包装的 error，由上层转为 400/处理失败行为，避免静默丢弃让用户困惑。
+func applyQueryOverrides(r *ResolvedStyle, query url.Values) error {
 	if len(query) == 0 {
-		return
+		return nil
 	}
 
 	if v := pickFirst(query, "fm", "format"); v != "" {
-		r.Format = strings.ToLower(v)
+		fm := strings.ToLower(strings.TrimSpace(v))
+		if _, ok := supportedDynamicFormats[fm]; !ok {
+			return newDynamicParamErr("fm", v, "expect one of jpg/jpeg/png/webp/avif/heic/heif/gif")
+		}
+		r.Format = fm
 	}
+
 	if v := pickFirst(query, "q", "quality"); v != "" {
-		if q, err := strconv.Atoi(v); err == nil {
-			r.Quality = q
+		q, err := strconv.Atoi(strings.TrimSpace(v))
+		if err != nil || q < dynamicMinQuality || q > dynamicMaxQuality {
+			return newDynamicParamErr("q", v,
+				fmt.Sprintf("expect integer in [%d,%d]", dynamicMinQuality, dynamicMaxQuality))
 		}
+		r.Quality = q
 	}
+
 	if v := pickFirst(query, "w", "width"); v != "" {
-		if w, err := strconv.Atoi(v); err == nil {
-			r.Resize.Width = w
+		w, err := strconv.Atoi(strings.TrimSpace(v))
+		if err != nil || w < dynamicMinDimension || w > dynamicMaxDimension {
+			return newDynamicParamErr("w", v,
+				fmt.Sprintf("expect integer in [%d,%d]", dynamicMinDimension, dynamicMaxDimension))
 		}
+		r.Resize.Width = w
 	}
+
 	if v := pickFirst(query, "h", "height"); v != "" {
-		if h, err := strconv.Atoi(v); err == nil {
-			r.Resize.Height = h
+		h, err := strconv.Atoi(strings.TrimSpace(v))
+		if err != nil || h < dynamicMinDimension || h > dynamicMaxDimension {
+			return newDynamicParamErr("h", v,
+				fmt.Sprintf("expect integer in [%d,%d]", dynamicMinDimension, dynamicMaxDimension))
 		}
+		r.Resize.Height = h
 	}
+
 	if v := pickFirst(query, "fit"); v != "" {
 		// 规范化别名：inside -> fit-inside
-		mode := strings.ToLower(v)
+		mode := strings.ToLower(strings.TrimSpace(v))
 		if mode == "inside" {
 			mode = "fit-inside"
 		}
+		if _, ok := supportedFitModes[mode]; !ok {
+			return newDynamicParamErr("fit", v,
+				"expect one of cover/contain/inside/fit-inside/scale")
+		}
 		r.Resize.Mode = mode
 	}
+
 	if v := pickFirst(query, "s", "scale"); v != "" {
-		if s, err := strconv.ParseFloat(v, 64); err == nil {
-			r.Resize.Scale = s
-			if r.Resize.Mode == "" {
-				r.Resize.Mode = "scale"
-			}
+		s, err := strconv.ParseFloat(strings.TrimSpace(v), 64)
+		if err != nil || s < dynamicMinScale || s > dynamicMaxScale {
+			return newDynamicParamErr("s", v,
+				fmt.Sprintf("expect float in [%.2f,%.2f]", dynamicMinScale, dynamicMaxScale))
+		}
+		r.Resize.Scale = s
+		if r.Resize.Mode == "" {
+			r.Resize.Mode = "scale"
 		}
 	}
+
 	if v := pickFirst(query, "rotate"); v != "" {
-		r.AutoRotate = (v == "1" || strings.EqualFold(v, "true"))
+		vv := strings.ToLower(strings.TrimSpace(v))
+		switch vv {
+		case "1", "true", "on", "yes":
+			r.AutoRotate = true
+		case "0", "false", "off", "no":
+			r.AutoRotate = false
+		default:
+			return newDynamicParamErr("rotate", v, "expect 0/1 or true/false")
+		}
 	}
+
+	return nil
+}
+
+// newDynamicParamErr 构造一个被 ErrStyleProcessFailed 包裹的参数校验错误，
+// 便于 Handler 通过 errors.Is 统一识别。
+func newDynamicParamErr(key, raw, hint string) error {
+	return fmt.Errorf("%w: invalid query %q=%q (%s)", ErrStyleProcessFailed, key, raw, hint)
 }
 
 // pickFirst 从 query 中按给定 key 列表依次寻找，返回第一个非空字符串。

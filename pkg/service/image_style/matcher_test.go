@@ -206,3 +206,168 @@ func TestMatch_EmptyApplyToExtensions_SameAsDisabled(t *testing.T) {
 		t.Errorf("apply_to_extensions 为空时应 NotApplicable，实际 %v", err)
 	}
 }
+
+// TestMatch_DynamicFullMapping 覆盖 Spec §5.4 所有 key 与别名的完整映射。
+func TestMatch_DynamicFullMapping(t *testing.T) {
+	policy := buildPolicyWithStyles(true, []string{"jpg"}, "", sampleThumbnail())
+
+	cases := []struct {
+		name   string
+		query  url.Values
+		assert func(t *testing.T, got *ResolvedStyle)
+	}{
+		{
+			name:  "width_alias",
+			query: url.Values{"width": []string{"320"}},
+			assert: func(t *testing.T, got *ResolvedStyle) {
+				if got.Resize.Width != 320 {
+					t.Errorf("width 未生效，实际 %d", got.Resize.Width)
+				}
+			},
+		},
+		{
+			name:  "height_alias",
+			query: url.Values{"height": []string{"240"}},
+			assert: func(t *testing.T, got *ResolvedStyle) {
+				if got.Resize.Height != 240 {
+					t.Errorf("height 未生效，实际 %d", got.Resize.Height)
+				}
+			},
+		},
+		{
+			name:  "format_alias",
+			query: url.Values{"format": []string{"PNG"}},
+			assert: func(t *testing.T, got *ResolvedStyle) {
+				if got.Format != "png" {
+					t.Errorf("format 别名未生效，实际 %s", got.Format)
+				}
+			},
+		},
+		{
+			name:  "quality_alias",
+			query: url.Values{"quality": []string{"55"}},
+			assert: func(t *testing.T, got *ResolvedStyle) {
+				if got.Quality != 55 {
+					t.Errorf("quality 别名未生效，实际 %d", got.Quality)
+				}
+			},
+		},
+		{
+			name:  "fit_inside_alias",
+			query: url.Values{"w": []string{"100"}, "fit": []string{"inside"}},
+			assert: func(t *testing.T, got *ResolvedStyle) {
+				if got.Resize.Mode != "fit-inside" {
+					t.Errorf("fit=inside 应规范化为 fit-inside，实际 %s", got.Resize.Mode)
+				}
+			},
+		},
+		{
+			name:  "scale_alias",
+			query: url.Values{"scale": []string{"0.25"}, "fit": []string{"scale"}},
+			assert: func(t *testing.T, got *ResolvedStyle) {
+				if got.Resize.Scale != 0.25 {
+					t.Errorf("scale 别名未生效，实际 %f", got.Resize.Scale)
+				}
+			},
+		},
+		{
+			name:  "rotate_false",
+			query: url.Values{"w": []string{"100"}, "rotate": []string{"0"}},
+			assert: func(t *testing.T, got *ResolvedStyle) {
+				if got.AutoRotate {
+					t.Errorf("rotate=0 应禁用 auto rotate")
+				}
+			},
+		},
+		{
+			name:  "rotate_true_bool",
+			query: url.Values{"w": []string{"100"}, "rotate": []string{"true"}},
+			assert: func(t *testing.T, got *ResolvedStyle) {
+				if !got.AutoRotate {
+					t.Errorf("rotate=true 应启用 auto rotate")
+				}
+			},
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			got, err := Match(policy, "a.jpg", "", c.query)
+			if err != nil {
+				t.Fatalf("未期望错误：%v", err)
+			}
+			c.assert(t, got)
+		})
+	}
+}
+
+// TestMatch_DynamicInvalidParam_ReturnsProcessFailed 校验非法参数返回 ErrStyleProcessFailed。
+// 覆盖 quality / scale / dimension / format / fit / rotate 的边界与非法值。
+func TestMatch_DynamicInvalidParam_ReturnsProcessFailed(t *testing.T) {
+	policy := buildPolicyWithStyles(true, []string{"jpg"}, "", sampleThumbnail())
+
+	cases := []struct {
+		name  string
+		query url.Values
+	}{
+		{"quality_negative", url.Values{"q": []string{"-1"}}},
+		{"quality_over_100", url.Values{"q": []string{"101"}}},
+		{"quality_not_int", url.Values{"q": []string{"abc"}}},
+		{"width_negative", url.Values{"w": []string{"-1"}}},
+		{"width_too_big", url.Values{"w": []string{"100000"}}},
+		{"height_not_int", url.Values{"h": []string{"3.14"}}},
+		{"scale_zero", url.Values{"s": []string{"0"}}},
+		{"scale_over_one", url.Values{"s": []string{"1.5"}}},
+		{"scale_not_num", url.Values{"s": []string{"abc"}}},
+		{"format_invalid", url.Values{"fm": []string{"bmp"}}},
+		{"fit_invalid", url.Values{"fit": []string{"stretch"}}},
+		{"rotate_invalid", url.Values{"rotate": []string{"maybe"}}},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			got, err := Match(policy, "a.jpg", "", c.query)
+			if !errors.Is(err, ErrStyleProcessFailed) {
+				t.Errorf("期望 ErrStyleProcessFailed，实际 err=%v got=%+v", err, got)
+			}
+		})
+	}
+}
+
+// TestMatch_DynamicValidBoundary 校验严格边界值（恰好合法）不会被误杀。
+func TestMatch_DynamicValidBoundary(t *testing.T) {
+	policy := buildPolicyWithStyles(true, []string{"jpg"}, "", sampleThumbnail())
+
+	cases := []struct {
+		name  string
+		query url.Values
+	}{
+		{"quality_zero", url.Values{"q": []string{"0"}}},
+		{"quality_100", url.Values{"q": []string{"100"}}},
+		{"scale_min", url.Values{"s": []string{"0.01"}, "fit": []string{"scale"}}},
+		{"scale_max", url.Values{"s": []string{"1.0"}, "fit": []string{"scale"}}},
+		{"width_zero", url.Values{"w": []string{"0"}}},
+		{"width_max", url.Values{"w": []string{"10000"}}},
+		{"format_webp", url.Values{"fm": []string{"webp"}}},
+		{"format_avif", url.Values{"fm": []string{"avif"}}},
+		{"fit_cover", url.Values{"w": []string{"1"}, "fit": []string{"cover"}}},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if _, err := Match(policy, "a.jpg", "", c.query); err != nil {
+				t.Errorf("合法边界值应通过校验，实际 %v", err)
+			}
+		})
+	}
+}
+
+// TestMatch_NamedStyleWithInvalidQuery_ErrorsOut 确保命名样式分支也执行严格校验。
+func TestMatch_NamedStyleWithInvalidQuery_ErrorsOut(t *testing.T) {
+	policy := buildPolicyWithStyles(true, []string{"jpg"}, "", sampleThumbnail())
+	q := url.Values{"q": []string{"999"}}
+	_, err := Match(policy, "a.jpg", "thumbnail", q)
+	if !errors.Is(err, ErrStyleProcessFailed) {
+		t.Errorf("命名样式 + 非法 query 应返回 ErrStyleProcessFailed，实际 %v", err)
+	}
+}

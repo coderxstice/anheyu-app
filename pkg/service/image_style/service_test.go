@@ -374,3 +374,94 @@ func TestService_PurgeCache_ByStyleNameRequiresRepo(t *testing.T) {
 func waitForCache() { time.Sleep(10 * time.Millisecond) }
 
 var _ = waitForCache // 预留给未来异步测试；本轮未使用
+
+// ---------- Phase 3 集成测试 ----------
+
+// TestService_Process_Phase3_InvalidDynamicParam 非法动态参数在 Service 层返回 ErrStyleProcessFailed。
+func TestService_Process_Phase3_InvalidDynamicParam(t *testing.T) {
+	ctx := context.Background()
+	svc, _, _, policy, file := newServiceWithDisk(t)
+
+	req := &StyleRequest{
+		Policy: policy, File: file, Filename: "a.jpg",
+		DynamicOpts: url.Values{"q": []string{"200"}}, // quality 越界
+	}
+	_, err := svc.Process(ctx, req)
+	if !errors.Is(err, ErrStyleProcessFailed) {
+		t.Errorf("非法动态参数应返回 ErrStyleProcessFailed，实际 %v", err)
+	}
+}
+
+// TestService_Process_Phase3_WithWatermark 带水印样式走引擎的水印路径并产出合法 JPEG。
+func TestService_Process_Phase3_WithWatermark(t *testing.T) {
+	ctx := context.Background()
+	styleWithWM := model.ImageStyleConfig{
+		Name:       "wm",
+		Format:     "jpg",
+		Quality:    80,
+		AutoRotate: true,
+		Resize:     model.ImageResizeConfig{Mode: "cover", Width: 400, Height: 300},
+		Watermark: &model.WatermarkConfig{
+			Type: "text", Text: "© anheyu.com",
+			Position: "bottom-right", OffsetX: 10, OffsetY: 10,
+			FontSize: 20, Color: "#ffffff", Opacity: 0.8,
+		},
+	}
+
+	src := makeJPEG(t, 800, 600)
+	provider := &fakeProvider{data: src}
+	providers := map[constant.StoragePolicyType]storage.IStorageProvider{
+		constant.PolicyTypeLocal: provider,
+	}
+	cacheRoot := filepath.Join(t.TempDir(), "cache")
+	cache, err := NewDiskCache(CacheConfig{Root: cacheRoot, MaxSizeBytes: 10 << 20})
+	if err != nil {
+		t.Fatalf("NewDiskCache: %v", err)
+	}
+	t.Cleanup(func() { _ = cache.Close() })
+
+	// 注入真实 NativeWatermarker 到 engine
+	wm := NewNativeWatermarker()
+	eng := engine.NewNativeGoEngine(engine.WithNativeWatermarker(wm))
+	svc := NewService(eng, cache, providers, nil, wm)
+
+	policy := buildPolicyWithStyles(true, []string{"jpg"}, "wm", styleWithWM)
+	policy.ID = 9
+	policy.Type = constant.PolicyTypeLocal
+
+	file := &model.File{
+		ID:   123,
+		Name: "a.jpg",
+		PrimaryEntity: &model.FileStorageEntity{
+			Source: sql.NullString{String: "/a.jpg", Valid: true},
+		},
+		PrimaryEntityID: types.NullUint64{Uint64: 1, Valid: true},
+	}
+
+	result, err := svc.Process(ctx, &StyleRequest{
+		Policy: policy, File: file, Filename: "a.jpg", StyleName: "wm",
+	})
+	if err != nil {
+		t.Fatalf("Process: %v", err)
+	}
+	defer result.Reader.Close()
+	if result.ContentType != "image/jpeg" {
+		t.Errorf("ContentType = %s, want image/jpeg", result.ContentType)
+	}
+	body, _ := io.ReadAll(result.Reader)
+	decoded, err := jpeg.Decode(bytes.NewReader(body))
+	if err != nil {
+		t.Fatalf("decode output jpeg: %v", err)
+	}
+	b := decoded.Bounds()
+	if b.Dx() != 400 || b.Dy() != 300 {
+		t.Errorf("size = %dx%d, want 400x300", b.Dx(), b.Dy())
+	}
+	// 带水印的结果与不带水印应该视觉上不同；这里退化为断言 body 非空且 StyleHash 稳定。
+	if len(body) == 0 {
+		t.Error("输出不应为空")
+	}
+	if result.StyleHash == "" {
+		t.Error("StyleHash 应生成")
+	}
+}

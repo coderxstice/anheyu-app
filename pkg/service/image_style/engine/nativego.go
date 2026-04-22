@@ -38,11 +38,30 @@ import (
 
 // NativeGoEngine 是无外部命令依赖的 Go 实现。
 // 作为 AutoEngine 的 fallback，保证在没有 vips 的环境中仍可处理 JPEG/PNG。
-type NativeGoEngine struct{}
+type NativeGoEngine struct {
+	watermarker Watermarker
+}
+
+// NativeOption 配置 NativeGoEngine 的可选依赖。
+type NativeOption func(*NativeGoEngine)
+
+// WithNativeWatermarker 注入水印实现；为空时使用 NoopWatermarker。
+func WithNativeWatermarker(wm Watermarker) NativeOption {
+	return func(e *NativeGoEngine) {
+		if wm != nil {
+			e.watermarker = wm
+		}
+	}
+}
 
 // NewNativeGoEngine 构造一个 NativeGoEngine 实例（无状态，可并发复用）。
-func NewNativeGoEngine() *NativeGoEngine {
-	return &NativeGoEngine{}
+// 未传入 watermarker 时默认使用 NoopWatermarker，从而保持 Phase 1/2 行为不变。
+func NewNativeGoEngine(opts ...NativeOption) *NativeGoEngine {
+	e := &NativeGoEngine{watermarker: NoopWatermarker()}
+	for _, opt := range opts {
+		opt(e)
+	}
+	return e
 }
 
 // Name 返回引擎标识。
@@ -86,13 +105,22 @@ func (e *NativeGoEngine) Process(ctx context.Context, src io.Reader, style model
 	// 4. 尺寸调整
 	img = applyResize(img, style.Resize)
 
-	// 5. 决定输出格式
+	// 5. 水印叠加（Phase 3 Task 3.4）；nil 配置时跳过。
+	if style.Watermark != nil && e.watermarker != nil {
+		wmImg, werr := e.watermarker.Apply(img, style.Watermark)
+		if werr != nil {
+			return "", fmt.Errorf("水印叠加失败: %w", werr)
+		}
+		img = wmImg
+	}
+
+	// 6. 决定输出格式
 	outFormat := resolveOutputFormat(style.Format, inFormat)
 	if !isOutputSupported(outFormat) {
 		return "", ErrFormatUnsupported
 	}
 
-	// 6. 编码
+	// 7. 编码
 	mime, err := encode(dst, img, outFormat, style.Quality)
 	if err != nil {
 		return "", fmt.Errorf("编码输出失败: %w", err)
@@ -251,18 +279,22 @@ func readExifOrientation(data []byte) (int, bool) {
 }
 
 // applyExifOrientation 按 EXIF Orientation (1-8) 返回矫正后的图像。
-// 对应表（显示时应做的逆向变换）：
+// 对应 Plan Task 3.2 的严格映射表（显示时应做的逆向变换）：
 //
 //	1: 原样
 //	2: 水平翻转
 //	3: 旋转 180°
 //	4: 垂直翻转
-//	5: Transpose（主对角线镜像）
+//	5: Transpose（主对角线镜像，= Rotate90 + FlipH）
 //	6: 顺时针 90° = imaging.Rotate270
-//	7: Transverse（反对角线镜像）
+//	7: Transverse（反对角线镜像，= Rotate90 + FlipV）
 //	8: 逆时针 90° = imaging.Rotate90
+//
+// 对未知或越界值（<1 或 >8）按 "1 原样" 处理，保证总是返回可用图像。
 func applyExifOrientation(img image.Image, orientation int) image.Image {
 	switch orientation {
+	case 1:
+		return img
 	case 2:
 		return imaging.FlipH(img)
 	case 3:

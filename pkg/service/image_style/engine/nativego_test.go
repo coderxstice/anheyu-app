@@ -7,6 +7,7 @@ package engine
 import (
 	"bytes"
 	"context"
+	"encoding/binary"
 	"errors"
 	"image"
 	"image/color"
@@ -287,5 +288,209 @@ func TestNativeGoEngine_AutoRotate_NoEXIF_Unchanged(t *testing.T) {
 	b := got.Bounds()
 	if b.Dx() != 400 || b.Dy() != 200 {
 		t.Errorf("无 EXIF 时 AutoRotate 不应改变方向；实际 %dx%d", b.Dx(), b.Dy())
+	}
+}
+
+// makeJPEGWithOrientation 构造一张左红右蓝的 JPEG 并手工插入 EXIF APP1 段设置 Orientation。
+// 不依赖 testdata 文件，测试自包含；覆盖 Plan Task 3.2.3 的端到端链路。
+func makeJPEGWithOrientation(t *testing.T, w, h int, orientation uint16) []byte {
+	t.Helper()
+
+	img := image.NewRGBA(image.Rect(0, 0, w, h))
+	for y := 0; y < h; y++ {
+		for x := 0; x < w/2; x++ {
+			img.Set(x, y, color.RGBA{255, 0, 0, 255}) // left half red
+		}
+		for x := w / 2; x < w; x++ {
+			img.Set(x, y, color.RGBA{0, 0, 255, 255}) // right half blue
+		}
+	}
+	var jpegBuf bytes.Buffer
+	if err := jpeg.Encode(&jpegBuf, img, &jpeg.Options{Quality: 90}); err != nil {
+		t.Fatalf("encode jpeg: %v", err)
+	}
+	original := jpegBuf.Bytes()
+
+	// 构造 EXIF payload：
+	//   "Exif\0\0" + TIFF header(II, magic=42, IFD0=@8) + IFD0(count=1 + entry + nextOffset=0)
+	var exif bytes.Buffer
+	exif.WriteString("Exif\x00\x00")
+	exif.WriteString("II")
+	binary.Write(&exif, binary.LittleEndian, uint16(42))
+	binary.Write(&exif, binary.LittleEndian, uint32(8))
+	binary.Write(&exif, binary.LittleEndian, uint16(1))      // 1 entry
+	binary.Write(&exif, binary.LittleEndian, uint16(0x0112)) // Orientation tag
+	binary.Write(&exif, binary.LittleEndian, uint16(3))      // SHORT
+	binary.Write(&exif, binary.LittleEndian, uint32(1))      // count
+	// SHORT 只占 2 字节，但 value_offset 字段固定 4 字节
+	binary.Write(&exif, binary.LittleEndian, orientation)
+	exif.Write([]byte{0, 0})
+	binary.Write(&exif, binary.LittleEndian, uint32(0)) // 下一个 IFD 偏移
+	exifBytes := exif.Bytes()
+
+	// APP1 segment = FFE1 + len(16bit BE, 含自身 2 字节) + payload
+	var app1 bytes.Buffer
+	app1.Write([]byte{0xFF, 0xE1})
+	binary.Write(&app1, binary.BigEndian, uint16(len(exifBytes)+2))
+	app1.Write(exifBytes)
+
+	// 插入到 SOI (FFD8) 之后
+	var out bytes.Buffer
+	out.Write(original[:2])
+	out.Write(app1.Bytes())
+	out.Write(original[2:])
+	return out.Bytes()
+}
+
+// TestReadExifOrientation_ExtractsFromJPEG 验证 readExifOrientation 能读取手工嵌入的 EXIF。
+func TestReadExifOrientation_ExtractsFromJPEG(t *testing.T) {
+	for _, orient := range []uint16{1, 2, 3, 4, 5, 6, 7, 8} {
+		data := makeJPEGWithOrientation(t, 40, 20, orient)
+		got, ok := readExifOrientation(data)
+		if !ok {
+			t.Errorf("Orientation=%d 应能被读出，实际未找到", orient)
+			continue
+		}
+		if got != int(orient) {
+			t.Errorf("Orientation=%d 读取错误：实际 %d", orient, got)
+		}
+	}
+}
+
+// TestNativeGoEngine_AutoRotate_Orientation6_EndToEnd 端到端测试：
+// 手工嵌入 Orientation=6 的 JPEG → AutoRotate=true → 期望尺寸从 100x50 → 50x100。
+// 同时关闭任何 resize 操作，以便观察纯旋转效果。
+func TestNativeGoEngine_AutoRotate_Orientation6_EndToEnd(t *testing.T) {
+	e := NewNativeGoEngine()
+	src := makeJPEGWithOrientation(t, 100, 50, 6)
+
+	style := model.ImageStyleConfig{
+		Format:     "jpg",
+		Quality:    90,
+		AutoRotate: true,
+		// 不进行 resize，只测 EXIF 旋转
+		Resize: model.ImageResizeConfig{},
+	}
+	var out bytes.Buffer
+	if _, err := e.Process(context.Background(), bytes.NewReader(src), style, &out); err != nil {
+		t.Fatalf("Process: %v", err)
+	}
+	got, err := jpeg.Decode(bytes.NewReader(out.Bytes()))
+	if err != nil {
+		t.Fatalf("解码输出失败：%v", err)
+	}
+	b := got.Bounds()
+	if b.Dx() != 50 || b.Dy() != 100 {
+		t.Errorf("Orientation=6 + AutoRotate 应将 100x50 旋转为 50x100，实际 %dx%d", b.Dx(), b.Dy())
+	}
+
+	// 验证方向：原图左红右蓝，CW 90° 后顶部应为红色，底部应为蓝色。
+	// 取顶部偏中 (25,5) 应为红；底部偏中 (25,95) 应为蓝。
+	topR, topG, topB, _ := got.At(25, 5).RGBA()
+	botR, botG, botB, _ := got.At(25, 95).RGBA()
+	// JPEG 有损压缩导致颜色略偏，允许通道范围校验
+	if !(topR > 40000 && topG < 10000 && topB < 10000) {
+		t.Errorf("顶部应接近红色，实际 RGB=(%d,%d,%d)", topR>>8, topG>>8, topB>>8)
+	}
+	if !(botB > 40000 && botR < 10000 && botG < 10000) {
+		t.Errorf("底部应接近蓝色，实际 RGB=(%d,%d,%d)", botR>>8, botG>>8, botB>>8)
+	}
+}
+
+// spyWatermarker 记录 Apply 调用次数与入参快照，用于验证 engine 的集成调用。
+type spyWatermarker struct {
+	called     int
+	lastWidth  int
+	lastHeight int
+	lastCfg    *model.WatermarkConfig
+	// 若非 nil，Apply 时在源图中央写入该颜色以便观察效果
+	paint *color.RGBA
+}
+
+func (s *spyWatermarker) Apply(img image.Image, cfg *model.WatermarkConfig) (image.Image, error) {
+	s.called++
+	b := img.Bounds()
+	s.lastWidth = b.Dx()
+	s.lastHeight = b.Dy()
+	s.lastCfg = cfg
+	if s.paint == nil {
+		return img, nil
+	}
+	rgba := image.NewRGBA(image.Rect(0, 0, b.Dx(), b.Dy()))
+	for y := 0; y < b.Dy(); y++ {
+		for x := 0; x < b.Dx(); x++ {
+			rgba.Set(x, y, img.At(b.Min.X+x, b.Min.Y+y))
+		}
+	}
+	rgba.Set(b.Dx()/2, b.Dy()/2, *s.paint)
+	return rgba, nil
+}
+
+// TestNativeGoEngine_Watermark_Applied 验证 Process 在 style.Watermark != nil 时调用 watermarker。
+// 断言：1) spy 的 Apply 被调用 1 次；2) 水印作用在 resize 之后（尺寸匹配目标尺寸而非源尺寸）。
+func TestNativeGoEngine_Watermark_Applied(t *testing.T) {
+	spy := &spyWatermarker{paint: &color.RGBA{255, 0, 0, 255}}
+	e := NewNativeGoEngine(WithNativeWatermarker(spy))
+
+	src := makeSolidPNG(t, 400, 400, color.RGBA{10, 10, 10, 255})
+	style := model.ImageStyleConfig{
+		Format:    "png",
+		Resize:    model.ImageResizeConfig{Mode: "cover", Width: 200, Height: 200},
+		Watermark: &model.WatermarkConfig{Type: "text", Text: "© 2026"},
+	}
+	var out bytes.Buffer
+	if _, err := e.Process(context.Background(), bytes.NewReader(src), style, &out); err != nil {
+		t.Fatalf("Process: %v", err)
+	}
+	if spy.called != 1 {
+		t.Errorf("Watermarker 应被调用 1 次，实际 %d", spy.called)
+	}
+	if spy.lastWidth != 200 || spy.lastHeight != 200 {
+		t.Errorf("Watermarker 应收到 resize 后的 200x200 图像，实际 %dx%d", spy.lastWidth, spy.lastHeight)
+	}
+	if spy.lastCfg == nil || spy.lastCfg.Text != "© 2026" {
+		t.Errorf("Watermarker 应收到原始 cfg，实际 %+v", spy.lastCfg)
+	}
+}
+
+// TestNativeGoEngine_Watermark_SkippedWhenNil 验证未配置水印时不调用 watermarker。
+func TestNativeGoEngine_Watermark_SkippedWhenNil(t *testing.T) {
+	spy := &spyWatermarker{}
+	e := NewNativeGoEngine(WithNativeWatermarker(spy))
+
+	src := makeSolidJPEG(t, 100, 100, color.RGBA{50, 50, 50, 255})
+	style := model.ImageStyleConfig{
+		Format: "jpg", Quality: 80,
+		Resize: model.ImageResizeConfig{Mode: "cover", Width: 50, Height: 50},
+	}
+	var out bytes.Buffer
+	if _, err := e.Process(context.Background(), bytes.NewReader(src), style, &out); err != nil {
+		t.Fatalf("Process: %v", err)
+	}
+	if spy.called != 0 {
+		t.Errorf("Watermark=nil 时不应调用 watermarker，实际 %d", spy.called)
+	}
+}
+
+// TestNativeGoEngine_AutoRotate_Disabled_Orientation6 当 auto_rotate=false 时不应旋转，
+// 尺寸保持原样 100x50。
+func TestNativeGoEngine_AutoRotate_Disabled_Orientation6(t *testing.T) {
+	e := NewNativeGoEngine()
+	src := makeJPEGWithOrientation(t, 100, 50, 6)
+
+	style := model.ImageStyleConfig{
+		Format:     "jpg",
+		Quality:    90,
+		AutoRotate: false,
+		Resize:     model.ImageResizeConfig{},
+	}
+	var out bytes.Buffer
+	if _, err := e.Process(context.Background(), bytes.NewReader(src), style, &out); err != nil {
+		t.Fatalf("Process: %v", err)
+	}
+	got, _ := jpeg.Decode(bytes.NewReader(out.Bytes()))
+	b := got.Bounds()
+	if b.Dx() != 100 || b.Dy() != 50 {
+		t.Errorf("auto_rotate=false 时应保持 100x50，实际 %dx%d", b.Dx(), b.Dy())
 	}
 }

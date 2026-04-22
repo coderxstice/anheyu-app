@@ -226,6 +226,153 @@ func TestVipsEngine_Process_UnsupportedOutput_ReturnsErrFormatUnsupported(t *tes
 	}
 }
 
+// TestVipsEngine_Process_Watermark_InvokesSpy 验证 Phase 3 Task 3.5 的水印路径：
+// 当 style.Watermark != nil 时，必定调用注入的 watermarker；
+// 端到端要求本机有 vips（否则 skip）。
+func TestVipsEngine_Process_Watermark_InvokesSpy(t *testing.T) {
+	cap, ok := realVipsCapability(t)
+	if !ok {
+		t.Skip("vips not available in test env")
+	}
+
+	spy := &vipsSpyWatermarker{}
+	engine := NewVipsEngine(cap, WithVipsWatermarker(spy))
+	src := buildTestJPEG(t, 800, 600)
+
+	var out bytes.Buffer
+	style := model.ImageStyleConfig{
+		Format:  "jpg",
+		Quality: 80,
+		Resize:  model.ImageResizeConfig{Mode: "cover", Width: 200, Height: 200},
+		Watermark: &model.WatermarkConfig{
+			Type: "text", Text: "hello", Position: "bottom-right",
+		},
+	}
+	mime, err := engine.Process(context.Background(), bytes.NewReader(src), style, &out)
+	if err != nil {
+		t.Fatalf("Process: %v", err)
+	}
+	if mime != "image/jpeg" {
+		t.Errorf("mime = %s, want image/jpeg", mime)
+	}
+	if spy.called != 1 {
+		t.Errorf("watermarker 应被调用 1 次，实际 %d", spy.called)
+	}
+	if spy.lastWidth != 200 || spy.lastHeight != 200 {
+		t.Errorf("watermarker 应收到 resize 后的 200x200 图像，实际 %dx%d",
+			spy.lastWidth, spy.lastHeight)
+	}
+	// 输出应能解码
+	cfg, format := decodeImageConfig(t, out.Bytes())
+	if format != "jpeg" {
+		t.Errorf("output format = %s, want jpeg", format)
+	}
+	if cfg.Width != 200 || cfg.Height != 200 {
+		t.Errorf("output size = %dx%d, want 200x200", cfg.Width, cfg.Height)
+	}
+}
+
+// TestVipsEngine_Process_Watermark_PNGOutput 水印 + PNG 输出路径（跳过阶段 3 的 copy）。
+func TestVipsEngine_Process_Watermark_PNGOutput(t *testing.T) {
+	cap, ok := realVipsCapability(t)
+	if !ok {
+		t.Skip("vips not available in test env")
+	}
+	spy := &vipsSpyWatermarker{}
+	engine := NewVipsEngine(cap, WithVipsWatermarker(spy))
+	src := buildTestPNG(t, 400, 400)
+
+	var out bytes.Buffer
+	style := model.ImageStyleConfig{
+		Format: "png",
+		Resize: model.ImageResizeConfig{Mode: "contain", Width: 100, Height: 100},
+		Watermark: &model.WatermarkConfig{
+			Type: "text", Text: "©", Position: "center",
+		},
+	}
+	mime, err := engine.Process(context.Background(), bytes.NewReader(src), style, &out)
+	if err != nil {
+		t.Fatalf("Process: %v", err)
+	}
+	if mime != "image/png" {
+		t.Errorf("mime = %s, want image/png", mime)
+	}
+	if spy.called != 1 {
+		t.Errorf("watermarker 应被调用 1 次，实际 %d", spy.called)
+	}
+	cfg, format := decodeImageConfig(t, out.Bytes())
+	if format != "png" {
+		t.Errorf("format = %s, want png", format)
+	}
+	if cfg.Width != 100 || cfg.Height != 100 {
+		t.Errorf("size = %dx%d, want 100x100", cfg.Width, cfg.Height)
+	}
+}
+
+// TestVipsEngine_Process_Watermark_WebPOutput 覆盖 "vips→PNG→Go水印→vips→WebP" 的三阶段路径。
+func TestVipsEngine_Process_Watermark_WebPOutput(t *testing.T) {
+	cap, ok := realVipsCapability(t)
+	if !ok {
+		t.Skip("vips not available in test env")
+	}
+	// capability 需支持 webp 输出
+	hasWebP := false
+	for _, f := range cap.OutputFormats {
+		if normalizeImageFormat(f) == "webp" {
+			hasWebP = true
+		}
+	}
+	if !hasWebP {
+		t.Skip("vips build does not support webp encoding")
+	}
+
+	spy := &vipsSpyWatermarker{}
+	engine := NewVipsEngine(cap, WithVipsWatermarker(spy))
+	src := buildTestJPEG(t, 600, 600)
+
+	var out bytes.Buffer
+	style := model.ImageStyleConfig{
+		Format:  "webp",
+		Quality: 70,
+		Resize:  model.ImageResizeConfig{Mode: "cover", Width: 150, Height: 150},
+		Watermark: &model.WatermarkConfig{
+			Type: "text", Text: "WM", Position: "top-left",
+		},
+	}
+	mime, err := engine.Process(context.Background(), bytes.NewReader(src), style, &out)
+	if err != nil {
+		t.Fatalf("Process: %v", err)
+	}
+	if mime != "image/webp" {
+		t.Errorf("mime = %s, want image/webp", mime)
+	}
+	if spy.called != 1 {
+		t.Errorf("watermarker 应被调用 1 次，实际 %d", spy.called)
+	}
+	cfg, format := decodeImageConfig(t, out.Bytes())
+	if format != "webp" {
+		t.Errorf("format = %s, want webp", format)
+	}
+	if cfg.Width != 150 || cfg.Height != 150 {
+		t.Errorf("size = %dx%d, want 150x150", cfg.Width, cfg.Height)
+	}
+}
+
+// vipsSpyWatermarker 记录调用次数与输入尺寸，用于 vips 水印路径断言。
+type vipsSpyWatermarker struct {
+	called     int
+	lastWidth  int
+	lastHeight int
+}
+
+func (s *vipsSpyWatermarker) Apply(img image.Image, _ *model.WatermarkConfig) (image.Image, error) {
+	s.called++
+	b := img.Bounds()
+	s.lastWidth = b.Dx()
+	s.lastHeight = b.Dy()
+	return img, nil
+}
+
 func TestVipsEngine_Process_ContextTimeout_ReturnsError(t *testing.T) {
 	cap, ok := realVipsCapability(t)
 	if !ok {
