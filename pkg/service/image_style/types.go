@@ -89,13 +89,25 @@ func (r ResolvedStyle) Hash() string {
 
 // CacheStats 描述单个策略的缓存统计信息。
 // 管理员 API / 启动日志会以此为 DTO 直接返回。
+//
+// 说明：HitCount / MissCount 是进程级全局计数，目前并未按策略分维度统计；
+// 在 ListAllStats 场景下它会对所有策略返回相同值，仅 Count / TotalSize
+// 是真正的 per-policy 数据。为避免误用，两字段另提供 per-policy 口径的
+// 别名（当前保持 0）。未来如果 DiskCache 引入 per-policy 命中计数器，
+// 可以把 PolicyHitCount / PolicyMissCount 作为真正的 per-policy 值填入。
 type CacheStats struct {
 	PolicyID  uint  `json:"policy_id"`
-	TotalSize int64 `json:"total_size"` // 字节
-	Count     int   `json:"count"`      // 条目数
-	// HitCount / MissCount 分别统计命中与未命中次数（进程级累积）。
+	TotalSize int64 `json:"total_size"` // 字节（per-policy）
+	Count     int   `json:"count"`      // 条目数（per-policy）
+	// HitCount / MissCount 为进程级全局累计值；ListAllStats 下每条记录都相同。
+	// 建议仅作"整体命中率"展示，不要在策略维度对比。
 	HitCount  int64 `json:"hit_count"`
 	MissCount int64 `json:"miss_count"`
+	// PolicyHitCount / PolicyMissCount 预留 per-policy 命中计数位。
+	// 当前版本没有按策略维度的计数器，统一返回 0；未来接入后直接填入即可，
+	// 前端可以优先展示这两个字段（非 0 时），回退到 HitCount / MissCount。
+	PolicyHitCount  int64 `json:"policy_hit_count"`
+	PolicyMissCount int64 `json:"policy_miss_count"`
 }
 
 // PreviewResult 是 ImageStyleService.Preview 的响应 DTO。
