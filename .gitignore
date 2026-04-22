@@ -12,6 +12,7 @@ anheyu-app-linux-amd64
 .env
 temp
 /data/storage
+/data/cache
 /recycle_bin
 build.md
 buildkitd.toml

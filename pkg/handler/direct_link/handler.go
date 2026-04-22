@@ -1,7 +1,9 @@
 package direct_link
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -18,6 +20,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/direct_link"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/image_style"
 )
 
 // getContentTypeFromFilename 根据文件名推断正确的 Content-Type
@@ -61,6 +64,10 @@ type DirectLinkHandler struct {
 	// 修改为 direct_link.Service (接口)。
 	svc              direct_link.Service
 	storageProviders map[constant.StoragePolicyType]storage.IStorageProvider
+	// styleSvc 可选；非 nil 且 URL 含 "!styleName" 形式后缀时，
+	// 本地策略的 HandleDirectDownload 会走 ImageStyleService 处理并流式返回。
+	// 未注入或请求无样式后缀时，走原有流式下载逻辑（不影响云存储 302 路径）。
+	styleSvc image_style.ImageStyleService
 }
 
 // NewDirectLinkHandler 是 DirectLinkHandler 的构造函数。
@@ -72,6 +79,13 @@ func NewDirectLinkHandler(
 		svc:              svc,
 		storageProviders: providers,
 	}
+}
+
+// SetImageStyleService 注入图片样式服务（可选）。
+// 注入后，本地策略的直链下载在解析到 "!styleName" 样式后缀时，
+// 会把请求委托给 ImageStyleService 走缓存 + 处理流程，不再直接返回原图。
+func (h *DirectLinkHandler) SetImageStyleService(svc image_style.ImageStyleService) {
+	h.styleSvc = svc
 }
 
 // CreateDirectLinksRequest 定义了创建多个直链的请求体。
@@ -173,6 +187,17 @@ func (h *DirectLinkHandler) HandleDirectDownload(c *gin.Context) {
 	}
 
 	if policy.Type == constant.PolicyTypeLocal {
+		// 本地存储：先判断是否为图片样式请求。
+		// 路径形如 `/filename!styleName` 时走 ImageStyleService；
+		// 其他情况（无样式 / 未注入 styleSvc）回落到原始流式下载。
+		if h.styleSvc != nil {
+			if styleName := extractLocalStyleName(c.Param("filename"), filename); styleName != "" {
+				if handled := h.serveStyledLocal(c, file, policy, filename, styleName); handled {
+					return
+				}
+			}
+		}
+
 		// 本地存储：直接流式传输
 		encodedFileName := url.QueryEscape(filename)
 		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename*=UTF-8''%s", encodedFileName))
@@ -229,6 +254,114 @@ func (h *DirectLinkHandler) HandleDirectDownload(c *gin.Context) {
 		// 302重定向到云存储的直接下载链接
 		c.Redirect(http.StatusFound, downloadURL)
 	}
+}
+
+// extractLocalStyleName 从路径中分离出本地策略适用的命名样式。
+//
+// 入参 fullPath 形如 "/1776843958024851004.jpg!thumbnail"；
+// filename 为 PrepareDownload 拿到的纯文件名 "1776843958024851004.jpg"。
+// 本地策略仅识别 "!styleName" 一种形式（与 Plan B Phase 1 Task 1.13 的
+// ResolveUploadURLSuffix 默认分隔符保持一致）。
+//
+// 返回值：
+//   - 命中时返回 styleName（不含 "!"）
+//   - 路径不含 "!" 或 "!" 之前不是文件名 / styleName 非法字符 → ""（调用方按"无样式"处理）
+//
+// 样式名字符集与长度必须与 Phase 4 admin validator 的正则 `^[a-zA-Z0-9_-]{1,32}$`
+// 保持一致，避免非法字符进入 Matcher 产生日志噪音。
+func extractLocalStyleName(fullPath, filename string) string {
+	fullPath = strings.TrimPrefix(fullPath, "/")
+	if fullPath == "" || filename == "" {
+		return ""
+	}
+	if !strings.HasPrefix(fullPath, filename+"!") {
+		return ""
+	}
+	style := strings.TrimPrefix(fullPath, filename+"!")
+	if !isValidStyleName(style) {
+		return ""
+	}
+	return style
+}
+
+// isValidStyleName 对应 `^[a-zA-Z0-9_-]{1,32}$`。
+// 抽成独立函数一是便于单测覆盖，二是未来若有其它位置复用（如动态参数解析）可直接调用。
+func isValidStyleName(s string) bool {
+	if l := len(s); l == 0 || l > 32 {
+		return false
+	}
+	for _, r := range s {
+		switch {
+		case r >= 'a' && r <= 'z':
+		case r >= 'A' && r <= 'Z':
+		case r >= '0' && r <= '9':
+		case r == '_' || r == '-':
+		default:
+			return false
+		}
+	}
+	return true
+}
+
+// serveStyledLocal 为本地存储策略的图片样式请求提供服务。
+// 成功响应后返回 true；返回 false 表示需要回退到原图流式输出
+// （如 styleSvc 未注入、样式不适用、处理失败等）。
+func (h *DirectLinkHandler) serveStyledLocal(
+	c *gin.Context,
+	file *model.File,
+	policy *model.StoragePolicy,
+	filename string,
+	styleName string,
+) bool {
+	if h.styleSvc == nil {
+		return false
+	}
+
+	req := &image_style.StyleRequest{
+		Policy:      policy,
+		File:        file,
+		Filename:    filename,
+		StyleName:   styleName,
+		DynamicOpts: c.Request.URL.Query(),
+	}
+
+	result, err := h.styleSvc.Process(c.Request.Context(), req)
+	if err != nil {
+		// 样式不适用或处理失败：回退到原图流式下载，而不是直接失败。
+		// ErrStyleNotFound 语义上样式名不存在，按 Plan 规范也应该回落，而非 404。
+		if errors.Is(err, image_style.ErrStyleNotApplicable) ||
+			errors.Is(err, image_style.ErrStyleNotFound) ||
+			errors.Is(err, image_style.ErrStyleProcessFailed) {
+			log.Printf("[直链下载] 样式 %s 无法应用到 file=%d，回退原图: %v", styleName, file.ID, err)
+			return false
+		}
+		log.Printf("[直链下载] 样式处理未知错误 file=%d style=%s: %v", file.ID, styleName, err)
+		return false
+	}
+	defer result.Reader.Close()
+
+	etag := `"` + result.StyleHash + `"`
+	// If-None-Match 命中 → 304
+	if match := c.GetHeader("If-None-Match"); match == etag {
+		c.Status(http.StatusNotModified)
+		return true
+	}
+
+	c.Header("Content-Type", result.ContentType)
+	c.Header("ETag", etag)
+	// 样式产物是幂等的（由 style_hash 决定），缓存 7 天与 /api/image 接口保持一致。
+	c.Header("Cache-Control", "public, max-age=604800")
+	if !result.LastModified.IsZero() {
+		c.Header("Last-Modified", result.LastModified.UTC().Format(http.TimeFormat))
+	}
+	if result.Size > 0 {
+		c.Header("Content-Length", fmt.Sprintf("%d", result.Size))
+	}
+	c.Status(http.StatusOK)
+	if _, err := io.Copy(c.Writer, result.Reader); err != nil {
+		log.Printf("[直链下载] 写响应失败 file=%d style=%s: %v", file.ID, styleName, err)
+	}
+	return true
 }
 
 // extractStyleSeparatorFromPath 从URL路径中提取样式分隔符

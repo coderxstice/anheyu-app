@@ -85,6 +85,11 @@ var AllSettings = []Definition{
 	{Key: constant.KeyLibrawMaxFileSize, Value: "78643200", Comment: "LibRaw/DCRaw 生成器可处理的最大原始文件大小(单位:字节, 75MB)", IsPublic: true},
 	{Key: constant.KeyLibrawSupportedExts, Value: "3fr,ari,arw,bay,braw,crw,cr2,cr3,cap,data,dcs,dcr,dng,drf,eip,erf,fff,gpr,iiq,k25,kdc,mdc,mef,mos,mrw,nef,nrw,obm,orf,pef,ptx,pxn,r3d,raf,raw,rwl,rw2,rwz,sr2,srf,srw,tif,x3f", Comment: "LibRaw/DCRaw 此生成器可用的文件扩展名列表", IsPublic: true},
 
+	// --- 图片样式缓存配置 ---
+	{Key: constant.KeyImageStyleCachePath, Value: "./data/cache/image_styles", Comment: "图片样式缓存根目录", IsPublic: false},
+	{Key: constant.KeyImageStyleCacheMaxMB, Value: "1024", Comment: "单策略图片样式缓存上限 (MB)，0 为不限制", IsPublic: false},
+	{Key: constant.KeyImageStyleCacheCleanupInterval, Value: "600", Comment: "图片样式缓存清理周期 (秒)，0 关闭后台清理", IsPublic: false},
+
 	// --- 队列配置 ---
 	{Key: constant.KeyQueueThumbConcurrency, Value: "15", Comment: "缩略图生成队列的工作线程数", IsPublic: false},
 	{Key: constant.KeyQueueThumbMaxExecTime, Value: "300", Comment: "单个缩略图生成任务的最大执行时间（秒）", IsPublic: false},

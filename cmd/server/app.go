@@ -17,6 +17,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -47,6 +48,7 @@ import (
 	direct_link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/direct_link"
 	doc_series_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/doc_series"
 	file_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/file"
+	image_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/image"
 	link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/link"
 	music_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/music"
 	plugin_admin_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/plugin_admin"
@@ -86,6 +88,8 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/file_info"
 	geetest_service "github.com/anzhiyu-c/anheyu-app/pkg/service/geetest"
 	imagecaptcha_service "github.com/anzhiyu-c/anheyu-app/pkg/service/imagecaptcha"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/image_style"
+	image_style_engine "github.com/anzhiyu-c/anheyu-app/pkg/service/image_style/engine"
 	link_service "github.com/anzhiyu-c/anheyu-app/pkg/service/link"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/music"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/notification"
@@ -143,6 +147,8 @@ type App struct {
 	themeHandler           *theme_handler.Handler
 	ssrManager             *ssr.Manager
 	ssrThemeHandler        *ssrtheme_handler.Handler
+	imageStyleService      image_style.ImageStyleService
+	imageStyleCache        *image_style.DiskCache
 	configExtensionHolder  *configExtensionHolder // Pro 可通过 SetConfigExtension 注入支付配置导出/导入
 }
 
@@ -345,6 +351,10 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	fileSvc := file_service.NewService(fileRepo, storagePolicyRepo, txManager, entityRepo, fileEntityRepo, userGroupRepo, metadataSvc, extractionSvc, cacheSvc, storagePolicySvc, settingSvc, syncSvc, vfsSvc, storageProviders, eventBus, pathLocker)
 	uploadSvc := file_service.NewUploadService(txManager, eventBus, entityRepo, metadataSvc, cacheSvc, storagePolicySvc, settingSvc, storageProviders)
 	directLinkSvc := direct_link.NewDirectLinkService(directLinkRepo, fileRepo, userGroupRepo, settingSvc, storagePolicyRepo)
+
+	// 初始化图片样式处理服务（Phase 1：纯 Go 引擎 + 磁盘缓存；Phase 2 会接入 vips）
+	imageStyleSvc, imageStyleCache := buildImageStyleService(settingSvc, storageProviders, storagePolicyRepo)
+
 	statService, err := statistics.NewVisitorStatService(
 		ent_impl.NewVisitorStatRepository(entClient),
 		ent_impl.NewVisitorLogRepository(entClient),
@@ -450,6 +460,8 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	articleSvc.SetHistoryRepo(articleHistoryRepo)
 	// 注入事件总线，用于文章 CRUD 时通知前端清缓存
 	articleSvc.SetEventBus(eventBus)
+	// 注入图片样式服务，使上传响应 URL 自动拼默认样式后缀
+	articleSvc.SetImageStyleService(imageStyleSvc)
 	// articleHistorySvc 已在 taskBroker 之前创建
 	log.Printf("[DEBUG] 正在初始化 PushooService...")
 	pushooSvc := utility.NewPushooService(settingSvc)
@@ -462,6 +474,8 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	authSvc := auth.NewAuthService(userRepo, settingSvc, tokenSvc, emailSvc, txManager, articleSvc)
 	log.Printf("[DEBUG] 正在初始化 CommentService，将注入 PushooService 和 NotificationService...")
 	commentSvc := comment_service.NewService(commentRepo, userRepo, txManager, geoSvc, settingSvc, cacheSvc, taskBroker, fileSvc, parserSvc, pushooSvc, notificationSvc)
+	// 注入图片样式服务，使评论内嵌图片 URL 自动拼默认样式后缀（Plan B Phase 1 Task 1.13.2）
+	commentSvc.SetImageStyleService(imageStyleSvc)
 	log.Printf("[DEBUG] CommentService 初始化完成，PushooService 和 NotificationService 已注入")
 	themeSvc := theme.NewThemeService(entClient, userRepo)
 	_ = listener.NewFilePostProcessingListener(eventBus, taskBroker, extractionSvc)
@@ -565,11 +579,16 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	albumHandler := album_handler.NewAlbumHandler(albumSvc)
 	albumCategoryHandler := album_category_handler.NewHandler(albumCategorySvc)
 	userHandler := user_handler.NewUserHandler(userSvc, settingSvc, fileSvc, directLinkSvc)
+	// 注入图片样式服务，使头像上传响应 URL 自动拼默认样式后缀
+	userHandler.SetImageStyleService(imageStyleSvc)
 	publicHandler := public_handler.NewPublicHandler(albumSvc, albumCategorySvc)
 	settingHandler := setting_handler.NewSettingHandler(settingSvc, emailSvc, cdnSvc, configBackupSvc)
 	storagePolicyHandler := storage_policy_handler.NewStoragePolicyHandler(storagePolicySvc)
 	fileHandler := file_handler.NewHandler(fileSvc, uploadSvc, settingSvc)
 	directLinkHandler := direct_link_handler.NewDirectLinkHandler(directLinkSvc, storageProviders)
+	// 注入图片样式服务，使 `/api/f/:pubID/filename!style` 的本地策略直链下载能走
+	// ImageStyleService 的缓存 + 处理流程（Plan B Phase 1 Task 1.13 的客户端落地配套）。
+	directLinkHandler.SetImageStyleService(imageStyleSvc)
 	linkHandler := link_handler.NewHandler(linkSvc)
 	thumbnailHandler := thumbnail_handler.NewThumbnailHandler(taskBroker, metadataSvc, fileSvc, thumbnailSvc, settingSvc)
 	articleHandler := article_handler.NewHandler(articleSvc)
@@ -593,6 +612,7 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	configImportExportHandler := config_handler.NewConfigImportExportHandler(configImportExportSvc)
 	subscriberHandler := subscriber_handler.NewHandler(subscriberSvc, captchaSvc)
 	captchaHandler := captcha_handler.NewHandler(captchaSvc)
+	imageHandler := image_handler.NewHandler(imageStyleSvc, fileRepo, storagePolicyRepo, directLinkSvc)
 
 	// --- Phase 7: 初始化路由 ---
 	appRouter := router.NewRouter(
@@ -629,6 +649,7 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 		configImportExportHandler,
 		subscriberHandler,
 		captchaHandler,
+		imageHandler,
 	)
 
 	// --- Phase 8: 配置 Gin 引擎 ---
@@ -749,6 +770,8 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 		themeHandler:         themeHandler,
 		ssrManager:            ssrManager,
 		ssrThemeHandler:       ssrThemeHandler,
+		imageStyleService:     imageStyleSvc,
+		imageStyleCache:       imageStyleCache,
 		configExtensionHolder: configExtensionHolder,
 	}
 
@@ -764,6 +787,11 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 		// 停止所有 SSR 主题
 		log.Println("停止所有 SSR 主题...")
 		ssrManager.StopAll()
+
+		// 关闭图片样式缓存的后台 goroutine
+		if imageStyleCache != nil {
+			_ = imageStyleCache.Close()
+		}
 
 		// 关闭数据库连接
 		log.Println("关闭数据库连接...")
@@ -889,6 +917,71 @@ func (a *App) SSRThemeHandler() *ssrtheme_handler.Handler {
 // ThemeHandler 返回主题处理器（用于 PRO 版配置为 PRO 模式）
 func (a *App) ThemeHandler() *theme_handler.Handler {
 	return a.themeHandler
+}
+
+// ImageStyleService 返回图片样式处理服务（供 PRO 版图片 handler / 上传流程复用）。
+// 若启动时缓存初始化失败，此处可能返回 nil；调用方需做 nil-check。
+func (a *App) ImageStyleService() image_style.ImageStyleService {
+	return a.imageStyleService
+}
+
+// ConfigureImageStyleWarmLister 允许 PRO 启动时注入 WarmFileLister，
+// 开启 `/api/pro/admin/image-styles/cache/warm` 的异步预热能力。
+// 若 ImageStyleService 尚未就绪（如缓存初始化失败），本方法是 no-op。
+func (a *App) ConfigureImageStyleWarmLister(l image_style.WarmFileLister) {
+	if a.imageStyleService == nil {
+		return
+	}
+	if svc, ok := a.imageStyleService.(*image_style.Service); ok {
+		svc.SetWarmFileLister(l)
+	}
+}
+
+// buildImageStyleService 从 settingSvc 读取缓存配置并装配图片样式服务。
+// Phase 1 primary/fallback 都是 NativeGoEngine；Phase 2 Task 2.3 会在 Probe 可用时改用 VipsEngine。
+// 若磁盘缓存创建失败，会记录警告并返回 (nil, nil)，服务功能对应降级。
+func buildImageStyleService(
+	settingSvc setting.SettingService,
+	providers map[constant.StoragePolicyType]storage.IStorageProvider,
+	policyRepo repository.StoragePolicyRepository,
+) (image_style.ImageStyleService, *image_style.DiskCache) {
+	cacheRoot := settingSvc.Get(constant.KeyImageStyleCachePath.String())
+	if cacheRoot == "" {
+		cacheRoot = "./data/cache/image_styles"
+	}
+	maxMB, err := strconv.Atoi(settingSvc.Get(constant.KeyImageStyleCacheMaxMB.String()))
+	if err != nil || maxMB < 0 {
+		maxMB = 1024
+	}
+	cleanupSec, err := strconv.Atoi(settingSvc.Get(constant.KeyImageStyleCacheCleanupInterval.String()))
+	if err != nil || cleanupSec < 0 {
+		cleanupSec = 600
+	}
+
+	cache, err := image_style.NewDiskCache(image_style.CacheConfig{
+		Root:            cacheRoot,
+		MaxSizeBytes:    int64(maxMB) * 1024 * 1024,
+		CleanupInterval: time.Duration(cleanupSec) * time.Second,
+	})
+	if err != nil {
+		log.Printf("⚠️  图片样式缓存初始化失败（功能暂不可用）: %v", err)
+		return nil, nil
+	}
+
+	capability := image_style_engine.Probe()
+	// Phase 3 Task 3.4：装配纯 Go 水印实现，并让引擎内部调用。
+	watermarker := image_style.NewNativeWatermarker()
+	eng := image_style_engine.NewAutoEngine(capability,
+		image_style_engine.WithAutoWatermarker(watermarker),
+	)
+	svc := image_style.NewService(eng, cache, providers, policyRepo, watermarker)
+	if capability.Available {
+		log.Printf("✅ 图片样式引擎：vips %s @ %s", capability.Version, capability.BinaryPath)
+	} else {
+		log.Println("ℹ️  图片样式引擎：纯 Go（未检测到 vips，支持 jpg/png 输入输出）")
+	}
+	log.Printf("   缓存目录：%s；上限 %d MB；清理周期 %d 秒", cacheRoot, maxMB, cleanupSec)
+	return svc, cache
 }
 
 func (a *App) Run() error {

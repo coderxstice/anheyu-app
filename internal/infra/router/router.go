@@ -25,6 +25,7 @@ import (
 	direct_link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/direct_link"
 	doc_series_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/doc_series"
 	file_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/file"
+	image_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/image"
 	link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/link"
 	music_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/music"
 	notification_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/notification"
@@ -98,6 +99,7 @@ type Router struct {
 	configImportExportHandler *config_handler.ConfigImportExportHandler
 	subscriberHandler         *subscriber_handler.Handler
 	captchaHandler            *captcha_handler.Handler
+	imageHandler              *image_handler.Handler
 }
 
 // NewRouter 是 Router 的构造函数，通过依赖注入接收所有处理器。
@@ -135,6 +137,7 @@ func NewRouter(
 	configImportExportHandler *config_handler.ConfigImportExportHandler,
 	subscriberHandler *subscriber_handler.Handler,
 	captchaHandler *captcha_handler.Handler,
+	imageHandler *image_handler.Handler,
 ) *Router {
 	return &Router{
 		authHandler:               authHandler,
@@ -170,6 +173,7 @@ func NewRouter(
 		configImportExportHandler: configImportExportHandler,
 		subscriberHandler:         subscriberHandler,
 		captchaHandler:            captchaHandler,
+		imageHandler:              imageHandler,
 	}
 }
 
@@ -221,9 +225,24 @@ func (r *Router) Setup(engine *gin.Engine) {
 	r.registerVersionRoutes(apiGroup)
 	r.registerNotificationRoutes(apiGroup)
 	r.registerConfigBackupRoutes(apiGroup)
-	r.registerSitemapRoutes(engine)    // 直接注册到engine，不使用/api前缀
-	r.registerRSSRoutes(engine)       // RSS/atom/feed 始终注册，与 SkipFrontend 无关
-	r.registerSSRThemeRoutes(apiGroup) // 注册 SSR 主题管理路由
+	r.registerSitemapRoutes(engine)     // 直接注册到engine，不使用/api前缀
+	r.registerRSSRoutes(engine)         // RSS/atom/feed 始终注册，与 SkipFrontend 无关
+	r.registerSSRThemeRoutes(apiGroup)  // 注册 SSR 主题管理路由
+	r.registerImageStyleRoutes(apiGroup)
+}
+
+// registerImageStyleRoutes 注册图片样式处理入口：
+//
+//	GET /api/image/*pathWithStyle
+//	例如 /api/image/{publicID}!thumbnail 或 /api/image/{publicID}?w=400&h=300
+//
+// imageHandler == nil 时跳过，不对外暴露该路由。
+func (r *Router) registerImageStyleRoutes(api *gin.RouterGroup) {
+	if r.imageHandler == nil {
+		return
+	}
+	api.GET("/image/*pathWithStyle", r.imageHandler.ServeStyled)
+	log.Println("✅ 图片样式路由已注册: GET /api/image/*pathWithStyle")
 }
 
 func (r *Router) registerCommentRoutes(api *gin.RouterGroup) {

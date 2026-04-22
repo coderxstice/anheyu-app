@@ -21,6 +21,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/utils"
 	"github.com/anzhiyu-c/anheyu-app/pkg/constant"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
+	image_style_engine "github.com/anzhiyu-c/anheyu-app/pkg/service/image_style/engine"
 	page_service "github.com/anzhiyu-c/anheyu-app/pkg/service/page"
 )
 
@@ -48,9 +49,34 @@ func (b *Bootstrapper) InitializeDatabase() error {
 	b.initLinks()
 	b.initDefaultPages()
 	b.checkUserTable()
+	b.printImageStyleDiagnostic()
 
 	log.Println("--- 数据库初始化引导程序执行完成 ---")
 	return nil
+}
+
+// printImageStyleDiagnostic 在启动时输出图片样式引擎的可用性诊断。
+// Probe() 结果在进程内缓存，这里的调用与 app.go 里装配 AutoEngine 时的 Probe 共享结果。
+//
+// 日志格式刻意与 Plan B §Phase 2 保持一致：
+//   - 有 vips：`✅ 图片样式引擎：vips <version> @ <binary>` + 两行格式清单
+//   - 无 vips：`⚠️  未检测到 vips，使用纯 Go 降级模式` + 原生支持格式
+func (b *Bootstrapper) printImageStyleDiagnostic() {
+	capability := image_style_engine.Probe()
+	if capability.Available {
+		log.Printf("✅ 图片样式引擎：vips %s @ %s", capability.Version, capability.BinaryPath)
+		if len(capability.InputFormats) > 0 {
+			log.Printf("   输入格式: %s", strings.Join(capability.InputFormats, ", "))
+		}
+		if len(capability.OutputFormats) > 0 {
+			log.Printf("   输出格式: %s", strings.Join(capability.OutputFormats, ", "))
+		}
+		return
+	}
+
+	log.Println("⚠️  未检测到 vips CLI，使用纯 Go 降级模式")
+	log.Println("   支持输入: jpeg, png, webp, gif（首帧）")
+	log.Println("   支持输出: jpeg, png")
 }
 
 // syncSettings 检查并同步配置项，确保所有在代码中定义的配置项都存在于数据库中。

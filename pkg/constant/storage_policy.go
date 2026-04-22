@@ -28,6 +28,13 @@ const (
 	// StyleSeparatorSettingKey 是存储策略中定义样式分隔符的键（用于腾讯云COS和阿里云OSS的图片处理参数）
 	StyleSeparatorSettingKey = "style_separator"
 
+	// ImageProcessSettingsKey 是存储策略 Settings JSON 中 image_process 配置块的键名。
+	// 对应 model.ImageProcessConfig，控制样式处理的启用与默认样式。
+	ImageProcessSettingsKey = "image_process"
+	// ImageStylesSettingsKey 是存储策略 Settings JSON 中 image_styles 配置块的键名。
+	// 对应 []model.ImageStyleConfig，保存该策略下所有命名样式。
+	ImageStylesSettingsKey = "image_styles"
+
 	// UploadMethodServer 代表服务端中转上传
 	UploadMethodServer = "server"
 	// UploadMethodClient 代表客户端直传

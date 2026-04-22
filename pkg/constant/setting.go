@@ -61,6 +61,12 @@ const (
 	KeyVipsPath                  SettingKey = "VIPS_PATH"
 	KeyVipsSupportedExts         SettingKey = "VIPS_SUPPORTED_EXTS"
 	KeyVipsMaxFileSize           SettingKey = "VIPS_MAX_FILE_SIZE"
+	// KeyImageStyleCachePath 图片样式缓存根目录
+	KeyImageStyleCachePath SettingKey = "IMAGE_STYLE_CACHE_PATH"
+	// KeyImageStyleCacheMaxMB 图片样式单策略缓存上限（MB）
+	KeyImageStyleCacheMaxMB SettingKey = "IMAGE_STYLE_CACHE_MAX_MB"
+	// KeyImageStyleCacheCleanupInterval 图片样式缓存清理周期（秒）
+	KeyImageStyleCacheCleanupInterval SettingKey = "IMAGE_STYLE_CACHE_CLEANUP_INTERVAL"
 	KeyEnableMusicCoverGenerator SettingKey = "ENABLE_MUSIC_COVER_GENERATOR"
 	KeyMusicCoverSupportedExts   SettingKey = "MUSIC_COVER_SUPPORTED_EXTS"
 	KeyMusicCoverMaxFileSize     SettingKey = "MUSIC_COVER_MAX_FILE_SIZE"
