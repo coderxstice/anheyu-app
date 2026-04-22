@@ -26,6 +26,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/handler/comment/dto"
 	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
 	filesvc "github.com/anzhiyu-c/anheyu-app/pkg/service/file"
+	"github.com/anzhiyu-c/anheyu-app/pkg/service/image_style"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/notification"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/parser"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
@@ -77,6 +78,9 @@ type Service struct {
 	pushooSvc                 utility.PushooService
 	notificationSvc           notification.Service
 	inAppNotificationCallback InAppNotificationCallback // PRO版可注入的站内通知回调
+	// styleSvc 可选；非 nil 且 comment_image 策略启用了 image_process.default_style 时，
+	// renderHTMLURLs 返回的评论内嵌图片 URL 会自动追加 "!styleName" 后缀（Plan B Phase 1 Task 1.13.2）。
+	styleSvc image_style.ImageStyleService
 }
 
 // NewService 创建一个新的评论服务实例。
@@ -111,6 +115,14 @@ func NewService(
 // SetInAppNotificationCallback 设置站内通知回调（供PRO版使用）
 func (s *Service) SetInAppNotificationCallback(callback InAppNotificationCallback) {
 	s.inAppNotificationCallback = callback
+}
+
+// SetImageStyleService 注入图片样式服务（可选）。
+// 注入后，renderHTMLURLs 会在每个评论图片 URL 之后追加默认样式后缀（如 "!thumbnail"），
+// 以便前端直接渲染经过处理的小图，减少带宽与跨域请求次数。
+// 未注入或策略未启用 image_process 时，保持原 URL 不变。
+func (s *Service) SetImageStyleService(svc image_style.ImageStyleService) {
+	s.styleSvc = svc
 }
 
 // UploadImage 负责处理评论图片的上传业务逻辑。
@@ -1039,31 +1051,40 @@ func (s *Service) toResponseDTO(ctx context.Context, c *model.Comment, parent *m
 }
 
 // renderHTMLURLs 将HTML内容中的内部URI（anzhiyu://file/...）替换为可访问的临时URL。
+//
+// Plan B Phase 1 Task 1.13.2：若已注入 styleSvc，则在每个图片 URL 之后追加
+// comment_image 策略的默认样式后缀（如 "!thumbnail"）。
+// 策略仅在函数入口查询一次，避免每张图片都重复 DB 查询。
 func (s *Service) renderHTMLURLs(ctx context.Context, htmlContent string) (string, error) {
-	// log.Printf("【DEBUG】开始渲染HTML中的图片链接，原始HTML长度: %d", len(htmlContent))
+	// 快速通道：不包含内部 URI 时直接返回，避免多余查询
+	if !strings.Contains(htmlContent, "anzhiyu://file/") {
+		return htmlContent, nil
+	}
 
-	// 检查是否包含需要替换的内部URI
-	matches := htmlInternalURIRegex.FindAllString(htmlContent, -1)
-	_ = matches // 避免 unused variable 警告
-	// log.Printf("【DEBUG】找到 %d 个需要替换的内部URI: %v", len(matches), matches)
+	// 一次性读取 comment_image 策略，供后续样式后缀拼接复用。
+	// 查询失败或策略不存在时 stylePolicy 保持 nil，等价于回退到旧行为。
+	var stylePolicy *model.StoragePolicy
+	if s.styleSvc != nil {
+		if policy, perr := s.fileSvc.GetPolicyByFlag(ctx, constant.PolicyFlagCommentImage); perr == nil {
+			stylePolicy = policy
+		} else {
+			log.Printf("[comment.renderHTMLURLs] 获取 comment_image 策略失败（忽略，URL 不拼样式）: %v", perr)
+		}
+	}
 
 	var firstError error
 	replacer := func(match string) string {
-		// log.Printf("【DEBUG】正在处理匹配项: %s", match)
 		parts := htmlInternalURIRegex.FindStringSubmatch(match)
 		if len(parts) < 2 {
-			// log.Printf("【DEBUG】正则匹配失败，parts长度: %d", len(parts))
 			return match
 		}
 		publicID := parts[1]
-		// log.Printf("【DEBUG】提取到文件公共ID: %s", publicID)
 
 		fileModel, err := s.fileSvc.FindFileByPublicID(ctx, publicID)
 		if err != nil {
 			log.Printf("【ERROR】渲染图片失败：找不到文件, PublicID=%s, 错误: %v", publicID, err)
 			return `src=""`
 		}
-		// log.Printf("【DEBUG】找到文件模型: Name=%s, Size=%d", fileModel.Name, fileModel.Size)
 
 		// 评论图片URL有效期：1小时
 		expiresAt := time.Now().Add(1 * time.Hour)
@@ -1075,12 +1096,17 @@ func (s *Service) renderHTMLURLs(ctx context.Context, htmlContent string) (strin
 			log.Printf("【ERROR】渲染图片失败：为文件 %s 生成URL时出错: %v", publicID, err)
 			return `src=""`
 		}
-		// log.Printf("【DEBUG】成功生成URL: %s", url)
+
+		// 拼接默认样式后缀（如 "!thumbnail"）。
+		// filename 传 fileModel.Name 以便 matcher 按真实扩展名决定是否应用样式。
+		if stylePolicy != nil {
+			if suffix := s.styleSvc.ResolveUploadURLSuffix(stylePolicy, fileModel.Name); suffix != "" {
+				url = url + suffix
+			}
+		}
 		return `src="` + url + `"`
 	}
-	result := htmlInternalURIRegex.ReplaceAllStringFunc(htmlContent, replacer)
-	// log.Printf("【DEBUG】渲染完成，结果HTML长度: %d", len(result))
-	return result, firstError
+	return htmlInternalURIRegex.ReplaceAllStringFunc(htmlContent, replacer), firstError
 }
 
 // LikeComment 为评论增加点赞数。

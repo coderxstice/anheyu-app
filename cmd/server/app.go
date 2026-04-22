@@ -474,6 +474,8 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	authSvc := auth.NewAuthService(userRepo, settingSvc, tokenSvc, emailSvc, txManager, articleSvc)
 	log.Printf("[DEBUG] 正在初始化 CommentService，将注入 PushooService 和 NotificationService...")
 	commentSvc := comment_service.NewService(commentRepo, userRepo, txManager, geoSvc, settingSvc, cacheSvc, taskBroker, fileSvc, parserSvc, pushooSvc, notificationSvc)
+	// 注入图片样式服务，使评论内嵌图片 URL 自动拼默认样式后缀（Plan B Phase 1 Task 1.13.2）
+	commentSvc.SetImageStyleService(imageStyleSvc)
 	log.Printf("[DEBUG] CommentService 初始化完成，PushooService 和 NotificationService 已注入")
 	themeSvc := theme.NewThemeService(entClient, userRepo)
 	_ = listener.NewFilePostProcessingListener(eventBus, taskBroker, extractionSvc)
@@ -584,6 +586,9 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	storagePolicyHandler := storage_policy_handler.NewStoragePolicyHandler(storagePolicySvc)
 	fileHandler := file_handler.NewHandler(fileSvc, uploadSvc, settingSvc)
 	directLinkHandler := direct_link_handler.NewDirectLinkHandler(directLinkSvc, storageProviders)
+	// 注入图片样式服务，使 `/api/f/:pubID/filename!style` 的本地策略直链下载能走
+	// ImageStyleService 的缓存 + 处理流程（Plan B Phase 1 Task 1.13 的客户端落地配套）。
+	directLinkHandler.SetImageStyleService(imageStyleSvc)
 	linkHandler := link_handler.NewHandler(linkSvc)
 	thumbnailHandler := thumbnail_handler.NewThumbnailHandler(taskBroker, metadataSvc, fileSvc, thumbnailSvc, settingSvc)
 	articleHandler := article_handler.NewHandler(articleSvc)
