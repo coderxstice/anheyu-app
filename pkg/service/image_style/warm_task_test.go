@@ -14,12 +14,20 @@ import (
 
 func TestWarmTaskManager_Register_CreatesPendingTask(t *testing.T) {
 	m := newWarmTaskManager(nil)
-	taskID, ok := m.register(1, "thumbnail")
+	taskID, ctx, ok := m.register(1, "thumbnail")
 	if !ok {
 		t.Fatalf("首次注册应 ok=true")
 	}
 	if taskID == "" {
 		t.Fatalf("taskID 不应为空")
+	}
+	if ctx == nil {
+		t.Fatalf("register 应返回非 nil ctx")
+	}
+	select {
+	case <-ctx.Done():
+		t.Fatalf("新建任务的 ctx 不应已经 Done")
+	default:
 	}
 	p, err := m.get(taskID)
 	if err != nil {
@@ -35,34 +43,72 @@ func TestWarmTaskManager_Register_CreatesPendingTask(t *testing.T) {
 
 func TestWarmTaskManager_Register_DuplicateReturnsExisting(t *testing.T) {
 	m := newWarmTaskManager(nil)
-	first, ok1 := m.register(1, "thumbnail")
+	first, _, ok1 := m.register(1, "thumbnail")
 	if !ok1 {
 		t.Fatal("首次注册应成功")
 	}
-	second, ok2 := m.register(1, "thumbnail")
+	second, ctx2, ok2 := m.register(1, "thumbnail")
 	if ok2 {
 		t.Errorf("相同 (policy, style) 的重复注册不应成功")
 	}
 	if second != first {
 		t.Errorf("重复注册应返回已有 taskID %s，实际 %s", first, second)
 	}
+	if ctx2 != nil {
+		t.Errorf("重复注册不应返回新的 ctx")
+	}
 }
 
 func TestWarmTaskManager_FinishReleasesLockForSameKey(t *testing.T) {
 	m := newWarmTaskManager(nil)
-	first, _ := m.register(1, "thumbnail")
+	first, _, _ := m.register(1, "thumbnail")
 	m.setTotal(first, 3)
 	m.inc(first, "processed", "")
 	m.inc(first, "processed", "")
 	m.inc(first, "processed", "")
 	m.finish(first, "done", "")
 
-	second, ok := m.register(1, "thumbnail")
+	second, _, ok := m.register(1, "thumbnail")
 	if !ok {
 		t.Errorf("任务完成后同策略+样式应可再次注册")
 	}
 	if second == first {
 		t.Errorf("第二次任务应获得新 taskID")
+	}
+}
+
+func TestWarmTaskManager_Cancel_SignalsContextAndMarksCancelled(t *testing.T) {
+	m := newWarmTaskManager(nil)
+	id, ctx, ok := m.register(1, "thumbnail")
+	if !ok {
+		t.Fatalf("首次注册应成功")
+	}
+	m.setTotal(id, 100)
+
+	if cancelled := m.cancel(id); !cancelled {
+		t.Fatalf("cancel 应返回 true")
+	}
+	select {
+	case <-ctx.Done():
+		// expected
+	case <-time.After(100 * time.Millisecond):
+		t.Fatalf("cancel 后 ctx 应在短时间内 Done")
+	}
+	// 模拟 goroutine 接收 ctx.Done 后把状态置为 cancelled
+	m.finish(id, "cancelled", "外部请求取消")
+	p, err := m.get(id)
+	if err != nil {
+		t.Fatalf("get: %v", err)
+	}
+	if p.Status != "cancelled" {
+		t.Errorf("期望状态 cancelled，实际 %s", p.Status)
+	}
+}
+
+func TestWarmTaskManager_Cancel_UnknownTaskReturnsFalse(t *testing.T) {
+	m := newWarmTaskManager(nil)
+	if m.cancel("nope") {
+		t.Errorf("cancel 未知任务应返回 false")
 	}
 }
 
@@ -87,7 +133,7 @@ func TestWarmTaskManager_ConcurrentRegister_OnlyOneTaskCreated(t *testing.T) {
 		wg.Add(1)
 		go func(idx int) {
 			defer wg.Done()
-			id, ok := m.register(7, "banner")
+			id, _, ok := m.register(7, "banner")
 			if ok {
 				atomic.AddInt64(&okCount, 1)
 			}
@@ -110,7 +156,7 @@ func TestWarmTaskManager_ConcurrentRegister_OnlyOneTaskCreated(t *testing.T) {
 
 func TestWarmTaskManager_GetReturnsCopy(t *testing.T) {
 	m := newWarmTaskManager(nil)
-	taskID, _ := m.register(1, "a")
+	taskID, _, _ := m.register(1, "a")
 	p, err := m.get(taskID)
 	if err != nil {
 		t.Fatalf("get: %v", err)
@@ -126,12 +172,12 @@ func TestWarmTaskManager_Reap_RemovesOldFinishedTasks(t *testing.T) {
 	fakeNow := time.Now()
 	m := newWarmTaskManager(func() time.Time { return fakeNow })
 
-	idOld, _ := m.register(1, "old")
+	idOld, _, _ := m.register(1, "old")
 	m.finish(idOld, "done", "")
 
 	// 时间前进 2 小时
 	fakeNow = fakeNow.Add(2 * time.Hour)
-	idRecent, _ := m.register(2, "recent")
+	idRecent, _, _ := m.register(2, "recent")
 	m.finish(idRecent, "done", "")
 
 	// reap 1 小时前 cutoff，应只清理 idOld
@@ -149,7 +195,7 @@ func TestWarmTaskManager_Reap_RemovesOldFinishedTasks(t *testing.T) {
 
 func TestWarmTaskManager_IncFailed_CapturesLastError(t *testing.T) {
 	m := newWarmTaskManager(nil)
-	id, _ := m.register(3, "x")
+	id, _, _ := m.register(3, "x")
 	m.setTotal(id, 5)
 	m.inc(id, "failed", "io read error")
 	m.inc(id, "processed", "")

@@ -63,6 +63,11 @@ type ImageStyleService interface {
 
 	// GetWarmProgress 查询预热任务的当前进度快照。
 	GetWarmProgress(taskID string) (*WarmProgress, error)
+
+	// CancelWarm 请求取消指定的预热任务。
+	// 返回 true 表示找到了该任务并发出了取消信号；false 表示任务不存在。
+	// 取消信号通过 context 传递给后台 goroutine，goroutine 会在当前图片处理完后退出。
+	CancelWarm(taskID string) bool
 }
 
 // ErrWarmNotAvailable 表示调用方未注入 WarmFileLister，无法启动预热任务。
@@ -381,7 +386,7 @@ func (s *Service) WarmCache(ctx context.Context, policyID uint, styleName string
 		return "", false, fmt.Errorf("%w: %s", ErrStyleNotFound, styleName)
 	}
 
-	taskID, started := s.warmMgr.register(policyID, styleName)
+	taskID, taskCtx, started := s.warmMgr.register(policyID, styleName)
 	if !started {
 		return taskID, false, nil
 	}
@@ -394,17 +399,29 @@ func (s *Service) WarmCache(ctx context.Context, policyID uint, styleName string
 	policyCopy := *policy
 	styleCopyName := styleCfg.Name
 
-	go s.runWarmTask(taskID, lister, &policyCopy, styleCopyName, applyExt)
+	go s.runWarmTask(taskCtx, taskID, lister, &policyCopy, styleCopyName, applyExt)
 	return taskID, true, nil
 }
 
 // runWarmTask 执行预热实际工作；仅由 WarmCache 启动，独占 taskID。
 // lister 参数显式传入，避免 goroutine 期间 warmLister 被替换造成竞争。
-func (s *Service) runWarmTask(taskID string, lister WarmFileLister, policy *model.StoragePolicy, styleName string, applyExt map[string]struct{}) {
-	ctx := context.Background()
+// 任务使用管理器分配的 ctx：CancelWarm 触发 ctx Done 时，goroutine 在下一次检查点退出。
+func (s *Service) runWarmTask(ctx context.Context, taskID string, lister WarmFileLister, policy *model.StoragePolicy, styleName string, applyExt map[string]struct{}) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	// 若调用方在 register 后立刻 Cancel，这里应该立刻识别并退出。
+	if err := ctx.Err(); err != nil {
+		s.warmMgr.finish(taskID, "cancelled", "任务启动前已被取消")
+		return
+	}
 
 	files, err := lister.ListFilesByPolicy(ctx, policy.ID)
 	if err != nil {
+		if errors.Is(err, context.Canceled) {
+			s.warmMgr.finish(taskID, "cancelled", "列文件期间被取消")
+			return
+		}
 		s.warmMgr.finish(taskID, "failed", fmt.Sprintf("列出文件失败: %v", err))
 		return
 	}
@@ -420,6 +437,11 @@ func (s *Service) runWarmTask(taskID string, lister WarmFileLister, policy *mode
 	s.warmMgr.setTotal(taskID, len(candidates))
 
 	for _, f := range candidates {
+		// 每处理一张图前检查一次 ctx，让取消信号能及时响应。
+		if err := ctx.Err(); err != nil {
+			s.warmMgr.finish(taskID, "cancelled", "")
+			return
+		}
 		req := &StyleRequest{
 			Policy:    policy,
 			File:      f,
@@ -428,6 +450,10 @@ func (s *Service) runWarmTask(taskID string, lister WarmFileLister, policy *mode
 		}
 		result, procErr := s.Process(ctx, req)
 		if procErr != nil {
+			if errors.Is(procErr, context.Canceled) {
+				s.warmMgr.finish(taskID, "cancelled", "")
+				return
+			}
 			s.warmMgr.inc(taskID, "failed", procErr.Error())
 			continue
 		}
@@ -442,6 +468,11 @@ func (s *Service) runWarmTask(taskID string, lister WarmFileLister, policy *mode
 // GetWarmProgress 查询任务进度；未知 taskID 返回 ErrWarmTaskNotFound。
 func (s *Service) GetWarmProgress(taskID string) (*WarmProgress, error) {
 	return s.warmMgr.get(taskID)
+}
+
+// CancelWarm 请求取消指定预热任务；详见接口注释。
+func (s *Service) CancelWarm(taskID string) bool {
+	return s.warmMgr.cancel(taskID)
 }
 
 // lowerExt 返回文件名扩展名（不含点、小写）。空名或无扩展返回空串。
