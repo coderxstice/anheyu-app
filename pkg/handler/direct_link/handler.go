@@ -265,7 +265,10 @@ func (h *DirectLinkHandler) HandleDirectDownload(c *gin.Context) {
 //
 // 返回值：
 //   - 命中时返回 styleName（不含 "!"）
-//   - 路径不含 "!" 或 "!" 之前不是文件名时返回 "" → 调用方按"无样式"处理
+//   - 路径不含 "!" 或 "!" 之前不是文件名 / styleName 非法字符 → ""（调用方按"无样式"处理）
+//
+// 样式名字符集与长度必须与 Phase 4 admin validator 的正则 `^[a-zA-Z0-9_-]{1,32}$`
+// 保持一致，避免非法字符进入 Matcher 产生日志噪音。
 func extractLocalStyleName(fullPath, filename string) string {
 	fullPath = strings.TrimPrefix(fullPath, "/")
 	if fullPath == "" || filename == "" {
@@ -275,11 +278,29 @@ func extractLocalStyleName(fullPath, filename string) string {
 		return ""
 	}
 	style := strings.TrimPrefix(fullPath, filename+"!")
-	// 防御：样式名允许 1-32 位字母数字 / _ / -（与 Plan B Phase 4 admin validator 一致）
-	if len(style) == 0 || len(style) > 32 {
+	if !isValidStyleName(style) {
 		return ""
 	}
 	return style
+}
+
+// isValidStyleName 对应 `^[a-zA-Z0-9_-]{1,32}$`。
+// 抽成独立函数一是便于单测覆盖，二是未来若有其它位置复用（如动态参数解析）可直接调用。
+func isValidStyleName(s string) bool {
+	if l := len(s); l == 0 || l > 32 {
+		return false
+	}
+	for _, r := range s {
+		switch {
+		case r >= 'a' && r <= 'z':
+		case r >= 'A' && r <= 'Z':
+		case r >= '0' && r <= '9':
+		case r == '_' || r == '-':
+		default:
+			return false
+		}
+	}
+	return true
 }
 
 // serveStyledLocal 为本地存储策略的图片样式请求提供服务。
