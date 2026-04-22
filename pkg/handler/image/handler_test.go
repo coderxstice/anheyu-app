@@ -60,6 +60,7 @@ func (s *stubStyleService) WarmCache(ctx context.Context, policyID uint, styleNa
 func (s *stubStyleService) GetWarmProgress(taskID string) (*image_style.WarmProgress, error) {
 	return nil, nil
 }
+func (s *stubStyleService) CancelWarm(taskID string) bool { return false }
 
 type stubFileFinder struct {
 	file *model.File
