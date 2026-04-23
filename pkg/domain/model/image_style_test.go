@@ -6,6 +6,7 @@ package model
 
 import (
 	"encoding/json"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -95,6 +96,30 @@ func TestImageStyleConfig_RoundTrip(t *testing.T) {
 			t.Errorf("重新序列化后缺少字段 %s，实际 JSON=%s", must, s)
 		}
 	}
+}
+
+func TestImageProcessConfig_NormalizeApplyExtensionsWhenEnabled(t *testing.T) {
+	t.Run("关闭时不填充", func(t *testing.T) {
+		c := ImageProcessConfig{Enabled: false, ApplyToExtensions: nil}
+		c.NormalizeApplyExtensionsWhenEnabled()
+		if len(c.ApplyToExtensions) != 0 {
+			t.Errorf("期望仍为空，实际 %v", c.ApplyToExtensions)
+		}
+	})
+	t.Run("启用且为空时写入默认列表", func(t *testing.T) {
+		c := ImageProcessConfig{Enabled: true, ApplyToExtensions: nil}
+		c.NormalizeApplyExtensionsWhenEnabled()
+		if !slices.Equal(c.ApplyToExtensions, DefaultImageProcessApplyExtensions) {
+			t.Errorf("期望默认列表，实际 %v", c.ApplyToExtensions)
+		}
+	})
+	t.Run("启用且已有扩展名时不覆盖", func(t *testing.T) {
+		c := ImageProcessConfig{Enabled: true, ApplyToExtensions: []string{"gif"}}
+		c.NormalizeApplyExtensionsWhenEnabled()
+		if len(c.ApplyToExtensions) != 1 || c.ApplyToExtensions[0] != "gif" {
+			t.Errorf("期望保留 gif，实际 %v", c.ApplyToExtensions)
+		}
+	})
 }
 
 // TestImageProcessConfig_ZeroValue_SerializedCleanly 验证

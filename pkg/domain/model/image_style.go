@@ -9,17 +9,35 @@
  */
 package model
 
+import "slices"
+
+// DefaultImageProcessApplyExtensions 为启用 image_process 但未指定扩展名时的默认列表
+//（与后台「填入默认」及规范示例一致）。
+var DefaultImageProcessApplyExtensions = []string{"jpg", "jpeg", "png", "webp", "heic"}
+
 // ImageProcessConfig 描述单个存储策略是否启用图片样式处理及处理范围。
 // 对应 Spec §5.2 image_process 表。
 type ImageProcessConfig struct {
 	// Enabled 是否启用样式处理；关闭时所有样式请求 302 回原图。
 	Enabled bool `json:"enabled"`
 	// ApplyToExtensions 命中处理的扩展名（不含点、全部小写）。
-	// 为空时等效于未启用。
+	// 关闭或未配置时可为空；已启用且为空时，Put 接口会在校验前补全为 DefaultImageProcessApplyExtensions。
 	ApplyToExtensions []string `json:"apply_to_extensions"`
 	// DefaultStyle 上传返回 URL 时自动拼接的默认样式名；空串表示不自动拼接。
 	// 非空时必须存在于 ImageStyles[].Name。
 	DefaultStyle string `json:"default_style"`
+}
+
+// NormalizeApplyExtensionsWhenEnabled 在 Enabled 为 true 且扩展名列表为空时，
+// 写入 DefaultImageProcessApplyExtensions 的副本，避免客户端漏传导致保存失败。
+func (c *ImageProcessConfig) NormalizeApplyExtensionsWhenEnabled() {
+	if c == nil || !c.Enabled {
+		return
+	}
+	if len(c.ApplyToExtensions) > 0 {
+		return
+	}
+	c.ApplyToExtensions = slices.Clone(DefaultImageProcessApplyExtensions)
 }
 
 // ImageStyleConfig 描述单个命名样式。
