@@ -40,6 +40,27 @@ type BatchDeleteResult struct {
 	FailedIDs    []string `json:"failed_ids"`    // 删除失败的文章ID列表
 }
 
+const defaultMaxArticleSummaries = 1
+
+func normalizeArticleSummaries(raw []string, maxSummaries int, action string) []string {
+	if maxSummaries <= 0 {
+		maxSummaries = defaultMaxArticleSummaries
+	}
+
+	filtered := make([]string, 0, len(raw))
+	for _, summary := range raw {
+		if trimmed := strings.TrimSpace(summary); trimmed != "" {
+			filtered = append(filtered, trimmed)
+		}
+	}
+	if len(filtered) > maxSummaries {
+		log.Printf("[Article] %s: summaries truncated to %d (non-empty count was %d)", action, maxSummaries, len(filtered))
+		filtered = filtered[:maxSummaries]
+	}
+
+	return filtered
+}
+
 type Service interface {
 	UploadArticleImage(ctx context.Context, ownerID uint, fileReader io.Reader, originalFilename string) (fileURL string, publicFileID string, err error)
 	// UploadArticleImageWithGroup 上传文章图片，并检查用户组权限
@@ -1078,17 +1099,8 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 			showOnHome = *req.ShowOnHome
 		}
 
-		// 过滤空的摘要字符串；社区版仅保留最多 1 条摘要
-		filteredSummaries := make([]string, 0, len(req.Summaries))
-		for _, summary := range req.Summaries {
-			if strings.TrimSpace(summary) != "" {
-				filteredSummaries = append(filteredSummaries, strings.TrimSpace(summary))
-			}
-		}
-		if len(filteredSummaries) > 1 {
-			log.Printf("[Article] Create: summaries truncated to 1 for community edition (non-empty count was %d)", len(filteredSummaries))
-			filteredSummaries = filteredSummaries[:1]
-		}
+		// 社区版默认最多 1 条；PRO 内部调用可显式提高上限。
+		filteredSummaries := normalizeArticleSummaries(req.Summaries, req.MaxSummaries, "Create")
 
 		// 解析自定义发布时间
 		log.Printf("[Service.Create] ========== 解析自定义时间 ==========")
@@ -1429,19 +1441,9 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 			}
 		}
 
-		// 如果更新了Summaries，过滤空的摘要字符串；社区版仅保留最多 1 条
+		// 如果更新了 Summaries，社区版默认最多 1 条；PRO 内部调用可显式提高上限。
 		if req.Summaries != nil {
-			filteredSummaries := make([]string, 0, len(req.Summaries))
-			for _, summary := range req.Summaries {
-				if strings.TrimSpace(summary) != "" {
-					filteredSummaries = append(filteredSummaries, strings.TrimSpace(summary))
-				}
-			}
-			if len(filteredSummaries) > 1 {
-				log.Printf("[Article] Update: summaries truncated to 1 for community edition (non-empty count was %d)", len(filteredSummaries))
-				filteredSummaries = filteredSummaries[:1]
-			}
-			req.Summaries = filteredSummaries
+			req.Summaries = normalizeArticleSummaries(req.Summaries, req.MaxSummaries, "Update")
 		}
 
 		// 当 IP 属地为空字符串或"未知"时，尝试重新获取

@@ -94,6 +94,7 @@ type CreateArticleRequest struct {
 	PinSort              int                 `json:"pin_sort"`
 	TopImgURL            string              `json:"top_img_url"`
 	Summaries            []string            `json:"summaries"`
+	MaxSummaries         int                 `json:"-"` // 服务内部上限；0 表示社区版默认上限。
 	PrimaryColor         string              `json:"primary_color"`
 	IsPrimaryColorManual *bool               `json:"is_primary_color_manual"`
 	Abbrlink             string              `json:"abbrlink,omitempty"`
@@ -131,6 +132,7 @@ type UpdateArticleRequest struct {
 	PinSort              *int                `json:"pin_sort"`
 	TopImgURL            *string             `json:"top_img_url"`
 	Summaries            []string            `json:"summaries"`
+	MaxSummaries         int                 `json:"-"` // 服务内部上限；0 表示社区版默认上限。
 	PrimaryColor         *string             `json:"primary_color"`
 	IsPrimaryColorManual *bool               `json:"is_primary_color_manual"`
 	Abbrlink             *string             `json:"abbrlink"`
