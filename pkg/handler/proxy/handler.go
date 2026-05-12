@@ -179,6 +179,11 @@ func (h *ProxyHandler) HandleDownload(c *gin.Context) {
 	}
 
 	c.Header("Content-Type", contentType)
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "GET, OPTIONS")
+	c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Accept")
+	c.Header("Cross-Origin-Resource-Policy", "cross-origin")
+	c.Header("Timing-Allow-Origin", "*")
 
 	contentLength := resp.Header.Get("Content-Length")
 	if contentLength != "" {
