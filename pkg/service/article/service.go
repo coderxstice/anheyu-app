@@ -1446,28 +1446,14 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 			req.Summaries = normalizeArticleSummaries(req.Summaries, req.MaxSummaries, "Update")
 		}
 
-		// 当 IP 属地为空字符串或"未知"时，尝试重新获取
-		if req.IPLocation != nil && (*req.IPLocation == "" || *req.IPLocation == "未知") {
-			log.Printf("[更新文章] 检测到IPLocation为'%s'，开始自动获取IP属地 - 传入IP: %s", *req.IPLocation, ip)
-			location := "未知"
-
-			if ip == "" {
-				log.Printf("[更新文章] ❌ IP属地设为'未知' - 原因: 传入的IP地址为空")
-			} else if s.geoService == nil {
-				log.Printf("[更新文章] ❌ IP属地设为'未知' - 原因: GeoIP服务未初始化 (IP: %s)", ip)
+		// 更新时只在请求提供明确值时写入 IP 属地；空值视为不修改，避免覆盖已有手动设置。
+		if req.IPLocation != nil {
+			trimmedIPLocation := strings.TrimSpace(*req.IPLocation)
+			if trimmedIPLocation == "" {
+				req.IPLocation = nil
 			} else {
-				log.Printf("[更新文章] 开始调用GeoIP服务查询IP属地 - IP: %s", ip)
-				fetchedLocation, err := s.geoService.Lookup(ip, referer)
-				if err == nil {
-					location = fetchedLocation
-					log.Printf("[更新文章]IP属地自动获取成功 - IP: %s, 结果: %s", ip, location)
-				} else {
-					log.Printf("[更新文章] ❌ IP属地最终设为'未知' - IP: %s, GeoIP查询失败: %v", ip, err)
-				}
+				req.IPLocation = &trimmedIPLocation
 			}
-
-			*req.IPLocation = location
-			log.Printf("[更新文章] IP属地自动获取完成 - 最终结果: %s", location)
 		}
 		if req.CoverURL != nil && *req.CoverURL == "" {
 			*req.CoverURL = s.settingSvc.Get(constant.KeyPostDefaultCover.String())
