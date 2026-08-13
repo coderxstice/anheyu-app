@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/response"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/link"
+	"github.com/anzhiyu-c/anheyu-app/pkg/util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -80,12 +82,26 @@ func (h *Handler) ApplyLink(c *gin.Context) {
 		return
 	}
 
-	_, err := h.linkSvc.ApplyLink(c.Request.Context(), &req)
+	_, err := h.linkSvc.ApplyLink(c.Request.Context(), &req, util.GetRealClientIP(c))
 	if err != nil {
+		if isApplyClientError(err) {
+			response.Fail(c, http.StatusBadRequest, "申请失败: "+err.Error())
+			return
+		}
 		response.Fail(c, http.StatusInternalServerError, "申请失败: "+err.Error())
 		return
 	}
 	response.Success(c, nil, "申请已提交，等待审核")
+}
+
+func isApplyClientError(err error) bool {
+	msg := err.Error()
+	return strings.Contains(msg, "人机验证") ||
+		strings.Contains(msg, "验证码") ||
+		strings.Contains(msg, "Turnstile") ||
+		strings.Contains(msg, "极验") ||
+		strings.Contains(msg, "已申请过友链") ||
+		strings.Contains(msg, "必须提供网站快照")
 }
 
 // CheckLinkExists 处理检查友链URL是否已存在的请求。
@@ -333,6 +349,33 @@ func (h *Handler) AdminDeleteLink(c *gin.Context) {
 		return
 	}
 	response.Success(c, nil, "删除成功")
+}
+
+// AdminBatchDeleteLinks 处理后台管理员批量删除友链的请求。
+// @Summary      批量删除友链
+// @Description  管理员批量删除选中的友链，返回逐项处理结果
+// @Tags         友链管理
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        body  body  model.BatchDeleteLinksRequest  true  "友链ID列表"
+// @Success      200  {object}  response.Response{data=model.BatchDeleteLinksResponse}  "删除完成"
+// @Failure      400  {object}  response.Response  "参数无效"
+// @Failure      500  {object}  response.Response  "删除失败"
+// @Router       /links/batch-delete [delete]
+func (h *Handler) AdminBatchDeleteLinks(c *gin.Context) {
+	var req model.BatchDeleteLinksRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Fail(c, http.StatusBadRequest, "参数无效: "+err.Error())
+		return
+	}
+
+	result, err := h.linkSvc.BatchDeleteLinks(c.Request.Context(), &req)
+	if err != nil {
+		response.Fail(c, http.StatusBadRequest, "批量删除失败: "+err.Error())
+		return
+	}
+	response.Success(c, result, "批量删除完成")
 }
 
 // ReviewLink 处理后台管理员审核友链的请求。

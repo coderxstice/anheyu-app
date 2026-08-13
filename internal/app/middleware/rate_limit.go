@@ -38,6 +38,14 @@ type limiterInfo struct {
 	lastAccessed time.Time
 }
 
+type slidingWindowIPRateLimiter struct {
+	attempts    map[string][]time.Time
+	mu          sync.Mutex
+	maxRequests int
+	window      time.Duration
+	now         func() time.Time
+}
+
 // newIPRateLimiter 创建一个新的IP限流器
 func newIPRateLimiter(requestsPerMinute, burst int) *ipRateLimiter {
 	limiter := &ipRateLimiter{
@@ -51,6 +59,41 @@ func newIPRateLimiter(requestsPerMinute, burst int) *ipRateLimiter {
 	go limiter.cleanupStaleEntries()
 
 	return limiter
+}
+
+func newSlidingWindowIPRateLimiter(maxRequests int, window time.Duration, now func() time.Time) *slidingWindowIPRateLimiter {
+	if now == nil {
+		now = time.Now
+	}
+	return &slidingWindowIPRateLimiter{
+		attempts:    make(map[string][]time.Time),
+		maxRequests: maxRequests,
+		window:      window,
+		now:         now,
+	}
+}
+
+func (s *slidingWindowIPRateLimiter) allow(ip string) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	current := s.now()
+	cutoff := current.Add(-s.window)
+	existing := s.attempts[ip]
+	kept := existing[:0]
+	for _, ts := range existing {
+		if ts.After(cutoff) {
+			kept = append(kept, ts)
+		}
+	}
+
+	if len(kept) >= s.maxRequests {
+		s.attempts[ip] = kept
+		return false
+	}
+
+	s.attempts[ip] = append(kept, current)
+	return true
 }
 
 // getLimiter 获取指定IP的限流器
@@ -93,14 +136,9 @@ func (i *ipRateLimiter) cleanupStaleEntries() {
 	}
 }
 
-// 全局的友链申请限流器实例
-var linkApplyLimiter *ipRateLimiter
-
-func init() {
-	// 每个IP每分钟最多3次请求，突发允许6次
-	// 这意味着用户可以连续提交6次，但之后需要等待1分钟才能再次提交
-	linkApplyLimiter = newIPRateLimiter(3, 6)
-}
+// 全局的友链申请限流器实例。
+// 限制同一真实 IP 在 10 分钟内最多提交 3 次，且不允许突发绕过。
+var linkApplyLimiter = newSlidingWindowIPRateLimiter(3, 10*time.Minute, time.Now)
 
 // LinkApplyRateLimit 友链申请频率限制中间件
 // 限制每个IP地址的友链申请频率
@@ -109,12 +147,8 @@ func LinkApplyRateLimit() gin.HandlerFunc {
 		// 获取客户端IP地址
 		ip := getClientIP(c)
 
-		// 获取该IP的限流器
-		limiter := linkApplyLimiter.getLimiter(ip)
-
-		// 检查是否允许请求
-		if !limiter.Allow() {
-			response.Fail(c, http.StatusTooManyRequests, "提交过于频繁，请稍后再试")
+		if !linkApplyLimiter.allow(ip) {
+			response.Fail(c, http.StatusTooManyRequests, "提交过于频繁，请10分钟后再试")
 			c.Abort()
 			return
 		}

@@ -3,6 +3,8 @@ package article
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -42,6 +44,8 @@ type BatchDeleteResult struct {
 
 const defaultMaxArticleSummaries = 1
 
+const maxIdempotencyKeyLength = 200
+
 func normalizeArticleSummaries(raw []string, maxSummaries int, action string) []string {
 	if maxSummaries <= 0 {
 		maxSummaries = defaultMaxArticleSummaries
@@ -66,6 +70,7 @@ type Service interface {
 	// UploadArticleImageWithGroup 上传文章图片，并检查用户组权限
 	UploadArticleImageWithGroup(ctx context.Context, ownerID, userGroupID uint, fileReader io.Reader, originalFilename string) (fileURL string, publicFileID string, err error)
 	Create(ctx context.Context, req *model.CreateArticleRequest, ip, referer string) (*model.ArticleResponse, error)
+	CreateWithOptions(ctx context.Context, req *model.CreateArticleRequest, ip, referer string, options CreateOptions) (*model.ArticleResponse, error)
 	Get(ctx context.Context, publicID string) (*model.ArticleResponse, error)
 	Update(ctx context.Context, publicID string, req *model.UpdateArticleRequest, ip, referer string) (*model.ArticleResponse, error)
 	Delete(ctx context.Context, publicID string) error
@@ -101,6 +106,18 @@ type Service interface {
 
 	// GetArticleStatistics 获取文章统计数据（用于前台展示）
 	GetArticleStatistics(ctx context.Context) (*model.ArticleStatistics, error)
+}
+
+// CreateOptions 是创建文章时由可信调用方注入的内部选项，不属于请求体。
+type CreateOptions struct {
+	ActorUserID           string
+	IdempotencyKey        string
+	IdempotencyKeyPresent bool
+}
+
+// UploadArticleImageOptions 控制文章图片上传响应 URL 的可选行为。
+type UploadArticleImageOptions struct {
+	SkipImageStyle bool
 }
 
 type serviceImpl struct {
@@ -192,11 +209,11 @@ func (s *serviceImpl) SetImageStyleService(svc image_style.ImageStyleService) {
 	s.styleSvc = svc
 }
 
-func (s *serviceImpl) publishArticleEvent(topic event.Topic, abbrlink, publicID string) {
+func (s *serviceImpl) publishArticleEvent(topic event.Topic, abbrlink, publicID, title string) {
 	if s.eventBus == nil {
 		return
 	}
-	s.eventBus.Publish(topic, &event.ArticlePayload{Slug: abbrlink, PublicID: publicID})
+	s.eventBus.Publish(topic, &event.ArticlePayload{Slug: abbrlink, PublicID: publicID, Title: title})
 }
 
 // createArticleHistory 创建文章历史版本（内部方法）
@@ -274,6 +291,11 @@ func (s *serviceImpl) UploadArticleImage(ctx context.Context, ownerID uint, file
 
 // UploadArticleImageWithGroup 处理文章图片的上传，并检查用户组权限。
 func (s *serviceImpl) UploadArticleImageWithGroup(ctx context.Context, ownerID, userGroupID uint, fileReader io.Reader, originalFilename string) (string, string, error) {
+	return s.UploadArticleImageWithGroupOptions(ctx, ownerID, userGroupID, fileReader, originalFilename, UploadArticleImageOptions{})
+}
+
+// UploadArticleImageWithGroupOptions 处理文章图片的上传，并可跳过响应 URL 上的图片样式后缀。
+func (s *serviceImpl) UploadArticleImageWithGroupOptions(ctx context.Context, ownerID, userGroupID uint, fileReader io.Reader, originalFilename string, options UploadArticleImageOptions) (string, string, error) {
 	ext := path.Ext(originalFilename)
 	uniqueFilename := strconv.FormatInt(time.Now().UnixNano(), 10) + ext
 
@@ -309,29 +331,33 @@ func (s *serviceImpl) UploadArticleImageWithGroup(ctx context.Context, ownerID, 
 	// 5. 获取文章图片存储策略的样式分隔符配置
 	finalURL := linkResult.URL
 
-	// 查询标记为 article_image 的存储策略
-	policy, err := s.fileSvc.GetPolicyByFlag(ctx, constant.PolicyFlagArticleImage)
-	if err != nil {
-		log.Printf("[文章图片上传] 获取文章图片存储策略失败: %v，使用原始URL", err)
-	} else if policy != nil {
-		// 优先：若启用了 image_process.default_style，返回完整 "sep+style"（如 "!thumbnail"）
-		appendedByStyleSvc := false
-		if s.styleSvc != nil {
-			if suffix := s.styleSvc.ResolveUploadURLSuffix(policy, originalFilename); suffix != "" {
-				finalURL = finalURL + suffix
-				log.Printf("[文章图片上传] 自动拼默认样式: suffix=%s", suffix)
-				appendedByStyleSvc = true
+	if !options.SkipImageStyle {
+		// 查询标记为 article_image 的存储策略
+		policy, err := s.fileSvc.GetPolicyByFlag(ctx, constant.PolicyFlagArticleImage)
+		if err != nil {
+			log.Printf("[文章图片上传] 获取文章图片存储策略失败: %v，使用原始URL", err)
+		} else if policy != nil {
+			// 优先：若启用了 image_process.default_style，返回完整 "sep+style"（如 "!thumbnail"）
+			appendedByStyleSvc := false
+			if s.styleSvc != nil {
+				if suffix := s.styleSvc.ResolveUploadURLSuffix(policy, originalFilename); suffix != "" {
+					finalURL = finalURL + suffix
+					log.Printf("[文章图片上传] 自动拼默认样式: suffix=%s", suffix)
+					appendedByStyleSvc = true
+				}
 			}
-		}
-		// 兜底：老的云端分隔符行为（仅加 "!"），仅在新后缀未命中时执行
-		if !appendedByStyleSvc && policy.Settings != nil {
-			if styleSeparator, ok := policy.Settings[constant.StyleSeparatorSettingKey].(string); ok && styleSeparator != "" {
-				if policy.Type == constant.PolicyTypeTencentCOS || policy.Type == constant.PolicyTypeAliOSS || policy.Type == constant.PolicyTypeQiniu {
-					finalURL = finalURL + styleSeparator
-					log.Printf("[文章图片上传] 已拼接样式分隔符: %s，最终URL: %s", styleSeparator, finalURL)
+			// 兜底：老的云端分隔符行为（仅加 "!"），仅在新后缀未命中时执行
+			if !appendedByStyleSvc && policy.Settings != nil {
+				if styleSeparator, ok := policy.Settings[constant.StyleSeparatorSettingKey].(string); ok && styleSeparator != "" {
+					if policy.Type == constant.PolicyTypeTencentCOS || policy.Type == constant.PolicyTypeAliOSS || policy.Type == constant.PolicyTypeQiniu {
+						finalURL = finalURL + styleSeparator
+						log.Printf("[文章图片上传] 已拼接样式分隔符: %s，最终URL: %s", styleSeparator, finalURL)
+					}
 				}
 			}
 		}
+	} else {
+		log.Printf("[文章图片上传] 已按请求跳过图片样式后缀")
 	}
 
 	log.Printf("[文章图片上传] 成功获取最终直链URL: %s", finalURL)
@@ -463,49 +489,20 @@ func (s *serviceImpl) GetArticleStatistics(ctx context.Context) (*model.ArticleS
 		}
 	}
 
-	// 4. 获取所有已发布文章，然后手动排序获取热门文章
-	allArticles, _, err := s.repo.List(ctx, &model.ListArticlesOptions{
-		Page:     1,
-		PageSize: 10000, // 获取足够多的文章
-		Status:   "PUBLISHED",
-	})
+	// 4. 获取公开文章浏览统计
+	totalViews, err := s.repo.GetTotalPublicViews(ctx)
 	if err != nil {
-		log.Printf("[GetArticleStatistics] 获取文章列表失败: %v", err)
+		log.Printf("[GetArticleStatistics] 获取文章总浏览量失败: %v", err)
 	} else {
-		// 计算总浏览量
-		totalViews := 0
-		for _, article := range allArticles {
-			totalViews += article.ViewCount
-		}
 		stats.TotalViews = totalViews
+	}
 
-		// 按浏览量排序获取热门文章
-		// 使用简单的冒泡排序找出前10
-		topN := 10
-		if len(allArticles) < topN {
-			topN = len(allArticles)
-		}
-
-		// 创建副本并按浏览量排序
-		sortedArticles := make([]*model.Article, len(allArticles))
-		copy(sortedArticles, allArticles)
-
-		// 简单排序获取前10
-		for i := 0; i < topN && i < len(sortedArticles)-1; i++ {
-			maxIdx := i
-			for j := i + 1; j < len(sortedArticles); j++ {
-				if sortedArticles[j].ViewCount > sortedArticles[maxIdx].ViewCount {
-					maxIdx = j
-				}
-			}
-			if maxIdx != i {
-				sortedArticles[i], sortedArticles[maxIdx] = sortedArticles[maxIdx], sortedArticles[i]
-			}
-		}
-
-		stats.TopViewedPosts = make([]model.TopViewedPostItem, 0, topN)
-		for i := 0; i < topN; i++ {
-			article := sortedArticles[i]
+	topViewedArticles, err := s.repo.GetTopViewedPublicArticles(ctx, 10)
+	if err != nil {
+		log.Printf("[GetArticleStatistics] 获取热门文章失败: %v", err)
+	} else {
+		stats.TopViewedPosts = make([]model.TopViewedPostItem, 0, len(topViewedArticles))
+		for _, article := range topViewedArticles {
 			stats.TopViewedPosts = append(stats.TopViewedPosts, model.TopViewedPostItem{
 				ID:       article.ID,
 				Title:    article.Title,
@@ -1011,9 +1008,132 @@ func (s *serviceImpl) GetBySlugOrIDForPreview(ctx context.Context, slugOrID stri
 	return detailResponse, nil
 }
 
+func requiresArticleTitle(status string) bool {
+	switch status {
+	case "PUBLISHED", "SCHEDULED":
+		return true
+	default:
+		return false
+	}
+}
+
+func normalizeCreateArticlePayload(req *model.CreateArticleRequest) (*time.Time, error) {
+	req.Title = strings.TrimSpace(req.Title)
+	if req.Status == "" {
+		req.Status = "DRAFT"
+	}
+
+	var scheduledAt *time.Time
+	if req.ScheduledAt != nil && *req.ScheduledAt != "" {
+		parsedTime, err := time.Parse(time.RFC3339, *req.ScheduledAt)
+		if err != nil {
+			return nil, fmt.Errorf("%w: 无效的定时发布时间格式", constant.ErrBadRequest)
+		}
+		normalizedTime := parsedTime.UTC()
+		normalizedTimeText := normalizedTime.Format(time.RFC3339Nano)
+		req.ScheduledAt = &normalizedTimeText
+		scheduledAt = &normalizedTime
+		req.Status = "SCHEDULED"
+	}
+
+	req.Summaries = normalizeArticleSummaries(req.Summaries, req.MaxSummaries, "Create")
+	return scheduledAt, nil
+}
+
+func validateCreateArticleState(req *model.CreateArticleRequest, scheduledAt *time.Time, now time.Time) error {
+	if scheduledAt != nil && !scheduledAt.After(now) {
+		return fmt.Errorf("%w: 定时发布时间必须是未来时间", constant.ErrBadRequest)
+	}
+	if requiresArticleTitle(req.Status) && req.Title == "" {
+		return fmt.Errorf("%w: 发布或定时文章必须填写标题", constant.ErrBadRequest)
+	}
+	return nil
+}
+
+func prepareCreateIdempotency(
+	req *model.CreateArticleRequest,
+	options CreateOptions,
+) (string, string, error) {
+	keyProvided := options.IdempotencyKeyPresent || options.IdempotencyKey != ""
+	if !keyProvided {
+		return "", "", nil
+	}
+	if strings.TrimSpace(options.IdempotencyKey) == "" {
+		return "", "", fmt.Errorf("%w: Idempotency-Key 不能为空", constant.ErrBadRequest)
+	}
+	if len(options.IdempotencyKey) > maxIdempotencyKeyLength {
+		return "", "", fmt.Errorf(
+			"%w: Idempotency-Key 长度不能超过 %d 字节",
+			constant.ErrBadRequest,
+			maxIdempotencyKeyLength,
+		)
+	}
+	if strings.TrimSpace(options.ActorUserID) == "" {
+		return "", "", fmt.Errorf("%w: Idempotency-Key 缺少认证用户作用域", constant.ErrBadRequest)
+	}
+
+	keyHash := sha256.Sum256([]byte(options.ActorUserID + "\x00" + options.IdempotencyKey))
+	payload, err := json.Marshal(req)
+	if err != nil {
+		return "", "", fmt.Errorf("序列化文章创建请求失败: %w", err)
+	}
+	requestHash := sha256.Sum256(payload)
+	return fmt.Sprintf("%x", keyHash), fmt.Sprintf("%x", requestHash), nil
+}
+
+func (s *serviceImpl) replayCreateByIdempotencyKey(
+	ctx context.Context,
+	keyHash, requestDigest string,
+) (*model.ArticleResponse, bool, error) {
+	if keyHash == "" {
+		return nil, false, nil
+	}
+	existing, existingDigest, err := s.repo.FindByCreateIdempotencyKey(ctx, keyHash)
+	if err != nil {
+		return nil, false, err
+	}
+	if existing == nil {
+		return nil, false, nil
+	}
+	if existingDigest != requestDigest {
+		return nil, true, fmt.Errorf("%w: Idempotency-Key 已用于不同的创建请求", constant.ErrConflict)
+	}
+
+	resp := s.ToAPIResponse(existing, false, true)
+	s.fillOwnerNickname(ctx, resp, nil)
+	return resp, true, nil
+}
+
 // Create 处理创建新文章的完整业务流程。
 // referer 参数用于 NSUUU API 白名单验证
 func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleRequest, ip, referer string) (*model.ArticleResponse, error) {
+	return s.CreateWithOptions(ctx, req, ip, referer, CreateOptions{})
+}
+
+// CreateWithOptions 处理创建文章，并支持按认证用户隔离的可选幂等创建。
+func (s *serviceImpl) CreateWithOptions(
+	ctx context.Context,
+	req *model.CreateArticleRequest,
+	ip, referer string,
+	options CreateOptions,
+) (*model.ArticleResponse, error) {
+	scheduledAt, err := normalizeCreateArticlePayload(req)
+	if err != nil {
+		return nil, err
+	}
+	idempotencyKey, requestDigest, err := prepareCreateIdempotency(req, options)
+	if err != nil {
+		return nil, err
+	}
+	if replay, found, err := s.replayCreateByIdempotencyKey(ctx, idempotencyKey, requestDigest); err != nil {
+		return nil, err
+	} else if found {
+		return replay, nil
+	}
+	if err := validateCreateArticleState(req, scheduledAt, time.Now()); err != nil {
+		return nil, err
+	}
+
 	// 验证 abbrlink（在事务外进行，避免不必要的事务开销）
 	if err := s.validateAbbrlink(ctx, req.Abbrlink, 0); err != nil {
 		return nil, err
@@ -1022,7 +1142,7 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 	var newArticle *model.Article
 	sanitizedHTML := s.parserSvc.SanitizeHTML(req.ContentHTML)
 
-	err := s.txManager.Do(ctx, func(repos repository.Repositories) error {
+	err = s.txManager.Do(ctx, func(repos repository.Repositories) error {
 		wordCount, readingTime := calculatePostStats(req.ContentMd)
 
 		var ipLocation string
@@ -1099,9 +1219,6 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 			showOnHome = *req.ShowOnHome
 		}
 
-		// 社区版默认最多 1 条；PRO 内部调用可显式提高上限。
-		filteredSummaries := normalizeArticleSummaries(req.Summaries, req.MaxSummaries, "Create")
-
 		// 解析自定义发布时间
 		log.Printf("[Service.Create] ========== 解析自定义时间 ==========")
 		log.Printf("[Service.Create] CustomPublishedAt 指针: %v", req.CustomPublishedAt)
@@ -1143,31 +1260,10 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 		log.Printf("[Service.Create] 最终传递给Repository的 CustomPublishedAt: %v", customPublishedAt)
 		log.Printf("[Service.Create] 最终传递给Repository的 CustomUpdatedAt: %v", customUpdatedAt)
 
-		// 解析定时发布时间
-		var scheduledAt *time.Time
-		if req.ScheduledAt != nil && *req.ScheduledAt != "" {
-			log.Printf("[Service.Create] 开始解析定时发布时间: %s", *req.ScheduledAt)
-			if parsedTime, parseErr := time.Parse(time.RFC3339, *req.ScheduledAt); parseErr == nil {
-				// 验证定时发布时间必须是未来时间
-				if parsedTime.Before(time.Now()) {
-					return fmt.Errorf("定时发布时间必须是未来时间")
-				}
-				scheduledAt = &parsedTime
-				log.Printf("[Service.Create] ✅ 解析定时发布时间成功: %v", parsedTime)
-			} else {
-				log.Printf("[Service.Create] ❌ 解析定时发布时间失败: %v", parseErr)
-				return fmt.Errorf("无效的定时发布时间格式")
-			}
-		}
-
-		// 如果设置了定时发布时间，状态必须是 SCHEDULED
-		if scheduledAt != nil && req.Status != "SCHEDULED" {
-			log.Printf("[Service.Create] 检测到定时发布时间但状态不是 SCHEDULED，自动修正状态")
-			req.Status = "SCHEDULED"
-		}
-
 		params := &model.CreateArticleParams{
 			Title:                req.Title,
+			CreateIdempotencyKey: idempotencyKey,
+			CreateRequestDigest:  requestDigest,
 			OwnerID:              req.OwnerID,   // 文章作者ID（多人共创功能）
 			ContentMd:            req.ContentMd, // 存储Markdown原文
 			ContentHTML:          sanitizedHTML, // 存储安全过滤后的HTML
@@ -1181,7 +1277,7 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 			HomeSort:             req.HomeSort,
 			PinSort:              req.PinSort,
 			TopImgURL:            req.TopImgURL,
-			Summaries:            filteredSummaries,
+			Summaries:            req.Summaries,
 			PrimaryColor:         primaryColor,
 			IsPrimaryColorManual: isManual,
 			ShowOnHome:           showOnHome,
@@ -1230,10 +1326,20 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 		return nil
 	})
 	if err != nil {
+		if idempotencyKey != "" && errors.Is(err, constant.ErrConflict) {
+			if replay, found, replayErr := s.replayCreateByIdempotencyKey(ctx, idempotencyKey, requestDigest); replayErr != nil {
+				if found {
+					return nil, replayErr
+				}
+				log.Printf("[Create] 幂等冲突回查失败，保留原约束错误: %v", replayErr)
+			} else if found {
+				return replay, nil
+			}
+		}
 		return nil, err
 	}
 
-	s.publishArticleEvent(event.ArticleCreated, newArticle.Abbrlink, newArticle.ID)
+	s.publishArticleEvent(event.ArticleCreated, newArticle.Abbrlink, newArticle.ID, newArticle.Title)
 
 	s.updateSiteStatsInBackground()
 
@@ -1241,14 +1347,18 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreateArticleReques
 	go s.invalidateRelatedCaches(context.Background())
 
 	// 异步更新搜索索引
-	go func() {
-		if err := s.searchSvc.IndexArticle(context.Background(), newArticle); err != nil {
-			log.Printf("[警告] 更新搜索索引失败: %v", err)
-		}
-	}()
+	if s.searchSvc != nil {
+		go func() {
+			if err := s.searchSvc.IndexArticle(context.Background(), newArticle); err != nil {
+				log.Printf("[警告] 更新搜索索引失败: %v", err)
+			}
+		}()
+	}
 
 	// 如果文章发布成功，触发订阅通知
 	if newArticle.Status == "PUBLISHED" {
+		s.publishArticleEvent(event.ArticlePublished, newArticle.Abbrlink, newArticle.ID, newArticle.Title)
+
 		if err := s.subscriberSvc.NotifyArticlePublished(ctx, newArticle); err != nil {
 			log.Printf("[Create] 触发订阅通知失败: %v", err)
 		}
@@ -1343,6 +1453,7 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 			return err
 		}
 		oldStatus = oldArticle.Status
+
 		oldTagIDs := make([]uint, len(oldArticle.PostTags))
 		for i, t := range oldArticle.PostTags {
 			oldTagIDs[i], _, _ = idgen.DecodePublicID(t.ID)
@@ -1463,11 +1574,11 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 		if req.ScheduledAt != nil && *req.ScheduledAt != "" {
 			scheduledTime, parseErr := time.Parse(time.RFC3339, *req.ScheduledAt)
 			if parseErr != nil {
-				return fmt.Errorf("无效的定时发布时间格式: %w", parseErr)
+				return fmt.Errorf("%w: 无效的定时发布时间格式", constant.ErrBadRequest)
 			}
 			// 验证定时发布时间必须是未来时间
-			if scheduledTime.Before(time.Now()) {
-				return fmt.Errorf("定时发布时间必须是未来时间")
+			if !scheduledTime.After(time.Now()) {
+				return fmt.Errorf("%w: 定时发布时间必须是未来时间", constant.ErrBadRequest)
 			}
 			// 如果设置了定时发布时间，状态必须是 SCHEDULED
 			if req.Status == nil || *req.Status != "SCHEDULED" {
@@ -1482,6 +1593,21 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 			emptyScheduledAt := ""
 			req.ScheduledAt = &emptyScheduledAt
 			log.Printf("[更新文章] 状态从 SCHEDULED 变更为 %s，清除定时发布时间", *req.Status)
+		}
+
+		// 定时状态归一化完成后再校验最终状态。
+		// 未提供的字段保持 partial update 语义；仓储会用原子 WHERE 守卫危险组合。
+		finalTitle := strings.TrimSpace(oldArticle.Title)
+		if req.Title != nil {
+			finalTitle = strings.TrimSpace(*req.Title)
+			req.Title = &finalTitle
+		}
+		finalStatus := oldArticle.Status
+		if req.Status != nil {
+			finalStatus = *req.Status
+		}
+		if requiresArticleTitle(finalStatus) && finalTitle == "" {
+			return fmt.Errorf("%w: 发布或定时文章必须填写标题", constant.ErrBadRequest)
 		}
 
 		articleAfterUpdate, err := repos.Article.Update(ctx, publicID, req, &computedParams)
@@ -1574,7 +1700,7 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 		return nil, err
 	}
 
-	s.publishArticleEvent(event.ArticleUpdated, updatedArticle.Abbrlink, publicID)
+	s.publishArticleEvent(event.ArticleUpdated, updatedArticle.Abbrlink, publicID, updatedArticle.Title)
 
 	// 清除特定文章的缓存
 	s.invalidateArticleCache(ctx, publicID, updatedArticle.Abbrlink)
@@ -1593,6 +1719,8 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 
 	// 如果文章状态从非发布变为发布，触发订阅通知
 	if oldStatus != "PUBLISHED" && updatedArticle.Status == "PUBLISHED" {
+		s.publishArticleEvent(event.ArticlePublished, updatedArticle.Abbrlink, publicID, updatedArticle.Title)
+
 		if err := s.subscriberSvc.NotifyArticlePublished(ctx, updatedArticle); err != nil {
 			log.Printf("[Update] 触发订阅通知失败: %v", err)
 		}
@@ -1614,13 +1742,14 @@ func (s *serviceImpl) Update(ctx context.Context, publicID string, req *model.Up
 
 // Delete 处理删除文章的业务逻辑。
 func (s *serviceImpl) Delete(ctx context.Context, publicID string) error {
-	var articleSlug string // 保存 slug 用于事务后发布事件
+	var articleSlug, articleTitle string // 保存 slug/标题 用于事务后发布事件
 	err := s.txManager.Do(ctx, func(repos repository.Repositories) error {
 		article, err := repos.Article.GetByID(ctx, publicID)
 		if err != nil {
 			return err
 		}
 		articleSlug = article.Abbrlink
+		articleTitle = article.Title
 		tagIDs := make([]uint, len(article.PostTags))
 		for i, t := range article.PostTags {
 			tagIDs[i], _, _ = idgen.DecodePublicID(t.ID)
@@ -1680,7 +1809,7 @@ func (s *serviceImpl) Delete(ctx context.Context, publicID string) error {
 		return err
 	}
 
-	s.publishArticleEvent(event.ArticleDeleted, articleSlug, publicID)
+	s.publishArticleEvent(event.ArticleDeleted, articleSlug, publicID, articleTitle)
 
 	s.updateSiteStatsInBackground()
 

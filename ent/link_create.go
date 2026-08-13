@@ -35,6 +35,20 @@ func (_c *LinkCreate) SetURL(v string) *LinkCreate {
 	return _c
 }
 
+// SetRssURL sets the "rss_url" field.
+func (_c *LinkCreate) SetRssURL(v string) *LinkCreate {
+	_c.mutation.SetRssURL(v)
+	return _c
+}
+
+// SetNillableRssURL sets the "rss_url" field if the given value is not nil.
+func (_c *LinkCreate) SetNillableRssURL(v *string) *LinkCreate {
+	if v != nil {
+		_c.SetRssURL(*v)
+	}
+	return _c
+}
+
 // SetLogo sets the "logo" field.
 func (_c *LinkCreate) SetLogo(v string) *LinkCreate {
 	_c.mutation.SetLogo(v)
@@ -268,6 +282,11 @@ func (_c *LinkCreate) check() error {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Link.url": %w`, err)}
 		}
 	}
+	if v, ok := _c.mutation.RssURL(); ok {
+		if err := link.RssURLValidator(v); err != nil {
+			return &ValidationError{Name: "rss_url", err: fmt.Errorf(`ent: validator failed for field "Link.rss_url": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Link.status"`)}
 	}
@@ -324,6 +343,10 @@ func (_c *LinkCreate) createSpec() (*Link, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.URL(); ok {
 		_spec.SetField(link.FieldURL, field.TypeString, value)
 		_node.URL = value
+	}
+	if value, ok := _c.mutation.RssURL(); ok {
+		_spec.SetField(link.FieldRssURL, field.TypeString, value)
+		_node.RssURL = value
 	}
 	if value, ok := _c.mutation.Logo(); ok {
 		_spec.SetField(link.FieldLogo, field.TypeString, value)
@@ -471,6 +494,24 @@ func (u *LinkUpsert) SetURL(v string) *LinkUpsert {
 // UpdateURL sets the "url" field to the value that was provided on create.
 func (u *LinkUpsert) UpdateURL() *LinkUpsert {
 	u.SetExcluded(link.FieldURL)
+	return u
+}
+
+// SetRssURL sets the "rss_url" field.
+func (u *LinkUpsert) SetRssURL(v string) *LinkUpsert {
+	u.Set(link.FieldRssURL, v)
+	return u
+}
+
+// UpdateRssURL sets the "rss_url" field to the value that was provided on create.
+func (u *LinkUpsert) UpdateRssURL() *LinkUpsert {
+	u.SetExcluded(link.FieldRssURL)
+	return u
+}
+
+// ClearRssURL clears the value of the "rss_url" field.
+func (u *LinkUpsert) ClearRssURL() *LinkUpsert {
+	u.SetNull(link.FieldRssURL)
 	return u
 }
 
@@ -707,6 +748,27 @@ func (u *LinkUpsertOne) SetURL(v string) *LinkUpsertOne {
 func (u *LinkUpsertOne) UpdateURL() *LinkUpsertOne {
 	return u.Update(func(s *LinkUpsert) {
 		s.UpdateURL()
+	})
+}
+
+// SetRssURL sets the "rss_url" field.
+func (u *LinkUpsertOne) SetRssURL(v string) *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.SetRssURL(v)
+	})
+}
+
+// UpdateRssURL sets the "rss_url" field to the value that was provided on create.
+func (u *LinkUpsertOne) UpdateRssURL() *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.UpdateRssURL()
+	})
+}
+
+// ClearRssURL clears the value of the "rss_url" field.
+func (u *LinkUpsertOne) ClearRssURL() *LinkUpsertOne {
+	return u.Update(func(s *LinkUpsert) {
+		s.ClearRssURL()
 	})
 }
 
@@ -1135,6 +1197,27 @@ func (u *LinkUpsertBulk) SetURL(v string) *LinkUpsertBulk {
 func (u *LinkUpsertBulk) UpdateURL() *LinkUpsertBulk {
 	return u.Update(func(s *LinkUpsert) {
 		s.UpdateURL()
+	})
+}
+
+// SetRssURL sets the "rss_url" field.
+func (u *LinkUpsertBulk) SetRssURL(v string) *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.SetRssURL(v)
+	})
+}
+
+// UpdateRssURL sets the "rss_url" field to the value that was provided on create.
+func (u *LinkUpsertBulk) UpdateRssURL() *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.UpdateRssURL()
+	})
+}
+
+// ClearRssURL clears the value of the "rss_url" field.
+func (u *LinkUpsertBulk) ClearRssURL() *LinkUpsertBulk {
+	return u.Update(func(s *LinkUpsert) {
+		s.ClearRssURL()
 	})
 }
 

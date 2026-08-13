@@ -58,6 +58,26 @@ func (_u *LinkUpdate) SetNillableURL(v *string) *LinkUpdate {
 	return _u
 }
 
+// SetRssURL sets the "rss_url" field.
+func (_u *LinkUpdate) SetRssURL(v string) *LinkUpdate {
+	_u.mutation.SetRssURL(v)
+	return _u
+}
+
+// SetNillableRssURL sets the "rss_url" field if the given value is not nil.
+func (_u *LinkUpdate) SetNillableRssURL(v *string) *LinkUpdate {
+	if v != nil {
+		_u.SetRssURL(*v)
+	}
+	return _u
+}
+
+// ClearRssURL clears the value of the "rss_url" field.
+func (_u *LinkUpdate) ClearRssURL() *LinkUpdate {
+	_u.mutation.ClearRssURL()
+	return _u
+}
+
 // SetLogo sets the "logo" field.
 func (_u *LinkUpdate) SetLogo(v string) *LinkUpdate {
 	_u.mutation.SetLogo(v)
@@ -344,6 +364,11 @@ func (_u *LinkUpdate) check() error {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Link.url": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.RssURL(); ok {
+		if err := link.RssURLValidator(v); err != nil {
+			return &ValidationError{Name: "rss_url", err: fmt.Errorf(`ent: validator failed for field "Link.rss_url": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Status(); ok {
 		if err := link.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Link.status": %w`, err)}
@@ -383,6 +408,12 @@ func (_u *LinkUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.URL(); ok {
 		_spec.SetField(link.FieldURL, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.RssURL(); ok {
+		_spec.SetField(link.FieldRssURL, field.TypeString, value)
+	}
+	if _u.mutation.RssURLCleared() {
+		_spec.ClearField(link.FieldRssURL, field.TypeString)
 	}
 	if value, ok := _u.mutation.Logo(); ok {
 		_spec.SetField(link.FieldLogo, field.TypeString, value)
@@ -559,6 +590,26 @@ func (_u *LinkUpdateOne) SetNillableURL(v *string) *LinkUpdateOne {
 	if v != nil {
 		_u.SetURL(*v)
 	}
+	return _u
+}
+
+// SetRssURL sets the "rss_url" field.
+func (_u *LinkUpdateOne) SetRssURL(v string) *LinkUpdateOne {
+	_u.mutation.SetRssURL(v)
+	return _u
+}
+
+// SetNillableRssURL sets the "rss_url" field if the given value is not nil.
+func (_u *LinkUpdateOne) SetNillableRssURL(v *string) *LinkUpdateOne {
+	if v != nil {
+		_u.SetRssURL(*v)
+	}
+	return _u
+}
+
+// ClearRssURL clears the value of the "rss_url" field.
+func (_u *LinkUpdateOne) ClearRssURL() *LinkUpdateOne {
+	_u.mutation.ClearRssURL()
 	return _u
 }
 
@@ -861,6 +912,11 @@ func (_u *LinkUpdateOne) check() error {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Link.url": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.RssURL(); ok {
+		if err := link.RssURLValidator(v); err != nil {
+			return &ValidationError{Name: "rss_url", err: fmt.Errorf(`ent: validator failed for field "Link.rss_url": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Status(); ok {
 		if err := link.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Link.status": %w`, err)}
@@ -917,6 +973,12 @@ func (_u *LinkUpdateOne) sqlSave(ctx context.Context) (_node *Link, err error) {
 	}
 	if value, ok := _u.mutation.URL(); ok {
 		_spec.SetField(link.FieldURL, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.RssURL(); ok {
+		_spec.SetField(link.FieldRssURL, field.TypeString, value)
+	}
+	if _u.mutation.RssURLCleared() {
+		_spec.ClearField(link.FieldRssURL, field.TypeString)
 	}
 	if value, ok := _u.mutation.Logo(); ok {
 		_spec.SetField(link.FieldLogo, field.TypeString, value)

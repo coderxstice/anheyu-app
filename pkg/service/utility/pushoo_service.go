@@ -457,7 +457,7 @@ func (s *pushooService) prepareLinkTemplateData(link *model.LinkDTO) (map[string
 	body := fmt.Sprintf("%s 申请了友链", link.Name)
 
 	// 构建友链管理页面URL
-	adminURL := fmt.Sprintf("%s/admin/flink-management", siteURL)
+	adminURL := buildFriendLinkAdminURL(siteURL)
 
 	data := map[string]interface{}{
 		"SITE_NAME": siteName,

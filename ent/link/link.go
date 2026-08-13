@@ -18,6 +18,8 @@ const (
 	FieldName = "name"
 	// FieldURL holds the string denoting the url field in the database.
 	FieldURL = "url"
+	// FieldRssURL holds the string denoting the rss_url field in the database.
+	FieldRssURL = "rss_url"
 	// FieldLogo holds the string denoting the logo field in the database.
 	FieldLogo = "logo"
 	// FieldDescription holds the string denoting the description field in the database.
@@ -63,6 +65,7 @@ var Columns = []string{
 	FieldID,
 	FieldName,
 	FieldURL,
+	FieldRssURL,
 	FieldLogo,
 	FieldDescription,
 	FieldStatus,
@@ -107,6 +110,8 @@ var (
 	NameValidator func(string) error
 	// URLValidator is a validator for the "url" field. It is called by the builders before save.
 	URLValidator func(string) error
+	// RssURLValidator is a validator for the "rss_url" field. It is called by the builders before save.
+	RssURLValidator func(string) error
 	// DefaultSortOrder holds the default value on creation for the "sort_order" field.
 	DefaultSortOrder int
 	// DefaultSkipHealthCheck holds the default value on creation for the "skip_health_check" field.
@@ -180,6 +185,11 @@ func ByName(opts ...sql.OrderTermOption) OrderOption {
 // ByURL orders the results by the url field.
 func ByURL(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldURL, opts...).ToFunc()
+}
+
+// ByRssURL orders the results by the rss_url field.
+func ByRssURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRssURL, opts...).ToFunc()
 }
 
 // ByLogo orders the results by the logo field.

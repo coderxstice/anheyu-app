@@ -21,6 +21,8 @@ type Link struct {
 	Name string `json:"name,omitempty"`
 	// 网站链接
 	URL string `json:"url,omitempty"`
+	// 自定义 RSS/Atom 订阅地址
+	RssURL string `json:"rss_url,omitempty"`
 	// 网站头像/Logo
 	Logo string `json:"logo,omitempty"`
 	// 网站介绍
@@ -88,7 +90,7 @@ func (*Link) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case link.FieldID, link.FieldSortOrder:
 			values[i] = new(sql.NullInt64)
-		case link.FieldName, link.FieldURL, link.FieldLogo, link.FieldDescription, link.FieldStatus, link.FieldSiteshot, link.FieldEmail, link.FieldType, link.FieldOriginalURL, link.FieldUpdateReason:
+		case link.FieldName, link.FieldURL, link.FieldRssURL, link.FieldLogo, link.FieldDescription, link.FieldStatus, link.FieldSiteshot, link.FieldEmail, link.FieldType, link.FieldOriginalURL, link.FieldUpdateReason:
 			values[i] = new(sql.NullString)
 		case link.ForeignKeys[0]: // link_category_links
 			values[i] = new(sql.NullInt64)
@@ -124,6 +126,12 @@ func (_m *Link) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field url", values[i])
 			} else if value.Valid {
 				_m.URL = value.String
+			}
+		case link.FieldRssURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field rss_url", values[i])
+			} else if value.Valid {
+				_m.RssURL = value.String
 			}
 		case link.FieldLogo:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -243,6 +251,9 @@ func (_m *Link) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("url=")
 	builder.WriteString(_m.URL)
+	builder.WriteString(", ")
+	builder.WriteString("rss_url=")
+	builder.WriteString(_m.RssURL)
 	builder.WriteString(", ")
 	builder.WriteString("logo=")
 	builder.WriteString(_m.Logo)

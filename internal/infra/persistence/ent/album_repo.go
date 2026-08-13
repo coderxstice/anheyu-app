@@ -3,6 +3,7 @@ package ent
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
@@ -282,6 +283,54 @@ func (r *entAlbumRepository) FindListByOptions(ctx context.Context, opts reposit
 	albumPOs, err := query.Limit(opts.PageSize).Offset(offset).All(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("查询列表失败: %w", err)
+	}
+
+	domainAlbums := make([]*model.Album, len(albumPOs))
+	for i, po := range albumPOs {
+		domainAlbums[i] = toDomainAlbum(po)
+	}
+
+	return &repository.PageResult[model.Album]{
+		Items: domainAlbums,
+		Total: int64(total),
+	}, nil
+}
+
+func (r *entAlbumRepository) SearchPublicAlbums(ctx context.Context, opts repository.AlbumSearchOptions) (*repository.PageResult[model.Album], error) {
+	queryText := strings.TrimSpace(opts.Query)
+	if queryText == "" {
+		return &repository.PageResult[model.Album]{Items: []*model.Album{}, Total: 0}, nil
+	}
+	limit := opts.Limit
+	if limit <= 0 {
+		limit = 10
+	}
+	if limit > 50 {
+		limit = 50
+	}
+
+	query := r.client.Album.Query().
+		Where(album.Or(
+			album.TitleContainsFold(queryText),
+			album.DescriptionContainsFold(queryText),
+			album.TagsContainsFold(queryText),
+			album.LocationContainsFold(queryText),
+		))
+
+	total, err := query.Clone().Count(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("计算相册搜索总数失败: %w", err)
+	}
+	if total == 0 {
+		return &repository.PageResult[model.Album]{Items: []*model.Album{}, Total: 0}, nil
+	}
+
+	albumPOs, err := query.
+		Order(ent.Asc(album.FieldDisplayOrder), ent.Desc(album.FieldCreatedAt)).
+		Limit(limit).
+		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("搜索相册失败: %w", err)
 	}
 
 	domainAlbums := make([]*model.Album, len(albumPOs))

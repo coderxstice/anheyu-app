@@ -63,6 +63,11 @@ func URL(v string) predicate.Link {
 	return predicate.Link(sql.FieldEQ(FieldURL, v))
 }
 
+// RssURL applies equality check predicate on the "rss_url" field. It's identical to RssURLEQ.
+func RssURL(v string) predicate.Link {
+	return predicate.Link(sql.FieldEQ(FieldRssURL, v))
+}
+
 // Logo applies equality check predicate on the "logo" field. It's identical to LogoEQ.
 func Logo(v string) predicate.Link {
 	return predicate.Link(sql.FieldEQ(FieldLogo, v))
@@ -231,6 +236,81 @@ func URLEqualFold(v string) predicate.Link {
 // URLContainsFold applies the ContainsFold predicate on the "url" field.
 func URLContainsFold(v string) predicate.Link {
 	return predicate.Link(sql.FieldContainsFold(FieldURL, v))
+}
+
+// RssURLEQ applies the EQ predicate on the "rss_url" field.
+func RssURLEQ(v string) predicate.Link {
+	return predicate.Link(sql.FieldEQ(FieldRssURL, v))
+}
+
+// RssURLNEQ applies the NEQ predicate on the "rss_url" field.
+func RssURLNEQ(v string) predicate.Link {
+	return predicate.Link(sql.FieldNEQ(FieldRssURL, v))
+}
+
+// RssURLIn applies the In predicate on the "rss_url" field.
+func RssURLIn(vs ...string) predicate.Link {
+	return predicate.Link(sql.FieldIn(FieldRssURL, vs...))
+}
+
+// RssURLNotIn applies the NotIn predicate on the "rss_url" field.
+func RssURLNotIn(vs ...string) predicate.Link {
+	return predicate.Link(sql.FieldNotIn(FieldRssURL, vs...))
+}
+
+// RssURLGT applies the GT predicate on the "rss_url" field.
+func RssURLGT(v string) predicate.Link {
+	return predicate.Link(sql.FieldGT(FieldRssURL, v))
+}
+
+// RssURLGTE applies the GTE predicate on the "rss_url" field.
+func RssURLGTE(v string) predicate.Link {
+	return predicate.Link(sql.FieldGTE(FieldRssURL, v))
+}
+
+// RssURLLT applies the LT predicate on the "rss_url" field.
+func RssURLLT(v string) predicate.Link {
+	return predicate.Link(sql.FieldLT(FieldRssURL, v))
+}
+
+// RssURLLTE applies the LTE predicate on the "rss_url" field.
+func RssURLLTE(v string) predicate.Link {
+	return predicate.Link(sql.FieldLTE(FieldRssURL, v))
+}
+
+// RssURLContains applies the Contains predicate on the "rss_url" field.
+func RssURLContains(v string) predicate.Link {
+	return predicate.Link(sql.FieldContains(FieldRssURL, v))
+}
+
+// RssURLHasPrefix applies the HasPrefix predicate on the "rss_url" field.
+func RssURLHasPrefix(v string) predicate.Link {
+	return predicate.Link(sql.FieldHasPrefix(FieldRssURL, v))
+}
+
+// RssURLHasSuffix applies the HasSuffix predicate on the "rss_url" field.
+func RssURLHasSuffix(v string) predicate.Link {
+	return predicate.Link(sql.FieldHasSuffix(FieldRssURL, v))
+}
+
+// RssURLIsNil applies the IsNil predicate on the "rss_url" field.
+func RssURLIsNil() predicate.Link {
+	return predicate.Link(sql.FieldIsNull(FieldRssURL))
+}
+
+// RssURLNotNil applies the NotNil predicate on the "rss_url" field.
+func RssURLNotNil() predicate.Link {
+	return predicate.Link(sql.FieldNotNull(FieldRssURL))
+}
+
+// RssURLEqualFold applies the EqualFold predicate on the "rss_url" field.
+func RssURLEqualFold(v string) predicate.Link {
+	return predicate.Link(sql.FieldEqualFold(FieldRssURL, v))
+}
+
+// RssURLContainsFold applies the ContainsFold predicate on the "rss_url" field.
+func RssURLContainsFold(v string) predicate.Link {
+	return predicate.Link(sql.FieldContainsFold(FieldRssURL, v))
 }
 
 // LogoEQ applies the EQ predicate on the "logo" field.

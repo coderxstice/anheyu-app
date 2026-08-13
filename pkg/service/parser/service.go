@@ -77,7 +77,7 @@ func NewService(settingSvc setting.SettingService, bus *event.EventBus) *Service
 
 	policy.AllowURLSchemes("anzhiyu")
 
-	policy.AllowElements("div", "ul", "i", "table", "thead", "tbody", "tr", "th", "td", "button", "a", "img", "span", "code", "pre", "h1", "h2", "h3", "h4", "h5", "h6", "font", "p", "details", "summary", "svg", "path", "circle", "input", "math", "semantics", "mrow", "mi", "mo", "msup", "mn", "annotation", "style", "g", "marker", "rect", "foreignObject", "li", "ol", "strong", "u", "em", "s", "sup", "sub", "blockquote", "figure", "video", "audio", "iframe", "defs", "symbol", "line", "text", "tspan", "ellipse", "polygon")
+	policy.AllowElements("div", "ul", "i", "table", "thead", "tbody", "tr", "th", "td", "button", "a", "img", "span", "code", "pre", "h1", "h2", "h3", "h4", "h5", "h6", "font", "p", "details", "summary", "svg", "path", "circle", "input", "math", "semantics", "mrow", "mi", "mo", "msup", "mn", "annotation", "style", "g", "marker", "rect", "foreignObject", "li", "ol", "strong", "u", "em", "s", "sup", "sub", "blockquote", "figure", "video", "audio", "source", "iframe", "defs", "symbol", "line", "text", "tspan", "ellipse", "polygon")
 
 	policy.AllowAttrs("class").Matching(bluemonday.SpaceSeparatedTokens).OnElements("ul", "i", "code", "span", "img", "a", "button", "pre", "div", "table", "thead", "tbody", "tr", "th", "td", "h1", "h2", "h3", "h4", "h5", "h6", "font", "p", "details", "summary", "svg", "path", "circle", "input", "g", "rect", "li", "line", "text", "tspan", "blockquote", "video", "audio", "marker", "ellipse", "polygon", "foreignObject")
 	policy.AllowAttrs("style").OnElements(
@@ -150,7 +150,8 @@ func NewService(settingSvc setting.SettingService, bus *event.EventBus) *Service
 	policy.AllowAttrs("data-type").Matching(regexp.MustCompile(`^(math-block|math-inline)$`)).OnElements("div", "span")
 
 	// 视频画廊相关属性
-	policy.AllowAttrs("src", "poster", "controls", "preload", "playsinline", "type").OnElements("video")
+	policy.AllowAttrs("src", "poster", "controls", "preload", "playsinline", "webkit-playsinline", "x5-playsinline", "x5-video-player-type", "type").OnElements("video")
+	policy.AllowAttrs("src", "type").OnElements("source")
 
 	// 图片画廊相关属性
 	policy.AllowAttrs("data-ratio").OnElements("div")

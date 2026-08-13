@@ -410,11 +410,18 @@ func (h *StoragePolicyHandler) buildStoragePolicyResponseItem(policy *model.Stor
 		Server:      policy.Server,
 		BucketName:  policy.BucketName,
 		IsPrivate:   policy.IsPrivate,
-		AccessKey:   policy.AccessKey,
-		SecretKey:   policy.SecretKey,
+		AccessKey:   maskStoragePolicySecret(policy.AccessKey),
+		SecretKey:   maskStoragePolicySecret(policy.SecretKey),
 		MaxSize:     policy.MaxSize,
 		BasePath:    policy.BasePath,
 		VirtualPath: policy.VirtualPath,
 		Settings:    policy.Settings,
 	}, nil
+}
+
+func maskStoragePolicySecret(value string) string {
+	if value == "" {
+		return ""
+	}
+	return constant.SecretValueMask
 }

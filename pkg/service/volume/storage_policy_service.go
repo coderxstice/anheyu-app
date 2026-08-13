@@ -118,6 +118,10 @@ func (s *storagePolicyService) CreatePolicy(ctx context.Context, ownerID uint, p
 		if cdnDomain, ok := policy.Settings["cdn_domain"].(string); !ok || cdnDomain == "" {
 			return errors.New("对于七牛云存储策略, settings.cdn_domain (访问域名) 是必填项")
 		}
+	case constant.PolicyTypeUpyun:
+		if policy.Server == "" || policy.BucketName == "" || policy.AccessKey == "" || policy.SecretKey == "" {
+			return errors.New("对于又拍云存储策略, server (REST API endpoint), bucket_name (服务名), access_key (操作员), 和 secret_key (操作员密码) 是必填项")
+		}
 	}
 
 	// 1c. 委托给策略处理器，验证 settings 内部的字段
@@ -410,6 +414,7 @@ func (s *storagePolicyService) UpdatePolicy(ctx context.Context, policy *model.S
 	if target == nil {
 		return constant.ErrPolicyNotFound
 	}
+	preserveMaskedStoragePolicySecrets(policy, target)
 
 	// --- 2. 【保护逻辑】禁止将策略挂载到根目录 ---
 	// 规范化虚拟路径
@@ -459,10 +464,15 @@ func (s *storagePolicyService) UpdatePolicy(ctx context.Context, policy *model.S
 			return fmt.Errorf("策略配置验证失败: %w", err)
 		}
 
-		// 在更新时，同样校验 OneDrive 策略的必填顶级字段
+		// 在更新时，同样校验需要顶级凭据字段的策略
 		if policy.Type == constant.PolicyTypeOneDrive {
 			if policy.Server == "" || policy.BucketName == "" || policy.SecretKey == "" {
 				return errors.New("对于OneDrive策略, server (endpoint), bucket_name (client_id), 和 secret_key (client_secret) 是必填项")
+			}
+		}
+		if policy.Type == constant.PolicyTypeUpyun {
+			if policy.Server == "" || policy.BucketName == "" || policy.AccessKey == "" || policy.SecretKey == "" {
+				return errors.New("对于又拍云存储策略, server (REST API endpoint), bucket_name (服务名), access_key (操作员), 和 secret_key (操作员密码) 是必填项")
 			}
 		}
 
@@ -579,6 +589,18 @@ func (s *storagePolicyService) UpdatePolicy(ctx context.Context, policy *model.S
 	log.Printf("[缓存清理] 策略更新后已清除策略列表缓存，更新将立即生效")
 
 	return nil
+}
+
+func preserveMaskedStoragePolicySecrets(policy *model.StoragePolicy, target *model.StoragePolicy) {
+	if policy == nil || target == nil {
+		return
+	}
+	if policy.AccessKey == "" || policy.AccessKey == constant.SecretValueMask {
+		policy.AccessKey = target.AccessKey
+	}
+	if policy.SecretKey == "" || policy.SecretKey == constant.SecretValueMask {
+		policy.SecretKey = target.SecretKey
+	}
 }
 
 // DeletePolicy 方法实现了策略的删除逻辑，只软删除策略本身，不删除关联的文件和实体记录

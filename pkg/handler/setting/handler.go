@@ -8,8 +8,10 @@
 package setting_handler
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/anzhiyu-c/anheyu-app/internal/pkg/auth"
 	"github.com/anzhiyu-c/anheyu-app/pkg/handler/setting/dto"
@@ -22,6 +24,44 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+const aiProfilesSettingKey = "ai_profiles"
+
+type aiProfilePersisted struct {
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Provider string `json:"provider"`
+	APIURL   string `json:"api_url"`
+	Model    string `json:"model"`
+	Enabled  bool   `json:"enabled"`
+	Purpose  string `json:"purpose,omitempty"`
+	APIKey   string `json:"api_key,omitempty"`
+}
+
+type aiProfileIncoming struct {
+	ID           string `json:"id"`
+	Name         string `json:"name"`
+	Provider     string `json:"provider"`
+	APIURL       string `json:"api_url"`
+	Model        string `json:"model"`
+	Enabled      bool   `json:"enabled"`
+	Purpose      string `json:"purpose,omitempty"`
+	APIKey       string `json:"api_key,omitempty"`
+	APIKeyMasked string `json:"api_key_masked,omitempty"`
+	HasAPIKey    bool   `json:"has_api_key,omitempty"`
+}
+
+type aiProfileResponse struct {
+	ID           string `json:"id"`
+	Name         string `json:"name"`
+	Provider     string `json:"provider"`
+	APIURL       string `json:"api_url"`
+	Model        string `json:"model"`
+	Enabled      bool   `json:"enabled"`
+	Purpose      string `json:"purpose,omitempty"`
+	HasAPIKey    bool   `json:"has_api_key"`
+	APIKeyMasked string `json:"api_key_masked,omitempty"`
+}
 
 // SettingHandler 封装了站点配置相关的控制器方法
 type SettingHandler struct {
@@ -155,6 +195,7 @@ func (h *SettingHandler) GetSettingsByKeys(c *gin.Context) {
 		}
 	}
 
+	maskSensitiveSettings(settings)
 	response.Success(c, settings, "获取配置成功")
 }
 
@@ -181,6 +222,8 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		response.Fail(c, http.StatusBadRequest, "没有需要更新的配置项")
 		return
 	}
+
+	h.prepareSensitiveSettingsForUpdate(settingsToUpdate)
 
 	// 在更新配置前，自动创建备份（如果备份服务可用）
 	if h.configBackupSvc != nil {
@@ -266,4 +309,156 @@ func (h *SettingHandler) checkIfNeedsPurgeCDN(settingsToUpdate map[string]string
 	}
 
 	return false
+}
+
+func maskSensitiveSettings(settings map[string]interface{}) {
+	if settings == nil {
+		return
+	}
+	raw, ok := settings[aiProfilesSettingKey]
+	if !ok {
+		return
+	}
+	value, ok := raw.(string)
+	if !ok {
+		return
+	}
+	if masked := maskAIProfilesSetting(value); masked != "" {
+		settings[aiProfilesSettingKey] = masked
+	}
+}
+
+func (h *SettingHandler) prepareSensitiveSettingsForUpdate(settings map[string]string) {
+	if settings == nil {
+		return
+	}
+	incoming, ok := settings[aiProfilesSettingKey]
+	if !ok {
+		return
+	}
+	settings[aiProfilesSettingKey] = prepareAIProfilesSettingForSave(incoming, h.settingSvc.Get(aiProfilesSettingKey))
+}
+
+func maskAIProfilesSetting(raw string) string {
+	profiles, err := decodePersistedAIProfiles(raw)
+	if err != nil {
+		return ""
+	}
+
+	responseProfiles := make([]aiProfileResponse, 0, len(profiles))
+	for _, profile := range profiles {
+		apiKey := strings.TrimSpace(profile.APIKey)
+		responseProfiles = append(responseProfiles, aiProfileResponse{
+			ID:           profile.ID,
+			Name:         profile.Name,
+			Provider:     profile.Provider,
+			APIURL:       profile.APIURL,
+			Model:        profile.Model,
+			Enabled:      profile.Enabled,
+			Purpose:      profile.Purpose,
+			HasAPIKey:    apiKey != "",
+			APIKeyMasked: maskAISecret(apiKey),
+		})
+	}
+
+	data, err := json.Marshal(responseProfiles)
+	if err != nil {
+		return ""
+	}
+	return string(data)
+}
+
+func prepareAIProfilesSettingForSave(incomingRaw, existingRaw string) string {
+	incoming, err := decodeIncomingAIProfiles(incomingRaw)
+	if err != nil {
+		return incomingRaw
+	}
+	existing, _ := decodePersistedAIProfiles(existingRaw)
+	existingKeys := make(map[string]string, len(existing))
+	for _, profile := range existing {
+		if strings.TrimSpace(profile.ID) != "" && strings.TrimSpace(profile.APIKey) != "" {
+			existingKeys[profile.ID] = profile.APIKey
+		}
+	}
+
+	prepared := make([]aiProfilePersisted, 0, len(incoming))
+	for _, profile := range incoming {
+		apiKey := strings.TrimSpace(profile.APIKey)
+		if shouldPreserveAIProfileKey(profile) {
+			if existingKey := existingKeys[profile.ID]; existingKey != "" {
+				apiKey = existingKey
+			}
+		}
+
+		prepared = append(prepared, aiProfilePersisted{
+			ID:       strings.TrimSpace(profile.ID),
+			Name:     strings.TrimSpace(profile.Name),
+			Provider: strings.TrimSpace(profile.Provider),
+			APIURL:   strings.TrimSpace(profile.APIURL),
+			Model:    strings.TrimSpace(profile.Model),
+			Enabled:  profile.Enabled,
+			Purpose:  strings.TrimSpace(profile.Purpose),
+			APIKey:   apiKey,
+		})
+	}
+
+	data, err := json.Marshal(prepared)
+	if err != nil {
+		return incomingRaw
+	}
+	return string(data)
+}
+
+func decodePersistedAIProfiles(raw string) ([]aiProfilePersisted, error) {
+	if strings.TrimSpace(raw) == "" {
+		return []aiProfilePersisted{}, nil
+	}
+	var profiles []aiProfilePersisted
+	if err := json.Unmarshal([]byte(raw), &profiles); err != nil {
+		return nil, err
+	}
+	return profiles, nil
+}
+
+func decodeIncomingAIProfiles(raw string) ([]aiProfileIncoming, error) {
+	if strings.TrimSpace(raw) == "" {
+		return []aiProfileIncoming{}, nil
+	}
+	var profiles []aiProfileIncoming
+	if err := json.Unmarshal([]byte(raw), &profiles); err != nil {
+		return nil, err
+	}
+	return profiles, nil
+}
+
+func shouldPreserveAIProfileKey(profile aiProfileIncoming) bool {
+	key := strings.TrimSpace(profile.APIKey)
+	if key == "" {
+		return true
+	}
+	if profile.APIKeyMasked != "" && key == profile.APIKeyMasked {
+		return true
+	}
+	return isMaskedAISecret(key)
+}
+
+func maskAISecret(value string) string {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return ""
+	}
+	if len(value) <= 4 {
+		return "****"
+	}
+	suffix := value[len(value)-4:]
+	return "************" + suffix
+}
+
+func isMaskedAISecret(value string) bool {
+	value = strings.TrimSpace(value)
+	if value == "" || !strings.Contains(value, "*") {
+		return false
+	}
+	visible := strings.TrimLeft(value, "*")
+	return len(visible) <= 4
 }

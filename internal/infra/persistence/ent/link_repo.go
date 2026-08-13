@@ -2,6 +2,7 @@ package ent
 
 import (
 	"context"
+	"strings"
 
 	"github.com/anzhiyu-c/anheyu-app/ent"
 	"github.com/anzhiyu-c/anheyu-app/ent/link"
@@ -37,6 +38,9 @@ func (r *linkRepo) Create(ctx context.Context, req *model.ApplyLinkRequest, cate
 	}
 	if req.Description != "" {
 		create.SetDescription(req.Description)
+	}
+	if req.RssURL != "" {
+		create.SetRssURL(req.RssURL)
 	}
 	if req.Siteshot != "" {
 		create.SetSiteshot(req.Siteshot)
@@ -141,6 +145,10 @@ func (r *linkRepo) AdminCreate(ctx context.Context, req *model.AdminCreateLinkRe
 		create.SetDescription(req.Description)
 	}
 
+	if req.RssURL != "" {
+		create.SetRssURL(req.RssURL)
+	}
+
 	if req.Email != "" {
 		create.SetEmail(req.Email)
 	}
@@ -180,6 +188,7 @@ func (r *linkRepo) Update(ctx context.Context, id int, req *model.AdminUpdateLin
 	updater := r.client.Link.UpdateOneID(id).
 		SetName(req.Name).
 		SetURL(req.URL).
+		SetRssURL(req.RssURL).
 		SetLogo(req.Logo).
 		SetSiteshot(req.Siteshot).
 		SetDescription(req.Description).
@@ -234,6 +243,16 @@ func (r *linkRepo) Update(ctx context.Context, id int, req *model.AdminUpdateLin
 
 func (r *linkRepo) Delete(ctx context.Context, id int) error {
 	return r.client.Link.DeleteOneID(id).Exec(ctx)
+}
+
+func (r *linkRepo) HasApplicationByEmail(ctx context.Context, email string) (bool, error) {
+	email = strings.TrimSpace(email)
+	if email == "" {
+		return false, nil
+	}
+	return r.client.Link.Query().
+		Where(link.EmailEqualFold(email)).
+		Exist(ctx)
 }
 
 func (r *linkRepo) ListPublic(ctx context.Context, req *model.ListPublicLinksRequest) ([]*model.LinkDTO, int, error) {
@@ -324,6 +343,7 @@ func mapEntLinkToDTO(entLink *ent.Link) *model.LinkDTO {
 		ID:              entLink.ID,
 		Name:            entLink.Name,
 		URL:             entLink.URL,
+		RssURL:          entLink.RssURL,
 		Logo:            entLink.Logo,
 		Description:     entLink.Description,
 		Status:          string(entLink.Status),

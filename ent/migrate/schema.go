@@ -71,7 +71,9 @@ var (
 		{Name: "owner_id", Type: field.TypeUint, Comment: "文章作者ID，关联到users表", Default: 1},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "title", Type: field.TypeString, Comment: "文章标题"},
+		{Name: "title", Type: field.TypeString, Comment: "文章标题", Default: ""},
+		{Name: "create_idempotency_key", Type: field.TypeString, Unique: true, Nullable: true, Size: 64, Comment: "创建文章使用的内部幂等键摘要"},
+		{Name: "create_request_digest", Type: field.TypeString, Nullable: true, Size: 64, Comment: "创建文章请求的内部摘要"},
 		{Name: "content_md", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "文章的 Markdown 原文"},
 		{Name: "content_html", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "由 content_md 解析和净化后的 HTML"},
 		{Name: "cover_url", Type: field.TypeString, Nullable: true, Comment: "封面图URL"},
@@ -121,7 +123,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "articles_doc_series_articles",
-				Columns:    []*schema.Column{ArticlesColumns[44]},
+				Columns:    []*schema.Column{ArticlesColumns[46]},
 				RefColumns: []*schema.Column{DocSeriesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -130,27 +132,27 @@ var (
 			{
 				Name:    "article_deleted_at_status_is_takedown_review_status_show_on_home",
 				Unique:  false,
-				Columns: []*schema.Column{ArticlesColumns[1], ArticlesColumns[9], ArticlesColumns[33], ArticlesColumns[29], ArticlesColumns[16]},
+				Columns: []*schema.Column{ArticlesColumns[1], ArticlesColumns[11], ArticlesColumns[35], ArticlesColumns[31], ArticlesColumns[18]},
 			},
 			{
 				Name:    "article_deleted_at_status_pin_sort_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{ArticlesColumns[1], ArticlesColumns[9], ArticlesColumns[18], ArticlesColumns[3]},
+				Columns: []*schema.Column{ArticlesColumns[1], ArticlesColumns[11], ArticlesColumns[20], ArticlesColumns[3]},
 			},
 			{
 				Name:    "article_deleted_at_status_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{ArticlesColumns[1], ArticlesColumns[9], ArticlesColumns[3]},
+				Columns: []*schema.Column{ArticlesColumns[1], ArticlesColumns[11], ArticlesColumns[3]},
 			},
 			{
 				Name:    "article_deleted_at_is_doc_doc_series_id_doc_sort",
 				Unique:  false,
-				Columns: []*schema.Column{ArticlesColumns[1], ArticlesColumns[39], ArticlesColumns[44], ArticlesColumns[40]},
+				Columns: []*schema.Column{ArticlesColumns[1], ArticlesColumns[41], ArticlesColumns[46], ArticlesColumns[42]},
 			},
 			{
 				Name:    "article_deleted_at_owner_id_status",
 				Unique:  false,
-				Columns: []*schema.Column{ArticlesColumns[1], ArticlesColumns[2], ArticlesColumns[9]},
+				Columns: []*schema.Column{ArticlesColumns[1], ArticlesColumns[2], ArticlesColumns[11]},
 			},
 		},
 	}
@@ -437,6 +439,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString, Comment: "网站名称"},
 		{Name: "url", Type: field.TypeString, Comment: "网站链接"},
+		{Name: "rss_url", Type: field.TypeString, Nullable: true, Size: 512, Comment: "自定义 RSS/Atom 订阅地址"},
 		{Name: "logo", Type: field.TypeString, Nullable: true, Comment: "网站头像/Logo"},
 		{Name: "description", Type: field.TypeString, Nullable: true, Comment: "网站介绍"},
 		{Name: "status", Type: field.TypeEnum, Comment: "友链状态", Enums: []string{"PENDING", "APPROVED", "REJECTED", "INVALID"}, Default: "PENDING"},
@@ -458,7 +461,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "links_link_categories_links",
-				Columns:    []*schema.Column{LinksColumns[13]},
+				Columns:    []*schema.Column{LinksColumns[14]},
 				RefColumns: []*schema.Column{LinkCategoriesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

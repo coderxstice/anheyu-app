@@ -55,7 +55,9 @@ var AllSettings = []Definition{
 	{Key: constant.KeyCustomSidebar, Value: "[]", Comment: "自定义侧边栏块配置 (JSON数组格式，支持0-3个块，每个块包含title和content字段)", IsPublic: true},
 	{Key: constant.KeyCustomPostTopHTML, Value: "", Comment: "自定义文章顶部HTML代码，将插入到文章内容区域顶部", IsPublic: true},
 	{Key: constant.KeyCustomPostBottomHTML, Value: "", Comment: "自定义文章底部HTML代码，将插入到文章内容区域底部", IsPublic: true},
-	{Key: constant.KeyDefaultThemeMode, Value: "light", Comment: "默认主题模式 (light/dark/auto)，light=亮色模式，dark=暗色模式，auto=早晚8点自动切换（早8点至晚8点亮色，其他时间暗色）", IsPublic: true},
+	{Key: constant.KeyDefaultThemeMode, Value: "light", Comment: "默认主题模式 (light/dark/auto)，auto 按访客设备本地时间定时切换", IsPublic: true},
+	{Key: constant.KeyThemeLightStartTime, Value: "08:00", Comment: "自动主题浅色模式开始时间 (HH:mm，访客设备本地时间)", IsPublic: true},
+	{Key: constant.KeyThemeDarkStartTime, Value: "20:00", Comment: "自动主题深色模式开始时间 (HH:mm，访客设备本地时间)", IsPublic: true},
 	{Key: constant.KeyDefaultThumbParam, Value: "", Comment: "默认缩略图处理参数", IsPublic: true},
 	{Key: constant.KeyDefaultBigParam, Value: "", Comment: "默认大图处理参数", IsPublic: true},
 	{Key: constant.KeyGravatarURL, Value: "https://cravatar.cn/", Comment: "Gravatar 服务器地址", IsPublic: true},
@@ -63,6 +65,7 @@ var AllSettings = []Definition{
 	{Key: constant.KeyUploadAllowedExtensions, Value: "", Comment: "允许上传的文件后缀名白名单，逗号分隔", IsPublic: true},
 	{Key: constant.KeyUploadDeniedExtensions, Value: "", Comment: "禁止上传的文件后缀名黑名单，在白名单未启用时生效", IsPublic: true},
 	{Key: constant.KeyEnableExternalLinkWarning, Value: "false", Comment: "是否开启外链跳转提示 (true/false)，开启后跳转外链会显示中间提示页面", IsPublic: true},
+	{Key: constant.KeyDisableRightMenu, Value: "false", Comment: "是否全站关闭本站自定义右键菜单 (true/false)，开启后前台右键使用浏览器原生菜单", IsPublic: true},
 	{Key: constant.KeyRespectReducedMotion, Value: "false", Comment: "是否尊重系统减弱动效偏好，开启后在用户开启了系统减弱动效时降低前台动画 (true/false)", IsPublic: true},
 	// --- 缩略图生成器配置 ---
 	{Key: constant.KeyEnableVipsGenerator, Value: "false", Comment: "是否启用 VIPS 缩略图生成器 (true/false)", IsPublic: true},

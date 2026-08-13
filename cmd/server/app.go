@@ -51,9 +51,9 @@ import (
 	image_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/image"
 	link_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/link"
 	music_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/music"
-	plugin_admin_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/plugin_admin"
 	notification_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/notification"
 	page_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/page"
+	plugin_admin_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/plugin_admin"
 	post_category_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_category"
 	post_tag_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_tag"
 	proxy_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/proxy"
@@ -72,6 +72,7 @@ import (
 	version_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/version"
 	wechat_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/wechat"
 	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
+	"github.com/anzhiyu-c/anheyu-app/pkg/plugin"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/album"
 	album_category_service "github.com/anzhiyu-c/anheyu-app/pkg/service/album_category"
 	article_service "github.com/anzhiyu-c/anheyu-app/pkg/service/article"
@@ -87,9 +88,9 @@ import (
 	file_service "github.com/anzhiyu-c/anheyu-app/pkg/service/file"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/file_info"
 	geetest_service "github.com/anzhiyu-c/anheyu-app/pkg/service/geetest"
-	imagecaptcha_service "github.com/anzhiyu-c/anheyu-app/pkg/service/imagecaptcha"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/image_style"
 	image_style_engine "github.com/anzhiyu-c/anheyu-app/pkg/service/image_style/engine"
+	imagecaptcha_service "github.com/anzhiyu-c/anheyu-app/pkg/service/imagecaptcha"
 	link_service "github.com/anzhiyu-c/anheyu-app/pkg/service/link"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/music"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/notification"
@@ -98,10 +99,10 @@ import (
 	post_category_service "github.com/anzhiyu-c/anheyu-app/pkg/service/post_category"
 	post_tag_service "github.com/anzhiyu-c/anheyu-app/pkg/service/post_tag"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/process"
+	rss_service "github.com/anzhiyu-c/anheyu-app/pkg/service/rss"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/search"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/sitemap"
-	rss_service "github.com/anzhiyu-c/anheyu-app/pkg/service/rss"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/statistics"
 	subscriber_service "github.com/anzhiyu-c/anheyu-app/pkg/service/subscriber"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/theme"
@@ -113,7 +114,6 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/volume/strategy"
 	wechat_service "github.com/anzhiyu-c/anheyu-app/pkg/service/wechat"
 	"github.com/anzhiyu-c/anheyu-app/pkg/ssr"
-	"github.com/anzhiyu-c/anheyu-app/pkg/plugin"
 	"github.com/anzhiyu-c/anheyu-app/pkg/util"
 
 	_ "github.com/anzhiyu-c/anheyu-app/ent/runtime"
@@ -121,35 +121,37 @@ import (
 
 // App 结构体，用于封装应用的所有核心组件
 type App struct {
-	cfg                    *config.Config
-	engine                 *gin.Engine
-	taskBroker             *task.Broker
-	sqlDB                  *sql.DB
-	appVersion             string
-	articleService         article_service.Service
-	directLinkService      direct_link.Service
-	storagePolicyRepo      repository.StoragePolicyRepository
-	storagePolicyService   volume.IStoragePolicyService
-	fileService            file_service.FileService
-	mw                     *middleware.Middleware
-	settingRepo            repository.SettingRepository
-	settingSvc             setting.SettingService
-	tokenSvc               auth.TokenService
-	userSvc                user.UserService
-	fileRepo               repository.FileRepository
-	entityRepo             repository.EntityRepository
-	cacheSvc               utility.CacheService
-	eventBus               *event.EventBus
-	postCategorySvc        *post_category_service.Service
-	postTagSvc             *post_tag_service.Service
-	commentSvc             *comment_service.Service
-	themeSvc               theme.ThemeService
-	themeHandler           *theme_handler.Handler
-	ssrManager             *ssr.Manager
-	ssrThemeHandler        *ssrtheme_handler.Handler
-	imageStyleService      image_style.ImageStyleService
-	imageStyleCache        *image_style.DiskCache
-	configExtensionHolder  *configExtensionHolder // Pro 可通过 SetConfigExtension 注入支付配置导出/导入
+	cfg                   *config.Config
+	engine                *gin.Engine
+	taskBroker            *task.Broker
+	sqlDB                 *sql.DB
+	appVersion            string
+	articleService        article_service.Service
+	directLinkService     direct_link.Service
+	storagePolicyRepo     repository.StoragePolicyRepository
+	storagePolicyService  volume.IStoragePolicyService
+	fileService           file_service.FileService
+	mw                    *middleware.Middleware
+	settingRepo           repository.SettingRepository
+	settingSvc            setting.SettingService
+	tokenSvc              auth.TokenService
+	userSvc               user.UserService
+	fileRepo              repository.FileRepository
+	pageRepo              repository.PageRepository
+	entityRepo            repository.EntityRepository
+	cacheSvc              utility.CacheService
+	eventBus              *event.EventBus
+	postCategorySvc       *post_category_service.Service
+	postTagSvc            *post_tag_service.Service
+	commentSvc            *comment_service.Service
+	searchSvc             *search.SearchService
+	themeSvc              theme.ThemeService
+	themeHandler          *theme_handler.Handler
+	ssrManager            *ssr.Manager
+	ssrThemeHandler       *ssrtheme_handler.Handler
+	imageStyleService     image_style.ImageStyleService
+	imageStyleCache       *image_style.DiskCache
+	configExtensionHolder *configExtensionHolder // Pro 可通过 SetConfigExtension 注入支付配置导出/导入
 }
 
 func (a *App) PrintBanner() {
@@ -316,6 +318,7 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	strategyManager.Register(constant.PolicyTypeAliOSS, strategy.NewAliyunOSSStrategy())
 	strategyManager.Register(constant.PolicyTypeS3, strategy.NewAWSS3Strategy())
 	strategyManager.Register(constant.PolicyTypeQiniu, strategy.NewQiniuKodoStrategy())
+	strategyManager.Register(constant.PolicyTypeUpyun, strategy.NewUpyunStrategy())
 
 	// 使用智能缓存工厂，自动选择 Redis 或内存缓存
 	cacheSvc := utility.NewCacheServiceWithFallback(redisClient)
@@ -336,6 +339,7 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	storageProviders[constant.PolicyTypeAliOSS] = storage.NewAliOSSProvider()
 	storageProviders[constant.PolicyTypeS3] = storage.NewAWSS3Provider()
 	storageProviders[constant.PolicyTypeQiniu] = storage.NewQiniuKodoProvider()
+	storageProviders[constant.PolicyTypeUpyun] = storage.NewUpyunProvider()
 	metadataSvc := file_info.NewMetadataService(metadataRepo)
 	postTagSvc := post_tag_service.NewService(postTagRepo)
 	postCategorySvc := post_category_service.NewService(postCategoryRepo, articleRepo)
@@ -394,6 +398,7 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	}
 
 	searchSvc := search.NewSearchService()
+	searchSvc.RegisterProvider(search.NewAlbumSearchProvider(albumRepo))
 	sitemapSvc := sitemap.NewService(articleRepo, pageRepo, linkRepo, settingSvc)
 
 	// 重建所有文章的搜索索引（分页获取全部文章）
@@ -467,41 +472,6 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	pushooSvc := utility.NewPushooService(settingSvc)
 	log.Printf("[DEBUG] PushooService 初始化完成")
 
-	log.Printf("[DEBUG] 正在初始化 LinkService，将注入 PushooService、EmailService 和 EventBus...")
-	linkSvc := link_service.NewService(linkRepo, linkCategoryRepo, linkTagRepo, txManager, taskBroker, settingSvc, pushooSvc, emailSvc, eventBus)
-	log.Printf("[DEBUG] LinkService 初始化完成，PushooService、EmailService 和 EventBus 已注入")
-
-	authSvc := auth.NewAuthService(userRepo, settingSvc, tokenSvc, emailSvc, txManager, articleSvc)
-	log.Printf("[DEBUG] 正在初始化 CommentService，将注入 PushooService 和 NotificationService...")
-	commentSvc := comment_service.NewService(commentRepo, userRepo, txManager, geoSvc, settingSvc, cacheSvc, taskBroker, fileSvc, parserSvc, pushooSvc, notificationSvc)
-	// 注入图片样式服务，使评论内嵌图片 URL 自动拼默认样式后缀（Plan B Phase 1 Task 1.13.2）
-	commentSvc.SetImageStyleService(imageStyleSvc)
-	log.Printf("[DEBUG] CommentService 初始化完成，PushooService 和 NotificationService 已注入")
-	themeSvc := theme.NewThemeService(entClient, userRepo)
-	_ = listener.NewFilePostProcessingListener(eventBus, taskBroker, extractionSvc)
-
-	// 初始化缓存清理服务（SSR 模式下启用）
-	revalidateSvc := cache.NewRevalidateService()
-	cacheRevalidateListener := listener.NewCacheRevalidateListener(revalidateSvc)
-	cacheRevalidateListener.RegisterHandlers(eventBus)
-
-	// 初始化音乐服务
-	log.Printf("[DEBUG] 正在初始化 MusicService...")
-	musicSvc := music.NewMusicService(settingSvc)
-	log.Printf("[DEBUG] MusicService 初始化完成")
-
-	// 初始化配置导入导出服务（备份服务依赖此服务导出/导入系统设置）
-	log.Printf("[DEBUG] 正在初始化 ConfigImportExportService...")
-	configExtensionHolder := &configExtensionHolder{Ext: opts.ConfigExtension}
-	configImportExportSvc := config_service.NewImportExportService(settingRepo, settingSvc, &configExtensionHolder.Ext)
-	log.Printf("[DEBUG] ConfigImportExportService 初始化完成")
-
-	// 初始化配置备份服务（备份的是系统设置/数据库配置，与「导出配置」一致）
-	log.Printf("[DEBUG] 正在初始化 ConfigBackupService...")
-	configBackupSvc := config_service.NewBackupService("data/backup", configImportExportSvc)
-	taskBroker.SetBackupService(configBackupSvc)
-	log.Printf("[DEBUG] ConfigBackupService 初始化完成")
-
 	// 初始化 Turnstile 人机验证服务
 	log.Printf("[DEBUG] 正在初始化 TurnstileService...")
 	turnstileSvc := turnstile_service.NewTurnstileService(settingSvc)
@@ -521,6 +491,47 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 	log.Printf("[DEBUG] 正在初始化 CaptchaService...")
 	captchaSvc := captcha_service.NewCaptchaService(settingSvc, turnstileSvc, geetestSvc, imageCaptchaSvc)
 	log.Printf("[DEBUG] CaptchaService 初始化完成")
+
+	log.Printf("[DEBUG] 正在初始化 LinkService，将注入 PushooService、EmailService、CaptchaService 和 EventBus...")
+	linkSvc := link_service.NewService(linkRepo, linkCategoryRepo, linkTagRepo, txManager, taskBroker, settingSvc, pushooSvc, emailSvc, captchaSvc, eventBus)
+	log.Printf("[DEBUG] LinkService 初始化完成，PushooService、EmailService、CaptchaService 和 EventBus 已注入")
+
+	authSvc := auth.NewAuthService(userRepo, settingSvc, tokenSvc, emailSvc, txManager, articleSvc)
+	log.Printf("[DEBUG] 正在初始化 CommentService，将注入 PushooService 和 NotificationService...")
+	commentSvc := comment_service.NewService(commentRepo, userRepo, txManager, geoSvc, settingSvc, cacheSvc, taskBroker, fileSvc, parserSvc, pushooSvc, notificationSvc)
+	// 注入图片样式服务，使评论内嵌图片 URL 自动拼默认样式后缀（Plan B Phase 1 Task 1.13.2）
+	commentSvc.SetImageStyleService(imageStyleSvc)
+	// 注入事件总线，评论创建后发布事件（供插件事件钩子等订阅）
+	commentSvc.SetEventBus(eventBus)
+	log.Printf("[DEBUG] CommentService 初始化完成，PushooService 和 NotificationService 已注入")
+	themeSvc := theme.NewThemeService(entClient, userRepo)
+	_ = listener.NewFilePostProcessingListener(eventBus, taskBroker, extractionSvc)
+
+	// 初始化缓存清理服务（SSR 模式下启用）
+	revalidateSvc := cache.NewRevalidateService()
+	cacheRevalidateListener := listener.NewCacheRevalidateListener(revalidateSvc)
+	cacheRevalidateListener.RegisterHandlers(eventBus)
+
+	// 插件事件桥接：内部事件转发给事件钩子插件（Pro 版复用；插件系统未初始化时为 no-op）
+	pluginEventListener := listener.NewPluginEventListener()
+	pluginEventListener.RegisterHandlers(eventBus)
+
+	// 初始化音乐服务
+	log.Printf("[DEBUG] 正在初始化 MusicService...")
+	musicSvc := music.NewMusicService(settingSvc)
+	log.Printf("[DEBUG] MusicService 初始化完成")
+
+	// 初始化配置导入导出服务（备份服务依赖此服务导出/导入系统设置）
+	log.Printf("[DEBUG] 正在初始化 ConfigImportExportService...")
+	configExtensionHolder := &configExtensionHolder{Ext: opts.ConfigExtension}
+	configImportExportSvc := config_service.NewImportExportService(settingRepo, settingSvc, &configExtensionHolder.Ext)
+	log.Printf("[DEBUG] ConfigImportExportService 初始化完成")
+
+	// 初始化配置备份服务（备份的是系统设置/数据库配置，与「导出配置」一致）
+	log.Printf("[DEBUG] 正在初始化 ConfigBackupService...")
+	configBackupSvc := config_service.NewBackupService("data/backup", configImportExportSvc)
+	taskBroker.SetBackupService(configBackupSvc)
+	log.Printf("[DEBUG] ConfigBackupService 初始化完成")
 
 	// --- Phase 5.5: 初始化 SSR 主题管理器 ---
 	ssrManager := ssr.NewManager("./themes")
@@ -718,15 +729,10 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 			}
 		}
 
-		// 注册插件管理 API 路由
+		// 注册插件管理 API 路由（AdminAuth 依赖 JWTAuth 先解析出用户信息，必须链式挂载）
 		pluginAdminHandler := plugin_admin_handler.NewHandler(pluginMgr)
-		adminPluginGroup := engine.Group("/api/admin/plugins", mw.AdminAuth())
-		{
-			adminPluginGroup.GET("", pluginAdminHandler.List)
-			adminPluginGroup.POST("/:id/reload", pluginAdminHandler.Reload)
-			adminPluginGroup.POST("/:id/disable", pluginAdminHandler.Disable)
-			adminPluginGroup.POST("/:id/enable", pluginAdminHandler.Enable)
-		}
+		adminPluginGroup := engine.Group("/api/admin/plugins", mw.JWTAuth(), mw.AdminAuth())
+		plugin_admin_handler.RegisterRoutes(adminPluginGroup, pluginAdminHandler)
 
 		// 设置搜索引擎切换回调（插件热加载时自动切换搜索引擎）
 		if pluginMgr != nil {
@@ -744,30 +750,32 @@ func NewAppWithOptions(content embed.FS, opts AppOptions) (*App, func(), error) 
 
 	// 将所有初始化好的组件装配到 App 实例中
 	app := &App{
-		cfg:                  cfg,
-		engine:               engine,
-		taskBroker:           taskBroker,
-		sqlDB:                sqlDB,
-		appVersion:           appVersion,
-		articleService:       articleSvc,
-		directLinkService:    directLinkSvc,
-		storagePolicyRepo:    storagePolicyRepo,
-		storagePolicyService: storagePolicySvc,
-		fileService:          fileSvc,
-		mw:                   mw,
-		settingRepo:          settingRepo,
-		settingSvc:           settingSvc,
-		tokenSvc:             tokenSvc,
-		userSvc:              userSvc,
-		fileRepo:             fileRepo,
-		entityRepo:           entityRepo,
-		cacheSvc:             cacheSvc,
-		eventBus:             eventBus,
-		postCategorySvc:      postCategorySvc,
-		postTagSvc:           postTagSvc,
-		commentSvc:           commentSvc,
-		themeSvc:             themeSvc,
-		themeHandler:         themeHandler,
+		cfg:                   cfg,
+		engine:                engine,
+		taskBroker:            taskBroker,
+		sqlDB:                 sqlDB,
+		appVersion:            appVersion,
+		articleService:        articleSvc,
+		directLinkService:     directLinkSvc,
+		storagePolicyRepo:     storagePolicyRepo,
+		storagePolicyService:  storagePolicySvc,
+		fileService:           fileSvc,
+		mw:                    mw,
+		settingRepo:           settingRepo,
+		settingSvc:            settingSvc,
+		tokenSvc:              tokenSvc,
+		userSvc:               userSvc,
+		fileRepo:              fileRepo,
+		pageRepo:              pageRepo,
+		entityRepo:            entityRepo,
+		cacheSvc:              cacheSvc,
+		eventBus:              eventBus,
+		postCategorySvc:       postCategorySvc,
+		postTagSvc:            postTagSvc,
+		commentSvc:            commentSvc,
+		searchSvc:             searchSvc,
+		themeSvc:              themeSvc,
+		themeHandler:          themeHandler,
 		ssrManager:            ssrManager,
 		ssrThemeHandler:       ssrThemeHandler,
 		imageStyleService:     imageStyleSvc,
@@ -817,6 +825,10 @@ func (a *App) Engine() *gin.Engine {
 
 func (a *App) FileRepository() repository.FileRepository {
 	return a.fileRepo
+}
+
+func (a *App) PageRepository() repository.PageRepository {
+	return a.pageRepo
 }
 
 func (a *App) EntityRepository() repository.EntityRepository {
@@ -902,6 +914,14 @@ func (a *App) CommentService() *comment_service.Service {
 // ThemeService 返回主题服务（用于 PRO 版获取主题商城列表）
 func (a *App) ThemeService() theme.ThemeService {
 	return a.themeSvc
+}
+
+// RegisterSearchProvider 允许 Pro 版注入专属公开内容搜索结果。
+func (a *App) RegisterSearchProvider(provider search.SearchProvider) {
+	if a.searchSvc == nil {
+		return
+	}
+	a.searchSvc.RegisterProvider(provider)
 }
 
 // SSRManager 返回 SSR 主题管理器（用于 PRO 版继承 SSR 功能）

@@ -11,6 +11,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
@@ -21,11 +22,26 @@ var AppSearcher model.Searcher
 
 // SearchService 搜索服务
 // 始终读取全局 AppSearcher 以支持插件热更新，不缓存本地引用
-type SearchService struct{}
+type SearchService struct {
+	providers []SearchProvider
+}
+
+// SearchProvider 提供文章索引之外的公开内容搜索结果。
+type SearchProvider interface {
+	Search(ctx context.Context, query string, limit int) ([]*model.SearchHit, int64, error)
+}
 
 // NewSearchService 创建搜索服务实例
 func NewSearchService() *SearchService {
 	return &SearchService{}
+}
+
+// RegisterProvider 注册额外搜索内容提供者。
+func (s *SearchService) RegisterProvider(provider SearchProvider) {
+	if provider == nil {
+		return
+	}
+	s.providers = append(s.providers, provider)
 }
 
 // Search 执行搜索
@@ -34,7 +50,69 @@ func (s *SearchService) Search(ctx context.Context, query string, page int, size
 	if searcher == nil {
 		return nil, fmt.Errorf("搜索引擎未初始化")
 	}
-	return searcher.Search(ctx, query, page, size)
+	result, err := searcher.Search(ctx, query, page, size)
+	if err != nil {
+		return nil, err
+	}
+	if result == nil {
+		result = &model.SearchResult{}
+	}
+	if result.Pagination == nil {
+		result.Pagination = &model.SearchPagination{Page: page, Size: size}
+	}
+
+	normalizeSearchHits(result.Hits)
+
+	if strings.TrimSpace(query) == "" || len(s.providers) == 0 {
+		return result, nil
+	}
+
+	totalExtra := int64(0)
+	for _, provider := range s.providers {
+		hits, total, err := provider.Search(ctx, query, size)
+		if err != nil {
+			return nil, fmt.Errorf("扩展搜索失败: %w", err)
+		}
+		normalizeSearchHits(hits)
+		result.Hits = append(result.Hits, hits...)
+		totalExtra += total
+	}
+
+	result.Pagination.Total += totalExtra
+	result.Pagination.TotalPages = calculateTotalPages(result.Pagination.Total, result.Pagination.Size)
+	return result, nil
+}
+
+func normalizeSearchHits(hits []*model.SearchHit) {
+	for _, hit := range hits {
+		if hit == nil || hit.Type != "" {
+			continue
+		}
+		if hit.IsDoc {
+			hit.Type = model.SearchHitTypeDoc
+			if hit.URL == "" && hit.ID != "" {
+				hit.URL = "/doc/" + hit.ID
+			}
+			continue
+		}
+		hit.Type = model.SearchHitTypePost
+		if hit.URL == "" {
+			targetID := hit.Abbrlink
+			if targetID == "" {
+				targetID = hit.ID
+			}
+			if targetID != "" {
+				hit.URL = "/posts/" + targetID
+			}
+		}
+	}
+}
+
+func calculateTotalPages(total int64, size int) int {
+	if total <= 0 || size <= 0 {
+		return 0
+	}
+	return int((total + int64(size) - 1) / int64(size))
 }
 
 // IndexArticle 索引文章

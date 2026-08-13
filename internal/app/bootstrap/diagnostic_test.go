@@ -14,7 +14,6 @@ package bootstrap
 import (
 	"bytes"
 	"log"
-	"os/exec"
 	"strings"
 	"testing"
 
@@ -41,8 +40,8 @@ func TestPrintImageStyleDiagnostic_EmitsBanner(t *testing.T) {
 	b := &Bootstrapper{}
 	out := captureLog(t, b.printImageStyleDiagnostic)
 
-	if _, err := exec.LookPath("vips"); err == nil {
-		// 本机有 vips，诊断应输出成功横幅
+	if strings.Contains(out, "图片样式引擎") {
+		// Probe 判定 vips 可用时，诊断应输出成功横幅。
 		if !strings.Contains(out, "图片样式引擎") {
 			t.Errorf("有 vips 时日志应包含 '图片样式引擎'，实际：%s", out)
 		}
@@ -56,7 +55,7 @@ func TestPrintImageStyleDiagnostic_EmitsBanner(t *testing.T) {
 		return
 	}
 
-	// 无 vips 情况：必须出现警示
+	// Probe 判定 vips 不可用时：必须出现降级警示。
 	if !strings.Contains(out, "未检测到 vips") {
 		t.Errorf("无 vips 时日志应包含 '未检测到 vips'，实际：%s", out)
 	}

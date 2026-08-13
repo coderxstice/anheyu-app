@@ -40,9 +40,18 @@ type SearchPagination struct {
 	TotalPages int   `json:"totalPages"`
 }
 
+const (
+	SearchHitTypePost  = "post"
+	SearchHitTypeDoc   = "doc"
+	SearchHitTypeAlbum = "album"
+	SearchHitTypeEssay = "essay"
+)
+
 // SearchHit 定义了搜索结果中的单个文章信息
 type SearchHit struct {
 	ID          string    `json:"id"`
+	Type        string    `json:"type,omitempty"`
+	URL         string    `json:"url,omitempty"`
 	Title       string    `json:"title"`
 	Snippet     string    `json:"snippet"`
 	Author      string    `json:"author"`

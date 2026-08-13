@@ -35,6 +35,12 @@ type AlbumQueryOptions struct {
 	Sort       string
 }
 
+// AlbumSearchOptions 定义了相册公开搜索的过滤条件。
+type AlbumSearchOptions struct {
+	Query string
+	Limit int
+}
+
 // AlbumRepository 定义了相册数据操作的契约。
 type AlbumRepository interface {
 	// 嵌入基础接口，自动获得 FindByID, Create, Update, Delete 等通用方法
@@ -45,6 +51,9 @@ type AlbumRepository interface {
 
 	// FindListByOptions 是一个更具体、更易于业务层使用的列表查询方法。
 	FindListByOptions(ctx context.Context, opts AlbumQueryOptions) (*PageResult[model.Album], error)
+
+	// SearchPublicAlbums 搜索前台可见相册。
+	SearchPublicAlbums(ctx context.Context, opts AlbumSearchOptions) (*PageResult[model.Album], error)
 
 	// IncrementViewCount 增加指定ID相册的查看次数
 	IncrementViewCount(ctx context.Context, id uint) error

@@ -34,6 +34,10 @@ func (Link) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").Comment("网站名称").NotEmpty(),
 		field.String("url").Comment("网站链接").NotEmpty(),
+		field.String("rss_url").
+			Comment("自定义 RSS/Atom 订阅地址").
+			Optional().
+			MaxLen(512),
 		field.String("logo").Comment("网站头像/Logo").Optional(),
 		field.String("description").Comment("网站介绍").Optional(),
 		field.Enum("status").

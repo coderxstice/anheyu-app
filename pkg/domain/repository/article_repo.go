@@ -23,6 +23,10 @@ type ArticleRepository interface {
 	// Create 方法接收一个包含所有必需数据的参数对象，返回创建后的文章领域模型。
 	Create(ctx context.Context, params *model.CreateArticleParams) (*model.Article, error)
 
+	// FindByCreateIdempotencyKey 根据内部创建幂等键查找文章及其请求摘要。
+	// 未找到时返回 (nil, "", nil)。
+	FindByCreateIdempotencyKey(ctx context.Context, key string) (*model.Article, string, error)
+
 	// GetByID 根据公共ID获取单个文章的完整信息（包括关联数据）。
 	GetByID(ctx context.Context, publicID string) (*model.Article, error)
 
@@ -51,6 +55,12 @@ type ArticleRepository interface {
 
 	// GetSiteStats 获取站点统计信息，如文章总数、总字数等。
 	GetSiteStats(ctx context.Context) (*model.SiteStats, error)
+
+	// GetTotalPublicViews 获取公开文章的总浏览量。
+	GetTotalPublicViews(ctx context.Context) (int, error)
+
+	// GetTopViewedPublicArticles 获取公开文章中浏览量最高的文章。
+	GetTopViewedPublicArticles(ctx context.Context, limit int) ([]*model.Article, error)
 
 	// IncrementViewCount 增加文章的查看次数。
 	IncrementViewCount(ctx context.Context, publicID string) error

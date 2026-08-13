@@ -112,10 +112,11 @@ func (s *service) GenerateSitemap(ctx context.Context) (*URLSet, error) {
 
 // addArticles 添加文章到站点地图
 func (s *service) addArticles(ctx context.Context, baseURL string, items *[]SitemapItem) error {
-	articles, _, err := s.articleRepo.List(ctx, &model.ListArticlesOptions{
-		Status:   "PUBLISHED",
+	// 使用 ListPublic 而非 List，避免加载 ContentMd/ContentHTML 等大字段，
+	// 且 ListPublic 自动过滤下架文章和待审核文章
+	articles, _, err := s.articleRepo.ListPublic(ctx, &model.ListPublicArticlesOptions{
 		Page:     1,
-		PageSize: 10000, // 获取所有已发布文章
+		PageSize: 10000,
 	})
 	if err != nil {
 		return fmt.Errorf("获取文章列表失败: %w", err)

@@ -25,6 +25,8 @@ type LinkRepository interface {
 	GetRandomPublic(ctx context.Context, num int) ([]*model.LinkDTO, error)
 	// 为导入功能添加的方法
 	ExistsByURL(ctx context.Context, url string) (bool, error)
+	// HasApplicationByEmail 判断指定邮箱是否已有友链申请记录，用于重复申请人验证码校验。
+	HasApplicationByEmail(ctx context.Context, email string) (bool, error)
 	// ExistsByURLAndCategory 用于在支持多分类时判断同一 URL 是否已存在于指定分类
 	ExistsByURLAndCategory(ctx context.Context, url string, categoryID int) (bool, error)
 	GetByURL(ctx context.Context, url string) (*model.LinkDTO, error)

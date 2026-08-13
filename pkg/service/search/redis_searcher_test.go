@@ -85,12 +85,12 @@ func TestTokenize(t *testing.T) {
 		{
 			name:     "带下划线的标识符",
 			input:    "user_name test_case",
-			expected: []string{"user_name", "test_case"},
+			expected: []string{"user_name", "user", "name", "test_case", "test", "case"},
 		},
 		{
 			name:     "带连字符的标识符",
 			input:    "go-redis redis-cli",
-			expected: []string{"go-redis", "redis-cli"},
+			expected: []string{"go-redis", "go", "redis", "redis-cli", "cli"},
 		},
 	}
 
@@ -243,14 +243,14 @@ func TestConstants(t *testing.T) {
 	})
 
 	t.Run("Key前缀常量", func(t *testing.T) {
-		if KeyPrefixArticle != "search:article:" {
-			t.Errorf("文章Key前缀应该是 'search:article:'，实际是 '%s'", KeyPrefixArticle)
+		if KeyPrefixArticle != "anheyu:search:article:" {
+			t.Errorf("文章Key前缀应该是 'anheyu:search:article:'，实际是 '%s'", KeyPrefixArticle)
 		}
-		if KeyPrefixIndex != "search:index:" {
-			t.Errorf("索引Key前缀应该是 'search:index:'，实际是 '%s'", KeyPrefixIndex)
+		if KeyPrefixIndex != "anheyu:search:index:" {
+			t.Errorf("索引Key前缀应该是 'anheyu:search:index:'，实际是 '%s'", KeyPrefixIndex)
 		}
-		if KeyPrefixWords != "search:words:" {
-			t.Errorf("词条Key前缀应该是 'search:words:'，实际是 '%s'", KeyPrefixWords)
+		if KeyPrefixWords != "anheyu:search:words:" {
+			t.Errorf("词条Key前缀应该是 'anheyu:search:words:'，实际是 '%s'", KeyPrefixWords)
 		}
 	})
 

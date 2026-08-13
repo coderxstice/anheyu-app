@@ -10,6 +10,7 @@ package router
 
 import (
 	"log"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -49,12 +50,19 @@ import (
 )
 
 // NoCacheMiddleware 全局反缓存中间件，确保所有API响应都不会被CDN缓存
+// 对于公开的只读 GET 端点（/api/public/*），允许 30 秒浏览器缓存以减少 TTFB，
+// 同时通过 must-revalidate 保证数据新鲜度。写操作和管理端点仍强制无缓存。
 func NoCacheMiddleware() gin.HandlerFunc {
 	return gin.HandlerFunc(func(c *gin.Context) {
-		// 🚫 强制禁用所有形式的缓存
-		c.Header("Cache-Control", "no-cache, no-store, must-revalidate, private, max-age=0")
-		c.Header("Pragma", "no-cache")
-		c.Header("Expires", "0")
+		// 公开只读端点允许短时缓存，大幅降低重复请求的 TTFB
+		if c.Request.Method == "GET" && strings.HasPrefix(c.Request.URL.Path, "/api/public/") {
+			c.Header("Cache-Control", "public, max-age=10, must-revalidate")
+		} else {
+			// 🚫 写操作和管理端点强制禁用所有形式的缓存
+			c.Header("Cache-Control", "no-cache, no-store, must-revalidate, private, max-age=0")
+			c.Header("Pragma", "no-cache")
+			c.Header("Expires", "0")
+		}
 		c.Header("X-Content-Type-Options", "nosniff")
 		c.Header("X-Frame-Options", "DENY")
 		c.Header("X-XSS-Protection", "1; mode=block")
@@ -225,9 +233,9 @@ func (r *Router) Setup(engine *gin.Engine) {
 	r.registerVersionRoutes(apiGroup)
 	r.registerNotificationRoutes(apiGroup)
 	r.registerConfigBackupRoutes(apiGroup)
-	r.registerSitemapRoutes(engine)     // 直接注册到engine，不使用/api前缀
-	r.registerRSSRoutes(engine)         // RSS/atom/feed 始终注册，与 SkipFrontend 无关
-	r.registerSSRThemeRoutes(apiGroup)  // 注册 SSR 主题管理路由
+	r.registerSitemapRoutes(engine)    // 直接注册到engine，不使用/api前缀
+	r.registerRSSRoutes(engine)        // RSS/atom/feed 始终注册，与 SkipFrontend 无关
+	r.registerSSRThemeRoutes(apiGroup) // 注册 SSR 主题管理路由
 	r.registerImageStyleRoutes(apiGroup)
 }
 
@@ -523,6 +531,8 @@ func (r *Router) registerStoragePolicyRoutes(api *gin.RouterGroup) {
 		policies.GET("", r.storagePolicyHandler.List)
 		policies.GET("/connect/onedrive/:id", r.storagePolicyHandler.ConnectOneDrive)
 		policies.POST("/authorize/onedrive", r.storagePolicyHandler.AuthorizeOneDrive)
+		policies.GET("/:id/image-styles", r.storagePolicyHandler.GetImageStyles)
+		policies.PUT("/:id/image-styles", r.storagePolicyHandler.PutImageStyles)
 		policies.GET("/:id", r.storagePolicyHandler.Get)
 		policies.PUT("/:id", r.storagePolicyHandler.Update)
 		policies.DELETE("/:id", r.storagePolicyHandler.Delete)
@@ -642,6 +652,7 @@ func (r *Router) registerLinkRoutes(api *gin.RouterGroup) {
 		// 友链管理
 		linksAdmin.POST("", r.linkHandler.AdminCreateLink)                         // POST /api/links
 		linksAdmin.GET("", r.linkHandler.ListLinks)                                // GET /api/links
+		linksAdmin.DELETE("/batch-delete", r.linkHandler.AdminBatchDeleteLinks)    // DELETE /api/links/batch-delete
 		linksAdmin.PUT("/:id", r.linkHandler.AdminUpdateLink)                      // PUT /api/links/:id
 		linksAdmin.DELETE("/:id", r.linkHandler.AdminDeleteLink)                   // DELETE /api/links/:id
 		linksAdmin.PUT("/:id/review", r.linkHandler.ReviewLink)                    // PUT /api/links/:id/review

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"math/rand"
 	"strings"
 	"time"
 
@@ -24,6 +23,17 @@ import (
 type articleRepo struct {
 	db     *ent.Client
 	dbType string
+}
+
+func articleStatusRequiresTitle(status string) bool {
+	return status == string(article.StatusPUBLISHED) || status == string(article.StatusSCHEDULED)
+}
+
+func mapArticlePersistenceError(err error) error {
+	if ent.IsConstraintError(err) {
+		return fmt.Errorf("%w: 文章数据约束冲突", constant.ErrConflict)
+	}
+	return err
 }
 
 // NewArticleRepo 是 articleRepo 的构造函数。
@@ -160,6 +170,18 @@ func (r *articleRepo) toModelSlice(entities []*ent.Article) ([]*model.Article, e
 	return models, nil
 }
 
+func publicArticlePredicates() []predicate.Article {
+	return []predicate.Article{
+		article.StatusEQ(article.StatusPUBLISHED),
+		article.DeletedAtIsNil(),
+		article.IsTakedownEQ(false),
+		article.Or(
+			article.ReviewStatusEQ(article.ReviewStatusAPPROVED),
+			article.ReviewStatusEQ(article.ReviewStatusNONE),
+		),
+	}
+}
+
 // CountByCategoryWithMultipleCategories 计算有多少文章既属于目标分类，又同时属于其他分类。
 // 此方法使用 JOIN 和 HAVING 子句，是处理此类聚合过滤的高效方案。
 func (r *articleRepo) CountByCategoryWithMultipleCategories(ctx context.Context, categoryID uint) (int, error) {
@@ -207,6 +229,7 @@ func (r *articleRepo) CountByCategoryWithMultipleCategories(ctx context.Context,
 }
 
 // getAdjacentArticle 是一个通用的辅助函数，用于获取上一篇或下一篇文章。
+// 仅选择展示所需的列，避免加载 ContentMd/ContentHTML 等大字段。
 func (r *articleRepo) getAdjacentArticle(ctx context.Context, currentArticleID uint, createdAt time.Time, isPrev bool) (*model.Article, error) {
 	query := r.db.Article.Query().
 		Where(
@@ -223,7 +246,16 @@ func (r *articleRepo) getAdjacentArticle(ctx context.Context, currentArticleID u
 			Order(ent.Asc(article.FieldCreatedAt), ent.Asc(article.FieldID))
 	}
 
-	entity, err := query.WithPostTags().WithPostCategories().First(ctx)
+	entity, err := query.
+		Select(
+			article.FieldID, article.FieldTitle, article.FieldAbbrlink,
+			article.FieldCoverURL, article.FieldCreatedAt, article.FieldUpdatedAt,
+			article.FieldStatus, article.FieldViewCount,
+			article.FieldOwnerID,
+		).
+		WithPostTags().
+		WithPostCategories().
+		First(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, nil // 未找到是正常情况
@@ -336,6 +368,12 @@ func (r *articleRepo) FindRelatedArticles(ctx context.Context, articleModel *mod
 			article.DeletedAtIsNil(),
 			relationPredicate,
 		).
+		Select(
+			article.FieldID, article.FieldTitle, article.FieldAbbrlink,
+			article.FieldCoverURL, article.FieldCreatedAt, article.FieldUpdatedAt,
+			article.FieldStatus, article.FieldViewCount,
+			article.FieldOwnerID,
+		).
 		WithPostTags().
 		WithPostCategories().
 		Order(ent.Desc(article.FieldCreatedAt)).
@@ -440,6 +478,48 @@ func (r *articleRepo) GetSiteStats(ctx context.Context) (*model.SiteStats, error
 	return &model.SiteStats{TotalPosts: totalPosts, TotalWords: totalWords}, nil
 }
 
+// GetTotalPublicViews 获取公开文章的总浏览量。
+func (r *articleRepo) GetTotalPublicViews(ctx context.Context) (int, error) {
+	var rows []struct {
+		Sum int `json:"sum"`
+	}
+	if err := r.db.Article.Query().
+		Where(publicArticlePredicates()...).
+		Aggregate(ent.Sum(article.FieldViewCount)).
+		Scan(ctx, &rows); err != nil {
+		return 0, err
+	}
+	if len(rows) == 0 {
+		return 0, nil
+	}
+	return rows[0].Sum, nil
+}
+
+// GetTopViewedPublicArticles 获取公开文章中浏览量最高的文章。
+func (r *articleRepo) GetTopViewedPublicArticles(ctx context.Context, limit int) ([]*model.Article, error) {
+	if limit <= 0 {
+		return []*model.Article{}, nil
+	}
+	entities, err := r.db.Article.Query().
+		Where(publicArticlePredicates()...).
+		Order(ent.Desc(article.FieldViewCount), ent.Desc(article.FieldCreatedAt), ent.Desc(article.FieldID)).
+		Limit(limit).
+		Select(
+			article.FieldID,
+			article.FieldCreatedAt,
+			article.FieldUpdatedAt,
+			article.FieldTitle,
+			article.FieldCoverURL,
+			article.FieldStatus,
+			article.FieldViewCount,
+		).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return r.toModelSlice(entities)
+}
+
 // UpdateViewCounts 批量更新文章的浏览量
 func (r *articleRepo) UpdateViewCounts(ctx context.Context, updates map[uint]int) error {
 	if len(updates) == 0 {
@@ -481,6 +561,13 @@ func (r *articleRepo) IncrementViewCount(ctx context.Context, publicID string) e
 
 // Create 创建新文章
 func (r *articleRepo) Create(ctx context.Context, params *model.CreateArticleParams) (*model.Article, error) {
+	if articleStatusRequiresTitle(params.Status) && strings.TrimSpace(params.Title) == "" {
+		return nil, fmt.Errorf("%w: 公开或定时文章必须填写标题", constant.ErrConflict)
+	}
+	if (params.CreateIdempotencyKey == "") != (params.CreateRequestDigest == "") {
+		return nil, fmt.Errorf("%w: 创建幂等键与请求摘要必须同时提供", constant.ErrBadRequest)
+	}
+
 	topImgURL := params.TopImgURL
 	if topImgURL == "" {
 		topImgURL = params.CoverURL
@@ -516,6 +603,12 @@ func (r *articleRepo) Create(ctx context.Context, params *model.CreateArticlePar
 		SetCopyrightAuthorHref(params.CopyrightAuthorHref).
 		SetCopyrightURL(params.CopyrightURL).
 		SetKeywords(params.Keywords)
+
+	if params.CreateIdempotencyKey != "" {
+		creator.
+			SetCreateIdempotencyKey(params.CreateIdempotencyKey).
+			SetCreateRequestDigest(params.CreateRequestDigest)
+	}
 
 	if params.Abbrlink != "" {
 		creator.SetAbbrlink(params.Abbrlink)
@@ -571,11 +664,45 @@ func (r *articleRepo) Create(ctx context.Context, params *model.CreateArticlePar
 	newEntity, err := creator.Save(ctx)
 	if err != nil {
 		log.Printf("[Repository.Create] 保存失败: %v", err)
-		return nil, err
+		return nil, mapArticlePersistenceError(err)
 	}
 
 	publicID, _ := idgen.GeneratePublicID(newEntity.ID, idgen.EntityTypeArticle)
 	return r.GetByID(ctx, publicID)
+}
+
+// FindByCreateIdempotencyKey 根据内部幂等键查找已创建文章及其请求摘要。
+func (r *articleRepo) FindByCreateIdempotencyKey(ctx context.Context, key string) (*model.Article, string, error) {
+	if key == "" {
+		return nil, "", nil
+	}
+
+	entity, err := r.db.Article.Query().
+		Where(
+			article.CreateIdempotencyKeyEQ(key),
+		).
+		WithPostTags().
+		WithPostCategories().
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, "", nil
+		}
+		return nil, "", fmt.Errorf("查询文章创建幂等键失败: %w", err)
+	}
+	if entity.DeletedAt != nil {
+		return nil, "", fmt.Errorf("%w: 幂等创建结果已删除", constant.ErrConflict)
+	}
+
+	digest := ""
+	if entity.CreateRequestDigest != nil {
+		digest = *entity.CreateRequestDigest
+	}
+	articleModel, err := r.toModel(entity)
+	if err != nil {
+		return nil, "", err
+	}
+	return articleModel, digest, nil
 }
 
 // Update 更新文章
@@ -584,7 +711,47 @@ func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.Up
 	if err != nil {
 		return nil, err
 	}
-	updater := r.db.Article.UpdateOneID(dbID)
+	updater := r.db.Article.UpdateOneID(dbID).
+		Where(article.DeletedAtIsNil())
+	invariantGuarded := false
+	if req.Title != nil && req.Status != nil &&
+		articleStatusRequiresTitle(*req.Status) && strings.TrimSpace(*req.Title) == "" {
+		return nil, fmt.Errorf("%w: 公开或定时文章必须填写标题", constant.ErrConflict)
+	}
+	if req.Status != nil && articleStatusRequiresTitle(*req.Status) && req.Title == nil {
+		current, currentErr := r.db.Article.Query().
+			Where(article.ID(dbID), article.DeletedAtIsNil()).
+			Select(article.FieldTitle).
+			Only(ctx)
+		if currentErr != nil {
+			if ent.IsNotFound(currentErr) {
+				return nil, fmt.Errorf("%w: 文章不存在", constant.ErrNotFound)
+			}
+			return nil, fmt.Errorf("读取文章标题失败: %w", currentErr)
+		}
+		if strings.TrimSpace(current.Title) == "" {
+			return nil, fmt.Errorf("%w: 公开或定时文章必须填写标题", constant.ErrConflict)
+		}
+		updater.Where(article.TitleEQ(current.Title))
+		invariantGuarded = true
+	}
+	if req.Title != nil && strings.TrimSpace(*req.Title) == "" && req.Status == nil {
+		current, currentErr := r.db.Article.Query().
+			Where(article.ID(dbID), article.DeletedAtIsNil()).
+			Select(article.FieldStatus).
+			Only(ctx)
+		if currentErr != nil {
+			if ent.IsNotFound(currentErr) {
+				return nil, fmt.Errorf("%w: 文章不存在", constant.ErrNotFound)
+			}
+			return nil, fmt.Errorf("读取文章状态失败: %w", currentErr)
+		}
+		if articleStatusRequiresTitle(string(current.Status)) {
+			return nil, fmt.Errorf("%w: 公开或定时文章不能清空标题", constant.ErrConflict)
+		}
+		updater.Where(article.StatusEQ(current.Status))
+		invariantGuarded = true
+	}
 	if req.Title != nil {
 		updater.SetTitle(*req.Title)
 	}
@@ -750,7 +917,22 @@ func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.Up
 	_, err = updater.Save(ctx)
 	if err != nil {
 		log.Printf("[Repository.Update] 保存失败: %v", err)
-		return nil, err
+		if invariantGuarded && ent.IsNotFound(err) {
+			exists, existsErr := r.db.Article.Query().
+				Where(article.ID(dbID), article.DeletedAtIsNil()).
+				Exist(ctx)
+			if existsErr != nil {
+				return nil, fmt.Errorf("确认文章状态失败: %w", existsErr)
+			}
+			if exists {
+				return nil, fmt.Errorf("%w: 标题与状态更新发生冲突", constant.ErrConflict)
+			}
+			return nil, fmt.Errorf("%w: 文章不存在", constant.ErrNotFound)
+		}
+		if ent.IsNotFound(err) {
+			return nil, fmt.Errorf("%w: 文章不存在", constant.ErrNotFound)
+		}
+		return nil, mapArticlePersistenceError(err)
 	}
 
 	return r.GetByID(ctx, publicID)
@@ -759,16 +941,7 @@ func (r *articleRepo) Update(ctx context.Context, publicID string, req *model.Up
 // ListPublic 获取公开的文章列表
 func (r *articleRepo) ListPublic(ctx context.Context, options *model.ListPublicArticlesOptions) ([]*model.Article, int, error) {
 	// 基础查询条件：已发布、未删除、未下架、且审核通过（或无需审核）
-	baseQuery := r.db.Article.Query().Where(
-		article.StatusEQ(article.StatusPUBLISHED),
-		article.DeletedAtIsNil(),
-		article.IsTakedownEQ(false), // 过滤下架文章
-		// 只显示审核通过或无需审核的文章
-		article.Or(
-			article.ReviewStatusEQ(article.ReviewStatusAPPROVED),
-			article.ReviewStatusEQ(article.ReviewStatusNONE),
-		),
-	)
+	baseQuery := r.db.Article.Query().Where(publicArticlePredicates()...)
 
 	// 只在普通列表（没有指定分类、标签、年份、月份）时应用 show_on_home 过滤
 	// 分类页、标签页、归档页应该显示所有文章
@@ -967,39 +1140,42 @@ func (r *articleRepo) GetByID(ctx context.Context, publicID string) (*model.Arti
 		WithPostCategories().
 		Only(ctx)
 	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, fmt.Errorf("%w: 文章不存在", constant.ErrNotFound)
+		}
 		return nil, err
 	}
 	return r.toModel(entity)
 }
 
-// GetRandom 获取一篇随机文章
+// GetRandom 获取一篇随机文章（使用数据库级随机排序，避免获取全部 ID）
 func (r *articleRepo) GetRandom(ctx context.Context) (*model.Article, error) {
-	ids, err := r.db.Article.Query().
+	// 根据数据库类型选择随机函数
+	randFunc := "RAND()"
+	if r.dbType == "postgres" || r.dbType == "postgresql" || r.dbType == "pg" {
+		randFunc = "RANDOM()"
+	}
+
+	entity, err := r.db.Article.Query().
 		Where(
 			article.StatusEQ(article.StatusPUBLISHED),
 			article.DeletedAtIsNil(),
-			article.IsTakedownEQ(false), // 过滤下架文章
+			article.IsTakedownEQ(false),
 		).
-		IDs(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if len(ids) == 0 {
-		return nil, constant.ErrNotFound
-	}
-	source := rand.NewSource(time.Now().UnixNano())
-	random := rand.New(source)
-	randomID := ids[random.Intn(len(ids))]
-
-	fullArticle, err := r.db.Article.Query().
-		Where(article.ID(randomID)).
+		Order(func(s *sql.Selector) {
+			s.OrderBy(randFunc)
+		}).
+		Limit(1).
 		WithPostTags().
 		WithPostCategories().
-		Only(ctx)
+		First(ctx)
 	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, constant.ErrNotFound
+		}
 		return nil, err
 	}
-	return r.toModel(fullArticle)
+	return r.toModel(entity)
 }
 
 // Delete 软删除文章
@@ -1036,11 +1212,35 @@ func (r *articleRepo) PublishScheduledArticle(ctx context.Context, articleID uin
 	// 先获取文章的 scheduled_at 时间
 	articleEntity, err := r.db.Article.Get(ctx, articleID)
 	if err != nil {
+		if ent.IsNotFound(err) {
+			return fmt.Errorf("%w: 文章不存在", constant.ErrNotFound)
+		}
 		return fmt.Errorf("获取文章 %d 失败: %w", articleID, err)
+	}
+	if strings.TrimSpace(articleEntity.Title) == "" {
+		return fmt.Errorf("%w: 无标题文章不能定时发布", constant.ErrConflict)
+	}
+	if articleEntity.DeletedAt != nil {
+		return fmt.Errorf("%w: 文章不存在", constant.ErrNotFound)
+	}
+	if articleEntity.Status != article.StatusSCHEDULED {
+		return fmt.Errorf("%w: 文章不再是定时发布状态", constant.ErrConflict)
+	}
+	if articleEntity.ScheduledAt == nil {
+		return fmt.Errorf("%w: 定时文章缺少发布时间", constant.ErrConflict)
+	}
+	if articleEntity.ScheduledAt.After(time.Now()) {
+		return fmt.Errorf("%w: 定时发布时间尚未到达", constant.ErrConflict)
 	}
 
 	// 更新文章状态为已发布
 	updater := r.db.Article.UpdateOneID(articleID).
+		Where(
+			article.StatusEQ(article.StatusSCHEDULED),
+			article.DeletedAtIsNil(),
+			article.TitleEQ(articleEntity.Title),
+			article.ScheduledAtEQ(*articleEntity.ScheduledAt),
+		).
 		SetStatus(article.StatusPUBLISHED).
 		ClearScheduledAt() // 清除定时发布时间
 
@@ -1052,6 +1252,21 @@ func (r *articleRepo) PublishScheduledArticle(ctx context.Context, articleID uin
 
 	_, err = updater.Save(ctx)
 	if err != nil {
+		if ent.IsNotFound(err) {
+			exists, existsErr := r.db.Article.Query().
+				Where(article.ID(articleID), article.DeletedAtIsNil()).
+				Exist(ctx)
+			if existsErr != nil {
+				return fmt.Errorf("确认定时文章状态失败: %w", existsErr)
+			}
+			if exists {
+				return fmt.Errorf("%w: 定时文章状态或标题已变化", constant.ErrConflict)
+			}
+			return fmt.Errorf("%w: 文章不存在", constant.ErrNotFound)
+		}
+		if ent.IsConstraintError(err) {
+			return fmt.Errorf("%w: 定时文章数据约束冲突", constant.ErrConflict)
+		}
 		return fmt.Errorf("发布定时文章 %d 失败: %w", articleID, err)
 	}
 
